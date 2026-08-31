@@ -3,6 +3,7 @@ import Navbar from './components/Navbar'
 import BookListPage from './pages/BookListPage'
 import BookCreatePage from './pages/BookCreatePage'
 import BookSearchPage from './pages/BookSearchPage'
+import BookEditPage from './pages/BookEditPage'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
           <Route path="/" element={<BookListPage />} />
           <Route path="/nuevo" element={<BookCreatePage />} />
           <Route path="/buscar" element={<BookSearchPage />} />
+          <Route path="/editar/:id" element={<BookEditPage />} />
         </Routes>
       </main>
     </BrowserRouter>
