@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
+import BookEditPage from './pages/BookEditPage'
 
 export default function App() {
   return (
@@ -9,6 +10,7 @@ export default function App() {
       <main className="max-w-[1440px] mx-auto px-5 md:px-20 py-10">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/editar/:id" element={<BookEditPage />} />
         </Routes>
       </main>
     </BrowserRouter>
