@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { listBooks } from '../api/booksApi'
+import { listBooks, deleteBook } from '../api/booksApi'
 import { BOOK_STATES } from '../constants/books'
 import BookCard from '../components/BookCard'
 import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
+import ConfirmDialog from '../components/ConfirmDialog'
 
 const PAGE_SIZE = 12
 
@@ -16,6 +17,8 @@ export default function BookListPage() {
   const [totalElements, setTotalElements] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [deleting, setDeleting] = useState(null)
+  const [deleteBusy, setDeleteBusy] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -39,6 +42,20 @@ export default function BookListPage() {
   function changeStatus(newStatus) {
     setStatus(newStatus)
     setPage(0)
+  }
+
+  async function confirmDelete() {
+    if (!deleting) return
+    setDeleteBusy(true)
+    try {
+      await deleteBook(deleting.id)
+      setBooks((prev) => prev.filter((b) => b.id !== deleting.id))
+      setDeleting(null)
+    } catch (err) {
+      window.alert(err.message || 'No se pudo eliminar el libro.')
+    } finally {
+      setDeleteBusy(false)
+    }
   }
 
   return (
@@ -98,7 +115,7 @@ export default function BookListPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {books.map((book) => (
-            <BookCard key={book.id} book={book} />
+            <BookCard key={book.id} book={book} onDelete={setDeleting} />
           ))}
         </div>
       )}
@@ -124,6 +141,15 @@ export default function BookListPage() {
           </button>
         </nav>
       )}
+
+      <ConfirmDialog
+        open={Boolean(deleting)}
+        title="Eliminar libro"
+        message={`¿Seguro que quieres eliminar "${deleting?.title}"? Esta acción no se puede deshacer.`}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleting(null)}
+        busy={deleteBusy}
+      />
     </section>
   )
 }

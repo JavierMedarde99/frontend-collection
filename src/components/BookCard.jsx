@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import StatusBadge from './StatusBadge'
 import StarRating from './StarRating'
 
-export default function BookCard({ book }) {
+export default function BookCard({ book, onDelete }) {
   return (
     <article className="card flex flex-col gap-5">
       <div className="flex gap-5">
@@ -35,9 +35,19 @@ export default function BookCard({ book }) {
 
       <div className="mt-auto flex items-center justify-between pt-4">
         <StarRating value={book.start} readOnly />
-        <Link className="btn-ghost !h-9 !px-4" to={`/editar/${book.id}`}>
-          Editar
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link className="btn-ghost !h-9 !px-4" to={`/editar/${book.id}`}>
+            Editar
+          </Link>
+          {onDelete && (
+            <button
+              className="btn-ghost !h-9 !px-4 !text-red-600 hover:!bg-red-50"
+              onClick={() => onDelete(book)}
+            >
+              Eliminar
+            </button>
+          )}
+        </div>
       </div>
     </article>
   )
