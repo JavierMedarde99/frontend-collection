@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
-import HomePage from './pages/HomePage'
+import BookListPage from './pages/BookListPage'
+import BookCreatePage from './pages/BookCreatePage'
 import BookSearchPage from './pages/BookSearchPage'
 
 export default function App() {
@@ -9,7 +10,8 @@ export default function App() {
       <Navbar />
       <main className="max-w-[1440px] mx-auto px-5 md:px-20 py-10">
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<BookListPage />} />
+          <Route path="/nuevo" element={<BookCreatePage />} />
           <Route path="/buscar" element={<BookSearchPage />} />
         </Routes>
       </main>
