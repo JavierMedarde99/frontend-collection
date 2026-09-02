@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { searchBooks, createBook } from '../api/booksApi'
+import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
 import Spinner from './Spinner'
 import EmptyState from './EmptyState'
 
@@ -23,6 +24,10 @@ export default function BookSearch() {
   const [error, setError] = useState(null)
   const [searching, setSearching] = useState(null)
 
+  const [selected, setSelected] = useState(null)
+  const [modalType, setModalType] = useState('NOVEL')
+  const [modalState, setModalState] = useState('TO_READ')
+
   async function handleSearch(e) {
     e.preventDefault()
     const q = query.trim()
@@ -40,10 +45,22 @@ export default function BookSearch() {
     }
   }
 
-  async function handleAdd(result) {
-    setSearching(result.id)
+  function handleAddClick(result) {
+    setSelected(result)
+    setModalType('NOVEL')
+    setModalState('TO_READ')
+  }
+
+  async function handleConfirm() {
+    if (!selected) return
+    setSearching(selected.id)
     try {
-      const created = await createBook(mapResultToBook(result))
+      const created = await createBook({
+        ...mapResultToBook(selected),
+        type: modalType,
+        state: modalState,
+      })
+      setSelected(null)
       navigate(`/editar/${created.id}`)
     } catch (err) {
       window.alert(err.message || 'No se pudo añadir el libro.')
@@ -110,7 +127,7 @@ export default function BookSearch() {
                 )}
                 <button
                   className="btn-primary !h-10 !px-4 mt-4"
-                  onClick={() => handleAdd(result)}
+                  onClick={() => handleAddClick(result)}
                   disabled={searching === result.id}
                 >
                   {searching === result.id ? 'Añadiendo…' : 'Añadir a mi colección'}
@@ -118,6 +135,58 @@ export default function BookSearch() {
               </div>
             </article>
           ))}
+        </div>
+      )}
+
+      {selected && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/30 backdrop-blur-sm">
+          <div role="dialog" aria-modal="true" className="card w-full max-w-md">
+            <h3 className="text-headline-md mb-1">{selected.title}</h3>
+            <p className="text-body-md text-on-surface-variant mb-5">
+              {(selected.authors && selected.authors.join(', ')) || 'Autor desconocido'}
+            </p>
+
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="label">
+                  Tipo <span className="text-digital-blue">*</span>
+                </label>
+                <select className="input" value={modalType} onChange={(e) => setModalType(e.target.value)}>
+                  {Object.entries(BOOK_TYPES).map(([key, label]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="label">
+                  Estado <span className="text-digital-blue">*</span>
+                </label>
+                <select className="input" value={modalState} onChange={(e) => setModalState(e.target.value)}>
+                  {Object.entries(BOOK_STATES).map(([key, label]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                className="btn-ghost"
+                onClick={() => setSelected(null)}
+                disabled={searching === selected.id}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn-primary"
+                onClick={handleConfirm}
+                disabled={searching === selected.id}
+              >
+                {searching === selected.id ? 'Añadiendo…' : 'Añadir'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
