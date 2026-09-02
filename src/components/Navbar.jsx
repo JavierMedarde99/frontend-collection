@@ -2,7 +2,6 @@ import { NavLink } from 'react-router-dom'
 
 const links = [
   { to: '/', label: 'Mi colección' },
-  { to: '/buscar', label: 'Buscar libros' },
   { to: '/nuevo', label: 'Añadir libro' },
 ]
 
