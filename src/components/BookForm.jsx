@@ -13,7 +13,7 @@ function Field({ label, children, required }) {
   )
 }
 
-export default function BookForm({ initial = {}, submitLabel, onSubmit, error }) {
+export default function BookForm({ initial = {}, submitLabel, onSubmit, error, isCreate = false }) {
   const [form, setForm] = useState({
     title: '',
     author: '',
@@ -31,6 +31,11 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error })
   })
   const [submitting, setSubmitting] = useState(false)
   const [localError, setLocalError] = useState(null)
+
+  const showStartDate = form.state !== 'TO_READ'
+  const showEndDate = form.state === 'COMPLETED'
+  const showRating = form.state === 'COMPLETED'
+  const showComment = form.state === 'COMPLETED'
 
   const set = (key) => (e) => {
     const value = e.target.value
@@ -57,12 +62,11 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error })
       state: form.state,
       descripcion: form.descripcion?.trim() || undefined,
       pages: form.pages === '' ? undefined : form.pages,
-      comment: form.comment?.trim() || undefined,
-      start: form.start || undefined,
-      startDate: form.startDate || undefined,
-      endDate: form.endDate || undefined,
-      frontpage: form.frontpage?.trim() || undefined,
-      externalId: form.externalId?.trim() || undefined,
+      ...(showComment ? { comment: form.comment?.trim() || undefined } : {}),
+      ...(showRating ? { start: form.start || undefined } : {}),
+      ...(showStartDate ? { startDate: form.startDate || undefined } : {}),
+      ...(showEndDate ? { endDate: form.endDate || undefined } : {}),
+      ...(isCreate ? {} : { frontpage: form.frontpage?.trim() || undefined, externalId: form.externalId?.trim() || undefined }),
     }
 
     setSubmitting(true)
@@ -114,35 +118,45 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error })
             placeholder="120"
           />
         </Field>
-        <Field label="URL de portada">
-          <input
-            className="input"
-            value={form.frontpage}
-            onChange={set('frontpage')}
-            placeholder="https://…"
-          />
-        </Field>
+        {!isCreate && (
+          <Field label="URL de portada">
+            <input
+              className="input"
+              value={form.frontpage}
+              onChange={set('frontpage')}
+              placeholder="https://…"
+            />
+          </Field>
+        )}
 
-        <Field label="Fecha de inicio">
-          <input className="input" type="date" value={form.startDate} onChange={set('startDate')} />
-        </Field>
-        <Field label="Fecha de fin">
-          <input className="input" type="date" value={form.endDate} onChange={set('endDate')} />
-        </Field>
+        {showStartDate && (
+          <Field label="Fecha de inicio">
+            <input className="input" type="date" value={form.startDate} onChange={set('startDate')} />
+          </Field>
+        )}
+        {showEndDate && (
+          <Field label="Fecha de fin">
+            <input className="input" type="date" value={form.endDate} onChange={set('endDate')} />
+          </Field>
+        )}
 
-        <Field label="Valoración">
-          <div className="pt-2">
-            <StarRating value={form.start} onChange={(n) => setForm((f) => ({ ...f, start: n }))} />
-          </div>
-        </Field>
-        <Field label="ID externo (Google Books)">
-          <input
-            className="input"
-            value={form.externalId}
-            onChange={set('externalId')}
-            placeholder="Opcional"
-          />
-        </Field>
+        {showRating && (
+          <Field label="Valoración">
+            <div className="pt-2">
+              <StarRating value={form.start} onChange={(n) => setForm((f) => ({ ...f, start: n }))} />
+            </div>
+          </Field>
+        )}
+        {!isCreate && (
+          <Field label="ID externo (Google Books)">
+            <input
+              className="input"
+              value={form.externalId}
+              onChange={set('externalId')}
+              placeholder="Opcional"
+            />
+          </Field>
+        )}
       </div>
 
       <Field label="Sinopsis">
@@ -154,14 +168,16 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error })
         />
       </Field>
 
-      <Field label="Comentario">
-        <textarea
-          className="input !h-auto !min-h-[100px] !py-3"
-          value={form.comment}
-          onChange={set('comment')}
-          placeholder="Notas personales…"
-        />
-      </Field>
+      {showComment && (
+        <Field label="Comentario">
+          <textarea
+            className="input !h-auto !min-h-[100px] !py-3"
+            value={form.comment}
+            onChange={set('comment')}
+            placeholder="Notas personales…"
+          />
+        </Field>
+      )}
 
       {(error || localError) && (
         <p className="text-sm text-red-600" role="alert">

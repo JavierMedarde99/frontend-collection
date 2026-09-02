@@ -20,7 +20,7 @@ export default function BookCreatePage() {
         </p>
       </div>
 
-      <BookForm submitLabel="Guardar libro" onSubmit={handleSubmit} />
+      <BookForm isCreate submitLabel="Guardar libro" onSubmit={handleSubmit} />
     </section>
   )
 }
