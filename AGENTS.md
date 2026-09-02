@@ -23,7 +23,7 @@ Book model (not the wiki model): `id, externalId, title, author` (**single strin
 - `DELETE` and 204 responses return nothing; the `request()` helper in `booksApi.js` handles this.
 
 ## Structure
-- `src/pages/` — one page per route, wired in `src/App.jsx`: `/` List, `/nuevo` Create, `/buscar` Search, `/editar/:id` Edit.
+- `src/pages/` — wired in `src/App.jsx`: `/` List, `/nuevo` Create/Añadir, `/editar/:id` Edit. There is no `/buscar` route: the `/nuevo` page offers a toggle between search (Google Books) and manual add. The search UI lives in `src/components/BookSearch.jsx`.
 - `src/components/` — shared UI. Reusable Tailwind classes (`.btn-primary`, `.btn-ghost`, `.input`, `.label`, `.card`) are defined in `src/index.css`.
 - `src/constants/books.js` — the single source for `BOOK_TYPES`/`BOOK_STATES` labels and badge colors.
 - `src/pages/HomePage.jsx` is **orphaned** (not routed); don't assume it's used.

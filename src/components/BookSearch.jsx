@@ -1,12 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { searchBooks, createBook } from '../api/booksApi'
-import Spinner from '../components/Spinner'
-import EmptyState from '../components/EmptyState'
+import Spinner from './Spinner'
+import EmptyState from './EmptyState'
 
 function mapResultToBook(result) {
-  const isbn = result.isbn ? `ISBN: ${result.isbn}` : ''
-  const publisher = result.publisher ? ` · ${result.publisher}` : ''
   return {
     title: result.title || 'Sin título',
     author: (result.authors && result.authors[0]) || 'Autor desconocido',
@@ -17,7 +15,7 @@ function mapResultToBook(result) {
   }
 }
 
-export default function BookSearchPage() {
+export default function BookSearch() {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState(null)
@@ -55,14 +53,7 @@ export default function BookSearchPage() {
   }
 
   return (
-    <section className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-headline-lg mb-1">Buscar libros</h1>
-        <p className="text-body-md text-on-surface-variant">
-          Busca en Google Books y añade resultados directamente a tu colección.
-        </p>
-      </div>
-
+    <div className="flex flex-col gap-6">
       <form onSubmit={handleSearch} className="flex gap-3">
         <input
           className="input flex-1"
@@ -129,6 +120,6 @@ export default function BookSearchPage() {
           ))}
         </div>
       )}
-    </section>
+    </div>
   )
 }
