@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { searchBooks, createBook } from '../api/booksApi'
 import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
 import Spinner from './Spinner'
+import StarRating from './StarRating'
 import EmptyState from './EmptyState'
 
 function mapResultToBook(result) {
@@ -27,6 +28,15 @@ export default function BookSearch() {
   const [selected, setSelected] = useState(null)
   const [modalType, setModalType] = useState('NOVEL')
   const [modalState, setModalState] = useState('TO_READ')
+  const [modalStartDate, setModalStartDate] = useState('')
+  const [modalEndDate, setModalEndDate] = useState('')
+  const [modalStart, setModalStart] = useState(0)
+  const [modalComment, setModalComment] = useState('')
+
+  const showStartDate = modalState !== 'TO_READ'
+  const showEndDate = modalState === 'COMPLETED'
+  const showRating = modalState === 'COMPLETED'
+  const showComment = modalState === 'COMPLETED'
 
   async function handleSearch(e) {
     e.preventDefault()
@@ -59,6 +69,10 @@ export default function BookSearch() {
         ...mapResultToBook(selected),
         type: modalType,
         state: modalState,
+        ...(showStartDate ? { startDate: modalStartDate || undefined } : {}),
+        ...(showEndDate ? { endDate: modalEndDate || undefined } : {}),
+        ...(showRating ? { start: modalStart || undefined } : {}),
+        ...(showComment ? { comment: modalComment || undefined } : {}),
       })
       setSelected(null)
       navigate(`/editar/${created.id}`)
@@ -168,6 +182,38 @@ export default function BookSearch() {
                   ))}
                 </select>
               </div>
+
+              {showStartDate && (
+                <div>
+                  <label className="label">Fecha de inicio</label>
+                  <input className="input" type="date" value={modalStartDate} onChange={(e) => setModalStartDate(e.target.value)} />
+                </div>
+              )}
+              {showEndDate && (
+                <div>
+                  <label className="label">Fecha de fin</label>
+                  <input className="input" type="date" value={modalEndDate} onChange={(e) => setModalEndDate(e.target.value)} />
+                </div>
+              )}
+              {showRating && (
+                <div>
+                  <label className="label">Valoración</label>
+                  <div className="pt-2">
+                    <StarRating value={modalStart} onChange={setModalStart} />
+                  </div>
+                </div>
+              )}
+              {showComment && (
+                <div>
+                  <label className="label">Comentario</label>
+                  <textarea
+                    className="input !h-auto !min-h-[80px] !py-3"
+                    value={modalComment}
+                    onChange={(e) => setModalComment(e.target.value)}
+                    placeholder="Notas personales…"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end gap-3 mt-6">
