@@ -7,11 +7,9 @@ const links = [
 
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-10 bg-white shadow-ambient">
+    <header className="sticky top-0 z-10 bg-white border-b border-silver">
       <nav className="max-w-content mx-auto px-5 md:px-20 h-16 flex items-center gap-8">
-        <span className="text-h3-card font-semibold tracking-wide text-ink-black">
-          Collection
-        </span>
+        <span className="font-display text-heading-sm text-ink">Collection</span>
         <div className="flex items-center gap-6">
           {links.map((link) => (
             <NavLink
@@ -19,8 +17,8 @@ export default function Navbar() {
               to={link.to}
               end={link.to === '/'}
               className={({ isActive }) =>
-                `text-eyebrow uppercase tracking-wide transition-colors ${
-                  isActive ? 'text-signal-orange' : 'text-slate-gray hover:text-ink-black'
+                `text-body-sm transition-colors ${
+                  isActive ? 'text-ink font-semibold' : 'text-graphite hover:text-ink'
                 }`
               }
             >

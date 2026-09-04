@@ -118,29 +118,29 @@ export default function BookSearch() {
                 <img
                   src={result.coverImage}
                   alt={result.title}
-                  className="w-20 h-28 object-cover rounded shrink-0 bg-lifted-cream"
+                  className="w-20 h-28 object-cover rounded shrink-0 bg-paper"
                 />
               ) : (
-                <div className="w-20 h-28 rounded shrink-0 bg-lifted-cream flex items-center justify-center text-eyebrow text-slate-gray">
+                <div className="w-20 h-28 rounded shrink-0 bg-paper flex items-center justify-center text-caption text-slate">
                   Sin portada
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <h3 className="text-h3-card leading-snug mb-1">{result.title || 'Sin título'}</h3>
-                <p className="text-body text-slate-gray">
+                <h3 className="font-display text-heading leading-snug mb-1">{result.title || 'Sin título'}</h3>
+                <p className="text-body text-graphite">
                   {(result.authors && result.authors.join(', ')) || 'Autor desconocido'}
                 </p>
-                <p className="text-eyebrow text-slate-gray uppercase tracking-wide mt-1">
+                <p className="text-caption text-slate mt-1">
                   {(result.isbn ? `ISBN: ${result.isbn}` : '')}
                   {(result.publisher ? ` · ${result.publisher}` : '')}
                 </p>
                 {result.description && (
-                  <p className="text-body text-slate-gray line-clamp-2 mt-2">
+                  <p className="text-body text-slate line-clamp-2 mt-2">
                     {result.description}
                   </p>
                 )}
                 <button
-                  className="btn-primary !h-10 !px-4 mt-4"
+                  className="btn-primary !px-4 !py-2 mt-4"
                   onClick={() => handleAddClick(result)}
                   disabled={searching === result.id}
                 >
@@ -153,17 +153,17 @@ export default function BookSearch() {
       )}
 
       {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-black/30 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/30 backdrop-blur-sm">
           <div role="dialog" aria-modal="true" className="card w-full max-w-md">
-            <h3 className="text-h3-card mb-1">{selected.title}</h3>
-            <p className="text-body text-slate-gray mb-5">
+            <h3 className="font-display text-heading-sm mb-1">{selected.title}</h3>
+            <p className="text-body text-graphite mb-5">
               {(selected.authors && selected.authors.join(', ')) || 'Autor desconocido'}
             </p>
 
             <div className="flex flex-col gap-4">
               <div>
                 <label className="label">
-                  Tipo <span className="text-signal-orange">*</span>
+                  Tipo <span className="text-action-blue">*</span>
                 </label>
                 <select className="input" value={modalType} onChange={(e) => setModalType(e.target.value)}>
                   {Object.entries(BOOK_TYPES).map(([key, label]) => (
@@ -174,7 +174,7 @@ export default function BookSearch() {
 
               <div>
                 <label className="label">
-                  Estado <span className="text-signal-orange">*</span>
+                  Estado <span className="text-action-blue">*</span>
                 </label>
                 <select className="input" value={modalState} onChange={(e) => setModalState(e.target.value)}>
                   {Object.entries(BOOK_STATES).map(([key, label]) => (

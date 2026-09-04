@@ -1,178 +1,118 @@
-# Mastercard — Style Reference
-> Mastercard's experience reads like a warm, editorial magazine built from soft stone and signal orange. The canvas is a muted putty-cream (`#F3F0EE`) — not white, not gray, but a color that feels like the paper of a premium annual report. On top of that canvas, everything that matters is shaped like a stadium, a pill, or a perfect circle. The dominant visual gesture is the **oversized radius**: heroes carry 40-point corners, cards go fully pill-shaped, service images are cropped into circular orbits, and buttons either complete the pill or fit snugly at 20 points. There are almost no sharp corners anywhere on the page.
+# Cal.com — Design System
 
-**Theme:** light
+> **Theme:** Light · **Voice:** Monochrome Utility, Human Touch
 
-**Source website:** [https://www.mastercard.com/](https://www.mastercard.com/)  
-Use the live official website to compare and validate this extracted snapshot. The current source website remains authoritative.
+Cal is a scheduling product whose interface feels precise, quiet and useful. The visual system is predominantly black, white and graduated neutral gray. Blue is a deliberately scarce functional accent for tertiary links and informational states; Google colors appear only in integration marks.
 
-## Tokens — Colors
+## Foundations
 
-| Name | Value | Token | Role |
-|---|---|---|---|
-| color 1 | `#F3F0EE` | `--color-color-1` | color 1 role extracted from the source design |
-| warm cream canvas f3f0ee replaces traditional white every surface is tinted never sterile extreme border radius as design language 40px 99px 1000px dominate anything square is a cookie banner third party circular image portraits with attached white satellite ctas and traced orange orbital paths ghost watermark headlines cream on cream text at heading scale layered behind circle portraits black primary ctas with 20px radius in the body the cookie banner orange is kept to consent flows floating pill shaped navigation that docks below the viewport top with rounded shoulders eyebrow labels with a tiny accent dot uppercase bold tracking used as the section category signal dark warm black footer 141413 with four column link layout and large conversational headline 2 color palette roles primary | `#EB001B` | `--color-warm-cream-canvas-f3f0ee-replaces-traditional-white-every-surface-is-tinted-never-sterile-extreme-border-radius-as-design-language-40px-99px-1000px-dominate-anything-square-is-a-cookie-banner-third-party-circular-image-portraits-with-attached-white-satellite-ctas-and-traced-orange-orbital-paths-ghost-watermark-headlines-cream-on-cream-text-at-heading-scale-layered-behind-circle-portraits-black-primary-ctas-with-20px-radius-in-the-body-the-cookie-banner-orange-is-kept-to-consent-flows-floating-pill-shaped-navigation-that-docks-below-the-viewport-top-with-rounded-shoulders-eyebrow-labels-with-a-tiny-accent-dot-uppercase-bold-tracking-used-as-the-section-category-signal-dark-warm-black-footer-141413-with-four-column-link-layout-and-large-conversational-headline-2-color-palette-roles-primary` | warm cream canvas f3f0ee replaces traditional white every surface is tinted never sterile extreme border radius as design language 40px 99px 1000px dominate anything square is a cookie banner third party circular image portraits with attached white satellite ctas and traced orange orbital paths ghost watermark headlines cream on cream text at heading scale layered behind circle portraits black primary ctas with 20px radius in the body the cookie banner orange is kept to consent flows floating pill shaped navigation that docks below the viewport top with rounded shoulders eyebrow labels with a tiny accent dot uppercase bold tracking used as the section category signal dark warm black footer 141413 with four column link layout and large conversational headline 2 color palette roles primary role extracted from the source design |
-| mastercard yellow | `#F79E1B` | `--color-mastercard-yellow` | mastercard yellow role extracted from the source design |
-| ink black | `#141413` | `--color-ink-black` | ink black role extracted from the source design |
-| signal orange | `#CF4500` | `--color-signal-orange` | signal orange role extracted from the source design |
-| light signal orange | `#F37338` | `--color-light-signal-orange` | light signal orange role extracted from the source design |
-| clay brown | `#9A3A0A` | `--color-clay-brown` | clay brown role extracted from the source design |
-| lifted cream | `#FCFBFA` | `--color-lifted-cream` | lifted cream role extracted from the source design |
-| white | `#FFFFFF` | `--color-white` | white role extracted from the source design |
-| soft bone | `#F4F4F4` | `--color-soft-bone` | soft bone role extracted from the source design |
-| charcoal | `#262627` | `--color-charcoal` | charcoal role extracted from the source design |
-| slate gray | `#696969` | `--color-slate-gray` | slate gray role extracted from the source design |
-| granite | `#555555` | `--color-granite` | granite role extracted from the source design |
-| graphite | `#565656` | `--color-graphite` | graphite role extracted from the source design |
-| dust taupe | `#D1CDC7` | `--color-dust-taupe` | dust taupe role extracted from the source design |
-| link blue | `#3860BE` | `--color-link-blue` | link blue role extracted from the source design |
-| color 17 | `#000000` | `--color-color-17` | color 17 role extracted from the source design |
-| color 18 | `#2B2B2B` | `--color-color-18` | color 18 role extracted from the source design |
-| color 19 | `#E8E2DA` | `--color-color-19` | color 19 role extracted from the source design |
-| color 20 | `rgba(255,255,255,0.4)` | `--color-color-20` | color 20 role extracted from the source design |
+### Color
 
-## Tokens — Typography
+| Token            | Value     | Usage                                       |
+| ---------------- | --------- | ------------------------------------------- |
+| `ink`            | `#101010` | Primary text, primary CTA, dark footer      |
+| `action-blue`    | `#0099ff` | Tertiary links and informational highlights |
+| `white`          | `#ffffff` | Cards and elevated scheduling surfaces      |
+| `paper`          | `#f4f4f4` | Main page background and quiet fills        |
+| `graphite`       | `#242424` | Secondary text and controls                 |
+| `slate`          | `#6b7280` | Muted text                                  |
+| `stone`          | `#898989` | Subtle labels                               |
+| `silver`         | `#e5e7eb` | Input and control borders                   |
+| `info-banner-bg` | `#eff6fe` | Informational banner background             |
+| `google-blue`    | `#4285f4` | Google integration mark only                |
+| `google-yellow`  | `#fbbc04` | Google integration mark only                |
+| `google-green`   | `#34a853` | Google integration mark only                |
+| `google-red`     | `#ea4335` | Google integration mark only                |
 
-### Inter, system-ui, sans-serif · `--font-primary`
-- **Substitute:** Inter, system-ui, sans-serif
-- **Weights:** 500, 700, 450, 400
-- **Sizes:** 64px, 36px, 24px, 14px, 16px
-- **Line height:** 64px, 44px, 1.5, 14px, 16px
-- **Letter spacing:** 0, 44px, ~20px, 12–14px
-- **Role:** Brand typography family observed across the documented type scale.
+### Typography
 
-### Primary and secondary body CTAs (the signature button radius) · `--font-family-2`
-- **Substitute:** Inter, system-ui, sans-serif
-- **Weights:** 400
-- **Sizes:** 20px
-- **Line height:** 1.5
-- **Letter spacing:** 0
-- **Role:** Brand typography family observed across the documented type scale.
+Use **Cal Sans** for headings (fallback: Poppins or Gilroy), and **Cal Sans UI Variable Light** for reading text (fallback: Inter Light). Inter is used for compact product UI; Matter remains the tertiary utility face.
 
-### Consent/orange pill buttons, modal inner chips · `--font-family-3`
-- **Substitute:** Inter, system-ui, sans-serif
-- **Weights:** 400
-- **Sizes:** 24px
-- **Line height:** 1.5
-- **Letter spacing:** 0
-- **Role:** Brand typography family observed across the documented type scale.
+| Role          | Family                            | Weight | Size / line height | Tracking |
+| ------------- | --------------------------------- | -----: | ------------------ | -------- |
+| Caption       | Cal Sans UI Variable Light, Inter |    300 | 12px / 1.4         | -0.24px  |
+| Body small    | Cal Sans UI Variable Light, Inter |    300 | 14px / 1.5         | -0.20px  |
+| Body          | Cal Sans UI Variable Light, Inter |    300 | 16px / 1.5         | -0.19px  |
+| Subheading    | Cal Sans UI Variable Light, Inter |    300 | 18px / 1.4         | -0.20px  |
+| Heading small | Cal Sans, Poppins                 |    600 | 20px / 1.3         | 0.20px   |
+| Heading       | Cal Sans, Poppins                 |    600 | 24px / 1.3         | 0.24px   |
+| Heading large | Cal Sans, Poppins                 |    600 | 48px / 1.1         | 0.48px   |
+| Display       | Cal Sans, Poppins                 |    600 | 64px / 1.1         | 0.64px   |
 
-### Hero media frames, large section container corners, H2 pill labels · `--font-family-4`
-- **Substitute:** Inter, system-ui, sans-serif
-- **Weights:** 400
-- **Sizes:** 40px
-- **Line height:** 1.5
-- **Letter spacing:** 0
-- **Role:** Brand typography family observed across the documented type scale.
+### Spacing
 
-### Type Scale
+Use the 4px rhythm: `4`, `5`, `6`, `8`, `10`, `12`, `16`, `20`, `24`, `28`, `32`, `40`, `48`, `80`.
 
-| Role | Size | Line Height | Letter Spacing | Token |
-|---|---|---|---|---|
-| h1-hero | 64px | 64px | 0 | `--text-h1-hero` |
-| h2-section | 36px | 44px | 44px | `--text-h2-section` |
-| h3-card-title | 24px | 1.5 | 0 | `--text-h3-card-title` |
-| h4-subhead | 14px | 1.5 | 0 | `--text-h4-subhead` |
-| eyebrow-h5 | 14px | 14px | 0 | `--text-eyebrow-h5` |
-| body-paragraph | 16px | 1.5 | 0 | `--text-body-paragraph` |
-| nav-link-button-label | 16px | 16px | 0 | `--text-nav-link-button-label` |
-| footer-link | 14px | 1.5 | ~20px | `--text-footer-link` |
-| footer-column-header | 14px | 1.5 | 12–14px | `--text-footer-column-header` |
-| 20px | 20px | 1.5 | 0 | `--text-20px` |
-| 24px | 24px | 1.5 | 0 | `--text-24px` |
-| 40px | 40px | 1.5 | 0 | `--text-40px` |
+### Radius
 
-## Tokens — Spacing & Shapes
+`4`, `8`, `12`, `16`, `29`, `100`, `120`, `1000`, `9999` px. Inputs use 8px; cards use 12px; small tags and pill buttons use 9999px.
 
-**Density:** comfortable
+### Shadows
 
-### Spacing Scale
-
-| Name | Value | Token |
-|---|---|---|
-| 4 | 4px | `--spacing-4` |
-| 8 | 8px | `--spacing-8` |
-| 12 | 12px | `--spacing-12` |
-| 16 | 16px | `--spacing-16` |
-| 20 | 20px | `--spacing-20` |
-| 24 | 24px | `--spacing-24` |
-| 32 | 32px | `--spacing-32` |
-| 40 | 40px | `--spacing-40` |
-| 48 | 48px | `--spacing-48` |
-| 64 | 64px | `--spacing-64` |
-| 80 | 80px | `--spacing-80` |
-| 128 | 128px | `--spacing-128` |
-
-### Border Radius
-
-| Name | Value | Token |
-|---|---|---|
-| sm | 0px | `--radius-sm` |
-| md | 4px | `--radius-md` |
-| lg | 9px | `--radius-lg` |
-| xl | 6px | `--radius-xl` |
-| pill | 8px | `--radius-pill` |
-
-### Layout
-
-- **Section gap:** 64px
-- **Card padding:** 24px
-- **Element gap:** 16px
-- **Max content width:** 1200px
-
-## Components
-
-### buttons
-**Role:** buttons component
-
-- **description:** `Buttons treatment documented in the source analysis.`
-
-### cards containers
-**Role:** cards containers component
-
-- **description:** `Cards & Containers treatment documented in the source analysis.`
-
-### inputs forms
-**Role:** inputs forms component
-
-- **description:** `Inputs & Forms treatment documented in the source analysis.`
-
-### navigation
-**Role:** navigation component
-
-- **description:** `Navigation treatment documented in the source analysis.`
-
-### image treatment
-**Role:** image treatment component
-
-- **description:** `Image Treatment treatment documented in the source analysis.`
-
-### decorative orbital lines
-**Role:** decorative orbital lines component
-
-- **description:** `Decorative Orbital Lines treatment documented in the source analysis.`
-
-### footer
-**Role:** footer component
-
-- **description:** `Footer treatment documented in the source analysis.`
-
-## Do's and Don'ts
-
-### Do
-
-- Use `--color-warm-cream-canvas-f3f0ee-replaces-traditional-white-every-surface-is-tinted-never-sterile-extreme-border-radius-as-design-language-40px-99px-1000px-dominate-anything-square-is-a-cookie-banner-third-party-circular-image-portraits-with-attached-white-satellite-ctas-and-traced-orange-orbital-paths-ghost-watermark-headlines-cream-on-cream-text-at-heading-scale-layered-behind-circle-portraits-black-primary-ctas-with-20px-radius-in-the-body-the-cookie-banner-orange-is-kept-to-consent-flows-floating-pill-shaped-navigation-that-docks-below-the-viewport-top-with-rounded-shoulders-eyebrow-labels-with-a-tiny-accent-dot-uppercase-bold-tracking-used-as-the-section-category-signal-dark-warm-black-footer-141413-with-four-column-link-layout-and-large-conversational-headline-2-color-palette-roles-primary` for the brand's primary interaction treatment.
-- Keep page surfaces anchored to `--color-warm-cream-canvas-f3f0ee-replaces-traditional-white-every-surface-is-tinted-never-sterile-extreme-border-radius-as-design-language-40px-99px-1000px-dominate-anything-square-is-a-cookie-banner-third-party-circular-image-portraits-with-attached-white-satellite-ctas-and-traced-orange-orbital-paths-ghost-watermark-headlines-cream-on-cream-text-at-heading-scale-layered-behind-circle-portraits-black-primary-ctas-with-20px-radius-in-the-body-the-cookie-banner-orange-is-kept-to-consent-flows-floating-pill-shaped-navigation-that-docks-below-the-viewport-top-with-rounded-shoulders-eyebrow-labels-with-a-tiny-accent-dot-uppercase-bold-tracking-used-as-the-section-category-signal-dark-warm-black-footer-141413-with-four-column-link-layout-and-large-conversational-headline-2-color-palette-roles-primary`.
-- Preserve every typography style's documented size, line height, and letter spacing.
-- Compare major implementation decisions against [the live Mastercard website](https://www.mastercard.com/).
-
-### Don't
-
-- Do not introduce colors outside the documented color token set.
-- Do not replace `--color-warm-cream-canvas-f3f0ee-replaces-traditional-white-every-surface-is-tinted-never-sterile-extreme-border-radius-as-design-language-40px-99px-1000px-dominate-anything-square-is-a-cookie-banner-third-party-circular-image-portraits-with-attached-white-satellite-ctas-and-traced-orange-orbital-paths-ghost-watermark-headlines-cream-on-cream-text-at-heading-scale-layered-behind-circle-portraits-black-primary-ctas-with-20px-radius-in-the-body-the-cookie-banner-orange-is-kept-to-consent-flows-floating-pill-shaped-navigation-that-docks-below-the-viewport-top-with-rounded-shoulders-eyebrow-labels-with-a-tiny-accent-dot-uppercase-bold-tracking-used-as-the-section-category-signal-dark-warm-black-footer-141413-with-four-column-link-layout-and-large-conversational-headline-2-color-palette-roles-primary` with an arbitrary neutral.
-- Do not flatten documented component states or spacing relationships.
-- Do not treat this extracted snapshot as newer than the live source website.
+| Token      | Value                                                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `sm`       | `rgba(36, 36, 36, 0.7) 0px 1px 5px -4px, rgba(36, 36, 36, 0.05) 0px 4px 8px 0px`                                         |
+| `subtle`   | `rgba(255, 255, 255, 0.15) 0px 2px 0px 0px inset`                                                                        |
+| `sm-2`     | `rgba(19, 19, 22, 0.7) 0px 1px 5px -4px, rgba(34, 42, 53, 0.1) 0px 0px 0px 1px, rgba(34, 42, 53, 0.05) 0px 4px 8px 0px`  |
+| `sm-3`     | `rgba(19, 19, 22, 0.7) 0px 1px 5px -4px, rgba(34, 42, 53, 0.08) 0px 0px 0px 1px, rgba(34, 42, 53, 0.05) 0px 4px 8px 0px` |
+| `sm-4`     | `rgba(34, 42, 53, 0.05) 0px 4px 8px 0px`                                                                                 |
+| `subtle-2` | `rgb(255, 255, 255) 0px 2px 0px 0px inset`                                                                               |
+| `subtle-3` | `rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 0px 2px 0px`                                                |
 
 ## Layout
 
-Use the documented spacing scale and component geometry as the implementation baseline. Validate responsive composition and current page rhythm against [the live source](https://www.mastercard.com/).
+- Content maximum: `1200px`
+- Section gap: `96px`
+- Standard card padding: `24px`
+- Product UI cards are white, 12px rounded, and use an extremely subtle shadow instead of a card border.
+
+## Components
+
+### Buttons and controls
+
+| Component       | Treatment                                                                                     |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| Primary CTA     | Ink fill, white UI text, pill radius, 12px × 24px padding                                     |
+| Secondary ghost | Transparent or paper fill, graphite text, 1px silver border, pill radius, 12px × 24px padding |
+| Header CTA      | Ink fill, white 14px UI text, 8px radius, 8px × 16px padding                                  |
+| Tag             | Paper fill or silver edge, graphite text, 9999px radius, 4px × 12px padding                   |
+| Navigation link | Graphite Cal Sans UI, 14–16px, no underline                                                   |
+
+### Scheduling widget
+
+The scheduling surface is the principal product fragment: white background, 16px internal padding, 12px radius and `sm-4` shadow. Date selection is a compact ink circle; time choices use quiet silver borders and become ink only when selected. Use readable, functional labels rather than decorative graphics.
+
+### Informational state and integrations
+
+Informational banners use `info-banner-bg` with an `action-blue` link. Google colors are confined to the Google integration mark and are not promoted into general UI accents.
+
+## Usage guidance
+
+**Do**
+
+- Keep core UI monochrome and let spacing, type and surface hierarchy carry emphasis.
+- Use Cal Sans for headings and Cal Sans UI / Inter for body and product UI text.
+- Use 8–12px cards with quiet elevation and ample internal space.
+- Use product screenshots, scheduling fragments and integration marks as imagery.
+
+**Avoid**
+
+- Adding new core UI colors or broad blue decoration.
+- Gradients, sharp corners, heavy borders on cards, or lifestyle / abstract imagery.
+- Font weights above 600.
+- Setting paragraph copy in the display face.
+
+## Accessibility
+
+Maintain visible keyboard focus, semantic controls, readable contrast, and reduced-motion behavior. Motion should be limited to a single calm product-surface entrance and disabled for `prefers-reduced-motion`.
+
+## Deliverables
+
+- [tokens.json](tokens.json) — DTCG-compatible token source
+- [variables.css](variables.css) — CSS custom properties
+- [theme.css](theme.css) — Tailwind v4 theme mapping
+- [preview.html](preview.html) — standalone visual reference
+
+## Source
+
+Reset from the supplied **Cal.com — Style Reference: Monochrome Utility, Human Touch**. Values are intentionally limited to what that reference specifies.

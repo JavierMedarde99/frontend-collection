@@ -17,7 +17,7 @@ export const STATE_LABELS = {
 }
 
 export const STATE_COLORS = {
-  TO_READ: 'bg-lifted-cream text-ink-black',
-  READING: 'bg-signal-orange/10 text-clay-brown',
-  COMPLETED: 'bg-emerald-100 text-emerald-700',
+  TO_READ: 'bg-paper text-graphite',
+  READING: 'bg-info-banner text-action-blue',
+  COMPLETED: 'bg-ink text-white',
 }

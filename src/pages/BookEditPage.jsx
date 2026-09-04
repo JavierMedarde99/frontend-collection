@@ -52,11 +52,11 @@ export default function BookEditPage() {
   }
 
   return (
-    <section className="max-w-3xl flex flex-col gap-8">
+    <section className="max-w-3xl flex flex-col gap-24">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-h2-section mb-1">Editar libro</h1>
-          <p className="text-body text-slate-gray">Actualiza los datos del libro.</p>
+          <h1 className="font-display text-heading-lg mb-1">Editar libro</h1>
+          <p className="text-body text-slate">Actualiza los datos del libro.</p>
         </div>
         {book && !loading && (
           <button
