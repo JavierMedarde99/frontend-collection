@@ -10,19 +10,19 @@ export default function BookCard({ book }) {
           <img
             src={book.frontpage}
             alt={book.title}
-            className="w-24 h-32 object-cover rounded shrink-0 bg-surface-muted"
+            className="w-24 h-32 object-cover rounded shrink-0 bg-lifted-cream"
           />
         ) : (
-          <div className="w-24 h-32 rounded shrink-0 bg-surface-muted flex items-center justify-center text-label-sm text-on-surface-variant">
+          <div className="w-24 h-32 rounded shrink-0 bg-lifted-cream flex items-center justify-center text-eyebrow text-slate-gray">
             Sin portada
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <h3 className="text-headline-md mb-1 leading-snug font-medium">{book.title}</h3>
-          <p className="text-body-md text-on-surface-variant">{book.author}</p>
+          <h3 className="text-h3-card mb-1 leading-snug font-medium">{book.title}</h3>
+          <p className="text-body text-slate-gray">{book.author}</p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <StatusBadge state={book.state} />
-            <span className="text-label-sm text-on-surface-variant uppercase tracking-wide">
+            <span className="text-eyebrow text-slate-gray uppercase tracking-wide">
               {book.type}
             </span>
           </div>
@@ -30,7 +30,7 @@ export default function BookCard({ book }) {
       </div>
 
       {book.comment && (
-        <p className="text-body-md text-on-surface-variant line-clamp-2">{book.comment}</p>
+        <p className="text-body text-slate-gray line-clamp-2">{book.comment}</p>
       )}
 
       <div className="mt-auto flex items-center justify-between pt-4">

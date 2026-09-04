@@ -71,8 +71,8 @@ export default function BookListPage() {
   return (
     <section className="flex flex-col gap-8">
       <div>
-        <h1 className="text-headline-lg mb-1">Mi colección</h1>
-        <p className="text-body-md text-on-surface-variant">
+        <h1 className="text-h2-section mb-1">Mi colección</h1>
+        <p className="text-body text-slate-gray">
           {loading
             ? 'Cargando libros…'
             : `${totalElements} libro${totalElements === 1 ? '' : 's'} en tu colección`}
@@ -120,7 +120,7 @@ export default function BookListPage() {
 
         <div className="flex items-center gap-2">
           <button
-            className={`btn-ghost !h-10 ${!status ? '!bg-charcoal !text-white' : ''}`}
+            className={`btn-ghost !h-10 ${!status ? '!bg-ink-black !text-white' : ''}`}
             onClick={() => { setStatus(''); setPage(0) }}
           >
             Todos
@@ -128,7 +128,7 @@ export default function BookListPage() {
           {Object.entries(BOOK_STATES).map(([key, label]) => (
             <button
               key={key}
-              className={`btn-ghost !h-10 ${status === key ? '!bg-charcoal !text-white' : ''}`}
+              className={`btn-ghost !h-10 ${status === key ? '!bg-ink-black !text-white' : ''}`}
               onClick={() => { setStatus(key); setPage(0) }}
             >
               {label}
@@ -172,7 +172,7 @@ export default function BookListPage() {
           >
             Anterior
           </button>
-          <span className="text-body-md text-on-surface-variant">
+          <span className="text-body text-slate-gray">
             Página {page + 1} de {totalPages}
           </span>
           <button

@@ -9,8 +9,8 @@ export default function StarRating({ value = 0, onChange, readOnly = false }) {
             key={n}
             className={`text-base leading-none ${
               n <= Math.round(value || 0)
-                ? 'text-digital-blue'
-                : 'text-outline/30'
+                ? 'text-signal-orange'
+                : 'text-dust-taupe/30'
             }`}
           >
             ★
@@ -28,7 +28,7 @@ export default function StarRating({ value = 0, onChange, readOnly = false }) {
           type="button"
           onClick={() => onChange(n)}
           className={`text-2xl leading-none transition-colors ${
-            n <= value ? 'text-digital-blue' : 'text-outline/40 hover:text-outline/70'
+            n <= value ? 'text-signal-orange' : 'text-dust-taupe/40 hover:text-dust-taupe/70'
           }`}
           aria-label={`${n} estrellas`}
         >

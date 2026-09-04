@@ -1,163 +1,178 @@
----
-name: Studio Minimalist
-colors:
-  surface: '#f8f9ff'
-  surface-dim: '#d8dae0'
-  surface-bright: '#f8f9ff'
-  surface-container-lowest: '#ffffff'
-  surface-container-low: '#f2f3f9'
-  surface-container: '#eceef3'
-  surface-container-high: '#e7e8ee'
-  surface-container-highest: '#e1e2e8'
-  on-surface: '#191c20'
-  on-surface-variant: '#44474a'
-  inverse-surface: '#2e3135'
-  inverse-on-surface: '#eff0f6'
-  outline: '#75777a'
-  outline-variant: '#c5c6ca'
-  surface-tint: '#5d5e61'
-  primary: '#000101'
-  on-primary: '#ffffff'
-  primary-container: '#1a1c1e'
-  on-primary-container: '#838486'
-  inverse-primary: '#c6c6c9'
-  secondary: '#003ec6'
-  on-secondary: '#ffffff'
-  secondary-container: '#0052fe'
-  on-secondary-container: '#dfe3ff'
-  tertiary: '#000001'
-  on-tertiary: '#ffffff'
-  tertiary-container: '#1a1c1c'
-  on-tertiary-container: '#838484'
-  error: '#ba1a1a'
-  on-error: '#ffffff'
-  error-container: '#ffdad6'
-  on-error-container: '#93000a'
-  primary-fixed: '#e2e2e5'
-  primary-fixed-dim: '#c6c6c9'
-  on-primary-fixed: '#1a1c1e'
-  on-primary-fixed-variant: '#454749'
-  secondary-fixed: '#dde1ff'
-  secondary-fixed-dim: '#b7c4ff'
-  on-secondary-fixed: '#001452'
-  on-secondary-fixed-variant: '#0038b6'
-  tertiary-fixed: '#e2e2e2'
-  tertiary-fixed-dim: '#c6c6c7'
-  on-tertiary-fixed: '#1a1c1c'
-  on-tertiary-fixed-variant: '#454747'
-  background: '#f8f9ff'
-  on-background: '#191c20'
-  surface-variant: '#e1e2e8'
-  studio-white: '#FFFFFF'
-  charcoal-deep: '#1A1C1E'
-  digital-blue: '#0052FF'
-  surface-muted: '#F1F3F7'
-typography:
-  display-lg:
-    fontFamily: Inter
-    fontSize: 48px
-    fontWeight: '700'
-    lineHeight: '1.1'
-    letterSpacing: 0.02em
-  headline-lg:
-    fontFamily: Inter
-    fontSize: 32px
-    fontWeight: '600'
-    lineHeight: '1.2'
-    letterSpacing: 0.01em
-  headline-lg-mobile:
-    fontFamily: Inter
-    fontSize: 28px
-    fontWeight: '600'
-    lineHeight: '1.2'
-    letterSpacing: 0.01em
-  headline-md:
-    fontFamily: Inter
-    fontSize: 24px
-    fontWeight: '500'
-    lineHeight: '1.3'
-    letterSpacing: 0.01em
-  body-lg:
-    fontFamily: Inter
-    fontSize: 18px
-    fontWeight: '400'
-    lineHeight: '1.6'
-  body-md:
-    fontFamily: Inter
-    fontSize: 16px
-    fontWeight: '400'
-    lineHeight: '1.5'
-  label-sm:
-    fontFamily: Inter
-    fontSize: 12px
-    fontWeight: '600'
-    lineHeight: '1'
-    letterSpacing: 0.05em
-rounded:
-  sm: 0.25rem
-  DEFAULT: 0.5rem
-  md: 0.75rem
-  lg: 1rem
-  xl: 1.5rem
-  full: 9999px
-spacing:
-  base: 8px
-  gutter: 24px
-  margin-mobile: 20px
-  margin-desktop: 80px
-  container-max: 1440px
----
+# Mastercard — Style Reference
+> Mastercard's experience reads like a warm, editorial magazine built from soft stone and signal orange. The canvas is a muted putty-cream (`#F3F0EE`) — not white, not gray, but a color that feels like the paper of a premium annual report. On top of that canvas, everything that matters is shaped like a stadium, a pill, or a perfect circle. The dominant visual gesture is the **oversized radius**: heroes carry 40-point corners, cards go fully pill-shaped, service images are cropped into circular orbits, and buttons either complete the pill or fit snugly at 20 points. There are almost no sharp corners anywhere on the page.
 
-## Brand & Style
-The design system transitions from a scholarly archive to a **Modern Minimalist** digital studio. The personality is clean, precise, and sophisticated, favoring clarity over ornamentation. The emotional response is one of effortless efficiency and high-end curation.
+**Theme:** light
 
-The aesthetic is characterized by a "Studio White" environment that emphasizes content through deliberate whitespace rather than structural lines. By removing traditional borders and embracing a high-contrast palette with vibrant digital accents, the design system achieves a contemporary, forward-looking feel suitable for premium digital experiences.
+**Source website:** [https://www.mastercard.com/](https://www.mastercard.com/)  
+Use the live official website to compare and validate this extracted snapshot. The current source website remains authoritative.
 
-## Colors
-The palette is built on a high-contrast foundation to ensure a crisp, modern aesthetic.
+## Tokens — Colors
 
-- **Primary (#1A1C1E):** Deep Charcoal is the anchor for all primary text and structural elements, providing a grounded, authoritative presence.
-- **Secondary (#0052FF):** Digital Blue serves as the vibrant accent color for primary actions, focus states, and key highlights.
-- **Surface (#FFFFFF):** The primary canvas is a pure Studio White, creating a sense of limitless space and clarity.
-- **Neutral (#F8F9FF):** A very subtle cool-grey used for secondary backgrounds and subtle grouping without the need for borders.
+| Name | Value | Token | Role |
+|---|---|---|---|
+| color 1 | `#F3F0EE` | `--color-color-1` | color 1 role extracted from the source design |
+| warm cream canvas f3f0ee replaces traditional white every surface is tinted never sterile extreme border radius as design language 40px 99px 1000px dominate anything square is a cookie banner third party circular image portraits with attached white satellite ctas and traced orange orbital paths ghost watermark headlines cream on cream text at heading scale layered behind circle portraits black primary ctas with 20px radius in the body the cookie banner orange is kept to consent flows floating pill shaped navigation that docks below the viewport top with rounded shoulders eyebrow labels with a tiny accent dot uppercase bold tracking used as the section category signal dark warm black footer 141413 with four column link layout and large conversational headline 2 color palette roles primary | `#EB001B` | `--color-warm-cream-canvas-f3f0ee-replaces-traditional-white-every-surface-is-tinted-never-sterile-extreme-border-radius-as-design-language-40px-99px-1000px-dominate-anything-square-is-a-cookie-banner-third-party-circular-image-portraits-with-attached-white-satellite-ctas-and-traced-orange-orbital-paths-ghost-watermark-headlines-cream-on-cream-text-at-heading-scale-layered-behind-circle-portraits-black-primary-ctas-with-20px-radius-in-the-body-the-cookie-banner-orange-is-kept-to-consent-flows-floating-pill-shaped-navigation-that-docks-below-the-viewport-top-with-rounded-shoulders-eyebrow-labels-with-a-tiny-accent-dot-uppercase-bold-tracking-used-as-the-section-category-signal-dark-warm-black-footer-141413-with-four-column-link-layout-and-large-conversational-headline-2-color-palette-roles-primary` | warm cream canvas f3f0ee replaces traditional white every surface is tinted never sterile extreme border radius as design language 40px 99px 1000px dominate anything square is a cookie banner third party circular image portraits with attached white satellite ctas and traced orange orbital paths ghost watermark headlines cream on cream text at heading scale layered behind circle portraits black primary ctas with 20px radius in the body the cookie banner orange is kept to consent flows floating pill shaped navigation that docks below the viewport top with rounded shoulders eyebrow labels with a tiny accent dot uppercase bold tracking used as the section category signal dark warm black footer 141413 with four column link layout and large conversational headline 2 color palette roles primary role extracted from the source design |
+| mastercard yellow | `#F79E1B` | `--color-mastercard-yellow` | mastercard yellow role extracted from the source design |
+| ink black | `#141413` | `--color-ink-black` | ink black role extracted from the source design |
+| signal orange | `#CF4500` | `--color-signal-orange` | signal orange role extracted from the source design |
+| light signal orange | `#F37338` | `--color-light-signal-orange` | light signal orange role extracted from the source design |
+| clay brown | `#9A3A0A` | `--color-clay-brown` | clay brown role extracted from the source design |
+| lifted cream | `#FCFBFA` | `--color-lifted-cream` | lifted cream role extracted from the source design |
+| white | `#FFFFFF` | `--color-white` | white role extracted from the source design |
+| soft bone | `#F4F4F4` | `--color-soft-bone` | soft bone role extracted from the source design |
+| charcoal | `#262627` | `--color-charcoal` | charcoal role extracted from the source design |
+| slate gray | `#696969` | `--color-slate-gray` | slate gray role extracted from the source design |
+| granite | `#555555` | `--color-granite` | granite role extracted from the source design |
+| graphite | `#565656` | `--color-graphite` | graphite role extracted from the source design |
+| dust taupe | `#D1CDC7` | `--color-dust-taupe` | dust taupe role extracted from the source design |
+| link blue | `#3860BE` | `--color-link-blue` | link blue role extracted from the source design |
+| color 17 | `#000000` | `--color-color-17` | color 17 role extracted from the source design |
+| color 18 | `#2B2B2B` | `--color-color-18` | color 18 role extracted from the source design |
+| color 19 | `#E8E2DA` | `--color-color-19` | color 19 role extracted from the source design |
+| color 20 | `rgba(255,255,255,0.4)` | `--color-color-20` | color 20 role extracted from the source design |
 
-## Typography
-The system utilizes **Inter** exclusively to create a unified, systematic typographic hierarchy. The transition to a geometric sans-serif removes the literary weight of the previous iteration in favor of a neutral, functional "metadata" aesthetic. 
+## Tokens — Typography
 
-Headlines use a crisp type scale with generous letter spacing to enhance the "Modern Minimalist" feel. Body text is optimized for readability with a comfortable line height, while labels maintain a high tracking value for a sophisticated, architectural look.
+### Inter, system-ui, sans-serif · `--font-primary`
+- **Substitute:** Inter, system-ui, sans-serif
+- **Weights:** 500, 700, 450, 400
+- **Sizes:** 64px, 36px, 24px, 14px, 16px
+- **Line height:** 64px, 44px, 1.5, 14px, 16px
+- **Letter spacing:** 0, 44px, ~20px, 12–14px
+- **Role:** Brand typography family observed across the documented type scale.
 
-## Layout & Spacing
-The layout follows a **Fluid-Fixed Hybrid** model. Content is contained within a max-width container to preserve the minimalist composition, while whitespace is treated as a first-class design element.
+### Primary and secondary body CTAs (the signature button radius) · `--font-family-2`
+- **Substitute:** Inter, system-ui, sans-serif
+- **Weights:** 400
+- **Sizes:** 20px
+- **Line height:** 1.5
+- **Letter spacing:** 0
+- **Role:** Brand typography family observed across the documented type scale.
 
-- **Grid:** A 12-column system is used for desktop with increased 80px margins to frame content like a gallery piece.
-- **Responsive:** On mobile, margins are kept generous at 20px to ensure the UI doesn't feel cramped. 
-- **Rhythm:** Spacing follows a strict 8px base unit. Internal component padding should be "oversized" (typically 32px or 40px) to reinforce the luxury of space.
+### Consent/orange pill buttons, modal inner chips · `--font-family-3`
+- **Substitute:** Inter, system-ui, sans-serif
+- **Weights:** 400
+- **Sizes:** 24px
+- **Line height:** 1.5
+- **Letter spacing:** 0
+- **Role:** Brand typography family observed across the documented type scale.
 
-## Elevation & Depth
-Hierarchy is achieved through **Tonal Layers** and **Ambient Shadows** rather than borders. This creates a "soft depth" where elements appear to float over the Studio White surface.
+### Hero media frames, large section container corners, H2 pill labels · `--font-family-4`
+- **Substitute:** Inter, system-ui, sans-serif
+- **Weights:** 400
+- **Sizes:** 40px
+- **Line height:** 1.5
+- **Letter spacing:** 0
+- **Role:** Brand typography family observed across the documented type scale.
 
-- **Level 1 (Base):** Studio White (#FFFFFF) background.
-- **Level 2 (Containers):** Subtle surface shifts to Neutral (#F8F9FF) to define sections without hard edges.
-- **Level 3 (Floating):** Active cards and menus use extra-diffused, low-opacity shadows (e.g., Blur: 32px, Offset-Y: 12px, Opacity: 4%). This creates a light, "weightless" feel.
-- **Interactions:** Subtle backdrop blurs may be used for navigation overlays to maintain context while focusing the user's attention.
+### Type Scale
 
-## Shapes
-The shape language is defined by **Rounded (0.5rem)** corners. This increased radius provides a friendlier, contemporary appearance that softens the high-contrast color palette. 
+| Role | Size | Line Height | Letter Spacing | Token |
+|---|---|---|---|---|
+| h1-hero | 64px | 64px | 0 | `--text-h1-hero` |
+| h2-section | 36px | 44px | 44px | `--text-h2-section` |
+| h3-card-title | 24px | 1.5 | 0 | `--text-h3-card-title` |
+| h4-subhead | 14px | 1.5 | 0 | `--text-h4-subhead` |
+| eyebrow-h5 | 14px | 14px | 0 | `--text-eyebrow-h5` |
+| body-paragraph | 16px | 1.5 | 0 | `--text-body-paragraph` |
+| nav-link-button-label | 16px | 16px | 0 | `--text-nav-link-button-label` |
+| footer-link | 14px | 1.5 | ~20px | `--text-footer-link` |
+| footer-column-header | 14px | 1.5 | 12–14px | `--text-footer-column-header` |
+| 20px | 20px | 1.5 | 0 | `--text-20px` |
+| 24px | 24px | 1.5 | 0 | `--text-24px` |
+| 40px | 40px | 1.5 | 0 | `--text-40px` |
 
-Large containers like cards should use `rounded-lg` (1rem), while primary action buttons and inputs utilize the base 0.5rem radius. This consistent rounding across the system ensures a cohesive, intentional visual language.
+## Tokens — Spacing & Shapes
+
+**Density:** comfortable
+
+### Spacing Scale
+
+| Name | Value | Token |
+|---|---|---|
+| 4 | 4px | `--spacing-4` |
+| 8 | 8px | `--spacing-8` |
+| 12 | 12px | `--spacing-12` |
+| 16 | 16px | `--spacing-16` |
+| 20 | 20px | `--spacing-20` |
+| 24 | 24px | `--spacing-24` |
+| 32 | 32px | `--spacing-32` |
+| 40 | 40px | `--spacing-40` |
+| 48 | 48px | `--spacing-48` |
+| 64 | 64px | `--spacing-64` |
+| 80 | 80px | `--spacing-80` |
+| 128 | 128px | `--spacing-128` |
+
+### Border Radius
+
+| Name | Value | Token |
+|---|---|---|
+| sm | 0px | `--radius-sm` |
+| md | 4px | `--radius-md` |
+| lg | 9px | `--radius-lg` |
+| xl | 6px | `--radius-xl` |
+| pill | 8px | `--radius-pill` |
+
+### Layout
+
+- **Section gap:** 64px
+- **Card padding:** 24px
+- **Element gap:** 16px
+- **Max content width:** 1200px
 
 ## Components
-### Buttons
-Primary buttons are solid Digital Blue (#0052FF) with white text. They should have a significant height (at least 48px) and use `label-sm` typography. Secondary buttons are "Ghost" style but without a border—using a light Neutral (#F8F9FF) background and Primary text.
 
-### Cards
-Cards are borderless. They rely on a soft ambient shadow or a slight background color shift to define their boundaries. Content within cards should have a minimum of 32px padding to maintain the minimalist aesthetic.
+### buttons
+**Role:** buttons component
 
-### Input Fields
-Inputs are styled as clean, filled containers using the Neutral (#F8F9FF) color. They have no borders in their default state. On focus, they transition to a 2px Primary or Secondary outline to provide clear feedback.
+- **description:** `Buttons treatment documented in the source analysis.`
 
-### Chips & Lists
-Chips are pill-shaped and use a high-contrast style: Charcoal text on a light Neutral background. Lists are separated by generous whitespace rather than divider lines, using typographic weight to distinguish between primary and secondary information.
+### cards containers
+**Role:** cards containers component
 
-### Navigation
-The navigation bar is a minimal, floating element or a fixed top bar with a Studio White background and no bottom border, relying on a subtle shadow for separation during scroll.
+- **description:** `Cards & Containers treatment documented in the source analysis.`
+
+### inputs forms
+**Role:** inputs forms component
+
+- **description:** `Inputs & Forms treatment documented in the source analysis.`
+
+### navigation
+**Role:** navigation component
+
+- **description:** `Navigation treatment documented in the source analysis.`
+
+### image treatment
+**Role:** image treatment component
+
+- **description:** `Image Treatment treatment documented in the source analysis.`
+
+### decorative orbital lines
+**Role:** decorative orbital lines component
+
+- **description:** `Decorative Orbital Lines treatment documented in the source analysis.`
+
+### footer
+**Role:** footer component
+
+- **description:** `Footer treatment documented in the source analysis.`
+
+## Do's and Don'ts
+
+### Do
+
+- Use `--color-warm-cream-canvas-f3f0ee-replaces-traditional-white-every-surface-is-tinted-never-sterile-extreme-border-radius-as-design-language-40px-99px-1000px-dominate-anything-square-is-a-cookie-banner-third-party-circular-image-portraits-with-attached-white-satellite-ctas-and-traced-orange-orbital-paths-ghost-watermark-headlines-cream-on-cream-text-at-heading-scale-layered-behind-circle-portraits-black-primary-ctas-with-20px-radius-in-the-body-the-cookie-banner-orange-is-kept-to-consent-flows-floating-pill-shaped-navigation-that-docks-below-the-viewport-top-with-rounded-shoulders-eyebrow-labels-with-a-tiny-accent-dot-uppercase-bold-tracking-used-as-the-section-category-signal-dark-warm-black-footer-141413-with-four-column-link-layout-and-large-conversational-headline-2-color-palette-roles-primary` for the brand's primary interaction treatment.
+- Keep page surfaces anchored to `--color-warm-cream-canvas-f3f0ee-replaces-traditional-white-every-surface-is-tinted-never-sterile-extreme-border-radius-as-design-language-40px-99px-1000px-dominate-anything-square-is-a-cookie-banner-third-party-circular-image-portraits-with-attached-white-satellite-ctas-and-traced-orange-orbital-paths-ghost-watermark-headlines-cream-on-cream-text-at-heading-scale-layered-behind-circle-portraits-black-primary-ctas-with-20px-radius-in-the-body-the-cookie-banner-orange-is-kept-to-consent-flows-floating-pill-shaped-navigation-that-docks-below-the-viewport-top-with-rounded-shoulders-eyebrow-labels-with-a-tiny-accent-dot-uppercase-bold-tracking-used-as-the-section-category-signal-dark-warm-black-footer-141413-with-four-column-link-layout-and-large-conversational-headline-2-color-palette-roles-primary`.
+- Preserve every typography style's documented size, line height, and letter spacing.
+- Compare major implementation decisions against [the live Mastercard website](https://www.mastercard.com/).
+
+### Don't
+
+- Do not introduce colors outside the documented color token set.
+- Do not replace `--color-warm-cream-canvas-f3f0ee-replaces-traditional-white-every-surface-is-tinted-never-sterile-extreme-border-radius-as-design-language-40px-99px-1000px-dominate-anything-square-is-a-cookie-banner-third-party-circular-image-portraits-with-attached-white-satellite-ctas-and-traced-orange-orbital-paths-ghost-watermark-headlines-cream-on-cream-text-at-heading-scale-layered-behind-circle-portraits-black-primary-ctas-with-20px-radius-in-the-body-the-cookie-banner-orange-is-kept-to-consent-flows-floating-pill-shaped-navigation-that-docks-below-the-viewport-top-with-rounded-shoulders-eyebrow-labels-with-a-tiny-accent-dot-uppercase-bold-tracking-used-as-the-section-category-signal-dark-warm-black-footer-141413-with-four-column-link-layout-and-large-conversational-headline-2-color-palette-roles-primary` with an arbitrary neutral.
+- Do not flatten documented component states or spacing relationships.
+- Do not treat this extracted snapshot as newer than the live source website.
+
+## Layout
+
+Use the documented spacing scale and component geometry as the implementation baseline. Validate responsive composition and current page rhythm against [the live source](https://www.mastercard.com/).
