@@ -19,10 +19,10 @@ export default function BookCreatePage() {
   }
 
   return (
-    <section className="max-w-3xl flex flex-col gap-8">
+    <section className="max-w-3xl flex flex-col gap-24">
       <div>
-        <h1 className="text-headline-lg mb-1">Añadir libro</h1>
-        <p className="text-body-md text-on-surface-variant">
+        <h1 className="font-display text-heading-lg mb-1">Añadir libro</h1>
+        <p className="text-body text-slate">
           Añade un libro a tu colección buscándolo o introduciendo sus datos manualmente.
         </p>
       </div>
@@ -33,7 +33,7 @@ export default function BookCreatePage() {
             key={m.key}
             role="tab"
             aria-selected={mode === m.key}
-            className={`btn-ghost !h-10 ${mode === m.key ? '!bg-charcoal !text-white' : ''}`}
+            className={`btn-ghost !px-4 !py-2 ${mode === m.key ? '!bg-ink !text-white !border-ink' : ''}`}
             onClick={() => setMode(m.key)}
           >
             {m.label}

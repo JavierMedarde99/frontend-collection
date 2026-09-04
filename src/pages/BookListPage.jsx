@@ -69,10 +69,10 @@ export default function BookListPage() {
   }
 
   return (
-    <section className="flex flex-col gap-8">
+    <section className="flex flex-col gap-24">
       <div>
-        <h1 className="text-headline-lg mb-1">Mi colección</h1>
-        <p className="text-body-md text-on-surface-variant">
+        <h1 className="font-display text-heading-lg mb-1">Mi colección</h1>
+        <p className="text-body text-slate">
           {loading
             ? 'Cargando libros…'
             : `${totalElements} libro${totalElements === 1 ? '' : 's'} en tu colección`}
@@ -89,7 +89,7 @@ export default function BookListPage() {
               placeholder="Buscar por título…"
               aria-label="Buscar por título"
             />
-            <button className="btn-primary !h-12" type="submit">
+            <button className="btn-primary" type="submit">
               Buscar
             </button>
           </form>
@@ -101,7 +101,7 @@ export default function BookListPage() {
               placeholder="Filtrar por autor…"
               aria-label="Filtrar por autor"
             />
-            <button className="btn-ghost !h-12" type="submit">
+            <button className="btn-ghost" type="submit">
               Buscar
             </button>
           </form>
@@ -118,9 +118,9 @@ export default function BookListPage() {
           </select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
-            className={`btn-ghost !h-10 ${!status ? '!bg-charcoal !text-white' : ''}`}
+            className={`btn-ghost !px-4 !py-2 ${!status ? '!bg-ink !text-white !border-ink' : ''}`}
             onClick={() => { setStatus(''); setPage(0) }}
           >
             Todos
@@ -128,7 +128,7 @@ export default function BookListPage() {
           {Object.entries(BOOK_STATES).map(([key, label]) => (
             <button
               key={key}
-              className={`btn-ghost !h-10 ${status === key ? '!bg-charcoal !text-white' : ''}`}
+              className={`btn-ghost !px-4 !py-2 ${status === key ? '!bg-ink !text-white !border-ink' : ''}`}
               onClick={() => { setStatus(key); setPage(0) }}
             >
               {label}
@@ -166,17 +166,17 @@ export default function BookListPage() {
       {totalPages > 1 && (
         <nav className="flex items-center justify-center gap-4">
           <button
-            className="btn-ghost !h-10"
+            className="btn-ghost !px-4 !py-2"
             disabled={page === 0 || loading}
             onClick={() => setPage((p) => Math.max(0, p - 1))}
           >
             Anterior
           </button>
-          <span className="text-body-md text-on-surface-variant">
+          <span className="text-body text-slate">
             Página {page + 1} de {totalPages}
           </span>
           <button
-            className="btn-ghost !h-10"
+            className="btn-ghost !px-4 !py-2"
             disabled={page >= totalPages - 1 || loading}
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
           >

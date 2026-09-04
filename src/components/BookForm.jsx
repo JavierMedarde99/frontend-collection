@@ -6,7 +6,7 @@ function Field({ label, children, required }) {
   return (
     <div>
       <label className="label">
-        {label} {required && <span className="text-digital-blue">*</span>}
+        {label} {required && <span className="text-action-blue">*</span>}
       </label>
       {children}
     </div>

@@ -1,163 +1,118 @@
----
-name: Studio Minimalist
-colors:
-  surface: '#f8f9ff'
-  surface-dim: '#d8dae0'
-  surface-bright: '#f8f9ff'
-  surface-container-lowest: '#ffffff'
-  surface-container-low: '#f2f3f9'
-  surface-container: '#eceef3'
-  surface-container-high: '#e7e8ee'
-  surface-container-highest: '#e1e2e8'
-  on-surface: '#191c20'
-  on-surface-variant: '#44474a'
-  inverse-surface: '#2e3135'
-  inverse-on-surface: '#eff0f6'
-  outline: '#75777a'
-  outline-variant: '#c5c6ca'
-  surface-tint: '#5d5e61'
-  primary: '#000101'
-  on-primary: '#ffffff'
-  primary-container: '#1a1c1e'
-  on-primary-container: '#838486'
-  inverse-primary: '#c6c6c9'
-  secondary: '#003ec6'
-  on-secondary: '#ffffff'
-  secondary-container: '#0052fe'
-  on-secondary-container: '#dfe3ff'
-  tertiary: '#000001'
-  on-tertiary: '#ffffff'
-  tertiary-container: '#1a1c1c'
-  on-tertiary-container: '#838484'
-  error: '#ba1a1a'
-  on-error: '#ffffff'
-  error-container: '#ffdad6'
-  on-error-container: '#93000a'
-  primary-fixed: '#e2e2e5'
-  primary-fixed-dim: '#c6c6c9'
-  on-primary-fixed: '#1a1c1e'
-  on-primary-fixed-variant: '#454749'
-  secondary-fixed: '#dde1ff'
-  secondary-fixed-dim: '#b7c4ff'
-  on-secondary-fixed: '#001452'
-  on-secondary-fixed-variant: '#0038b6'
-  tertiary-fixed: '#e2e2e2'
-  tertiary-fixed-dim: '#c6c6c7'
-  on-tertiary-fixed: '#1a1c1c'
-  on-tertiary-fixed-variant: '#454747'
-  background: '#f8f9ff'
-  on-background: '#191c20'
-  surface-variant: '#e1e2e8'
-  studio-white: '#FFFFFF'
-  charcoal-deep: '#1A1C1E'
-  digital-blue: '#0052FF'
-  surface-muted: '#F1F3F7'
-typography:
-  display-lg:
-    fontFamily: Inter
-    fontSize: 48px
-    fontWeight: '700'
-    lineHeight: '1.1'
-    letterSpacing: 0.02em
-  headline-lg:
-    fontFamily: Inter
-    fontSize: 32px
-    fontWeight: '600'
-    lineHeight: '1.2'
-    letterSpacing: 0.01em
-  headline-lg-mobile:
-    fontFamily: Inter
-    fontSize: 28px
-    fontWeight: '600'
-    lineHeight: '1.2'
-    letterSpacing: 0.01em
-  headline-md:
-    fontFamily: Inter
-    fontSize: 24px
-    fontWeight: '500'
-    lineHeight: '1.3'
-    letterSpacing: 0.01em
-  body-lg:
-    fontFamily: Inter
-    fontSize: 18px
-    fontWeight: '400'
-    lineHeight: '1.6'
-  body-md:
-    fontFamily: Inter
-    fontSize: 16px
-    fontWeight: '400'
-    lineHeight: '1.5'
-  label-sm:
-    fontFamily: Inter
-    fontSize: 12px
-    fontWeight: '600'
-    lineHeight: '1'
-    letterSpacing: 0.05em
-rounded:
-  sm: 0.25rem
-  DEFAULT: 0.5rem
-  md: 0.75rem
-  lg: 1rem
-  xl: 1.5rem
-  full: 9999px
-spacing:
-  base: 8px
-  gutter: 24px
-  margin-mobile: 20px
-  margin-desktop: 80px
-  container-max: 1440px
----
+# Cal.com — Design System
 
-## Brand & Style
-The design system transitions from a scholarly archive to a **Modern Minimalist** digital studio. The personality is clean, precise, and sophisticated, favoring clarity over ornamentation. The emotional response is one of effortless efficiency and high-end curation.
+> **Theme:** Light · **Voice:** Monochrome Utility, Human Touch
 
-The aesthetic is characterized by a "Studio White" environment that emphasizes content through deliberate whitespace rather than structural lines. By removing traditional borders and embracing a high-contrast palette with vibrant digital accents, the design system achieves a contemporary, forward-looking feel suitable for premium digital experiences.
+Cal is a scheduling product whose interface feels precise, quiet and useful. The visual system is predominantly black, white and graduated neutral gray. Blue is a deliberately scarce functional accent for tertiary links and informational states; Google colors appear only in integration marks.
 
-## Colors
-The palette is built on a high-contrast foundation to ensure a crisp, modern aesthetic.
+## Foundations
 
-- **Primary (#1A1C1E):** Deep Charcoal is the anchor for all primary text and structural elements, providing a grounded, authoritative presence.
-- **Secondary (#0052FF):** Digital Blue serves as the vibrant accent color for primary actions, focus states, and key highlights.
-- **Surface (#FFFFFF):** The primary canvas is a pure Studio White, creating a sense of limitless space and clarity.
-- **Neutral (#F8F9FF):** A very subtle cool-grey used for secondary backgrounds and subtle grouping without the need for borders.
+### Color
 
-## Typography
-The system utilizes **Inter** exclusively to create a unified, systematic typographic hierarchy. The transition to a geometric sans-serif removes the literary weight of the previous iteration in favor of a neutral, functional "metadata" aesthetic. 
+| Token            | Value     | Usage                                       |
+| ---------------- | --------- | ------------------------------------------- |
+| `ink`            | `#101010` | Primary text, primary CTA, dark footer      |
+| `action-blue`    | `#0099ff` | Tertiary links and informational highlights |
+| `white`          | `#ffffff` | Cards and elevated scheduling surfaces      |
+| `paper`          | `#f4f4f4` | Main page background and quiet fills        |
+| `graphite`       | `#242424` | Secondary text and controls                 |
+| `slate`          | `#6b7280` | Muted text                                  |
+| `stone`          | `#898989` | Subtle labels                               |
+| `silver`         | `#e5e7eb` | Input and control borders                   |
+| `info-banner-bg` | `#eff6fe` | Informational banner background             |
+| `google-blue`    | `#4285f4` | Google integration mark only                |
+| `google-yellow`  | `#fbbc04` | Google integration mark only                |
+| `google-green`   | `#34a853` | Google integration mark only                |
+| `google-red`     | `#ea4335` | Google integration mark only                |
 
-Headlines use a crisp type scale with generous letter spacing to enhance the "Modern Minimalist" feel. Body text is optimized for readability with a comfortable line height, while labels maintain a high tracking value for a sophisticated, architectural look.
+### Typography
 
-## Layout & Spacing
-The layout follows a **Fluid-Fixed Hybrid** model. Content is contained within a max-width container to preserve the minimalist composition, while whitespace is treated as a first-class design element.
+Use **Cal Sans** for headings (fallback: Poppins or Gilroy), and **Cal Sans UI Variable Light** for reading text (fallback: Inter Light). Inter is used for compact product UI; Matter remains the tertiary utility face.
 
-- **Grid:** A 12-column system is used for desktop with increased 80px margins to frame content like a gallery piece.
-- **Responsive:** On mobile, margins are kept generous at 20px to ensure the UI doesn't feel cramped. 
-- **Rhythm:** Spacing follows a strict 8px base unit. Internal component padding should be "oversized" (typically 32px or 40px) to reinforce the luxury of space.
+| Role          | Family                            | Weight | Size / line height | Tracking |
+| ------------- | --------------------------------- | -----: | ------------------ | -------- |
+| Caption       | Cal Sans UI Variable Light, Inter |    300 | 12px / 1.4         | -0.24px  |
+| Body small    | Cal Sans UI Variable Light, Inter |    300 | 14px / 1.5         | -0.20px  |
+| Body          | Cal Sans UI Variable Light, Inter |    300 | 16px / 1.5         | -0.19px  |
+| Subheading    | Cal Sans UI Variable Light, Inter |    300 | 18px / 1.4         | -0.20px  |
+| Heading small | Cal Sans, Poppins                 |    600 | 20px / 1.3         | 0.20px   |
+| Heading       | Cal Sans, Poppins                 |    600 | 24px / 1.3         | 0.24px   |
+| Heading large | Cal Sans, Poppins                 |    600 | 48px / 1.1         | 0.48px   |
+| Display       | Cal Sans, Poppins                 |    600 | 64px / 1.1         | 0.64px   |
 
-## Elevation & Depth
-Hierarchy is achieved through **Tonal Layers** and **Ambient Shadows** rather than borders. This creates a "soft depth" where elements appear to float over the Studio White surface.
+### Spacing
 
-- **Level 1 (Base):** Studio White (#FFFFFF) background.
-- **Level 2 (Containers):** Subtle surface shifts to Neutral (#F8F9FF) to define sections without hard edges.
-- **Level 3 (Floating):** Active cards and menus use extra-diffused, low-opacity shadows (e.g., Blur: 32px, Offset-Y: 12px, Opacity: 4%). This creates a light, "weightless" feel.
-- **Interactions:** Subtle backdrop blurs may be used for navigation overlays to maintain context while focusing the user's attention.
+Use the 4px rhythm: `4`, `5`, `6`, `8`, `10`, `12`, `16`, `20`, `24`, `28`, `32`, `40`, `48`, `80`.
 
-## Shapes
-The shape language is defined by **Rounded (0.5rem)** corners. This increased radius provides a friendlier, contemporary appearance that softens the high-contrast color palette. 
+### Radius
 
-Large containers like cards should use `rounded-lg` (1rem), while primary action buttons and inputs utilize the base 0.5rem radius. This consistent rounding across the system ensures a cohesive, intentional visual language.
+`4`, `8`, `12`, `16`, `29`, `100`, `120`, `1000`, `9999` px. Inputs use 8px; cards use 12px; small tags and pill buttons use 9999px.
+
+### Shadows
+
+| Token      | Value                                                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `sm`       | `rgba(36, 36, 36, 0.7) 0px 1px 5px -4px, rgba(36, 36, 36, 0.05) 0px 4px 8px 0px`                                         |
+| `subtle`   | `rgba(255, 255, 255, 0.15) 0px 2px 0px 0px inset`                                                                        |
+| `sm-2`     | `rgba(19, 19, 22, 0.7) 0px 1px 5px -4px, rgba(34, 42, 53, 0.1) 0px 0px 0px 1px, rgba(34, 42, 53, 0.05) 0px 4px 8px 0px`  |
+| `sm-3`     | `rgba(19, 19, 22, 0.7) 0px 1px 5px -4px, rgba(34, 42, 53, 0.08) 0px 0px 0px 1px, rgba(34, 42, 53, 0.05) 0px 4px 8px 0px` |
+| `sm-4`     | `rgba(34, 42, 53, 0.05) 0px 4px 8px 0px`                                                                                 |
+| `subtle-2` | `rgb(255, 255, 255) 0px 2px 0px 0px inset`                                                                               |
+| `subtle-3` | `rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 0px 2px 0px`                                                |
+
+## Layout
+
+- Content maximum: `1200px`
+- Section gap: `96px`
+- Standard card padding: `24px`
+- Product UI cards are white, 12px rounded, and use an extremely subtle shadow instead of a card border.
 
 ## Components
-### Buttons
-Primary buttons are solid Digital Blue (#0052FF) with white text. They should have a significant height (at least 48px) and use `label-sm` typography. Secondary buttons are "Ghost" style but without a border—using a light Neutral (#F8F9FF) background and Primary text.
 
-### Cards
-Cards are borderless. They rely on a soft ambient shadow or a slight background color shift to define their boundaries. Content within cards should have a minimum of 32px padding to maintain the minimalist aesthetic.
+### Buttons and controls
 
-### Input Fields
-Inputs are styled as clean, filled containers using the Neutral (#F8F9FF) color. They have no borders in their default state. On focus, they transition to a 2px Primary or Secondary outline to provide clear feedback.
+| Component       | Treatment                                                                                     |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| Primary CTA     | Ink fill, white UI text, pill radius, 12px × 24px padding                                     |
+| Secondary ghost | Transparent or paper fill, graphite text, 1px silver border, pill radius, 12px × 24px padding |
+| Header CTA      | Ink fill, white 14px UI text, 8px radius, 8px × 16px padding                                  |
+| Tag             | Paper fill or silver edge, graphite text, 9999px radius, 4px × 12px padding                   |
+| Navigation link | Graphite Cal Sans UI, 14–16px, no underline                                                   |
 
-### Chips & Lists
-Chips are pill-shaped and use a high-contrast style: Charcoal text on a light Neutral background. Lists are separated by generous whitespace rather than divider lines, using typographic weight to distinguish between primary and secondary information.
+### Scheduling widget
 
-### Navigation
-The navigation bar is a minimal, floating element or a fixed top bar with a Studio White background and no bottom border, relying on a subtle shadow for separation during scroll.
+The scheduling surface is the principal product fragment: white background, 16px internal padding, 12px radius and `sm-4` shadow. Date selection is a compact ink circle; time choices use quiet silver borders and become ink only when selected. Use readable, functional labels rather than decorative graphics.
+
+### Informational state and integrations
+
+Informational banners use `info-banner-bg` with an `action-blue` link. Google colors are confined to the Google integration mark and are not promoted into general UI accents.
+
+## Usage guidance
+
+**Do**
+
+- Keep core UI monochrome and let spacing, type and surface hierarchy carry emphasis.
+- Use Cal Sans for headings and Cal Sans UI / Inter for body and product UI text.
+- Use 8–12px cards with quiet elevation and ample internal space.
+- Use product screenshots, scheduling fragments and integration marks as imagery.
+
+**Avoid**
+
+- Adding new core UI colors or broad blue decoration.
+- Gradients, sharp corners, heavy borders on cards, or lifestyle / abstract imagery.
+- Font weights above 600.
+- Setting paragraph copy in the display face.
+
+## Accessibility
+
+Maintain visible keyboard focus, semantic controls, readable contrast, and reduced-motion behavior. Motion should be limited to a single calm product-surface entrance and disabled for `prefers-reduced-motion`.
+
+## Deliverables
+
+- [tokens.json](tokens.json) — DTCG-compatible token source
+- [variables.css](variables.css) — CSS custom properties
+- [theme.css](theme.css) — Tailwind v4 theme mapping
+- [preview.html](preview.html) — standalone visual reference
+
+## Source
+
+Reset from the supplied **Cal.com — Style Reference: Monochrome Utility, Human Touch**. Values are intentionally limited to what that reference specifies.
