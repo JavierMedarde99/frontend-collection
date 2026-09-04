@@ -28,11 +28,14 @@ async function request(url, options = {}) {
 
 export function listBooks(params = {}) {
   const search = new URLSearchParams()
-  const { page, size, sort, state } = params
+  const { page, size, sort, state, name, author, type } = params
   if (page !== undefined && page !== null) search.set('page', page)
   if (size !== undefined && size !== null) search.set('size', size)
   if (sort) search.set('sort', sort)
   if (state) search.set('state', state)
+  if (name) search.set('name', name)
+  if (author) search.set('author', author)
+  if (type) search.set('type', type)
   const qs = search.toString()
   return request(`${BASE_URL}${qs ? `?${qs}` : ''}`)
 }
