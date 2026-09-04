@@ -12,6 +12,8 @@ export default function BookListPage() {
   const [books, setBooks] = useState([])
   const [status, setStatus] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
+  const [nameInput, setNameInput] = useState('')
+  const [authorInput, setAuthorInput] = useState('')
   const [nameFilter, setNameFilter] = useState('')
   const [authorFilter, setAuthorFilter] = useState('')
   const [page, setPage] = useState(0)
@@ -56,6 +58,13 @@ export default function BookListPage() {
 
   function handleNameSearch(e) {
     e.preventDefault()
+    setNameFilter(nameInput.trim())
+    setPage(0)
+  }
+
+  function handleAuthorSearch(e) {
+    e.preventDefault()
+    setAuthorFilter(authorInput.trim())
     setPage(0)
   }
 
@@ -75,8 +84,8 @@ export default function BookListPage() {
           <form onSubmit={handleNameSearch} className="flex gap-3 flex-1">
             <input
               className="input flex-1"
-              value={nameFilter}
-              onChange={(e) => setNameFilter(e.target.value)}
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
               placeholder="Buscar por título…"
               aria-label="Buscar por título"
             />
@@ -84,13 +93,18 @@ export default function BookListPage() {
               Buscar
             </button>
           </form>
-          <input
-            className="input md:w-60"
-            value={authorFilter}
-            onChange={(e) => { setAuthorFilter(e.target.value); setPage(0) }}
-            placeholder="Filtrar por autor…"
-            aria-label="Filtrar por autor"
-          />
+          <form onSubmit={handleAuthorSearch} className="flex gap-3 flex-1">
+            <input
+              className="input flex-1"
+              value={authorInput}
+              onChange={(e) => setAuthorInput(e.target.value)}
+              placeholder="Filtrar por autor…"
+              aria-label="Filtrar por autor"
+            />
+            <button className="btn-ghost !h-12" type="submit">
+              Buscar
+            </button>
+          </form>
           <select
             className="input md:w-52"
             value={typeFilter}
