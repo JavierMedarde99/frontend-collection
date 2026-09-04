@@ -1,9 +1,6 @@
 import { NavLink } from 'react-router-dom'
 
-const links = [
-  { to: '/', label: 'Mi colección' },
-  { to: '/nuevo', label: 'Añadir libro' },
-]
+const links = [{ to: '/', label: 'Colección de libros' }]
 
 export default function Navbar() {
   return (

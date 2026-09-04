@@ -70,13 +70,18 @@ export default function BookListPage() {
 
   return (
     <section className="flex flex-col gap-24">
-      <div>
-        <h1 className="font-display text-heading-lg mb-1">Mi colección</h1>
-        <p className="text-body text-slate">
-          {loading
-            ? 'Cargando libros…'
-            : `${totalElements} libro${totalElements === 1 ? '' : 's'} en tu colección`}
-        </p>
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <h1 className="font-display text-heading-lg mb-1">Mi colección</h1>
+          <p className="text-body text-slate">
+            {loading
+              ? 'Cargando libros…'
+              : `${totalElements} libro${totalElements === 1 ? '' : 's'} en tu colección`}
+          </p>
+        </div>
+        <Link className="btn-primary !px-4 !py-2 shrink-0" to="/nuevo">
+          Añadir libro
+        </Link>
       </div>
 
       <div className="flex flex-col gap-4">
