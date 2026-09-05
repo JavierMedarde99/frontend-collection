@@ -21,6 +21,7 @@ export default function BookListPage() {
   const [totalElements, setTotalElements] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -68,6 +69,9 @@ export default function BookListPage() {
     setPage(0)
   }
 
+  const activeFilterCount =
+    [status, typeFilter, nameFilter, authorFilter].filter(Boolean).length
+
   return (
     <section className="flex flex-col gap-24">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
@@ -79,23 +83,49 @@ export default function BookListPage() {
               : `${totalElements} libro${totalElements === 1 ? '' : 's'} en tu colección`}
           </p>
         </div>
-        <Link className="btn-primary shrink-0" to="/nuevo">
-          <svg
-            aria-hidden="true"
-            className="w-4 h-4 mr-1.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            className="btn-ghost !px-5"
+            onClick={() => setFiltersOpen((v) => !v)}
+            aria-expanded={filtersOpen}
+            aria-controls="filtros"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Añadir libro
-        </Link>
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+            </svg>
+            Filtros
+            {activeFilterCount > 0 && (
+              <span className="ml-1.5 inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-brand text-white text-caption font-semibold">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+          <Link className="btn-primary" to="/nuevo">
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4 mr-1.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Añadir libro
+          </Link>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-5">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-3">
+      {filtersOpen && (
+        <div id="filtros" className="flex flex-col gap-5 animate-fade-in">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-3">
           <form onSubmit={handleNameSearch} className="relative">
             <svg
               aria-hidden="true"
@@ -170,7 +200,8 @@ export default function BookListPage() {
             </button>
           ))}
         </div>
-      </div>
+        </div>
+      )}
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
