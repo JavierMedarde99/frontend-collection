@@ -12,8 +12,8 @@ export const TYPE_LABELS = {
 
 export const TYPE_BADGE_COLORS = {
   MANGA: 'bg-paper text-graphite',
-  NOVEL: 'bg-silver/50 text-graphite',
-  GRAPHIC_NOVEL: 'bg-ink text-white',
+  NOVEL: 'bg-paper text-graphite',
+  GRAPHIC_NOVEL: 'bg-paper text-graphite',
 }
 
 export const BOOK_STATES = {

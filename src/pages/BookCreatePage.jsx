@@ -19,7 +19,7 @@ export default function BookCreatePage() {
   }
 
   return (
-    <section className="max-w-3xl flex flex-col gap-10">
+    <section className="max-w-3xl flex flex-col gap-24">
       <div>
         <h1 className="font-display text-heading-lg mb-2">Añadir libro</h1>
         <p className="text-body text-slate">

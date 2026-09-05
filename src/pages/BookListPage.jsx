@@ -69,7 +69,7 @@ export default function BookListPage() {
   }
 
   return (
-    <section className="flex flex-col gap-10">
+    <section className="flex flex-col gap-24">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
           <h1 className="font-display text-heading-lg mb-2">Mi colección</h1>
@@ -79,7 +79,7 @@ export default function BookListPage() {
               : `${totalElements} libro${totalElements === 1 ? '' : 's'} en tu colección`}
           </p>
         </div>
-        <Link className="btn-primary !px-5 !py-2.5 shrink-0" to="/nuevo">
+        <Link className="btn-primary shrink-0" to="/nuevo">
           <svg
             aria-hidden="true"
             className="w-4 h-4 mr-1.5"
