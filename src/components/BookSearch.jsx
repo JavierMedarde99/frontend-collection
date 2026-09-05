@@ -75,7 +75,7 @@ export default function BookSearch() {
         ...(showComment ? { comment: modalComment || undefined } : {}),
       })
       setSelected(null)
-      navigate(`/editar/${created.id}`)
+      navigate('/coleccion')
     } catch (err) {
       window.alert(err.message || 'No se pudo añadir el libro.')
     } finally {
