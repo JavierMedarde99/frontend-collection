@@ -1,4 +1,10 @@
-export default function StarRating({ value = 0, onChange, readOnly = false }) {
+interface StarRatingProps {
+  value?: number
+  onChange?: (value: number) => void
+  readOnly?: boolean
+}
+
+export default function StarRating({ value = 0, onChange, readOnly = false }: StarRatingProps) {
   const stars = [1, 2, 3, 4, 5]
 
   if (readOnly) {
@@ -29,7 +35,7 @@ export default function StarRating({ value = 0, onChange, readOnly = false }) {
         <button
           key={n}
           type="button"
-          onClick={() => onChange(n)}
+          onClick={() => onChange?.(n)}
           className={`text-2xl leading-none transition-all duration-150 ease-smooth cursor-pointer hover:scale-110 ${
             n <= value ? 'text-accent drop-shadow-sm' : 'text-stone/50 hover:text-accent/70'
           }`}
