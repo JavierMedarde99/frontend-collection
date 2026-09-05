@@ -70,7 +70,7 @@ export default function BookListPage() {
   }
 
   const activeFilterCount =
-    [status, typeFilter, nameFilter, authorFilter].filter(Boolean).length
+    [typeFilter, nameFilter, authorFilter].filter(Boolean).length
 
   return (
     <section className="flex flex-col gap-24">
@@ -182,26 +182,26 @@ export default function BookListPage() {
             ))}
           </select>
         </div>
-
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-          <button
-            className={`btn-ghost !px-4 !py-2 ${!status ? '!bg-brand !text-white !border-brand !shadow-brand-glow' : ''}`}
-            onClick={() => { setStatus(''); setPage(0) }}
-          >
-            Todos
-          </button>
-          {Object.entries(BOOK_STATES).map(([key, label]) => (
-            <button
-              key={key}
-              className={`btn-ghost !px-4 !py-2 ${status === key ? '!bg-brand !text-white !border-brand !shadow-brand-glow' : ''}`}
-              onClick={() => { setStatus(key); setPage(0) }}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
         </div>
       )}
+
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
+        <button
+          className={`btn-ghost !px-4 !py-2 ${!status ? '!bg-brand !text-white !border-brand !shadow-brand-glow' : ''}`}
+          onClick={() => { setStatus(''); setPage(0) }}
+        >
+          Todos
+        </button>
+        {Object.entries(BOOK_STATES).map(([key, label]) => (
+          <button
+            key={key}
+            className={`btn-ghost !px-4 !py-2 ${status === key ? '!bg-brand !text-white !border-brand !shadow-brand-glow' : ''}`}
+            onClick={() => { setStatus(key); setPage(0) }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
