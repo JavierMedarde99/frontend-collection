@@ -2,8 +2,14 @@ import { Link } from 'react-router-dom'
 import StatusBadge from './StatusBadge'
 import StarRating from './StarRating'
 import { TYPE_LABELS, TYPE_BADGE_COLORS } from '../constants/books'
+import type { Book } from '../types'
 
-export default function BookCard({ book, index = 0 }) {
+interface BookCardProps {
+  book: Book
+  index?: number
+}
+
+export default function BookCard({ book, index = 0 }: BookCardProps) {
   const typeColor = TYPE_BADGE_COLORS[book.type] || TYPE_BADGE_COLORS.NOVEL
   return (
     <article
