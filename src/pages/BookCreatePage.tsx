@@ -1,20 +1,23 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createBook } from '../api/booksApi'
+import type { BookFormData } from '../types'
 import BookForm from '../components/BookForm'
 import BookSearch from '../components/BookSearch'
 
-const MODES = [
+type Mode = 'search' | 'manual'
+
+const MODES: { key: Mode; label: string }[] = [
   { key: 'search', label: 'Buscar libro' },
   { key: 'manual', label: 'Alta manual' },
 ]
 
 export default function BookCreatePage() {
   const navigate = useNavigate()
-  const [mode, setMode] = useState('manual')
+  const [mode, setMode] = useState<Mode>('manual')
 
-  async function handleSubmit(payload) {
-    const created = await createBook(payload)
+  async function handleSubmit(payload: BookFormData) {
+    await createBook(payload)
     navigate('/coleccion', { replace: true })
   }
 
