@@ -3,23 +3,28 @@ import StatusBadge from './StatusBadge'
 import StarRating from './StarRating'
 import { TYPE_LABELS, TYPE_BADGE_COLORS } from '../constants/books'
 
-export default function BookCard({ book }) {
+export default function BookCard({ book, index = 0 }) {
   const typeColor = TYPE_BADGE_COLORS[book.type] || TYPE_BADGE_COLORS.NOVEL
   return (
-    <article className="card card-hover flex flex-col gap-5">
+    <article
+      className="card card-hover animate-fade-up flex flex-col gap-5 group"
+      style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
+    >
       <div className="flex gap-5">
         {book.frontpage ? (
-          <img
-            src={book.frontpage}
-            alt={book.title}
-            loading="lazy"
-            className="w-24 h-32 object-cover rounded shadow-sm shrink-0 bg-paper"
-          />
+          <div className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper">
+            <img
+              src={book.frontpage}
+              alt={book.title}
+              loading="lazy"
+              className="w-28 h-36 object-cover transition-transform duration-300 group-hover:scale-[1.05]"
+            />
+          </div>
         ) : (
-          <div className="w-24 h-32 rounded shrink-0 bg-paper border border-silver/60 flex flex-col items-center justify-center gap-1 text-caption text-slate">
+          <div className="w-28 h-36 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex flex-col items-center justify-center gap-1.5 text-caption text-graphite">
             <svg
               aria-hidden="true"
-              className="w-6 h-6 text-stone"
+              className="w-8 h-8 text-brand"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -35,11 +40,13 @@ export default function BookCard({ book }) {
           </div>
         )}
         <div className="min-w-0 flex-1 flex flex-col">
-          <h3 className="font-display text-heading-sm leading-snug line-clamp-2">{book.title}</h3>
-          <p className="text-body text-graphite mt-1 line-clamp-1">{book.author}</p>
+          <h3 className="font-display text-heading-sm leading-snug line-clamp-2 text-ink">
+            {book.title}
+          </h3>
+          <p className="text-body-sm text-graphite mt-1 line-clamp-1">{book.author}</p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <StatusBadge state={book.state} />
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-caption ${typeColor}`}>
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-caption font-medium ${typeColor}`}>
               {TYPE_LABELS[book.type] || book.type}
             </span>
           </div>

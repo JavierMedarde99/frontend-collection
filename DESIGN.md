@@ -1,43 +1,62 @@
-# Cal.com — Design System
+# Book Collection — Design System
 
-> **Theme:** Light · **Voice:** Monochrome Utility, Human Touch
+> **Theme:** Warm Library · **Voice:** Vibrant but disciplined
 
-Cal is a scheduling product whose interface feels precise, quiet and useful. The visual system is predominantly black, white and graduated neutral gray. Blue is a deliberately scarce functional accent for tertiary links and informational states; Google colors appear only in integration marks.
+A book-collection product with a warm, curated feel. Terracotta orange is the primary brand color, amber carries the accent, and indigo/emerald signal reading states. Surfaces stay quiet (cream, paper) so color reads as intentional energy rather than noise.
 
 ## Foundations
 
 ### Color
 
-| Token            | Value     | Usage                                       |
-| ---------------- | --------- | ------------------------------------------- |
-| `ink`            | `#101010` | Primary text, primary CTA, dark footer      |
-| `action-blue`    | `#0099ff` | Tertiary links and informational highlights |
-| `white`          | `#ffffff` | Cards and elevated scheduling surfaces      |
-| `paper`          | `#f4f4f4` | Main page background and quiet fills        |
-| `graphite`       | `#242424` | Secondary text and controls                 |
-| `slate`          | `#6b7280` | Muted text                                  |
-| `stone`          | `#898989` | Subtle labels                               |
-| `silver`         | `#e5e7eb` | Input and control borders                   |
-| `info-banner-bg` | `#eff6fe` | Informational banner background             |
-| `google-blue`    | `#4285f4` | Google integration mark only                |
-| `google-yellow`  | `#fbbc04` | Google integration mark only                |
-| `google-green`   | `#34a853` | Google integration mark only                |
-| `google-red`     | `#ea4335` | Google integration mark only                |
+| Token           | Value     | Usage                                                  |
+| --------------- | --------- | ------------------------------------------------------ |
+| `brand`         | `#ea580c` | Primary CTA, active states, hero gradient              |
+| `brand-deep`    | `#c2410c` | Hover / pressed CTA, gradient end                      |
+| `brand-soft`    | `#ffedd5` | Icon chips and soft brand fills                        |
+| `accent`        | `#f59e0b` | Accent stars, dots, gradient end                       |
+| `accent-deep`   | `#b45309` | Accent hover and badge text                            |
+| `accent-soft`   | `#fef3c7` | Amber-flagged badge backgrounds                        |
+| `ink`           | `#1a150f` | Primary text                                          |
+| `paper`         | `#faf7f2` | Main page background (warm off-white)                  |
+| `cream`         | `#fffdf8` | Elevated / hero surfaces                               |
+| `graphite`      | `#3d3428` | Secondary text and controls                            |
+| `slate`         | `#6b6259` | Muted text                                             |
+| `stone`         | `#98907f` | Subtle labels and icon color                           |
+| `silver`        | `#e6e0d6` | Input and control borders                              |
+| `info-banner`   | `#eff6fe` | Informational banner background                        |
+
+Semantic status colors (Tailwind defaults, themed in `src/constants/books.js`):
+
+| State       | Fill / text                    | Dot       |
+| ----------- | ------------------------------ | --------- |
+| TO_READ     | `bg-accent-soft` / `accent-deep` | `accent`  |
+| READING     | `bg-indigo-100` / `indigo-700`   | indigo-500 |
+| COMPLETED   | `bg-emerald-100` / `emerald-700` | emerald-500 |
+
+Type badges: Manga → rose, Novela → indigo, Novela gráfica → emerald (soft 100 fill, 700 text).
+
+### Gradients
+
+| Gradient          | Source                                  | Usage                    |
+| ----------------- | --------------------------------------- | ------------------------ |
+| `hero-gradient`   | `135deg, #7c2d12 → #ea580c → #f59e0b`   | Home hero banner         |
+| `navbar-gradient` | `90deg, #fffdf8 → #ffedd5 → #fde6d0`    | Sticky navbar background |
+| `card-gradient`   | `180deg, #ffffff → #fff8f0`             | Card surfaces            |
 
 ### Typography
 
-Use **Cal Sans** for headings (fallback: Poppins or Gilroy), and **Cal Sans UI Variable Light** for reading text (fallback: Inter Light). Inter is used for compact product UI; Matter remains the tertiary utility face.
+Use **Poppins** for headings and CTAs, **Inter** for reading and product UI.
 
-| Role          | Family                            | Weight | Size / line height | Tracking |
-| ------------- | --------------------------------- | -----: | ------------------ | -------- |
-| Caption       | Cal Sans UI Variable Light, Inter |    300 | 12px / 1.4         | -0.24px  |
-| Body small    | Cal Sans UI Variable Light, Inter |    300 | 14px / 1.5         | -0.20px  |
-| Body          | Cal Sans UI Variable Light, Inter |    300 | 16px / 1.5         | -0.19px  |
-| Subheading    | Cal Sans UI Variable Light, Inter |    300 | 18px / 1.4         | -0.20px  |
-| Heading small | Cal Sans, Poppins                 |    600 | 20px / 1.3         | 0.20px   |
-| Heading       | Cal Sans, Poppins                 |    600 | 24px / 1.3         | 0.24px   |
-| Heading large | Cal Sans, Poppins                 |    600 | 48px / 1.1         | 0.48px   |
-| Display       | Cal Sans, Poppins                 |    600 | 64px / 1.1         | 0.64px   |
+| Role          | Family        | Weight | Size / line height | Tracking |
+| ------------- | ------------- | -----: | ------------------ | -------- |
+| Caption       | Inter         |    500 | 12px / 1.4         | -0.24px  |
+| Body small    | Inter         |    400 | 14px / 1.5         | -0.20px  |
+| Body          | Inter         |    400 | 16px / 1.5         | -0.19px  |
+| Subheading    | Inter         |    400 | 18px / 1.4         | -0.20px  |
+| Heading small | Poppins       |    600 | 20px / 1.3         | 0.20px   |
+| Heading       | Poppins       |    600 | 24px / 1.3         | 0.24px   |
+| Heading large | Poppins       |    700 | 48px / 1.1         | 0.48px   |
+| Display       | Poppins       |    700 | 64px / 1.1         | 0.64px   |
 
 ### Spacing
 
@@ -45,74 +64,75 @@ Use the 4px rhythm: `4`, `5`, `6`, `8`, `10`, `12`, `16`, `20`, `24`, `28`, `32`
 
 ### Radius
 
-`4`, `8`, `12`, `16`, `29`, `100`, `120`, `1000`, `9999` px. Inputs use 8px; cards use 12px; small tags and pill buttons use 9999px.
+`4`, `8`, `12`, `16`, `24`, `32`, `40`, `9999` px. Inputs use 16px; cards use 16px; tags, pills and CTAs use 9999px; the home hero uses 24px.
 
 ### Shadows
 
-| Token      | Value                                                                                                                    |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `sm`       | `rgba(36, 36, 36, 0.7) 0px 1px 5px -4px, rgba(36, 36, 36, 0.05) 0px 4px 8px 0px`                                         |
-| `subtle`   | `rgba(255, 255, 255, 0.15) 0px 2px 0px 0px inset`                                                                        |
-| `sm-2`     | `rgba(19, 19, 22, 0.7) 0px 1px 5px -4px, rgba(34, 42, 53, 0.1) 0px 0px 0px 1px, rgba(34, 42, 53, 0.05) 0px 4px 8px 0px`  |
-| `sm-3`     | `rgba(19, 19, 22, 0.7) 0px 1px 5px -4px, rgba(34, 42, 53, 0.08) 0px 0px 0px 1px, rgba(34, 42, 53, 0.05) 0px 4px 8px 0px` |
-| `sm-4`     | `rgba(34, 42, 53, 0.05) 0px 4px 8px 0px`                                                                                 |
-| `subtle-2` | `rgb(255, 255, 255) 0px 2px 0px 0px inset`                                                                               |
-| `subtle-3` | `rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 0px 2px 0px`                                                |
+| Token          | Value                                                                                                                            |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `sm-4`         | `rgba(90, 60, 30, 0.06) 0px 4px 12px 0px`                                                                                       |
+| `sm`           | `rgba(60, 30, 0, 0.18) 0px 1px 5px -4px, rgba(90, 60, 30, 0.06) 0px 4px 12px 0px`                                               |
+| `card`         | `rgba(120, 80, 40, 0.05) 0px 1px 2px 0px, rgba(120, 80, 40, 0.08) 0px 4px 12px 0px`                                             |
+| `card-hover`   | `rgba(154, 52, 18, 0.12) 0px 8px 16px -4px, rgba(120, 80, 40, 0.12) 0px 18px 32px -8px`                                        |
+| `brand-glow`   | `0 10px 30px -10px rgba(234, 88, 12, 0.55)`                                                                                     |
+
+Cards use a pronounced hover elevation (`card-hover` + `-translate-y-1`).
 
 ## Layout
 
 - Content maximum: `1200px`
 - Section gap: `96px`
 - Standard card padding: `24px`
-- Product UI cards are white, 12px rounded, and use an extremely subtle shadow instead of a card border.
+- Product UI cards use `card-gradient` with an extremely subtle shadow instead of a border.
 
 ## Components
 
 ### Buttons and controls
 
-| Component       | Treatment                                                                                     |
-| --------------- | --------------------------------------------------------------------------------------------- |
-| Primary CTA     | Ink fill, white UI text, pill radius, 12px × 24px padding                                     |
-| Secondary ghost | Transparent or paper fill, graphite text, 1px silver border, pill radius, 12px × 24px padding |
-| Header CTA      | Ink fill, white 14px UI text, 8px radius, 8px × 16px padding                                  |
-| Tag             | Paper fill or silver edge, graphite text, 9999px radius, 4px × 12px padding                   |
-| Navigation link | Graphite Cal Sans UI, 14–16px, no underline                                                   |
+| Component       | Treatment                                                                                                  |
+| --------------- | ---------------------------------------------------------------------------------------------------------- |
+| Primary CTA     | `brand → accent` gradient fill, white text, pill radius, 16px × 24px padding, `brand-glow` shadow           |
+| Secondary ghost | Transparent, graphite text, 1px silver border, pill radius; hover → white fill with brand border/text       |
+| Danger          | Red fill, white text, pill radius                                                                            |
+| Header CTA      | Small primary pill (`!px-4 !py-2`)                                                                           |
+| Active nav link | Brand pill with `brand-glow`; inactive links are ghost pills with brand hover                               |
+| Navbar          | `navbar-gradient`, sticky, logo chip with gradient, active state styled as pills                             |
 
-### Scheduling widget
+### Cards and covers
 
-The scheduling surface is the principal product fragment: white background, 16px internal padding, 12px radius and `sm-4` shadow. Date selection is a compact ink circle; time choices use quiet silver borders and become ink only when selected. Use readable, functional labels rather than decorative graphics.
+- Book cards: 16px radius, `card-gradient`, `card` shadow; hover elevates with `card-hover` + lift.
+- Book covers are prominent (`w-28 h-36`, rounded, subtle shadow) and scale slightly on hover; missing covers render as a soft brand/amber gradient chip with a book icon.
+- Each card enters with a staggered `fade-up` animation.
 
-### Informational state and integrations
+### Home hero
 
-Informational banners use `info-banner-bg` with an `action-blue` link. Google colors are confined to the Google integration mark and are not promoted into general UI accents.
+The home page (`/`) opens with a `hero-gradient` banner: brand "chip" tag, display headline, subheading, primary "Ver mi colección" CTA (white pill, brand text) and a translucent "Añadir libro" ghost. Below it, four stat cards (total · por leer · leyendo · completados) pull live counts from the API.
+
+### Forms
+
+- Inputs are white, 16px rounded, `h-12`, with a warm border and a brand focus ring; common fields carry an inline SVG icon (`pl-11`).
+- Fields visibly labeled; required markers use `brand`.
+
+### Empty and loading states
+
+- EmptyState: soft `brand-soft` gradient panel, gradient icon chip with `brand-glow`, centered copy, optional action.
+- While loading, the collection shows skeleton cards with a `shimmer` sweep; the home hero shows skeleton stat placeholders.
 
 ## Usage guidance
 
 **Do**
 
-- Keep core UI monochrome and let spacing, type and surface hierarchy carry emphasis.
-- Use Cal Sans for headings and Cal Sans UI / Inter for body and product UI text.
-- Use 8–12px cards with quiet elevation and ample internal space.
-- Use product screenshots, scheduling fragments and integration marks as imagery.
+- Use the warm palette with intent: brand for actions, status colors only for reading states.
+- Use Poppins for headings and CTAs, Inter for body.
+- Use gradients for the navbar, hero, cover fallbacks and primary CTAs; keep them brand/amber.
+- Prefer cards with soft elevation over borders, and reserve `card-hover` for interactive items.
 
 **Avoid**
 
-- Adding new core UI colors or broad blue decoration.
-- Gradients, sharp corners, heavy borders on cards, or lifestyle / abstract imagery.
-- Font weights above 600.
-- Setting paragraph copy in the display face.
+- Broad, arbitrary decoration in unrelated hues; status colors belong to their states.
+- Sharp corners on pills/CTAs, heavy card borders, or flat black call-to-action fills.
+- Font weights above 700.
 
 ## Accessibility
 
-Maintain visible keyboard focus, semantic controls, readable contrast, and reduced-motion behavior. Motion should be limited to a single calm product-surface entrance and disabled for `prefers-reduced-motion`.
-
-## Deliverables
-
-- [tokens.json](tokens.json) — DTCG-compatible token source
-- [variables.css](variables.css) — CSS custom properties
-- [theme.css](theme.css) — Tailwind v4 theme mapping
-- [preview.html](preview.html) — standalone visual reference
-
-## Source
-
-Reset from the supplied **Cal.com — Style Reference: Monochrome Utility, Human Touch**. Values are intentionally limited to what that reference specifies.
+Maintain visible keyboard focus (brand ring), semantic controls, readable contrast, and reduced-motion behavior. Entrance and shimmer animations are disabled for `prefers-reduced-motion`. Skeleton and stat elements are announced via `aria-busy`/`aria-hidden` where appropriate.

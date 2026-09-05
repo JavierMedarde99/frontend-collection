@@ -11,9 +11,9 @@ export const TYPE_LABELS = {
 }
 
 export const TYPE_BADGE_COLORS = {
-  MANGA: 'bg-paper text-graphite',
-  NOVEL: 'bg-paper text-graphite',
-  GRAPHIC_NOVEL: 'bg-paper text-graphite',
+  MANGA: 'bg-rose-100 text-rose-700',
+  NOVEL: 'bg-indigo-100 text-indigo-700',
+  GRAPHIC_NOVEL: 'bg-emerald-100 text-emerald-700',
 }
 
 export const BOOK_STATES = {
@@ -29,7 +29,7 @@ export const STATE_LABELS = {
 }
 
 export const STATE_COLORS = {
-  TO_READ: 'bg-paper text-graphite',
-  READING: 'bg-info-banner text-action-blue',
-  COMPLETED: 'bg-ink text-white',
+  TO_READ: 'bg-accent-soft text-accent-deep',
+  READING: 'bg-indigo-100 text-indigo-700',
+  COMPLETED: 'bg-emerald-100 text-emerald-700',
 }

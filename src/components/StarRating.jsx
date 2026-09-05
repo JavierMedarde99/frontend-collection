@@ -12,7 +12,7 @@ export default function StarRating({ value = 0, onChange, readOnly = false }) {
           <span
             key={n}
             className={`text-base leading-none ${
-              n <= Math.round(value || 0) ? 'text-ink' : 'text-stone/30'
+              n <= Math.round(value || 0) ? 'text-accent' : 'text-stone/40'
             }`}
             aria-hidden="true"
           >
@@ -31,7 +31,7 @@ export default function StarRating({ value = 0, onChange, readOnly = false }) {
           type="button"
           onClick={() => onChange(n)}
           className={`text-2xl leading-none transition-all duration-150 ease-smooth cursor-pointer hover:scale-110 ${
-            n <= value ? 'text-ink' : 'text-stone/40 hover:text-stone/70'
+            n <= value ? 'text-accent drop-shadow-sm' : 'text-stone/50 hover:text-accent/70'
           }`}
           aria-label={`${n} estrellas`}
           aria-pressed={value >= n}

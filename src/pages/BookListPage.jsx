@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { listBooks } from '../api/booksApi'
 import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
 import BookCard from '../components/BookCard'
-import Spinner from '../components/Spinner'
+import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 
 const PAGE_SIZE = 12
@@ -155,7 +155,7 @@ export default function BookListPage() {
 
         <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
           <button
-            className={`btn-ghost !px-4 !py-2 ${!status ? '!bg-ink !text-white !border-ink' : ''}`}
+            className={`btn-ghost !px-4 !py-2 ${!status ? '!bg-brand !text-white !border-brand !shadow-brand-glow' : ''}`}
             onClick={() => { setStatus(''); setPage(0) }}
           >
             Todos
@@ -163,7 +163,7 @@ export default function BookListPage() {
           {Object.entries(BOOK_STATES).map(([key, label]) => (
             <button
               key={key}
-              className={`btn-ghost !px-4 !py-2 ${status === key ? '!bg-ink !text-white !border-ink' : ''}`}
+              className={`btn-ghost !px-4 !py-2 ${status === key ? '!bg-brand !text-white !border-brand !shadow-brand-glow' : ''}`}
               onClick={() => { setStatus(key); setPage(0) }}
             >
               {label}
@@ -179,7 +179,7 @@ export default function BookListPage() {
       )}
 
       {loading ? (
-        <Spinner label="Cargando libros…" />
+        <SkeletonGrid count={6} />
       ) : books.length === 0 ? (
         <EmptyState
           title="Sin resultados"
@@ -192,8 +192,8 @@ export default function BookListPage() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {books.map((book) => (
-            <BookCard key={book.id} book={book} />
+          {books.map((book, index) => (
+            <BookCard key={book.id} book={book} index={index} />
           ))}
         </div>
       )}

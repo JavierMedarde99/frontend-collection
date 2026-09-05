@@ -173,7 +173,7 @@ export default function BookSearch() {
             <div className="flex flex-col gap-4">
               <div>
                 <label className="label">
-                  Tipo <span className="text-action-blue">*</span>
+                  Tipo <span className="text-brand">*</span>
                 </label>
                 <select className="input" value={modalType} onChange={(e) => setModalType(e.target.value)}>
                   {Object.entries(BOOK_TYPES).map(([key, label]) => (
@@ -184,7 +184,7 @@ export default function BookSearch() {
 
               <div>
                 <label className="label">
-                  Estado <span className="text-action-blue">*</span>
+                  Estado <span className="text-brand">*</span>
                 </label>
                 <select className="input" value={modalState} onChange={(e) => setModalState(e.target.value)}>
                   {Object.entries(BOOK_STATES).map(([key, label]) => (
