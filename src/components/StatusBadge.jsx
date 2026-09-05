@@ -1,9 +1,9 @@
 import { STATE_LABELS, STATE_COLORS } from '../constants/books'
 
 const DOT_COLORS = {
-  TO_READ: 'bg-stone/70',
-  READING: 'bg-action-blue',
-  COMPLETED: 'bg-white',
+  TO_READ: 'bg-accent',
+  READING: 'bg-indigo-500',
+  COMPLETED: 'bg-emerald-500',
 }
 
 export default function StatusBadge({ state }) {

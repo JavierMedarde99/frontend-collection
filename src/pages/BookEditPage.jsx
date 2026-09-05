@@ -36,14 +36,14 @@ export default function BookEditPage() {
 
   async function handleSubmit(payload) {
     await updateBook(id, payload)
-    navigate('/', { replace: true })
+    navigate('/coleccion', { replace: true })
   }
 
   async function confirmDelete() {
     setDeleteBusy(true)
     try {
       await deleteBook(id)
-      navigate('/', { replace: true })
+      navigate('/coleccion', { replace: true })
     } catch (err) {
       window.alert(err.message || 'No se pudo eliminar el libro.')
     } finally {
@@ -75,7 +75,7 @@ export default function BookEditPage() {
           title="No se pudo cargar el libro"
           message={error}
           action={
-            <button className="btn-primary mt-2" onClick={() => navigate('/')}>
+            <button className="btn-primary mt-2" onClick={() => navigate('/coleccion')}>
               Volver a la colección
             </button>
           }

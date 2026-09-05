@@ -35,7 +35,7 @@ export default function BookCreatePage() {
             aria-selected={mode === m.key}
             className={`rounded-pill px-4 py-2 text-sm font-semibold transition-all duration-200 ease-smooth ${
               mode === m.key
-                ? 'bg-ink text-white shadow-sm'
+                ? 'bg-brand text-white shadow-brand-glow'
                 : 'text-graphite hover:text-ink'
             }`}
             onClick={() => setMode(m.key)}
