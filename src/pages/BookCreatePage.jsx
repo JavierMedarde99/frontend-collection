@@ -15,7 +15,7 @@ export default function BookCreatePage() {
 
   async function handleSubmit(payload) {
     const created = await createBook(payload)
-    navigate(`/editar/${created.id}`, { replace: true })
+    navigate('/coleccion', { replace: true })
   }
 
   return (
