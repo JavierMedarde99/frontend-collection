@@ -40,6 +40,12 @@ export default {
       boxShadow: {
         'sm-4': 'rgba(34, 42, 53, 0.05) 0px 4px 8px 0px',
         sm: 'rgba(36, 36, 36, 0.7) 0px 1px 5px -4px, rgba(36, 36, 36, 0.05) 0px 4px 8px 0px',
+        card: 'rgba(19, 19, 22, 0.04) 0px 1px 2px 0px, rgba(34, 42, 53, 0.05) 0px 4px 8px 0px',
+        'card-hover':
+          'rgba(19, 19, 22, 0.06) 0px 4px 8px -2px, rgba(34, 42, 53, 0.08) 0px 12px 24px -4px',
+      },
+      transitionTimingFunction: {
+        'smooth': 'cubic-bezier(0.33, 1, 0.68, 1)',
       },
     },
   },

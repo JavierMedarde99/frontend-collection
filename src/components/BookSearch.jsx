@@ -85,23 +85,33 @@ export default function BookSearch() {
 
   return (
     <div className="flex flex-col gap-6">
-      <form onSubmit={handleSearch} className="flex gap-3">
+      <form onSubmit={handleSearch} className="relative">
+        <svg
+          aria-hidden="true"
+          className="w-4 h-4 text-stone absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
         <input
-          className="input flex-1"
+          className="input !pl-11 pr-28"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Buscar por título, autor…"
           aria-label="Búsqueda"
         />
-        <button className="btn-primary" type="submit" disabled={loading}>
+        <button className="btn-primary !py-2 !px-3.5 absolute right-1.5 top-1/2 -translate-y-1/2" type="submit" disabled={loading}>
           Buscar
         </button>
       </form>
 
       {error && (
-        <p className="text-sm text-red-600" role="alert">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
           {error}
-        </p>
+        </div>
       )}
 
       {loading && <Spinner label="Buscando…" />}
@@ -113,16 +123,16 @@ export default function BookSearch() {
       {!loading && results && results.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {results.map((result) => (
-            <article key={result.id} className="card flex gap-5">
+            <article key={result.id} className="card card-hover flex gap-5">
               {result.coverImage ? (
                 <img
                   src={result.coverImage}
                   alt={result.title}
-                  className="w-20 h-28 object-cover rounded shrink-0 bg-paper"
+                  className="w-20 h-28 object-cover rounded shadow-sm shrink-0 bg-paper"
                 />
               ) : (
-                <div className="w-20 h-28 rounded shrink-0 bg-paper flex items-center justify-center text-caption text-slate">
-                  Sin portada
+                <div className="w-20 h-28 rounded shrink-0 bg-paper border border-silver/60 flex items-center justify-center text-caption text-slate">
+                  <span>Sin portada</span>
                 </div>
               )}
               <div className="min-w-0 flex-1">
@@ -153,9 +163,9 @@ export default function BookSearch() {
       )}
 
       {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/30 backdrop-blur-sm">
-          <div role="dialog" aria-modal="true" className="card w-full max-w-md">
-            <h3 className="font-display text-heading-sm mb-1">{selected.title}</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md">
+          <div role="dialog" aria-modal="true" className="card w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h3 className="font-display text-heading-sm mb-1 leading-snug">{selected.title}</h3>
             <p className="text-body text-graphite mb-5">
               {(selected.authors && selected.authors.join(', ')) || 'Autor desconocido'}
             </p>
@@ -216,7 +226,7 @@ export default function BookSearch() {
               )}
             </div>
 
-            <div className="flex justify-end gap-3 mt-6">
+            <div className="flex justify-end gap-3 mt-6 border-t border-silver/60 pt-5">
               <button
                 className="btn-ghost"
                 onClick={() => setSelected(null)}
