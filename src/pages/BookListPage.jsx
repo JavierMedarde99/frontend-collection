@@ -69,49 +69,79 @@ export default function BookListPage() {
   }
 
   return (
-    <section className="flex flex-col gap-24">
+    <section className="flex flex-col gap-10">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <h1 className="font-display text-heading-lg mb-1">Mi colección</h1>
+          <h1 className="font-display text-heading-lg mb-2">Mi colección</h1>
           <p className="text-body text-slate">
             {loading
               ? 'Cargando libros…'
               : `${totalElements} libro${totalElements === 1 ? '' : 's'} en tu colección`}
           </p>
         </div>
-        <Link className="btn-primary !px-4 !py-2 shrink-0" to="/nuevo">
+        <Link className="btn-primary !px-5 !py-2.5 shrink-0" to="/nuevo">
+          <svg
+            aria-hidden="true"
+            className="w-4 h-4 mr-1.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
           Añadir libro
         </Link>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col md:flex-row gap-3">
-          <form onSubmit={handleNameSearch} className="flex gap-3 flex-1">
+      <div className="flex flex-col gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-3">
+          <form onSubmit={handleNameSearch} className="relative">
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4 text-stone absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
             <input
-              className="input flex-1"
+              className="input !pl-11 pr-28"
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
               placeholder="Buscar por título…"
               aria-label="Buscar por título"
             />
-            <button className="btn-primary" type="submit">
+            <button className="btn-primary !py-2 !px-3.5 absolute right-1.5 top-1/2 -translate-y-1/2" type="submit">
               Buscar
             </button>
           </form>
-          <form onSubmit={handleAuthorSearch} className="flex gap-3 flex-1">
+          <form onSubmit={handleAuthorSearch} className="relative">
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4 text-stone absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
             <input
-              className="input flex-1"
+              className="input !pl-11 pr-28"
               value={authorInput}
               onChange={(e) => setAuthorInput(e.target.value)}
               placeholder="Filtrar por autor…"
               aria-label="Filtrar por autor"
             />
-            <button className="btn-ghost" type="submit">
+            <button className="btn-ghost !py-2 !px-3.5 absolute right-1.5 top-1/2 -translate-y-1/2" type="submit">
               Buscar
             </button>
           </form>
           <select
-            className="input md:w-52"
+            className="input md:w-48"
             value={typeFilter}
             onChange={(e) => { setTypeFilter(e.target.value); setPage(0) }}
             aria-label="Filtrar por tipo"
@@ -123,7 +153,7 @@ export default function BookListPage() {
           </select>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
           <button
             className={`btn-ghost !px-4 !py-2 ${!status ? '!bg-ink !text-white !border-ink' : ''}`}
             onClick={() => { setStatus(''); setPage(0) }}
@@ -143,9 +173,9 @@ export default function BookListPage() {
       </div>
 
       {error && (
-        <p className="text-sm text-red-600" role="alert">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
           {error}
-        </p>
+        </div>
       )}
 
       {loading ? (
@@ -169,7 +199,7 @@ export default function BookListPage() {
       )}
 
       {totalPages > 1 && (
-        <nav className="flex items-center justify-center gap-4">
+        <nav className="flex items-center justify-center gap-4" aria-label="Paginación">
           <button
             className="btn-ghost !px-4 !py-2"
             disabled={page === 0 || loading}
@@ -177,7 +207,7 @@ export default function BookListPage() {
           >
             Anterior
           </button>
-          <span className="text-body text-slate">
+          <span className="text-body text-slate tabular-nums">
             Página {page + 1} de {totalPages}
           </span>
           <button

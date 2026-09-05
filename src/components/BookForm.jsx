@@ -180,12 +180,15 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
       )}
 
       {(error || localError) && (
-        <p className="text-sm text-red-600" role="alert">
+        <div
+          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          role="alert"
+        >
           {error || localError}
-        </p>
+        </div>
       )}
 
-      <div className="flex justify-end">
+      <div className="flex justify-end border-t border-silver/60 pt-5">
         <button className="btn-primary" type="submit" disabled={submitting}>
           {submitting ? 'Guardando…' : submitLabel}
         </button>

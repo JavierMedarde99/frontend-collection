@@ -52,15 +52,15 @@ export default function BookEditPage() {
   }
 
   return (
-    <section className="max-w-3xl flex flex-col gap-24">
+    <section className="max-w-3xl flex flex-col gap-10">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-heading-lg mb-1">Editar libro</h1>
+          <h1 className="font-display text-heading-lg mb-2">Editar libro</h1>
           <p className="text-body text-slate">Actualiza los datos del libro.</p>
         </div>
         {book && !loading && (
           <button
-            className="btn-ghost !text-red-600 hover:!bg-red-50"
+            className="btn-ghost !text-red-600 hover:!bg-red-50 hover:!border-red-200"
             onClick={() => setDeleting(true)}
           >
             Eliminar
