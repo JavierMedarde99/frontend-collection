@@ -52,7 +52,7 @@ export default function BookEditPage() {
   }
 
   return (
-    <section className="max-w-3xl flex flex-col gap-10">
+    <section className="max-w-3xl flex flex-col gap-24">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-heading-lg mb-2">Editar libro</h1>

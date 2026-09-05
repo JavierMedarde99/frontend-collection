@@ -17,10 +17,10 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-pill bg-ink text-white font-sans text-sm font-semibold transition-all duration-200 ease-smooth hover:bg-graphite hover:shadow-sm active:scale-[0.98] focus-ring disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-pill bg-ink text-white font-sans text-sm font-semibold transition-all duration-200 ease-smooth hover:bg-graphite hover:shadow-sm-4 active:scale-[0.98] focus-ring disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-pill bg-transparent text-graphite font-sans text-sm font-semibold border border-silver transition-all duration-200 ease-smooth hover:bg-paper hover:border-stone/40 active:scale-[0.98] focus-ring disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-pill bg-transparent text-graphite font-sans text-sm font-semibold border border-silver transition-all duration-200 ease-smooth hover:bg-paper active:scale-[0.98] focus-ring disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
   }
   .btn-danger {
     @apply inline-flex items-center justify-center px-6 py-3 rounded-pill bg-red-600 text-white font-sans text-sm font-semibold transition-all duration-200 ease-smooth hover:bg-red-700 active:scale-[0.98] focus-ring disabled:opacity-50 disabled:cursor-not-allowed;
@@ -32,10 +32,10 @@
     @apply block mb-2 text-caption font-medium text-slate;
   }
   .card {
-    @apply bg-white rounded-lg shadow-card p-6 transition-shadow duration-200 ease-smooth;
+    @apply bg-white rounded-lg shadow-sm-4 p-6 transition-shadow duration-200 ease-smooth;
   }
   .card-hover {
-    @apply hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 ease-smooth;
+    @apply hover:shadow-sm transition-shadow duration-200 ease-smooth;
   }
 }
 
