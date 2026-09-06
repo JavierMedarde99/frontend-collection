@@ -21,7 +21,11 @@ export function SkeletonBookCard() {
   )
 }
 
-export default function SkeletonGrid({ count = 6 }) {
+interface SkeletonGridProps {
+  count?: number
+}
+
+export default function SkeletonGrid({ count = 6 }: SkeletonGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" aria-busy="true">
       {Array.from({ length: count }).map((_, i) => (

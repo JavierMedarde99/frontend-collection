@@ -1,30 +1,33 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getBook, updateBook, deleteBook } from '../api/booksApi'
+import type { Book, BookFormData } from '../types'
 import BookForm from '../components/BookForm'
 import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 
 export default function BookEditPage() {
-  const { id } = useParams()
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
-  const [book, setBook] = useState(null)
+  const [book, setBook] = useState<Book | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   const [deleting, setDeleting] = useState(false)
   const [deleteBusy, setDeleteBusy] = useState(false)
 
   const load = useCallback(async () => {
+    if (!id) return
     setLoading(true)
     setError(null)
     try {
       const data = await getBook(id)
       setBook(data)
     } catch (err) {
-      setError(err.message || 'No se pudo cargar el libro.')
+      const message = err instanceof Error ? err.message : 'No se pudo cargar el libro.'
+      setError(message)
     } finally {
       setLoading(false)
     }
@@ -34,18 +37,21 @@ export default function BookEditPage() {
     load()
   }, [load])
 
-  async function handleSubmit(payload) {
+  async function handleSubmit(payload: BookFormData) {
+    if (!id) return
     await updateBook(id, payload)
     navigate('/coleccion', { replace: true })
   }
 
   async function confirmDelete() {
+    if (!id) return
     setDeleteBusy(true)
     try {
       await deleteBook(id)
       navigate('/coleccion', { replace: true })
     } catch (err) {
-      window.alert(err.message || 'No se pudo eliminar el libro.')
+      const message = err instanceof Error ? err.message : 'No se pudo eliminar el libro.'
+      window.alert(message)
     } finally {
       setDeleteBusy(false)
     }
@@ -81,7 +87,7 @@ export default function BookEditPage() {
           }
         />
       ) : (
-        <BookForm initial={book} submitLabel="Guardar cambios" onSubmit={handleSubmit} />
+        <BookForm initial={book ?? undefined} submitLabel="Guardar cambios" onSubmit={handleSubmit} />
       )}
 
       <ConfirmDialog

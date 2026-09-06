@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listBooks } from '../api/booksApi'
 import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
+import { BookType, BookState, type Book } from '../types'
 import BookCard from '../components/BookCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
@@ -9,9 +10,9 @@ import EmptyState from '../components/EmptyState'
 const PAGE_SIZE = 12
 
 export default function BookListPage() {
-  const [books, setBooks] = useState([])
-  const [status, setStatus] = useState('')
-  const [typeFilter, setTypeFilter] = useState('')
+  const [books, setBooks] = useState<Book[]>([])
+  const [status, setStatus] = useState<BookState | ''>('')
+  const [typeFilter, setTypeFilter] = useState<BookType | ''>('')
   const [nameInput, setNameInput] = useState('')
   const [authorInput, setAuthorInput] = useState('')
   const [nameFilter, setNameFilter] = useState('')
@@ -20,7 +21,7 @@ export default function BookListPage() {
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const load = useCallback(async () => {
@@ -40,7 +41,8 @@ export default function BookListPage() {
       setTotalPages(data.totalPages || 0)
       setTotalElements(data.totalElements || 0)
     } catch (err) {
-      setError(err.message || 'No se pudieron cargar los libros.')
+      const message = err instanceof Error ? err.message : 'No se pudieron cargar los libros.'
+      setError(message)
     } finally {
       setLoading(false)
     }
@@ -50,20 +52,13 @@ export default function BookListPage() {
     load()
   }, [load])
 
-  function changeFilter(setter) {
-    return (value) => {
-      setter(value)
-      setPage(0)
-    }
-  }
-
-  function handleNameSearch(e) {
+  function handleNameSearch(e: FormEvent) {
     e.preventDefault()
     setNameFilter(nameInput.trim())
     setPage(0)
   }
 
-  function handleAuthorSearch(e) {
+  function handleAuthorSearch(e: FormEvent) {
     e.preventDefault()
     setAuthorFilter(authorInput.trim())
     setPage(0)
@@ -173,7 +168,7 @@ export default function BookListPage() {
           <select
             className="input md:w-48"
             value={typeFilter}
-            onChange={(e) => { setTypeFilter(e.target.value); setPage(0) }}
+            onChange={(e) => { setTypeFilter(e.target.value as BookType); setPage(0) }}
             aria-label="Filtrar por tipo"
           >
             <option value="">Todos los tipos</option>
@@ -196,7 +191,7 @@ export default function BookListPage() {
           <button
             key={key}
             className={`btn-ghost !px-4 !py-2 ${status === key ? '!bg-brand !text-white !border-brand !shadow-brand-glow' : ''}`}
-            onClick={() => { setStatus(key); setPage(0) }}
+            onClick={() => { setStatus(key as BookState); setPage(0) }}
           >
             {label}
           </button>

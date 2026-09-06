@@ -1,3 +1,13 @@
+interface ConfirmDialogProps {
+  open: boolean
+  title: string
+  message: string
+  confirmLabel?: string
+  onConfirm: () => void
+  onCancel: () => void
+  busy?: boolean
+}
+
 export default function ConfirmDialog({
   open,
   title,
@@ -6,7 +16,7 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
   busy = false,
-}) {
+}: ConfirmDialogProps) {
   if (!open) return null
 
   return (

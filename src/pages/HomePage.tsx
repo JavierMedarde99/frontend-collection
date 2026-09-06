@@ -2,13 +2,21 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listBooks } from '../api/booksApi'
 import { BOOK_STATES } from '../constants/books'
+import { BookState } from '../types'
 
-async function fetchStats() {
+interface Stats {
+  total: number
+  toRead: number
+  reading: number
+  completed: number
+}
+
+async function fetchStats(): Promise<Stats> {
   const [all, toRead, reading, completed] = await Promise.all([
     listBooks({ page: 0, size: 1 }),
-    listBooks({ page: 0, size: 1, state: 'TO_READ' }),
-    listBooks({ page: 0, size: 1, state: 'READING' }),
-    listBooks({ page: 0, size: 1, state: 'COMPLETED' }),
+    listBooks({ page: 0, size: 1, state: BookState.TO_READ }),
+    listBooks({ page: 0, size: 1, state: BookState.READING }),
+    listBooks({ page: 0, size: 1, state: BookState.COMPLETED }),
   ])
   return {
     total: all?.totalElements ?? 0,
@@ -25,7 +33,7 @@ const BOOK_ICON = (
 )
 
 export default function HomePage() {
-  const [stats, setStats] = useState(null)
+  const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {

@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { searchBooks, createBook } from '../api/booksApi'
 import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
+import { BookType, BookState, type BookFormData, type SearchBookResult } from '../types'
 import Spinner from './Spinner'
 import StarRating from './StarRating'
 import EmptyState from './EmptyState'
 
-function mapResultToBook(result) {
+function mapResultToBook(result: SearchBookResult): Omit<BookFormData, 'type' | 'state'> {
   return {
     title: result.title || 'Sin título',
     author: (result.authors && result.authors[0]) || 'Autor desconocido',
@@ -20,25 +21,25 @@ function mapResultToBook(result) {
 export default function BookSearch() {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState(null)
+  const [results, setResults] = useState<SearchBookResult[] | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [searching, setSearching] = useState(null)
+  const [error, setError] = useState<string | null>(null)
+  const [searching, setSearching] = useState<string | null>(null)
 
-  const [selected, setSelected] = useState(null)
-  const [modalType, setModalType] = useState('NOVEL')
-  const [modalState, setModalState] = useState('TO_READ')
+  const [selected, setSelected] = useState<SearchBookResult | null>(null)
+  const [modalType, setModalType] = useState<BookType>(BookType.NOVEL)
+  const [modalState, setModalState] = useState<BookState>(BookState.TO_READ)
   const [modalStartDate, setModalStartDate] = useState('')
   const [modalEndDate, setModalEndDate] = useState('')
   const [modalStart, setModalStart] = useState(0)
   const [modalComment, setModalComment] = useState('')
 
-  const showStartDate = modalState !== 'TO_READ'
-  const showEndDate = modalState === 'COMPLETED'
-  const showRating = modalState === 'COMPLETED'
-  const showComment = modalState === 'COMPLETED'
+  const showStartDate = modalState !== BookState.TO_READ
+  const showEndDate = modalState === BookState.COMPLETED
+  const showRating = modalState === BookState.COMPLETED
+  const showComment = modalState === BookState.COMPLETED
 
-  async function handleSearch(e) {
+  async function handleSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const q = query.trim()
     if (!q) return
@@ -49,23 +50,23 @@ export default function BookSearch() {
       const data = await searchBooks(q)
       setResults(data || [])
     } catch (err) {
-      setError(err.message || 'No se pudo realizar la búsqueda.')
+      setError(err instanceof Error ? err.message : 'No se pudo realizar la búsqueda.')
     } finally {
       setLoading(false)
     }
   }
 
-  function handleAddClick(result) {
+  function handleAddClick(result: SearchBookResult) {
     setSelected(result)
-    setModalType('NOVEL')
-    setModalState('TO_READ')
+    setModalType(BookType.NOVEL)
+    setModalState(BookState.TO_READ)
   }
 
   async function handleConfirm() {
     if (!selected) return
     setSearching(selected.id)
     try {
-      const created = await createBook({
+      await createBook({
         ...mapResultToBook(selected),
         type: modalType,
         state: modalState,
@@ -77,7 +78,7 @@ export default function BookSearch() {
       setSelected(null)
       navigate('/coleccion')
     } catch (err) {
-      window.alert(err.message || 'No se pudo añadir el libro.')
+      window.alert(err instanceof Error ? err.message : 'No se pudo añadir el libro.')
     } finally {
       setSearching(null)
     }
@@ -175,7 +176,7 @@ export default function BookSearch() {
                 <label className="label">
                   Tipo <span className="text-brand">*</span>
                 </label>
-                <select className="input" value={modalType} onChange={(e) => setModalType(e.target.value)}>
+                <select className="input" value={modalType} onChange={(e) => setModalType(e.target.value as BookType)}>
                   {Object.entries(BOOK_TYPES).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>
                   ))}
@@ -186,7 +187,7 @@ export default function BookSearch() {
                 <label className="label">
                   Estado <span className="text-brand">*</span>
                 </label>
-                <select className="input" value={modalState} onChange={(e) => setModalState(e.target.value)}>
+                <select className="input" value={modalState} onChange={(e) => setModalState(e.target.value as BookState)}>
                   {Object.entries(BOOK_STATES).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>
                   ))}

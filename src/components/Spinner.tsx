@@ -1,4 +1,8 @@
-export default function Spinner({ label = 'Cargando…' }) {
+interface SpinnerProps {
+  label?: string
+}
+
+export default function Spinner({ label = 'Cargando…' }: SpinnerProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-16 text-slate">
       <span className="w-9 h-9 rounded-full border-[3px] border-silver border-t-ink animate-spin" role="status" />

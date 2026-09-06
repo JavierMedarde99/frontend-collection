@@ -1,8 +1,12 @@
-import { useState } from 'react'
+import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
+import { BookType, BookState } from '../types'
+import type { BookFormData } from '../types'
 import StarRating from './StarRating'
 
-const ICONS = {
+type IconName = 'title' | 'author' | 'pages' | 'cover' | 'externalId' | 'date' | 'synopsis' | 'comment'
+
+const ICONS: Record<IconName, ReactNode> = {
   title: (
     <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
   ),
@@ -29,7 +33,11 @@ const ICONS = {
   ),
 }
 
-function FieldIcon({ name }) {
+interface FieldIconProps {
+  name?: IconName
+}
+
+function FieldIcon({ name }: FieldIconProps) {
   if (!name) return null
   return (
     <svg
@@ -45,7 +53,14 @@ function FieldIcon({ name }) {
   )
 }
 
-function Field({ label, children, required, icon }) {
+interface FieldProps {
+  label: string
+  children: ReactNode
+  required?: boolean
+  icon?: IconName
+}
+
+function Field({ label, children, required, icon }: FieldProps) {
   return (
     <div>
       <label className="label">
@@ -65,12 +80,20 @@ function Field({ label, children, required, icon }) {
   )
 }
 
-export default function BookForm({ initial = {}, submitLabel, onSubmit, error, isCreate = false }) {
-  const [form, setForm] = useState({
+interface BookFormProps {
+  initial?: Partial<BookFormData>
+  submitLabel: string
+  onSubmit: (payload: BookFormData) => Promise<void>
+  error?: string | null
+  isCreate?: boolean
+}
+
+export default function BookForm({ initial = {}, submitLabel, onSubmit, error, isCreate = false }: BookFormProps) {
+  const [form, setForm] = useState<BookFormData>({
     title: '',
     author: '',
-    type: 'NOVEL',
-    state: 'TO_READ',
+    type: BookType.NOVEL,
+    state: BookState.TO_READ,
     descripcion: '',
     pages: '',
     comment: '',
@@ -82,23 +105,23 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
     ...initial,
   })
   const [submitting, setSubmitting] = useState(false)
-  const [localError, setLocalError] = useState(null)
+  const [localError, setLocalError] = useState<string | null>(null)
 
-  const showStartDate = form.state !== 'TO_READ'
-  const showEndDate = form.state === 'COMPLETED'
-  const showRating = form.state === 'COMPLETED'
-  const showComment = form.state === 'COMPLETED'
+  const showStartDate = form.state !== BookState.TO_READ
+  const showEndDate = form.state === BookState.COMPLETED
+  const showRating = form.state === BookState.COMPLETED
+  const showComment = form.state === BookState.COMPLETED
 
-  const set = (key) => (e) => {
+  const set = (key: keyof BookFormData) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const value = e.target.value
     setForm((f) => ({ ...f, [key]: value }))
   }
-  const setNumber = (key) => (e) => {
+  const setNumber = (key: keyof BookFormData) => (e: ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value
     setForm((f) => ({ ...f, [key]: v === '' ? '' : Number(v) }))
   }
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setLocalError(null)
 
@@ -107,7 +130,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
     if (!form.type) return setLocalError('El tipo es obligatorio.')
     if (!form.state) return setLocalError('El estado es obligatorio.')
 
-    const payload = {
+    const payload: BookFormData = {
       title: form.title.trim(),
       author: form.author.trim(),
       type: form.type,
@@ -125,7 +148,8 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
     try {
       await onSubmit(payload)
     } catch (err) {
-      setLocalError(err.message || 'No se pudo guardar el libro.')
+      const message = err instanceof Error ? err.message : 'No se pudo guardar el libro.'
+      setLocalError(message)
     } finally {
       setSubmitting(false)
     }
