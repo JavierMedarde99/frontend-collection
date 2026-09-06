@@ -6,6 +6,7 @@ import { GamePlatform, GameStatus } from '../types'
 import type { GameFormData, SearchGameResult } from '../types'
 import Spinner from './Spinner'
 import EmptyState from './EmptyState'
+import StarRating from './StarRating'
 import ErrorBanner from './ErrorBanner'
 
 function mapResultToGame(result: SearchGameResult): Omit<GameFormData, 'platform' | 'status'> {
@@ -29,7 +30,18 @@ export default function GameSearch() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [modalPlatform, setModalPlatform] = useState<GamePlatform>(GamePlatform.PC)
   const [modalStatus, setModalStatus] = useState<GameStatus>(GameStatus.WISHLIST)
+  const [modalDateAdded, setModalDateAdded] = useState('')
+  const [modalDateCompleted, setModalDateCompleted] = useState('')
+  const [modalUserRating, setModalUserRating] = useState(0)
   const [modalComment, setModalComment] = useState('')
+
+  const showStartDate =
+    modalStatus === GameStatus.PLAYING ||
+    modalStatus === GameStatus.ABANDONED ||
+    modalStatus === GameStatus.COMPLETED
+  const showEndDate = modalStatus === GameStatus.COMPLETED
+  const showRating = modalStatus === GameStatus.COMPLETED
+  const showComment = modalStatus === GameStatus.COMPLETED
 
   async function handleSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -54,6 +66,9 @@ export default function GameSearch() {
     const platform = Object.values(GamePlatform).find((p) => p === result.platform)
     setModalPlatform(platform || GamePlatform.PC)
     setModalStatus(GameStatus.WISHLIST)
+    setModalDateAdded('')
+    setModalDateCompleted('')
+    setModalUserRating(0)
     setModalComment('')
   }
 
@@ -66,7 +81,10 @@ export default function GameSearch() {
         ...mapResultToGame(selected),
         platform: modalPlatform,
         status: modalStatus,
-        comment: modalComment?.trim() || undefined,
+        dateAdded: (showStartDate && modalDateAdded) || undefined,
+        dateCompleted: (showEndDate && modalDateCompleted) || undefined,
+        userRating: showRating && modalUserRating ? modalUserRating : undefined,
+        comment: showComment ? modalComment?.trim() || undefined : undefined,
       })
       setSelected(null)
       navigate('/juegos')
@@ -193,15 +211,47 @@ export default function GameSearch() {
                 </select>
               </div>
 
-              <div>
-                <label className="label">Comentario</label>
-                <textarea
-                  className="input !h-auto !min-h-[80px] !py-3"
-                  value={modalComment}
-                  onChange={(e) => setModalComment(e.target.value)}
-                  placeholder="Notas personales…"
-                />
-              </div>
+              {showStartDate && (
+                <div>
+                  <label className="label">Fecha de inicio</label>
+                  <input
+                    className="input"
+                    type="date"
+                    value={modalDateAdded}
+                    onChange={(e) => setModalDateAdded(e.target.value)}
+                  />
+                </div>
+              )}
+              {showEndDate && (
+                <div>
+                  <label className="label">Fecha de fin</label>
+                  <input
+                    className="input"
+                    type="date"
+                    value={modalDateCompleted}
+                    onChange={(e) => setModalDateCompleted(e.target.value)}
+                  />
+                </div>
+              )}
+              {showRating && (
+                <div>
+                  <label className="label">Valoración</label>
+                  <div className="pt-2">
+                    <StarRating value={modalUserRating} onChange={setModalUserRating} />
+                  </div>
+                </div>
+              )}
+              {showComment && (
+                <div>
+                  <label className="label">Comentario</label>
+                  <textarea
+                    className="input !h-auto !min-h-[80px] !py-3"
+                    value={modalComment}
+                    onChange={(e) => setModalComment(e.target.value)}
+                    placeholder="Notas personales…"
+                  />
+                </div>
+              )}
             </div>
 
             {submitError && <ErrorBanner message={submitError} />}

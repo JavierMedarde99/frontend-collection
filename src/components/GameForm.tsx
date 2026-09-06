@@ -99,7 +99,12 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
   const [submitting, setSubmitting] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
 
-  const showRating = form.status === GameStatus.COMPLETED || form.status === GameStatus.PLAYING
+  const showStartDate =
+    form.status === GameStatus.PLAYING ||
+    form.status === GameStatus.ABANDONED ||
+    form.status === GameStatus.COMPLETED
+  const showEndDate = form.status === GameStatus.COMPLETED
+  const showRating = form.status === GameStatus.COMPLETED
   const showComment = form.status === GameStatus.COMPLETED
 
   const set = (key: keyof GameFormData) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -169,12 +174,16 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
           </Field>
         )}
 
-        <Field label="Fecha de inicio" icon="date">
-          <input className="input" type="date" value={form.dateAdded} onChange={set('dateAdded')} />
-        </Field>
-        <Field label="Fecha de fin" icon="date">
-          <input className="input" type="date" value={form.dateCompleted} onChange={set('dateCompleted')} />
-        </Field>
+        {showStartDate && (
+          <Field label="Fecha de inicio" icon="date">
+            <input className="input" type="date" value={form.dateAdded} onChange={set('dateAdded')} />
+          </Field>
+        )}
+        {showEndDate && (
+          <Field label="Fecha de fin" icon="date">
+            <input className="input" type="date" value={form.dateCompleted} onChange={set('dateCompleted')} />
+          </Field>
+        )}
 
         {showRating && (
           <Field label="Valoración">
