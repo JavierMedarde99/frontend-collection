@@ -6,6 +6,7 @@ import { BookType, BookState, type BookFormData, type SearchBookResult } from '.
 import Spinner from './Spinner'
 import StarRating from './StarRating'
 import EmptyState from './EmptyState'
+import ErrorBanner from './ErrorBanner'
 
 function mapResultToBook(result: SearchBookResult): Omit<BookFormData, 'type' | 'state'> {
   return {
@@ -27,6 +28,7 @@ export default function BookSearch() {
   const [searching, setSearching] = useState<string | null>(null)
 
   const [selected, setSelected] = useState<SearchBookResult | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [modalType, setModalType] = useState<BookType>(BookType.NOVEL)
   const [modalState, setModalState] = useState<BookState>(BookState.TO_READ)
   const [modalStartDate, setModalStartDate] = useState('')
@@ -58,12 +60,14 @@ export default function BookSearch() {
 
   function handleAddClick(result: SearchBookResult) {
     setSelected(result)
+    setSubmitError(null)
     setModalType(BookType.NOVEL)
     setModalState(BookState.TO_READ)
   }
 
   async function handleConfirm() {
     if (!selected) return
+    setSubmitError(null)
     setSearching(selected.id)
     try {
       await createBook({
@@ -78,7 +82,7 @@ export default function BookSearch() {
       setSelected(null)
       navigate('/coleccion')
     } catch (err) {
-      window.alert(err instanceof Error ? err.message : 'No se pudo añadir el libro.')
+      setSubmitError(err instanceof Error ? err.message : 'No se pudo añadir el libro.')
     } finally {
       setSearching(null)
     }
@@ -226,6 +230,8 @@ export default function BookSearch() {
                 </div>
               )}
             </div>
+
+            {submitError && <ErrorBanner message={submitError} />}
 
             <div className="flex justify-end gap-3 mt-6 border-t border-silver/60 pt-5">
               <button

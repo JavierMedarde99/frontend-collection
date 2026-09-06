@@ -6,6 +6,7 @@ import BookForm from '../components/BookForm'
 import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
+import ErrorBanner from '../components/ErrorBanner'
 
 export default function BookEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -17,6 +18,7 @@ export default function BookEditPage() {
 
   const [deleting, setDeleting] = useState(false)
   const [deleteBusy, setDeleteBusy] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     if (!id) return
@@ -45,13 +47,14 @@ export default function BookEditPage() {
 
   async function confirmDelete() {
     if (!id) return
+    setDeleteError(null)
     setDeleteBusy(true)
     try {
       await deleteBook(id)
       navigate('/coleccion', { replace: true })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo eliminar el libro.'
-      window.alert(message)
+      setDeleteError(message)
     } finally {
       setDeleteBusy(false)
     }
@@ -73,6 +76,8 @@ export default function BookEditPage() {
           </button>
         )}
       </div>
+
+      {deleteError && <ErrorBanner message={deleteError} />}
 
       {loading ? (
         <Spinner label="Cargando libro…" />

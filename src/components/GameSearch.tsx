@@ -6,6 +6,7 @@ import { GamePlatform, GameStatus } from '../types'
 import type { GameFormData, SearchGameResult } from '../types'
 import Spinner from './Spinner'
 import EmptyState from './EmptyState'
+import ErrorBanner from './ErrorBanner'
 
 function mapResultToGame(result: SearchGameResult): Omit<GameFormData, 'platform' | 'status'> {
   return {
@@ -25,6 +26,7 @@ export default function GameSearch() {
   const [searching, setSearching] = useState<string | null>(null)
 
   const [selected, setSelected] = useState<SearchGameResult | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [modalPlatform, setModalPlatform] = useState<GamePlatform>(GamePlatform.PC)
   const [modalStatus, setModalStatus] = useState<GameStatus>(GameStatus.WISHLIST)
   const [modalComment, setModalComment] = useState('')
@@ -48,6 +50,7 @@ export default function GameSearch() {
 
   function handleAddClick(result: SearchGameResult) {
     setSelected(result)
+    setSubmitError(null)
     const platform = Object.values(GamePlatform).find((p) => p === result.platform)
     setModalPlatform(platform || GamePlatform.PC)
     setModalStatus(GameStatus.WISHLIST)
@@ -56,6 +59,7 @@ export default function GameSearch() {
 
   async function handleConfirm() {
     if (!selected) return
+    setSubmitError(null)
     setSearching(selected.id)
     try {
       await createGame({
@@ -67,7 +71,7 @@ export default function GameSearch() {
       setSelected(null)
       navigate('/juegos')
     } catch (err) {
-      window.alert(err instanceof Error ? err.message : 'No se pudo añadir el videojuego.')
+      setSubmitError(err instanceof Error ? err.message : 'No se pudo añadir el videojuego.')
     } finally {
       setSearching(null)
     }
@@ -199,6 +203,8 @@ export default function GameSearch() {
                 />
               </div>
             </div>
+
+            {submitError && <ErrorBanner message={submitError} />}
 
             <div className="flex justify-end gap-3 mt-6 border-t border-silver/60 pt-5">
               <button
