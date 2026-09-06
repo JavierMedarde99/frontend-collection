@@ -1,4 +1,3 @@
-// src/types/Api.ts
 import { Book } from './Book'
 import { BookState } from './BookState'
 import { BookType } from './BookType'
@@ -40,7 +39,7 @@ export interface BookFormData {
 export interface SearchBookResult {
   id: string
   title: string
-  authors: string[]
+  authors?: string[]
   isbn?: string
   coverImage?: string
   description?: string

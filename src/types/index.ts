@@ -1,4 +1,3 @@
-// src/types/index.ts
 export { BookType } from './BookType'
 export { BookState } from './BookState'
 export type { Book } from './Book'

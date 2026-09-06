@@ -1,4 +1,3 @@
-// src/constants/books.ts
 import { BookType, BookState } from '../types'
 
 export const BOOK_TYPES: Record<BookType, string> = {

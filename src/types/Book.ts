@@ -1,4 +1,3 @@
-// src/types/Book.ts
 import { BookType } from './BookType'
 import { BookState } from './BookState'
 

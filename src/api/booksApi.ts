@@ -1,4 +1,3 @@
-// src/api/booksApi.ts
 import type { PageBookResponse, ListBooksParams, Book, BookFormData, SearchBookResult, ApiError } from '../types'
 
 const BASE_URL = '/api/books'

@@ -1,4 +1,3 @@
-// src/types/BookType.ts
 export enum BookType {
   MANGA = 'MANGA',
   NOVEL = 'NOVEL',
