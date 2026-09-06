@@ -1,11 +1,17 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
 const links = [
   { to: '/', label: 'Inicio', end: true },
-  { to: '/coleccion', label: 'Mi colección', end: false },
+  { to: '/coleccion', label: 'Libros', end: false },
+  { to: '/juegos', label: 'Videojuegos', end: false },
 ]
 
 export default function Navbar() {
+  const location = useLocation()
+  const inGames = location.pathname.startsWith('/juegos')
+  const addTo = inGames ? '/juegos/nuevo' : '/nuevo'
+  const addLabel = inGames ? 'Añadir videojuego' : 'Añadir libro'
+
   return (
     <header className="sticky top-0 z-10 bg-navbar-gradient border-b border-silver/70 shadow-sm-4">
       <nav className="max-w-content mx-auto px-5 md:px-20 h-16 flex items-center justify-between gap-4">
@@ -44,8 +50,8 @@ export default function Navbar() {
             ))}
           </div>
         </div>
-        <NavLink className="btn-primary !px-4 !py-2 shrink-0" to="/nuevo">
-          Añadir libro
+        <NavLink className="btn-primary !px-4 !py-2 shrink-0" to={addTo}>
+          {addLabel}
         </NavLink>
       </nav>
     </header>
