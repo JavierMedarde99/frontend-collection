@@ -34,6 +34,7 @@ export default function GameSearch() {
   const [modalDateCompleted, setModalDateCompleted] = useState('')
   const [modalUserRating, setModalUserRating] = useState(0)
   const [modalComment, setModalComment] = useState('')
+  const [modalObtainPlatinum, setModalObtainPlatinum] = useState(false)
 
   const showStartDate =
     modalStatus === GameStatus.PLAYING ||
@@ -70,6 +71,7 @@ export default function GameSearch() {
     setModalDateCompleted('')
     setModalUserRating(0)
     setModalComment('')
+    setModalObtainPlatinum(false)
   }
 
   async function handleConfirm() {
@@ -85,6 +87,8 @@ export default function GameSearch() {
         dateCompleted: (showEndDate && modalDateCompleted) || undefined,
         userRating: showRating && modalUserRating ? modalUserRating : undefined,
         comment: showComment ? modalComment?.trim() || undefined : undefined,
+        obtainPlatinum:
+          modalPlatform === GamePlatform.PC && modalObtainPlatinum ? true : undefined,
       })
       setSelected(null)
       navigate('/juegos')
@@ -210,6 +214,21 @@ export default function GameSearch() {
                   ))}
                 </select>
               </div>
+
+              {modalPlatform === GamePlatform.PC && (
+                <div>
+                  <label className="label">Objetivo</label>
+                  <label className="flex items-center gap-2.5 text-body cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 rounded accent-brand"
+                      checked={modalObtainPlatinum}
+                      onChange={(e) => setModalObtainPlatinum(e.target.checked)}
+                    />
+                    Platinar
+                  </label>
+                </div>
+              )}
 
               {showStartDate && (
                 <div>
