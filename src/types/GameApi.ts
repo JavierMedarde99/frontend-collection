@@ -54,3 +54,10 @@ export interface GameAchievement {
   achieved: boolean
   iconUrl?: string
 }
+
+export interface GameAchievementsResponse {
+  achievements: GameAchievement[]
+  totalAchievements: number
+  totalAchieved: number
+  percentage: number
+}

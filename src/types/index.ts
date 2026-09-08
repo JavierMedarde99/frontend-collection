@@ -5,4 +5,4 @@ export type { PageBookResponse, ListBooksParams, BookFormData, SearchBookResult,
 export { GamePlatform } from './GamePlatform'
 export { GameStatus } from './GameStatus'
 export type { Game } from './Game'
-export type { PageGameResponse, ListGamesParams, GameFormData, SearchGameResult, GameAchievement } from './GameApi'
+export type { PageGameResponse, ListGamesParams, GameFormData, SearchGameResult, GameAchievement, GameAchievementsResponse } from './GameApi'

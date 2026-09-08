@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getGame, getGameAchievements } from '../api/gamesApi'
-import type { Game, GameAchievement } from '../types'
+import type { Game, GameAchievementsResponse } from '../types'
 import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
@@ -9,7 +9,7 @@ import ErrorBanner from '../components/ErrorBanner'
 export default function GameAchievementsPage() {
   const { id } = useParams<{ id: string }>()
   const [game, setGame] = useState<Game | null>(null)
-  const [achievements, setAchievements] = useState<GameAchievement[]>([])
+  const [data, setData] = useState<GameAchievementsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -25,7 +25,7 @@ export default function GameAchievementsPage() {
       }
       const data = await getGameAchievements(id, game.steamAppId)
       setGame(game)
-      setAchievements(data || [])
+      setData(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudieron cargar los logros.')
     } finally {
@@ -37,8 +37,9 @@ export default function GameAchievementsPage() {
     load()
   }, [load])
 
-  const achievedCount = achievements.filter((a) => a.achieved).length
-  const progress = achievements.length > 0 ? Math.round((achievedCount / achievements.length) * 100) : 0
+  const achievements = data?.achievements ?? []
+  const achievedCount = data?.totalAchieved ?? 0
+  const progress = data?.percentage ?? 0
 
   return (
     <section className="flex flex-col gap-24">
