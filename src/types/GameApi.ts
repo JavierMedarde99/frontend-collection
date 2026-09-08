@@ -32,6 +32,7 @@ export interface GameFormData {
   externalSource?: string
   externalId?: string
   obtainPlatinum?: boolean
+  steamAppId?: string
 }
 
 export interface SearchGameResult {
