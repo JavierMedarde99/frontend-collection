@@ -94,6 +94,7 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
     dateCompleted: '',
     externalSource: '',
     externalId: '',
+    obtainPlatinum: false,
     ...initial,
   })
   const [submitting, setSubmitting] = useState(false)
@@ -129,6 +130,8 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
       comment: form.comment?.trim() || undefined,
       dateAdded: form.dateAdded || undefined,
       dateCompleted: form.dateCompleted || undefined,
+      obtainPlatinum:
+        form.platform === GamePlatform.PC && form.obtainPlatinum ? true : undefined,
       ...(isCreate ? {} : { externalSource: form.externalSource?.trim() || undefined, externalId: form.externalId?.trim() || undefined }),
     }
 
@@ -168,6 +171,19 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
             ))}
           </select>
         </Field>
+        {form.platform === GamePlatform.PC && (
+          <Field label="Objetivo">
+            <label className="flex items-center gap-2.5 text-body cursor-pointer">
+              <input
+                type="checkbox"
+                className="w-4 h-4 rounded accent-brand"
+                checked={form.obtainPlatinum === true}
+                onChange={(e) => setForm((f) => ({ ...f, obtainPlatinum: e.target.checked }))}
+              />
+              Platinar
+            </label>
+          </Field>
+        )}
         {!isCreate && (
           <Field label="URL de imagen" icon="thumbnail">
             <input className="input" value={form.thumbnailUrl} onChange={set('thumbnailUrl')} placeholder="https://…" />

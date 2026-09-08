@@ -31,6 +31,7 @@ export interface GameFormData {
   dateCompleted?: string
   externalSource?: string
   externalId?: string
+  obtainPlatinum?: boolean
 }
 
 export interface SearchGameResult {
