@@ -13,4 +13,6 @@ export interface Game {
   dateAdded?: string
   dateCompleted?: string
   externalSource?: string
+  steamAppId?: string
+  obtainPlatinum?: boolean
 }
