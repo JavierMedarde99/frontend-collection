@@ -1,6 +1,7 @@
 import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, GameAchievementsResponse, ApiError } from '../types'
 
 const BASE_URL = '/api/games'
+const STEAM_ID = '76561198809807580'
 
 class RequestError extends Error implements ApiError {
   status?: number
@@ -80,7 +81,7 @@ export function searchGames(name: string): Promise<SearchGameResult[]> {
   return request<SearchGameResult[]>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`) as Promise<SearchGameResult[]>
 }
 
-export function getGameAchievements(id: string, steamId: string): Promise<GameAchievementsResponse> {
-  const qs = new URLSearchParams({ steamId })
+export function getGameAchievements(id: string): Promise<GameAchievementsResponse> {
+  const qs = new URLSearchParams({ steamId: STEAM_ID })
   return request<GameAchievementsResponse>(`${BASE_URL}/${id}/achievements?${qs}`) as Promise<GameAchievementsResponse>
 }

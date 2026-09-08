@@ -19,11 +19,7 @@ export default function GameAchievementsPage() {
     setError(null)
     try {
       const game = await getGame(id)
-      if (!game.steamAppId) {
-        setError('Este juego no está vinculado a Steam, por lo que no se pueden mostrar sus logros.')
-        return
-      }
-      const data = await getGameAchievements(id, game.steamAppId)
+      const data = await getGameAchievements(id)
       setGame(game)
       setData(data)
     } catch (err) {
