@@ -45,3 +45,10 @@ export interface SearchGameResult {
   thumbnailUrl?: string
   externalSource?: string
 }
+
+export interface GameAchievement {
+  name: string
+  description?: string
+  achieved: boolean
+  iconUrl?: string
+}

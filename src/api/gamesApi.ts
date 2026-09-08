@@ -1,4 +1,4 @@
-import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, ApiError } from '../types'
+import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, GameAchievement, ApiError } from '../types'
 
 const BASE_URL = '/api/games'
 
@@ -78,4 +78,9 @@ export function deleteGame(id: string): Promise<null> {
 
 export function searchGames(name: string): Promise<SearchGameResult[]> {
   return request<SearchGameResult[]>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`) as Promise<SearchGameResult[]>
+}
+
+export function getGameAchievements(id: string, steamId: string): Promise<GameAchievement[]> {
+  const qs = new URLSearchParams({ steamId })
+  return request<GameAchievement[]>(`${BASE_URL}/${id}/achievements?${qs}`) as Promise<GameAchievement[]>
 }
