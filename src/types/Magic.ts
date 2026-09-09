@@ -118,4 +118,8 @@ export interface ListMagicCardsParams {
   size?: number
   sort?: string
   name?: string
+  rarity?: string
+  color?: string
+  type?: string
+  convertedManaCost?: number
 }
