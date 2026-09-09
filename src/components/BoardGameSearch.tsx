@@ -76,7 +76,7 @@ export default function BoardGameSearch() {
         ...mapResultToGame(selected),
         status: modalStatus,
         notes: modalNotes.trim() || undefined,
-        dateAdded: modalDateAdded || undefined,
+        dateAdded: modalStatus === BoardGameStatus.OWNED ? modalDateAdded || undefined : undefined,
       })
       setSelected(null)
       navigate('/boardgames')
@@ -194,15 +194,17 @@ export default function BoardGameSearch() {
                 </select>
               </div>
 
-              <div>
-                <label className="label">Fecha de adición</label>
-                <input
-                  className="input"
-                  type="date"
-                  value={modalDateAdded}
-                  onChange={(e) => setModalDateAdded(e.target.value)}
-                />
-              </div>
+              {modalStatus === BoardGameStatus.OWNED && (
+                <div>
+                  <label className="label">Fecha de adición</label>
+                  <input
+                    className="input"
+                    type="date"
+                    value={modalDateAdded}
+                    onChange={(e) => setModalDateAdded(e.target.value)}
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="label">Notas personales</label>
