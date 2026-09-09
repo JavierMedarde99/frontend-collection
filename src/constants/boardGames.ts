@@ -21,3 +21,8 @@ export const BOARD_GAME_STATUS_OPTIONS: { value: BoardGameStatus; label: string 
   (Object.entries(BOARD_GAME_STATUS_LABELS) as [BoardGameStatus, string][]).map(
     ([value, label]) => ({ value, label }),
   )
+
+/** Convierte un rating BGG (0–10) a escala de 5 estrellas, redondeado a 1 decimal. */
+export function bggRatingToStars(rating: number): number {
+  return Math.round((rating / 2) * 10) / 10
+}
