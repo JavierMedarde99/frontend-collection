@@ -4,13 +4,15 @@ const links = [
   { to: '/', label: 'Inicio', end: true },
   { to: '/coleccion', label: 'Libros', end: false },
   { to: '/juegos', label: 'Videojuegos', end: false },
+  { to: '/magic', label: 'Magic', end: false },
 ]
 
 export default function Navbar() {
   const location = useLocation()
   const inGames = location.pathname.startsWith('/juegos')
-  const addTo = inGames ? '/juegos/nuevo' : '/nuevo'
-  const addLabel = inGames ? 'Añadir videojuego' : 'Añadir libro'
+  const inMagic = location.pathname.startsWith('/magic')
+  const addTo = inMagic ? '/magic/nuevo' : inGames ? '/juegos/nuevo' : '/nuevo'
+  const addLabel = inMagic ? 'Añadir carta Magic' : inGames ? 'Añadir videojuego' : 'Añadir libro'
 
   return (
     <header className="sticky top-0 z-10 bg-navbar-gradient border-b border-silver/70 shadow-sm-4">
