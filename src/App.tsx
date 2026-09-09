@@ -12,6 +12,10 @@ import MagicListPage from './pages/MagicListPage'
 import MagicDetailPage from './pages/MagicDetailPage'
 import MagicCreatePage from './pages/MagicCreatePage'
 import MagicEditPage from './pages/MagicEditPage'
+import BoardGameListPage from './pages/BoardGameListPage'
+import BoardGameCreatePage from './pages/BoardGameCreatePage'
+import BoardGameDetailPage from './pages/BoardGameDetailPage'
+import BoardGameEditPage from './pages/BoardGameEditPage'
 
 export default function App() {
   return (
@@ -31,6 +35,10 @@ export default function App() {
           <Route path="/magic/nuevo" element={<MagicCreatePage />} />
           <Route path="/magic/:id" element={<MagicDetailPage />} />
           <Route path="/magic/:id/editar" element={<MagicEditPage />} />
+          <Route path="/boardgames" element={<BoardGameListPage />} />
+          <Route path="/boardgames/nuevo" element={<BoardGameCreatePage />} />
+          <Route path="/boardgames/:id" element={<BoardGameDetailPage />} />
+          <Route path="/boardgames/:id/editar" element={<BoardGameEditPage />} />
         </Routes>
       </main>
     </BrowserRouter>
