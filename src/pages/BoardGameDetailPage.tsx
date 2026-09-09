@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getBoardGame, deleteBoardGame } from '../api/boardgamesApi'
 import type { BoardGame } from '../types'
 import BoardGameStatusBadge from '../components/BoardGameStatusBadge'
+import StarRating from '../components/StarRating'
+import { bggRatingToStars } from '../constants/boardGames'
 import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
@@ -97,9 +99,10 @@ export default function BoardGameDetailPage() {
     ...(game.designers?.length ? [{ label: 'Diseñadores', value: game.designers.join(', ') }] : []),
     ...(game.categories?.length ? [{ label: 'Categorías', value: game.categories.join(', ') }] : []),
     ...(game.mechanics?.length ? [{ label: 'Mecánicas', value: game.mechanics.join(', ') }] : []),
-    ...(game.bggRating !== undefined ? [{ label: 'Rating BGG', value: `★ ${game.bggRating}` }] : []),
     ...(game.dateAdded ? [{ label: 'En la colección desde', value: game.dateAdded }] : []),
   ]
+
+  const hasRating = game.bggRating !== undefined && game.bggRating !== null
 
   return (
     <section className="max-w-3xl flex flex-col gap-24">
@@ -146,7 +149,7 @@ export default function BoardGameDetailPage() {
           </div>
         </div>
 
-        {details.length > 0 && (
+        {(details.length > 0 || hasRating) && (
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 border-t border-silver/60 pt-6">
             {details.map((d) => (
               <div key={d.label}>
@@ -154,6 +157,14 @@ export default function BoardGameDetailPage() {
                 <dd className="text-body text-ink font-medium mt-0.5">{d.value}</dd>
               </div>
             ))}
+            {hasRating && (
+              <div>
+                <dt className="text-caption text-stone uppercase tracking-wide">Rating BGG</dt>
+                <dd className="mt-1.5">
+                  <StarRating value={bggRatingToStars(game.bggRating as number)} readOnly />
+                </dd>
+              </div>
+            )}
           </dl>
         )}
 

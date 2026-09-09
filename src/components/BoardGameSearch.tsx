@@ -7,6 +7,8 @@ import type { BoardGameFormData, BoardGameSearchResult } from '../types'
 import Spinner from './Spinner'
 import EmptyState from './EmptyState'
 import ErrorBanner from './ErrorBanner'
+import StarRating from './StarRating'
+import { bggRatingToStars } from '../constants/boardGames'
 
 function mapResultToGame(result: BoardGameSearchResult): Omit<BoardGameFormData, 'status'> {
   return {
@@ -147,11 +149,15 @@ export default function BoardGameSearch() {
                     result.minPlayers || result.maxPlayers
                       ? `${result.minPlayers ?? '?'}–${result.maxPlayers ?? '?'} jug.`
                       : null,
-                    result.bggRating !== undefined ? `★ ${result.bggRating}` : null,
                   ]
                     .filter(Boolean)
-                    .join(' · ')}
+                    .join(' · ') || 'Juego de mesa'}
                 </p>
+                {result.bggRating !== undefined && result.bggRating !== null && (
+                  <div className="mt-1.5">
+                    <StarRating value={bggRatingToStars(result.bggRating)} readOnly />
+                  </div>
+                )}
                 {result.description && (
                   <p className="text-body text-slate line-clamp-2 mt-2">
                     {result.description}

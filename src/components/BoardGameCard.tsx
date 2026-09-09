@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 import BoardGameStatusBadge from './BoardGameStatusBadge'
+import StarRating from './StarRating'
+import { bggRatingToStars } from '../constants/boardGames'
 import type { BoardGame } from '../types'
 
 interface BoardGameCardProps {
@@ -69,9 +71,7 @@ export default function BoardGameCard({ game, index = 0 }: BoardGameCardProps) {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <BoardGameStatusBadge status={game.status} />
             {game.bggRating !== undefined && game.bggRating !== null && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-caption font-medium bg-amber-100 text-amber-800">
-                ★ {game.bggRating}
-              </span>
+              <StarRating value={bggRatingToStars(game.bggRating)} readOnly />
             )}
           </div>
         </div>
