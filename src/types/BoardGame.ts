@@ -1,8 +1,6 @@
 export enum BoardGameStatus {
   OWNED = 'OWNED',
   WISHLIST = 'WISHLIST',
-  PREVIOUSLY_OWNED = 'PREVIOUSLY_OWNED',
-  FOR_TRADE = 'FOR_TRADE',
 }
 
 export interface BoardGame {

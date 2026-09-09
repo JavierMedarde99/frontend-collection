@@ -97,7 +97,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
       thumbnailUrl: thumbnailUrl.trim() || undefined,
       bggRating: fromNumberInput(bggRating),
       notes: notes.trim() || undefined,
-      dateAdded: dateAdded || undefined,
+      dateAdded: status === BoardGameStatus.OWNED ? dateAdded || undefined : undefined,
       ...(initial.bggId ? { bggId: initial.bggId } : {}),
     }
 
@@ -170,9 +170,11 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
           <input className="input" value={thumbnailUrl} onChange={set(setThumbnailUrl)} placeholder="https://…" />
         </Field>
 
-        <Field label="Fecha de adición">
-          <input className="input" type="date" value={dateAdded} onChange={set(setDateAdded)} />
-        </Field>
+        {status === BoardGameStatus.OWNED && (
+          <Field label="Fecha de adición">
+            <input className="input" type="date" value={dateAdded} onChange={set(setDateAdded)} />
+          </Field>
+        )}
       </div>
 
       <Field label="Descripción">
