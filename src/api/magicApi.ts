@@ -1,4 +1,4 @@
-import type { PageMagicCardResponse, ListMagicCardsParams, MagicCardResponse, MagicCardRequest, MagicCardSearchResult } from '../types'
+import type { PageMagicCardResponse, ListMagicCardsParams, MagicCardResponse, MagicCardRequest, MagicCardSearchResult, MagicCardSearchResponse } from '../types'
 
 const BASE_URL = '/api/magic'
 
@@ -73,6 +73,7 @@ export function deleteMagicCard(id: string): Promise<null> {
   return request<null>(`${BASE_URL}/${id}`, { method: 'DELETE' })
 }
 
-export function searchMagicCards(name: string): Promise<MagicCardSearchResult[]> {
-  return request<MagicCardSearchResult[]>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`) as Promise<MagicCardSearchResult[]>
+export async function searchMagicCards(name: string): Promise<MagicCardSearchResult[]> {
+  const data = await request<MagicCardSearchResponse>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`)
+  return data?.results ?? []
 }
