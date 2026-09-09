@@ -98,6 +98,11 @@ export interface MagicCardSearchResult {
   legalities?: Record<string, string>
 }
 
+export interface MagicCardSearchResponse {
+  query: string
+  results: MagicCardSearchResult[]
+}
+
 export interface PageMagicCardResponse {
   content: MagicCardResponse[]
   totalPages: number
