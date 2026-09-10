@@ -9,6 +9,7 @@ import GameListPage from './pages/GameListPage'
 import GameCreatePage from './pages/GameCreatePage'
 import GameEditPage from './pages/GameEditPage'
 import GameAchievementsPage from './pages/GameAchievementsPage'
+import GameDetailPage from './pages/GameDetailPage'
 import MagicListPage from './pages/MagicListPage'
 import MagicDetailPage from './pages/MagicDetailPage'
 import MagicCreatePage from './pages/MagicCreatePage'
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/juegos/nuevo" element={<GameCreatePage />} />
           <Route path="/juegos/editar/:id" element={<GameEditPage />} />
           <Route path="/juegos/:id/logros" element={<GameAchievementsPage />} />
+          <Route path="/juegos/:id" element={<GameDetailPage />} />
           <Route path="/magic" element={<MagicListPage />} />
           <Route path="/magic/nuevo" element={<MagicCreatePage />} />
           <Route path="/magic/:id" element={<MagicDetailPage />} />
