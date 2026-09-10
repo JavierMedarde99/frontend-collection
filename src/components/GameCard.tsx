@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import GameStatusBadge from './GameStatusBadge'
 import GamePlatformBadge from './GamePlatformBadge'
+import GamePlatinumBadge from './GamePlatinumBadge'
 import StarRating from './StarRating'
 import { GamePlatform } from '../types'
 import type { Game } from '../types'
@@ -52,6 +53,7 @@ export default function GameCard({ game, index = 0 }: GameCardProps) {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <GameStatusBadge status={game.status} />
             <GamePlatformBadge platform={game.platform} />
+            <GamePlatinumBadge game={game} />
           </div>
         </div>
       </div>
