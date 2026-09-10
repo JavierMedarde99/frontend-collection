@@ -28,16 +28,16 @@ export default function BoardGameCard({ game, index = 0 }: BoardGameCardProps) {
     >
       <div className="flex gap-5">
         {game.thumbnailUrl || game.imageUrl ? (
-          <div className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper">
+          <Link to={`/boardgames/${game.id}`} className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper block">
             <img
               src={game.thumbnailUrl || game.imageUrl}
               alt={game.title}
               loading="lazy"
               className="w-28 h-36 object-cover transition-transform duration-300 group-hover:scale-[1.05]"
             />
-          </div>
+          </Link>
         ) : (
-          <div className="w-28 h-36 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex flex-col items-center justify-center gap-1.5 text-caption text-graphite">
+          <Link to={`/boardgames/${game.id}`} className="w-28 h-36 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex flex-col items-center justify-center gap-1.5 text-caption text-graphite">
             <svg
               aria-hidden="true"
               className="w-8 h-8 text-brand"
@@ -53,12 +53,12 @@ export default function BoardGameCard({ game, index = 0 }: BoardGameCardProps) {
               />
             </svg>
             <span>Sin imagen</span>
-          </div>
+          </Link>
         )}
         <div className="min-w-0 flex-1 flex flex-col">
-          <h3 className="font-display text-heading-sm leading-snug line-clamp-2 text-ink">
+          <Link to={`/boardgames/${game.id}`} className="font-display text-heading-sm leading-snug line-clamp-2 text-ink hover:text-brand transition-colors">
             {game.title}
-          </h3>
+          </Link>
           <p className="text-body-sm text-graphite mt-1">
             {[
               game.yearPublished ? `${game.yearPublished}` : null,
@@ -82,9 +82,6 @@ export default function BoardGameCard({ game, index = 0 }: BoardGameCardProps) {
       )}
 
       <div className="mt-auto flex items-center justify-end gap-2 pt-4 border-t border-silver/60">
-        <Link className="btn-ghost !px-3 !py-1.5" to={`/boardgames/${game.id}`}>
-          Ver detalle
-        </Link>
         <Link className="btn-ghost !px-3 !py-1.5" to={`/boardgames/${game.id}/editar`}>
           Editar
         </Link>
