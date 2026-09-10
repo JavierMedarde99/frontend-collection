@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listDecks } from '../api/deckApi'
+import DeckCommanderImage from '../components/DeckCommanderImage'
 import type { DeckResponse } from '../types'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
@@ -114,37 +115,46 @@ export default function DeckListPage() {
             <Link
               key={deck.id}
               to={`/magic/mazos/${deck.id}`}
-              className="card card-hover animate-fade-up flex flex-col gap-3 p-5"
+              className="card card-hover animate-fade-up flex gap-4 p-5 group"
               style={{ animationDelay: `${Math.min(idx, 12) * 40}ms` }}
             >
-              <div className="flex items-start justify-between gap-3">
-                <h3 className="font-display text-heading-sm leading-snug text-ink line-clamp-1">
-                  {deck.name}
-                </h3>
-                {(deck.commanderColors?.length ?? 0) > 0 && (
-                  <div className="flex items-center gap-1 shrink-0">
-                    {deck.commanderColors!.map((color) => (
-                      <span
-                        key={color}
-                        className="w-5 h-5 rounded-full bg-brand-soft text-brand text-caption font-bold flex items-center justify-center"
-                      >
-                        {color}
-                      </span>
-                    ))}
-                  </div>
+              {deck.commander ? (
+                <DeckCommanderImage commanderName={deck.commander} />
+              ) : (
+                <div className="w-20 h-28 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite text-center px-1">
+                  Sin imagen
+                </div>
+              )}
+              <div className="min-w-0 flex-1 flex flex-col gap-1.5">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-display text-heading-sm leading-snug text-ink line-clamp-1">
+                    {deck.name}
+                  </h3>
+                  {(deck.commanderColors?.length ?? 0) > 0 && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      {deck.commanderColors!.map((color) => (
+                        <span
+                          key={color}
+                          className="w-5 h-5 rounded-full bg-brand-soft text-brand text-caption font-bold flex items-center justify-center"
+                        >
+                          {color}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {deck.commander && (
+                  <p className="text-body-sm text-graphite line-clamp-1">
+                    Comandante: {deck.commander}
+                  </p>
                 )}
-              </div>
-              {deck.commander && (
-                <p className="text-body-sm text-graphite line-clamp-1">
-                  Comandante: {deck.commander}
+                {deck.description && (
+                  <p className="text-body text-slate line-clamp-2">{deck.description}</p>
+                )}
+                <p className="text-caption text-graphite mt-auto pt-3 border-t border-silver/60">
+                  {totalCards(deck)} carta{totalCards(deck) === 1 ? '' : 's'}
                 </p>
-              )}
-              {deck.description && (
-                <p className="text-body text-slate line-clamp-2">{deck.description}</p>
-              )}
-              <p className="text-caption text-graphite mt-auto pt-3 border-t border-silver/60">
-                {totalCards(deck)} carta{totalCards(deck) === 1 ? '' : 's'}
-              </p>
+              </div>
             </Link>
           ))}
         </div>
