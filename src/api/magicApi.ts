@@ -81,3 +81,9 @@ export async function searchMagicCards(name: string): Promise<MagicCardSearchRes
   const data = await request<MagicCardSearchResponse>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`)
   return data?.results ?? []
 }
+
+export function addMagicCardFromScryfall(scryfallId: string): Promise<MagicCardResponse> {
+  return request<MagicCardResponse>(`${BASE_URL}/scryfall/${encodeURIComponent(scryfallId)}`, {
+    method: 'POST',
+  }) as Promise<MagicCardResponse>
+}
