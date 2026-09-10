@@ -7,6 +7,7 @@ import { DECK_STATUS_LABELS, DECK_STATUS_COLORS } from '../constants/decks'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
+import DeckCommanderImage from '../components/DeckCommanderImage'
 
 export default function DeckDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -263,6 +264,15 @@ export default function DeckDetailPage() {
 
       <div className="flex flex-col gap-4">
         <h2 className="font-display text-heading-sm">Añadir cartas</h2>
+        {deck.commander && (
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-brand-soft/50 border border-brand/30">
+            <DeckCommanderImage commanderName={deck.commander} />
+            <div className="min-w-0">
+              <p className="text-caption text-graphite">Comandante del mazo (referencia visual)</p>
+              <p className="font-display text-heading-sm text-ink line-clamp-1">{deck.commander}</p>
+            </div>
+          </div>
+        )}
         <form onSubmit={handleSearch} className="flex gap-3">
           <input
             className="input flex-1"
