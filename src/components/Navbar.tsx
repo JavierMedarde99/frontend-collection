@@ -8,25 +8,35 @@ const links = [
   { to: '/boardgames', label: 'Juegos de Mesa', end: false },
 ]
 
+const magicLinks = [
+  { to: '/magic', label: 'Cartas', end: true },
+  { to: '/magic/mazos', label: 'Mazos', end: false },
+]
+
 export default function Navbar() {
   const location = useLocation()
   const inGames = location.pathname.startsWith('/juegos')
   const inMagic = location.pathname.startsWith('/magic')
+  const inDecks = location.pathname.startsWith('/magic/mazos')
   const inBoardGames = location.pathname.startsWith('/boardgames')
   const addTo = inBoardGames
     ? '/boardgames/nuevo'
-    : inMagic
-      ? '/magic/nuevo'
-      : inGames
-        ? '/juegos/nuevo'
-        : '/nuevo'
+    : inDecks
+      ? '/magic/mazos/nuevo'
+      : inMagic
+        ? '/magic/nuevo'
+        : inGames
+          ? '/juegos/nuevo'
+          : '/nuevo'
   const addLabel = inBoardGames
     ? 'Añadir juego de mesa'
-    : inMagic
-      ? 'Añadir carta Magic'
-      : inGames
-        ? 'Añadir videojuego'
-        : 'Añadir libro'
+    : inDecks
+      ? 'Añadir mazo'
+      : inMagic
+        ? 'Añadir carta Magic'
+        : inGames
+          ? 'Añadir videojuego'
+          : 'Añadir libro'
 
   return (
     <header className="sticky top-0 z-10 bg-navbar-gradient border-b border-silver/70 shadow-sm-4">
@@ -64,6 +74,26 @@ export default function Navbar() {
                 {link.label}
               </NavLink>
             ))}
+            {inMagic && (
+              <span className="flex items-center gap-1 ml-2 pl-2 border-l border-silver/70" aria-label="Sub-apartados de Magic">
+                {magicLinks.map((link) => (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    end={link.end}
+                    className={({ isActive }) =>
+                      `text-body-sm px-3 py-1 rounded-full font-medium transition-all duration-200 ${
+                        isActive
+                          ? 'bg-ink text-white'
+                          : 'text-graphite hover:text-brand hover:bg-brand-soft'
+                      }`
+                    }
+                  >
+                    {link.label}
+                  </NavLink>
+                ))}
+              </span>
+            )}
           </div>
         </div>
         <NavLink className="btn-primary !px-4 !py-2 shrink-0" to={addTo}>
