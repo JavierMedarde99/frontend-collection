@@ -172,11 +172,23 @@ export default function DeckDetailPage() {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-display text-heading-lg text-ink">{deck.name}</h1>
           {status && (
-            <span className={`px-3 py-1 rounded-full text-caption font-semibold ${DECK_STATUS_COLORS[status]}`}>
-              {DECK_STATUS_LABELS[status]}
+            <span className={`px-3 py-1 rounded-full text-caption font-semibold ${DECK_STATUS_COLORS[status.status]}`}>
+              {DECK_STATUS_LABELS[status.status]}
             </span>
           )}
         </div>
+        {status?.message && (
+          <div
+            className={`p-4 rounded-xl border text-body ${
+              status.status === 'INVALID'
+                ? 'bg-red-50 border-red-200 text-red-700'
+                : 'bg-slate-50 border-silver/60 text-slate'
+            }`}
+            role={status.status === 'INVALID' ? 'alert' : 'status'}
+          >
+            {status.message}
+          </div>
+        )}
         {deck.commander && (
           <p className="text-body text-graphite">
             Comandante: {deck.commander}

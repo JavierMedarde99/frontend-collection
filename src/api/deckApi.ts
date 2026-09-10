@@ -1,4 +1,4 @@
-import type { DeckResponse, DeckRequest, DeckCardRequest, DeckStatusResponse, DeckStatus, ApiError } from '../types'
+import type { DeckResponse, DeckRequest, DeckCardRequest, DeckStatusResponse, ApiError } from '../types'
 
 const BASE_URL = '/api/decks'
 
@@ -81,19 +81,11 @@ export function removeCardFromDeck(id: string, scryfallId: string): Promise<Deck
   }) as Promise<DeckResponse>
 }
 
-const DECK_STATUSES: DeckStatus[] = ['DRAFT', 'COMPLETE', 'INVALID']
-
 export async function getDeckStatus(id: string): Promise<DeckStatusResponse> {
-  // El backend devuelve un string plano (text/plain), no JSON.
-  const res = await fetch(`${BASE_URL}/${id}/status`, {
-    headers: { 'Content-Type': 'application/json' },
-  })
-  if (!res.ok) {
-    throw new RequestError(`Error ${res.status}`, res.status)
+  // El backend devuelve un JSON {status, message}.
+  const data = await request<DeckStatusResponse>(`${BASE_URL}/${id}/status`)
+  if (!data || !['DRAFT', 'COMPLETE', 'INVALID'].includes(data.status)) {
+    throw new RequestError(`Estado de mazo desconocido: ${JSON.stringify(data)}`)
   }
-  const raw = (await res.text()).trim().replace(/^"|"$/g, '')
-  if ((DECK_STATUSES as string[]).includes(raw)) {
-    return raw as DeckStatusResponse
-  }
-  throw new RequestError(`Estado de mazo desconocido: ${raw}`)
+  return data
 }
