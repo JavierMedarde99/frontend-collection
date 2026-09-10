@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { createDeck, addCardToDeck } from '../api/deckApi'
+import { createDeck } from '../api/deckApi'
 import { searchMagicCards } from '../api/magicApi'
 import type { MagicCardSearchResult } from '../types'
 import { MANA_COLOR_OPTIONS, type ManaColorCode } from '../constants/decks'
@@ -57,9 +57,6 @@ export default function DeckCreatePage() {
         commander: commander.name,
         commanderColors: commanderColors.length > 0 ? commanderColors : undefined,
       })
-      if (commander.scryfallId) {
-        await addCardToDeck(created.id, { scryfallId: commander.scryfallId, quantity: 1 })
-      }
       navigate(`/magic/mazos/${created.id}`)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo crear el mazo.'
