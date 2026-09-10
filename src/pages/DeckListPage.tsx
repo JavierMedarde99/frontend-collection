@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { useCallback, useEffect, useState, type FormEvent, type MouseEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { listDecks } from '../api/deckApi'
 import DeckCommanderImage from '../components/DeckCommanderImage'
 import type { DeckResponse } from '../types'
@@ -11,6 +11,7 @@ function totalCards(deck: DeckResponse): number {
 }
 
 export default function DeckListPage() {
+  const navigate = useNavigate()
   const [decks, setDecks] = useState<DeckResponse[]>([])
   const [nameInput, setNameInput] = useState('')
   const [nameFilter, setNameFilter] = useState('')
@@ -38,6 +39,11 @@ export default function DeckListPage() {
   function handleSearch(e: FormEvent) {
     e.preventDefault()
     setNameFilter(nameInput.trim())
+  }
+
+  function handleEdit(e: MouseEvent, deckId: string) {
+    e.preventDefault()
+    navigate(`/magic/mazos/${deckId}/editar`)
   }
 
   return (
@@ -151,9 +157,18 @@ export default function DeckListPage() {
                 {deck.description && (
                   <p className="text-body text-slate line-clamp-2">{deck.description}</p>
                 )}
-                <p className="text-caption text-graphite mt-auto pt-3 border-t border-silver/60">
+                <p className="text-caption text-graphite">
                   {totalCards(deck)} carta{totalCards(deck) === 1 ? '' : 's'}
                 </p>
+                <div className="mt-auto pt-3 border-t border-silver/60 flex justify-end">
+                  <button
+                    type="button"
+                    className="btn-ghost !px-3 !py-1.5"
+                    onClick={(e) => handleEdit(e, deck.id)}
+                  >
+                    Editar
+                  </button>
+                </div>
               </div>
             </Link>
           ))}
