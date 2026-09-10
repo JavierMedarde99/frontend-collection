@@ -121,5 +121,4 @@ export interface ListMagicCardsParams {
   rarity?: string
   color?: string
   type?: string
-  convertedManaCost?: number
 }

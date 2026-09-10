@@ -26,8 +26,6 @@ export default function MagicListPage() {
   const [colorFilter, setColorFilter] = useState('')
   const [typeInput, setTypeInput] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
-  const [cmcInput, setCmcInput] = useState('')
-  const [cmcFilter, setCmcFilter] = useState<number | undefined>(undefined)
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
@@ -46,7 +44,6 @@ export default function MagicListPage() {
         rarity: rarityFilter || undefined,
         color: colorFilter || undefined,
         type: typeFilter || undefined,
-        convertedManaCost: cmcFilter,
         sort: 'name,asc',
       })
       setCards(data.content || [])
@@ -58,7 +55,7 @@ export default function MagicListPage() {
     } finally {
       setLoading(false)
     }
-  }, [page, nameFilter, rarityFilter, colorFilter, typeFilter, cmcFilter])
+  }, [page, nameFilter, rarityFilter, colorFilter, typeFilter])
 
   useEffect(() => {
     load()
@@ -68,8 +65,6 @@ export default function MagicListPage() {
     e.preventDefault()
     setNameFilter(nameInput.trim())
     setTypeFilter(typeInput.trim())
-    const cmc = cmcInput.trim() === '' ? undefined : Number(cmcInput)
-    setCmcFilter(cmcInput.trim() === '' || Number.isNaN(cmc) ? undefined : cmc)
     setPage(0)
   }
 
@@ -80,14 +75,11 @@ export default function MagicListPage() {
     setColorFilter('')
     setTypeInput('')
     setTypeFilter('')
-    setCmcInput('')
-    setCmcFilter(undefined)
     setPage(0)
   }
 
   const activeFilterCount =
-    [nameFilter, rarityFilter, colorFilter, typeFilter].filter(Boolean).length +
-    (cmcFilter !== undefined ? 1 : 0)
+    [nameFilter, rarityFilter, colorFilter, typeFilter].filter(Boolean).length
 
   return (
     <section className="flex flex-col gap-10">
@@ -164,7 +156,7 @@ export default function MagicListPage() {
         </div>
 
         {filtersOpen && (
-          <form id="filtros-magic" onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 animate-fade-in">
+          <form id="filtros-magic" onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-fade-in">
             <select
               className="input"
               value={rarityFilter}
@@ -193,16 +185,6 @@ export default function MagicListPage() {
               onChange={(e) => setTypeInput(e.target.value)}
               placeholder="Filtrar por tipo…"
               aria-label="Filtrar por tipo"
-            />
-            <input
-              className="input"
-              type="number"
-              min="0"
-              step="1"
-              value={cmcInput}
-              onChange={(e) => setCmcInput(e.target.value)}
-              placeholder="Coste de maná (CMC)…"
-              aria-label="Filtrar por coste de maná convertido"
             />
           </form>
         )}
