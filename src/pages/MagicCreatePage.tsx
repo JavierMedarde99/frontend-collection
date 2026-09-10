@@ -33,8 +33,8 @@ export default function MagicCreatePage() {
     setSavingId(key)
     setSaveError(null)
     try {
-      const created = await addMagicCardFromScryfall(card.scryfallId)
-      navigate(`/magic/${created.id}`)
+      await addMagicCardFromScryfall(card.scryfallId)
+      navigate('/magic')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo guardar la carta.'
       setSaveError(message)
