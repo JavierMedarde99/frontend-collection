@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { searchMagicCards, createMagicCard } from '../api/magicApi'
+import { searchMagicCards, createMagicCard, addMagicCardFromScryfall, updateMagicCard } from '../api/magicApi'
 import type { MagicCardSearchResult, MagicCondition } from '../types'
 import { MAGIC_CONDITIONS } from '../constants/magic'
 
@@ -42,34 +42,47 @@ export default function MagicCreatePage() {
     setSubmitting(true)
     setSubmitError(null)
     try {
-      await createMagicCard({
-        name: selectedCard.name,
-        manaCost: selectedCard.manaCost,
-        type: selectedCard.type,
-        text: selectedCard.text,
-        power: selectedCard.power,
-        toughness: selectedCard.toughness,
-        loyalty: selectedCard.loyalty,
-        colors: selectedCard.colors,
-        colorIdentity: selectedCard.colorIdentity,
-        keywords: selectedCard.keywords,
-        rarity: selectedCard.rarity,
-        setCode: selectedCard.setCode,
-        setName: selectedCard.setName,
-        artist: selectedCard.artist,
-        frame: selectedCard.frame,
-        borderColor: selectedCard.borderColor,
-        layout: selectedCard.layout,
-        legalities: selectedCard.legalities,
-        priceUsd: selectedCard.priceUsd,
-        priceEur: selectedCard.priceEur,
-        imageUrl: selectedCard.imageUrl,
-        imageLargeUrl: selectedCard.imageLargeUrl,
-        condition,
-        isFoil,
-        quantity,
-        notes,
-      })
+      if (selectedCard.scryfallId) {
+        // El backend descarga la carta completa de Scryfall y la guarda (201).
+        const created = await addMagicCardFromScryfall(selectedCard.scryfallId)
+        // Aplicamos los datos personales del modal con un PUT.
+        await updateMagicCard(created.id, {
+          ...created,
+          condition,
+          isFoil,
+          quantity,
+          notes,
+        })
+      } else {
+        await createMagicCard({
+          name: selectedCard.name,
+          manaCost: selectedCard.manaCost,
+          type: selectedCard.type,
+          text: selectedCard.text,
+          power: selectedCard.power,
+          toughness: selectedCard.toughness,
+          loyalty: selectedCard.loyalty,
+          colors: selectedCard.colors,
+          colorIdentity: selectedCard.colorIdentity,
+          keywords: selectedCard.keywords,
+          rarity: selectedCard.rarity,
+          setCode: selectedCard.setCode,
+          setName: selectedCard.setName,
+          artist: selectedCard.artist,
+          frame: selectedCard.frame,
+          borderColor: selectedCard.borderColor,
+          layout: selectedCard.layout,
+          legalities: selectedCard.legalities,
+          priceUsd: selectedCard.priceUsd,
+          priceEur: selectedCard.priceEur,
+          imageUrl: selectedCard.imageUrl,
+          imageLargeUrl: selectedCard.imageLargeUrl,
+          condition,
+          isFoil,
+          quantity,
+          notes,
+        })
+      }
       navigate('/magic')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo guardar la carta.'
