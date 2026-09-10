@@ -35,4 +35,7 @@ export interface DeckCardRequest {
   quantity: number
 }
 
-export type DeckStatusResponse = DeckStatus
+export interface DeckStatusResponse {
+  status: DeckStatus
+  message?: string | null
+}
