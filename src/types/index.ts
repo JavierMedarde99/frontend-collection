@@ -9,3 +9,4 @@ export type { PageGameResponse, ListGamesParams, GameFormData, SearchGameResult,
 export type { MagicLanguage, MagicCondition, MagicCardResponse, MagicCardRequest, MagicCardSearchResult, MagicCardSearchResponse, PageMagicCardResponse, ListMagicCardsParams } from './Magic'
 export { BoardGameStatus } from './BoardGame'
 export type { BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse, PageBoardGameResponse, ListBoardGamesParams } from './BoardGame'
+export type { DeckStatus, DeckResponse, DeckRequest, DeckCardResponse, DeckCardRequest, DeckStatusResponse } from './Deck'
