@@ -153,9 +153,6 @@ export default function DeckDetailPage() {
           ← Volver a mazos
         </Link>
         <div className="flex items-center gap-2">
-          <Link className="btn-ghost" to={`/magic/mazos/${deck.id}/editar`}>
-            Editar
-          </Link>
           <button
             className="btn-ghost !text-red-600 hover:!bg-red-50 hover:!border-red-200"
             onClick={() => setDeleting(true)}
