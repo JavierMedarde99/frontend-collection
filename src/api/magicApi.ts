@@ -42,7 +42,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T | n
 
 export function listMagicCards(params: ListMagicCardsParams = {}): Promise<PageMagicCardResponse> {
   const search = new URLSearchParams()
-  const { page, size, sort, name, rarity, color, type, convertedManaCost } = params
+  const { page, size, sort, name, rarity, color, type } = params
   if (page !== undefined && page !== null) search.set('page', String(page))
   if (size !== undefined && size !== null) search.set('size', String(size))
   if (sort) search.set('sort', sort)
@@ -50,7 +50,6 @@ export function listMagicCards(params: ListMagicCardsParams = {}): Promise<PageM
   if (rarity) search.set('rarity', rarity)
   if (color) search.set('color', color)
   if (type) search.set('type', type)
-  if (convertedManaCost !== undefined && convertedManaCost !== null) search.set('convertedManaCost', String(convertedManaCost))
   const qs = search.toString()
   return request<PageMagicCardResponse>(`${BASE_URL}${qs ? `?${qs}` : ''}`) as Promise<PageMagicCardResponse>
 }
