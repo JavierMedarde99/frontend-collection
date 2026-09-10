@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage'
 import BookListPage from './pages/BookListPage'
 import BookCreatePage from './pages/BookCreatePage'
 import BookEditPage from './pages/BookEditPage'
+import BookDetailPage from './pages/BookDetailPage'
 import GameListPage from './pages/GameListPage'
 import GameCreatePage from './pages/GameCreatePage'
 import GameEditPage from './pages/GameEditPage'
@@ -25,6 +26,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/coleccion" element={<BookListPage />} />
+          <Route path="/coleccion/:id" element={<BookDetailPage />} />
           <Route path="/nuevo" element={<BookCreatePage />} />
           <Route path="/editar/:id" element={<BookEditPage />} />
           <Route path="/juegos" element={<GameListPage />} />
