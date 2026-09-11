@@ -5,6 +5,7 @@ import DeckCommanderImage from '../components/DeckCommanderImage'
 import type { DeckResponse } from '../types'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
+import ErrorBanner from '../components/ErrorBanner'
 
 function totalCards(deck: DeckResponse): number {
   return (deck.cards || []).reduce((sum, c) => sum + (c.quantity || 0), 0)
@@ -98,9 +99,7 @@ export default function DeckListPage() {
       </form>
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-          {error}
-        </div>
+        <ErrorBanner message={error} />
       )}
 
       {loading ? (

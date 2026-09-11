@@ -5,6 +5,7 @@ import type { MagicCardRequest, MagicCondition, MagicLanguage } from '../types'
 import { MAGIC_CONDITIONS, MAGIC_LANGUAGES } from '../constants/magic'
 import ConfirmDialog from '../components/ConfirmDialog'
 import SkeletonGrid from '../components/Skeleton'
+import ErrorBanner from '../components/ErrorBanner'
 
 export default function MagicEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -130,9 +131,7 @@ export default function MagicEditPage() {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-          {error}
-        </div>
+        <ErrorBanner message={error} />
       )}
 
       <form onSubmit={handleSubmit} className="card flex flex-col gap-6 p-8">

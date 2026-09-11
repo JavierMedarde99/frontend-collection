@@ -6,6 +6,7 @@ import type { MagicCardResponse } from '../types'
 import MagicCard from '../components/MagicCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
+import ErrorBanner from '../components/ErrorBanner'
 
 const PAGE_SIZE = 12
 
@@ -198,9 +199,7 @@ export default function MagicListPage() {
       )}
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-          {error}
-        </div>
+        <ErrorBanner message={error} />
       )}
 
       {loading ? (
