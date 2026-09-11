@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listBoardGames } from '../api/boardgamesApi'
 import { BOARD_GAME_STATES } from '../constants/boardGames'
@@ -8,6 +8,7 @@ import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
 import Pagination from '../components/Pagination'
+import { useSearchShortcut } from '../hooks/useSearchShortcut'
 
 const PAGE_SIZE = 12
 
@@ -15,6 +16,8 @@ export default function BoardGameListPage() {
   const [games, setGames] = useState<BoardGame[]>([])
   const [status, setStatus] = useState<BoardGameStatus | ''>('')
   const [nameInput, setNameInput] = useState('')
+  const searchRef = useRef<HTMLInputElement>(null)
+  useSearchShortcut(searchRef)
   const [nameFilter, setNameFilter] = useState('')
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
@@ -124,13 +127,16 @@ export default function BoardGameListPage() {
               </svg>
               <input
                 className="input !pl-11 pr-28"
-                value={nameInput}
+                ref={searchRef}
+              aria-keyshortcuts="/"
+              title="Atajo: / para buscar"
+              value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 placeholder="Buscar por título…"
                 aria-label="Buscar por título"
               />
               <button className="btn-primary !py-2 !px-3.5 absolute right-1.5 top-1/2 -translate-y-1/2" type="submit">
-                Buscar
+                Buscar <kbd className="ml-1 hidden sm:inline-block px-1 rounded bg-white/25 text-[10px] font-semibold" aria-hidden="true">/</kbd>
               </button>
             </form>
           </div>

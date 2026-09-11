@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listMagicCards } from '../api/magicApi'
 import { MAGIC_CARD_TYPES } from '../constants/magic'
@@ -8,6 +8,7 @@ import { SkeletonMagicGrid } from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
 import Pagination from '../components/Pagination'
+import { useSearchShortcut } from '../hooks/useSearchShortcut'
 
 const PAGE_SIZE = 12
 
@@ -24,6 +25,8 @@ const COLOR_OPTIONS = [
 export default function MagicListPage() {
   const [cards, setCards] = useState<MagicCardResponse[]>([])
   const [nameInput, setNameInput] = useState('')
+  const searchRef = useRef<HTMLInputElement>(null)
+  useSearchShortcut(searchRef)
   const [nameFilter, setNameFilter] = useState('')
   const [rarityFilter, setRarityFilter] = useState('')
   const [colorFilter, setColorFilter] = useState('')
@@ -152,13 +155,16 @@ export default function MagicListPage() {
             </svg>
             <input
               className="input !pl-11 pr-28"
+              ref={searchRef}
+              aria-keyshortcuts="/"
+              title="Atajo: / para buscar"
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
               placeholder="Buscar carta por nombre…"
               aria-label="Buscar carta por nombre"
             />
             <button className="btn-primary !py-2 !px-3.5 absolute right-1.5 top-1/2 -translate-y-1/2" type="submit">
-              Buscar
+              Buscar <kbd className="ml-1 hidden sm:inline-block px-1 rounded bg-white/25 text-[10px] font-semibold" aria-hidden="true">/</kbd>
             </button>
           </form>
           <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
