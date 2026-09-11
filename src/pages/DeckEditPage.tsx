@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getDeck, updateDeck, deleteDeck } from '../api/deckApi'
+import { searchMagicCards } from '../api/magicApi'
+import type { MagicCardSearchResult } from '../types'
 import { MANA_COLOR_OPTIONS, type ManaColorCode } from '../constants/decks'
 import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
@@ -23,6 +25,41 @@ export default function DeckEditPage() {
   const [deleting, setDeleting] = useState(false)
   const [deleteBusy, setDeleteBusy] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  // Búsqueda del comandante en Scryfall
+  const [commanderQuery, setCommanderQuery] = useState('')
+  const [commanderResults, setCommanderResults] = useState<MagicCardSearchResult[]>([])
+  const [searchingCommander, setSearchingCommander] = useState(false)
+  const [searchError, setSearchError] = useState<string | null>(null)
+
+  function isLegendaryCreature(typeLine?: string): boolean {
+    if (!typeLine) return false
+    const lower = typeLine.toLowerCase()
+    return lower.includes('legendary') && lower.includes('creature')
+  }
+
+  function handlePickCommander(result: MagicCardSearchResult) {
+    if (!isLegendaryCreature(result.type)) {
+      setSearchError(`"${result.name}" no se puede añadir como comandante: debe ser una criatura legendaria.`)
+      return
+    }
+    setSearchError(null)
+    setCommander(result.name)
+  }
+
+  async function handleCommanderSearch(e: FormEvent) {
+    e.preventDefault()
+    if (!commanderQuery.trim()) return
+    setSearchingCommander(true)
+    setSearchError(null)
+    try {
+      setCommanderResults(await searchMagicCards(commanderQuery.trim()))
+    } catch (err) {
+      setSearchError(err instanceof Error ? err.message : 'Error al buscar el comandante.')
+    } finally {
+      setSearchingCommander(false)
+    }
+  }
 
   const load = useCallback(async () => {
     if (!id) return
@@ -153,17 +190,73 @@ export default function DeckEditPage() {
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label className="label" htmlFor="deck-commander">
-            Comandante
-          </label>
-          <input
-            id="deck-commander"
-            className="input"
-            value={commander}
-            onChange={(e) => setCommander(e.target.value)}
-            placeholder="Nombre del comandante"
-          />
+        <div className="flex flex-col gap-4">
+          <span className="label">Comandante</span>
+          {commander ? (
+            <div className="flex items-center gap-4 p-3 rounded-xl bg-brand-soft/50 border border-brand/30">
+              <div className="min-w-0 flex-1">
+                <p className="font-display text-heading-sm text-ink line-clamp-1">{commander}</p>
+              </div>
+              <button
+                type="button"
+                className="btn-ghost !px-3 !py-1.5 shrink-0"
+                onClick={() => setCommander('')}
+              >
+                Cambiar
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="flex gap-3">
+                <input
+                  className="input flex-1"
+                  value={commanderQuery}
+                  onChange={(e) => setCommanderQuery(e.target.value)}
+                  placeholder="Buscar comandante en Scryfall…"
+                  aria-label="Buscar comandante"
+                />
+                <button
+                  type="button"
+                  className="btn-primary shrink-0"
+                  onClick={handleCommanderSearch}
+                  disabled={searchingCommander}
+                >
+                  {searchingCommander ? 'Buscando…' : 'Buscar'}
+                </button>
+              </div>
+              {searchError && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
+                  {searchError}
+                </div>
+              )}
+              {commanderResults.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto">
+                  {commanderResults.map((result) => (
+                    <div key={result.scryfallId || result.name} className="card p-3 flex items-center gap-3">
+                      {result.imageUrl && (
+                        <img
+                          src={result.imageUrl}
+                          alt={result.name}
+                          className="w-10 h-14 object-cover rounded shrink-0"
+                        />
+                      )}
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-display text-heading-sm line-clamp-1">{result.name}</span>
+                        <span className="block text-caption text-graphite">{result.setName || result.type}</span>
+                      </span>
+                      <button
+                        type="button"
+                        className="btn-primary !px-3 !py-1.5 shrink-0"
+                        onClick={() => handlePickCommander(result)}
+                      >
+                        Añadir
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         <fieldset>
