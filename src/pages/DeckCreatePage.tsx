@@ -42,6 +42,21 @@ export default function DeckCreatePage() {
     }
   }
 
+  function isLegendaryCreature(typeLine?: string): boolean {
+    if (!typeLine) return false
+    const lower = typeLine.toLowerCase()
+    return lower.includes('legendary') && lower.includes('creature')
+  }
+
+  function handlePickCommander(result: MagicCardSearchResult) {
+    if (!isLegendaryCreature(result.type)) {
+      setSearchError(`"${result.name}" no se puede añadir como comandante: debe ser una criatura legendaria.`)
+      return
+    }
+    setSearchError(null)
+    setCommander(result)
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!name.trim() || !commander) {
@@ -156,7 +171,7 @@ export default function DeckCreatePage() {
                       <button
                         type="button"
                         className="btn-primary !px-3 !py-1.5 shrink-0"
-                        onClick={() => setCommander(result)}
+                        onClick={() => handlePickCommander(result)}
                       >
                         Añadir
                       </button>
