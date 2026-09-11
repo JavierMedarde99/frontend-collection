@@ -132,7 +132,10 @@ export default function DeckListPage() {
               )}
               <div className="min-w-0 flex-1 flex flex-col gap-1.5">
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="font-display text-heading-sm leading-snug text-ink line-clamp-1">
+                  <h3
+                    className="font-display text-heading-sm leading-snug text-ink line-clamp-1 min-w-0 flex-1"
+                    title={deck.name}
+                  >
                     {deck.name}
                   </h3>
                   {(deck.commanderColors?.length ?? 0) > 0 && (
@@ -149,7 +152,7 @@ export default function DeckListPage() {
                   )}
                 </div>
                 {deck.commander && (
-                  <p className="text-body-sm text-graphite line-clamp-1">
+                  <p className="text-body-sm text-graphite line-clamp-1" title={deck.commander}>
                     Comandante: {deck.commander}
                   </p>
                 )}
