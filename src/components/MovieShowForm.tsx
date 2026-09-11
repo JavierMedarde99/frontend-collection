@@ -32,7 +32,7 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
   const [form, setForm] = useState<MovieShowFormData>({
     title: '',
     mediaType: MediaType.MOVIE,
-    status: MovieShowStatus.WISHLIST,
+    status: MovieShowStatus.PLAN_TO_WATCH,
     overview: '',
     releaseDate: '',
     posterUrl: '',

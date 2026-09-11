@@ -4,7 +4,6 @@ import { MovieShowStatus } from '../types'
 export const MOVIE_SHOW_STATES: Record<MovieShowStatus, string> = {
   [MovieShowStatus.WATCHING]: 'Viendo',
   [MovieShowStatus.WATCHED]: 'Visto',
-  [MovieShowStatus.WISHLIST]: 'Lista de deseos',
   [MovieShowStatus.PLAN_TO_WATCH]: 'Plan para ver',
 }
 
@@ -13,14 +12,12 @@ export const MOVIE_SHOW_STATE_LABELS: Record<MovieShowStatus, string> = MOVIE_SH
 export const MOVIE_SHOW_STATE_COLORS: Record<MovieShowStatus, string> = {
   [MovieShowStatus.WATCHING]: 'bg-action-blue text-white',
   [MovieShowStatus.WATCHED]: 'bg-green-600 text-white',
-  [MovieShowStatus.WISHLIST]: 'bg-yellow-100 text-yellow-800',
   [MovieShowStatus.PLAN_TO_WATCH]: 'bg-slate-100 text-slate-700',
 }
 
 export const MOVIE_SHOW_DOT_COLORS: Record<MovieShowStatus, string> = {
   [MovieShowStatus.WATCHING]: 'bg-white',
   [MovieShowStatus.WATCHED]: 'bg-white',
-  [MovieShowStatus.WISHLIST]: 'bg-yellow-500',
   [MovieShowStatus.PLAN_TO_WATCH]: 'bg-slate-500',
 }
 

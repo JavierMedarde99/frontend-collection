@@ -1,6 +1,5 @@
 export enum MovieShowStatus {
   WATCHING = 'WATCHING',
   WATCHED = 'WATCHED',
-  WISHLIST = 'WISHLIST',
   PLAN_TO_WATCH = 'PLAN_TO_WATCH',
 }
