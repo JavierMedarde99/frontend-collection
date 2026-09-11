@@ -7,6 +7,7 @@ import MovieShowCard from '../components/MovieShowCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
+import Pagination from '../components/Pagination'
 
 const PAGE_SIZE = 12
 
@@ -191,27 +192,7 @@ export default function MovieShowListPage() {
         </div>
       )}
 
-      {totalPages > 1 && (
-        <nav className="flex items-center justify-center gap-4" aria-label="Paginación">
-          <button
-            className="btn-ghost !px-4 !py-2"
-            disabled={page === 0 || loading}
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
-          >
-            Anterior
-          </button>
-          <span className="text-body text-slate tabular-nums">
-            Página {page + 1} de {totalPages}
-          </span>
-          <button
-            className="btn-ghost !px-4 !py-2"
-            disabled={page >= totalPages - 1 || loading}
-            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-          >
-            Siguiente
-          </button>
-        </nav>
-      )}
+      <Pagination page={page} totalPages={totalPages} onChange={setPage} disabled={loading} />
     </section>
   )
 }
