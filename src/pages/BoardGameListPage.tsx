@@ -6,6 +6,7 @@ import { BoardGameStatus, type BoardGame } from '../types'
 import BoardGameCard from '../components/BoardGameCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
+import FilterPill from '../components/FilterPill'
 
 const PAGE_SIZE = 12
 
@@ -136,22 +137,18 @@ export default function BoardGameListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <button
-          className={`btn-ghost !px-4 !py-2 ${!status ? '!bg-brand !text-white !border-brand !shadow-brand-glow' : ''}`}
-          onClick={() => { setStatus(''); setPage(0) }}
-          aria-pressed={!status}
-        >
+        <FilterPill active={!status} onClick={() => { setStatus(''); setPage(0) }} label="Todos los estados">
           Todos
-        </button>
+        </FilterPill>
         {Object.entries(BOARD_GAME_STATES).map(([key, label]) => (
-          <button
+          <FilterPill
             key={key}
-            className={`btn-ghost !px-4 !py-2 ${status === key ? '!bg-brand !text-white !border-brand !shadow-brand-glow' : ''}`}
+            active={status === key}
             onClick={() => { setStatus(key as BoardGameStatus); setPage(0) }}
-          aria-pressed={status === key}
+            label={`Filtrar por estado: ${label}`}
           >
             {label}
-          </button>
+          </FilterPill>
         ))}
       </div>
 
