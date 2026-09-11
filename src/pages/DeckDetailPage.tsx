@@ -10,6 +10,7 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import DeckCommanderImage from '../components/DeckCommanderImage'
 import ErrorBanner from '../components/ErrorBanner'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function DeckDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -165,6 +166,7 @@ export default function DeckDetailPage() {
 
   return (
     <article className="max-w-4xl mx-auto flex flex-col gap-10">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Mazos", to: "/magic/mazos" }, { label: deck?.name || 'Detalle' }]} />
       <div className="flex items-center justify-between flex-wrap gap-3">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver a mazos

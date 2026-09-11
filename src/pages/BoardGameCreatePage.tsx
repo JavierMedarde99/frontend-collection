@@ -4,6 +4,7 @@ import { createBoardGame } from '../api/boardgamesApi'
 import type { BoardGameFormData } from '../types'
 import BoardGameForm from '../components/BoardGameForm'
 import BoardGameSearch from '../components/BoardGameSearch'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 type Mode = 'search' | 'manual'
 
@@ -23,6 +24,7 @@ export default function BoardGameCreatePage() {
 
   return (
     <section className="max-w-3xl flex flex-col gap-24">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Juegos de mesa", to: "/boardgames" }, { label: "Añadir" }]} />
       <div>
         <h1 className="font-display text-heading-lg mb-2">Añadir juego de mesa</h1>
         <p className="text-body text-slate">

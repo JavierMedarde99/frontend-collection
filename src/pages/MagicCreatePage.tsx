@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { searchMagicCards, addMagicCardFromScryfall } from '../api/magicApi'
 import type { MagicCardSearchResult } from '../types'
 import ErrorBanner from '../components/ErrorBanner'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function MagicCreatePage() {
   const navigate = useNavigate()
@@ -45,6 +46,7 @@ export default function MagicCreatePage() {
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Añadir" }]} />
       <div>
         <h1 className="font-display text-heading-lg mb-2">Añadir carta Magic</h1>
         <p className="text-body text-slate">

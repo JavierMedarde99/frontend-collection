@@ -5,6 +5,7 @@ import { searchMagicCards } from '../api/magicApi'
 import type { MagicCardSearchResult } from '../types'
 import { MANA_COLORS, type ManaColorCode } from '../constants/decks'
 import ErrorBanner from '../components/ErrorBanner'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 const VALID_COLORS = Object.keys(MANA_COLORS) as ManaColorCode[]
 
@@ -91,6 +92,7 @@ export default function DeckCreatePage() {
 
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-8">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Mazos", to: "/magic/mazos" }, { label: "Añadir" }]} />
       <div>
         <h1 className="font-display text-heading-lg mb-2">Nuevo mazo Commander</h1>
         <p className="text-body text-slate">

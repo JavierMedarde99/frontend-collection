@@ -4,6 +4,7 @@ import { createMovieShow } from '../api/movieshowsApi'
 import type { MovieShowFormData } from '../types'
 import MovieShowForm from '../components/MovieShowForm'
 import MovieShowSearch from '../components/MovieShowSearch'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 type Mode = 'search' | 'manual'
 
@@ -23,6 +24,7 @@ export default function MovieShowCreatePage() {
 
   return (
     <section className="max-w-3xl flex flex-col gap-24">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Películas", to: "/movieshows" }, { label: "Añadir" }]} />
       <div>
         <h1 className="font-display text-heading-lg mb-2">Añadir película/serie</h1>
         <p className="text-body text-slate">
