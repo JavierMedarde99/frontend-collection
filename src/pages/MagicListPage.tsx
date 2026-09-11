@@ -4,7 +4,7 @@ import { listMagicCards } from '../api/magicApi'
 import { MAGIC_CARD_TYPES } from '../constants/magic'
 import type { MagicCardResponse } from '../types'
 import MagicCard from '../components/MagicCard'
-import SkeletonGrid from '../components/Skeleton'
+import { SkeletonMagicGrid } from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
 
@@ -203,7 +203,7 @@ export default function MagicListPage() {
       )}
 
       {loading ? (
-        <SkeletonGrid count={8} />
+        <SkeletonMagicGrid count={8} />
       ) : cards.length === 0 ? (
         <EmptyState
           title="No hay cartas Magic"
