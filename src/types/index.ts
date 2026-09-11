@@ -10,3 +10,6 @@ export type { MagicLanguage, MagicCondition, MagicCardResponse, MagicCardRequest
 export { BoardGameStatus } from './BoardGame'
 export type { BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse, PageBoardGameResponse, ListBoardGamesParams } from './BoardGame'
 export type { DeckStatus, DeckResponse, DeckRequest, DeckCardResponse, DeckCardRequest, DeckStatusResponse } from './Deck'
+export { MovieShowStatus } from './MovieShowStatus'
+export { MediaType } from './MovieType'
+export type { MovieShow, MovieShowFormData, SearchMovieShowResult, PageMovieShowResponse, ListMovieShowsParams } from './MovieShow'
