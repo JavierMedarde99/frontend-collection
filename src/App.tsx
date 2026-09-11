@@ -18,6 +18,10 @@ import BoardGameListPage from './pages/BoardGameListPage'
 import BoardGameCreatePage from './pages/BoardGameCreatePage'
 import BoardGameDetailPage from './pages/BoardGameDetailPage'
 import BoardGameEditPage from './pages/BoardGameEditPage'
+import MovieShowListPage from './pages/MovieShowListPage'
+import MovieShowCreatePage from './pages/MovieShowCreatePage'
+import MovieShowDetailPage from './pages/MovieShowDetailPage'
+import MovieShowEditPage from './pages/MovieShowEditPage'
 import DeckListPage from './pages/DeckListPage'
 import DeckCreatePage from './pages/DeckCreatePage'
 import DeckDetailPage from './pages/DeckDetailPage'
@@ -51,6 +55,10 @@ export default function App() {
           <Route path="/boardgames/nuevo" element={<BoardGameCreatePage />} />
           <Route path="/boardgames/:id" element={<BoardGameDetailPage />} />
           <Route path="/boardgames/:id/editar" element={<BoardGameEditPage />} />
+          <Route path="/movieshows" element={<MovieShowListPage />} />
+          <Route path="/movieshows/nuevo" element={<MovieShowCreatePage />} />
+          <Route path="/movieshows/editar/:id" element={<MovieShowEditPage />} />
+          <Route path="/movieshows/:id" element={<MovieShowDetailPage />} />
         </Routes>
       </main>
     </BrowserRouter>
