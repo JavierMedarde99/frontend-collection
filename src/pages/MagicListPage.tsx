@@ -93,6 +93,34 @@ export default function MagicListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
+          <button
+            className="btn-ghost !px-5"
+            onClick={() => setFiltersOpen((v) => !v)}
+            aria-expanded={filtersOpen}
+            aria-controls="filtros-magic"
+          >
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+            </svg>
+            Filtros
+            {activeFilterCount > 0 && (
+              <span className="ml-1.5 inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-brand text-white text-caption font-semibold">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+          {activeFilterCount > 0 && (
+            <button className="btn-ghost !px-4" onClick={handleClearFilters}>
+              Limpiar
+            </button>
+          )}
           <Link className="btn-primary" to="/magic/nuevo">
             <svg
               aria-hidden="true"
@@ -109,9 +137,9 @@ export default function MagicListPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-5">
-        <div className="flex flex-col md:flex-row gap-3 md:items-center">
-          <form onSubmit={handleSearch} className="relative flex-1 max-w-md">
+      {filtersOpen && (
+        <div id="filtros-magic" className="flex flex-col gap-5 animate-fade-in">
+          <form onSubmit={handleSearch} className="relative max-w-md">
             <svg
               aria-hidden="true"
               className="w-4 h-4 text-stone absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
@@ -133,40 +161,7 @@ export default function MagicListPage() {
               Buscar
             </button>
           </form>
-          <div className="flex items-center gap-3 shrink-0">
-            <button
-              className="btn-ghost !px-5"
-              onClick={() => setFiltersOpen((v) => !v)}
-              aria-expanded={filtersOpen}
-              aria-controls="filtros-magic"
-            >
-              <svg
-                aria-hidden="true"
-                className="w-4 h-4 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-              </svg>
-              Filtros
-              {activeFilterCount > 0 && (
-                <span className="ml-1.5 inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-brand text-white text-caption font-semibold">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
-            {activeFilterCount > 0 && (
-              <button className="btn-ghost !px-4" onClick={handleClearFilters}>
-                Limpiar
-              </button>
-            )}
-          </div>
-        </div>
-
-        {filtersOpen && (
-          <form id="filtros-magic" onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-fade-in">
+          <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <select
               className="input"
               value={rarityFilter}
@@ -197,8 +192,8 @@ export default function MagicListPage() {
               aria-label="Filtrar por tipo"
             />
           </form>
-        )}
-      </div>
+        </div>
+      )}
 
       {error && (
         <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
