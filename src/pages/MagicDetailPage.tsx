@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getMagicCard, deleteMagicCard } from '../api/magicApi'
 import type { MagicCardResponse } from '../types'
@@ -16,23 +16,24 @@ export default function MagicDetailPage() {
   const [deleting, setDeleting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!id) return
-    async function load() {
-      setLoading(true)
-      setError(null)
-      try {
-        const data = await getMagicCard(id)
-        setCard(data)
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'No se pudo cargar la carta.'
-        setError(message)
-      } finally {
-        setLoading(false)
-      }
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await getMagicCard(id)
+      setCard(data)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudo cargar la carta.'
+      setError(message)
+    } finally {
+      setLoading(false)
     }
-    load()
   }, [id])
+
+  useEffect(() => {
+    load()
+  }, [load])
 
   async function handleDelete() {
     if (!id) return
