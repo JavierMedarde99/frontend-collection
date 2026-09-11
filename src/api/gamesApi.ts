@@ -1,17 +1,8 @@
-import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, GameAchievementsResponse, ApiError } from '../types'
+import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, GameAchievementsResponse } from '../types'
+import { throwRequestError } from './errors'
 
 const BASE_URL = '/api/games'
 const STEAM_ID = '76561198809807580'
-
-class RequestError extends Error implements ApiError {
-  status?: number
-
-  constructor(message: string, status?: number) {
-    super(message)
-    this.name = 'RequestError'
-    this.status = status
-  }
-}
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T | null> {
   const res = await fetch(url, {
@@ -20,20 +11,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T | n
   })
 
   if (!res.ok) {
-    let message = `Error ${res.status}`
-    try {
-      const body: Record<string, unknown> = await res.json()
-      if (body && typeof body === 'object') {
-        if ('message' in body && typeof body.message === 'string') {
-          message = body.message
-        } else if ('error' in body && typeof body.error === 'string') {
-          message = body.error
-        }
-      }
-    } catch {
-      /* ignore */
-    }
-    throw new RequestError(message, res.status)
+    await throwRequestError(res)
   }
 
   if (res.status === 204) return null
