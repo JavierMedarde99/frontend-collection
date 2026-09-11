@@ -22,7 +22,8 @@ export default function DeckDetailPage() {
   const [deleteBusy, setDeleteBusy] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
-  // Añadir carta: búsqueda Scryfall
+  // PopUp añadir carta: búsqueda Scryfall
+  const [showAddModal, setShowAddModal] = useState(false)
   const [query, setQuery] = useState('')
   const [searchResults, setSearchResults] = useState<MagicCardSearchResult[]>([])
   const [searching, setSearching] = useState(false)
@@ -56,6 +57,21 @@ export default function DeckDetailPage() {
     load()
   }, [load])
 
+  function openAddModal() {
+    setShowAddModal(true)
+    setQuery('')
+    setSearchResults([])
+    setSearchError(null)
+    setSelected(null)
+    setQuantity(1)
+    setAddError(null)
+  }
+
+  function closeAddModal() {
+    if (adding) return
+    setShowAddModal(false)
+  }
+
   async function handleSearch(e: FormEvent) {
     e.preventDefault()
     if (!query.trim()) return
@@ -83,8 +99,7 @@ export default function DeckDetailPage() {
       } catch {
         /* mantiene el estado anterior */
       }
-      setSelected(null)
-      setQuantity(1)
+      closeAddModal()
     } catch (err) {
       setAddError(err instanceof Error ? err.message : 'No se pudo añadir la carta.')
     } finally {
@@ -154,8 +169,11 @@ export default function DeckDetailPage() {
           ← Volver a mazos
         </Link>
         <div className="flex items-center gap-2">
+          <button className="btn-primary !px-4 !py-2" onClick={openAddModal}>
+            + Añadir carta
+          </button>
           <button
-            className="btn-ghost !text-red-600 hover:!bg-red-50 hover:!border-red-200"
+            className="btn-ghost !px-4 !py-2 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
             onClick={() => setDeleting(true)}
           >
             Eliminar
@@ -190,12 +208,6 @@ export default function DeckDetailPage() {
             {status.message}
           </div>
         )}
-        {deck.commander && (
-          <p className="text-body text-graphite">
-            Comandante: {deck.commander}
-            {(deck.commanderColors?.length ?? 0) > 0 && ` (${deck.commanderColors!.join(', ')})`}
-          </p>
-        )}
         {deck.description && (
           <p className="text-body text-slate whitespace-pre-line">{deck.description}</p>
         )}
@@ -204,12 +216,29 @@ export default function DeckDetailPage() {
         </p>
       </div>
 
+      {deck.commander && (
+        <div className="flex flex-col gap-4">
+          <h2 className="font-display text-heading-sm">Comandante</h2>
+          <div className="card p-4 flex items-center gap-4">
+            <DeckCommanderImage commanderName={deck.commander} />
+            <div className="min-w-0">
+              <p className="font-display text-heading text-ink line-clamp-1">{deck.commander}</p>
+              {(deck.commanderColors?.length ?? 0) > 0 && (
+                <p className="text-body-sm text-graphite mt-1">
+                  Colores: {deck.commanderColors!.join(', ')}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col gap-4">
-        <h2 className="font-display text-heading-sm">Cartas del mazo</h2>
+        <h2 className="font-display text-heading-sm">Mazo</h2>
         {cards.length === 0 ? (
           <EmptyState
             title="Mazo vacío"
-            message="Busca cartas en Scryfall y añádelas a tu mazo."
+            message="Usa el botón Añadir carta para buscar en Scryfall."
           />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -262,83 +291,102 @@ export default function DeckDetailPage() {
         )}
       </div>
 
-      <div className="flex flex-col gap-4">
-        <h2 className="font-display text-heading-sm">Añadir cartas</h2>
-        {deck.commander && (
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-brand-soft/50 border border-brand/30">
-            <DeckCommanderImage commanderName={deck.commander} />
-            <div className="min-w-0">
-              <p className="text-caption text-graphite">Comandante del mazo (referencia visual)</p>
-              <p className="font-display text-heading-sm text-ink line-clamp-1">{deck.commander}</p>
-            </div>
-          </div>
-        )}
-        <form onSubmit={handleSearch} className="flex gap-3">
-          <input
-            className="input flex-1"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar en Scryfall…"
-            aria-label="Buscar carta en Scryfall"
-          />
-          <button className="btn-primary shrink-0" type="submit" disabled={searching}>
-            {searching ? 'Buscando…' : 'Buscar'}
-          </button>
-        </form>
-        {searchError && (
-          <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-            {searchError}
-          </div>
-        )}
-        {searchResults.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {searchResults.map((result) => (
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md">
+          <div role="dialog" aria-modal="true" aria-label="Añadir carta al mazo" className="card w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="font-display text-heading-sm">Añadir carta al mazo</h3>
               <button
-                key={result.scryfallId || result.name}
                 type="button"
-                onClick={() => { setSelected(result); setQuantity(1); setAddError(null) }}
-                className={`card p-3 flex items-center gap-3 text-left transition-all ${
-                  selected?.scryfallId === result.scryfallId ? '!border-brand !shadow-brand-glow' : ''
-                }`}
+                className="btn-ghost !px-3 !py-1.5"
+                onClick={closeAddModal}
+                disabled={adding}
+                aria-label="Cerrar"
               >
-                {result.imageUrl && (
-                  <img src={result.imageUrl} alt={result.name} className="w-10 h-14 object-cover rounded shrink-0" />
-                )}
-                <span className="min-w-0">
-                  <span className="block font-display text-heading-sm line-clamp-1">{result.name}</span>
-                  <span className="block text-caption text-graphite">{result.setName || result.type}</span>
-                </span>
+                ✕
               </button>
-            ))}
-          </div>
-        )}
-        {selected && (
-          <form onSubmit={handleAddCard} className="card p-4 flex flex-col sm:flex-row sm:items-end gap-4">
-            <p className="text-body font-medium text-ink flex-1">
-              Añadir <span className="font-display">{selected.name}</span> al mazo
-            </p>
-            <div className="flex flex-col gap-1.5">
-              <label className="label" htmlFor="deck-quantity">Cantidad</label>
-              <input
-                id="deck-quantity"
-                type="number"
-                min="1"
-                className="input w-28"
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-              />
             </div>
-            <button type="submit" className="btn-primary shrink-0" disabled={adding}>
-              {adding ? 'Añadiendo…' : 'Añadir'}
-            </button>
-          </form>
-        )}
-        {addError && (
-          <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-            {addError}
+
+            <div className="flex flex-col gap-4">
+              <form onSubmit={handleSearch} className="flex gap-3">
+                <input
+                  className="input flex-1"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Buscar en Scryfall…"
+                  aria-label="Buscar carta en Scryfall"
+                />
+                <button className="btn-primary shrink-0" type="submit" disabled={searching}>
+                  {searching ? 'Buscando…' : 'Buscar'}
+                </button>
+              </form>
+
+              {searchError && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
+                  {searchError}
+                </div>
+              )}
+
+              {searchResults.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto">
+                  {searchResults.map((result) => (
+                    <button
+                      key={result.scryfallId || result.name}
+                      type="button"
+                      onClick={() => { setSelected(result); setQuantity(1); setAddError(null) }}
+                      className={`card p-3 flex items-center gap-3 text-left transition-all ${
+                        selected?.scryfallId === result.scryfallId ? '!border-brand !shadow-brand-glow' : ''
+                      }`}
+                    >
+                      {result.imageUrl && (
+                        <img src={result.imageUrl} alt={result.name} className="w-10 h-14 object-cover rounded shrink-0" />
+                      )}
+                      <span className="min-w-0">
+                        <span className="block font-display text-heading-sm line-clamp-1">{result.name}</span>
+                        <span className="block text-caption text-graphite">{result.setName || result.type}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {selected && (
+                <form onSubmit={handleAddCard} className="card p-4 flex flex-col sm:flex-row sm:items-end gap-4 !shadow-none border border-silver/60">
+                  <p className="text-body font-medium text-ink flex-1">
+                    Añadir <span className="font-display">{selected.name}</span> al mazo
+                  </p>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="label" htmlFor="deck-quantity">Cantidad</label>
+                    <input
+                      id="deck-quantity"
+                      type="number"
+                      min="1"
+                      className="input w-28"
+                      value={quantity}
+                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                    />
+                  </div>
+                  <button type="submit" className="btn-primary shrink-0" disabled={adding}>
+                    {adding ? 'Añadiendo…' : 'Añadir'}
+                  </button>
+                </form>
+              )}
+
+              {addError && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
+                  {addError}
+                </div>
+              )}
+
+              <div className="flex justify-end border-t border-silver/60 pt-4">
+                <button type="button" className="btn-ghost" onClick={closeAddModal} disabled={adding}>
+                  Cerrar
+                </button>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <ConfirmDialog
         open={deleting}
