@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listMagicCards } from '../api/magicApi'
+import { MAGIC_CARD_TYPES } from '../constants/magic'
 import type { MagicCardResponse } from '../types'
 import MagicCard from '../components/MagicCard'
 import SkeletonGrid from '../components/Skeleton'
@@ -24,7 +25,6 @@ export default function MagicListPage() {
   const [nameFilter, setNameFilter] = useState('')
   const [rarityFilter, setRarityFilter] = useState('')
   const [colorFilter, setColorFilter] = useState('')
-  const [typeInput, setTypeInput] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
@@ -64,7 +64,6 @@ export default function MagicListPage() {
   function handleSearch(e: FormEvent) {
     e.preventDefault()
     setNameFilter(nameInput.trim())
-    setTypeFilter(typeInput.trim())
     setPage(0)
   }
 
@@ -73,7 +72,6 @@ export default function MagicListPage() {
     setNameFilter('')
     setRarityFilter('')
     setColorFilter('')
-    setTypeInput('')
     setTypeFilter('')
     setPage(0)
   }
@@ -184,13 +182,17 @@ export default function MagicListPage() {
                 <option key={color.value} value={color.value}>{color.label} ({color.value})</option>
               ))}
             </select>
-            <input
+            <select
               className="input"
-              value={typeInput}
-              onChange={(e) => setTypeInput(e.target.value)}
-              placeholder="Filtrar por tipo…"
+              value={typeFilter}
+              onChange={(e) => { setTypeFilter(e.target.value); setPage(0) }}
               aria-label="Filtrar por tipo"
-            />
+            >
+              <option value="">Todos los tipos</option>
+              {MAGIC_CARD_TYPES.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
           </form>
         </div>
       )}
