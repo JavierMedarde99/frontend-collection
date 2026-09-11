@@ -37,6 +37,9 @@
   .card-hover {
     @apply hover:shadow-card-hover hover:-translate-y-1;
   }
+  .modal {
+    @apply card rounded-2xl p-6;
+  }
 }
 
 @layer utilities {

@@ -21,7 +21,7 @@ export default function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md">
-      <div role="dialog" aria-modal="true" className="card w-full max-w-md">
+      <div role="dialog" aria-modal="true" className="modal w-full max-w-md">
         <h3 className="font-display text-heading-sm mb-2">{title}</h3>
         <p className="text-body text-slate mb-6">{message}</p>
         <div className="flex justify-end gap-3">

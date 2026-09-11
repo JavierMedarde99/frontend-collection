@@ -290,7 +290,7 @@ export default function DeckDetailPage() {
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md">
-          <div role="dialog" aria-modal="true" aria-label="Añadir carta al mazo" className="card w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div role="dialog" aria-modal="true" aria-label="Añadir carta al mazo" className="modal w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-display text-heading-sm">Añadir carta al mazo</h3>
               <button
