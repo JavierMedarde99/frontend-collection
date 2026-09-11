@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useBackFallback } from '../hooks/useBackFallback'
 import { getGame, deleteGame } from '../api/gamesApi'
 import { GamePlatform, type Game } from '../types'
 import GameStatusBadge from '../components/GameStatusBadge'
@@ -13,6 +14,7 @@ import ErrorBanner from '../components/ErrorBanner'
 export default function GameDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const goBack = useBackFallback('/juegos')
 
   const [game, setGame] = useState<Game | null>(null)
   const [loading, setLoading] = useState(true)
@@ -71,7 +73,7 @@ export default function GameDetailPage() {
           title="No se pudo cargar el videojuego"
           message={error || 'El videojuego no existe.'}
           action={
-            <button className="btn-primary mt-2" onClick={() => navigate('/juegos')}>
+            <button className="btn-primary mt-2" onClick={goBack}>
               Volver a la colección
             </button>
           }
@@ -89,7 +91,7 @@ export default function GameDetailPage() {
   return (
     <section className="max-w-3xl flex flex-col gap-24">
       <div className="flex items-center justify-between gap-4">
-        <button className="btn-ghost !px-4 !py-2" onClick={() => navigate('/juegos')}>
+        <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
         <div className="flex items-center gap-2">

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useBackFallback } from '../hooks/useBackFallback'
 import { getBoardGame, deleteBoardGame } from '../api/boardgamesApi'
 import type { BoardGame } from '../types'
 import BoardGameStatusBadge from '../components/BoardGameStatusBadge'
@@ -21,6 +22,7 @@ function formatRange(min?: number, max?: number, suffix = ''): string | null {
 export default function BoardGameDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const goBack = useBackFallback('/boardgames')
 
   const [game, setGame] = useState<BoardGame | null>(null)
   const [loading, setLoading] = useState(true)
@@ -79,7 +81,7 @@ export default function BoardGameDetailPage() {
           title="No se pudo cargar el juego"
           message={error || 'El juego no existe.'}
           action={
-            <button className="btn-primary mt-2" onClick={() => navigate('/boardgames')}>
+            <button className="btn-primary mt-2" onClick={goBack}>
               Volver a la colección
             </button>
           }
@@ -107,7 +109,7 @@ export default function BoardGameDetailPage() {
   return (
     <section className="max-w-3xl flex flex-col gap-24">
       <div className="flex items-center justify-between gap-4">
-        <button className="btn-ghost !px-4 !py-2" onClick={() => navigate('/boardgames')}>
+        <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
         <div className="flex items-center gap-2">

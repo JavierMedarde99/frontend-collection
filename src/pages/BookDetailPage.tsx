@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useBackFallback } from '../hooks/useBackFallback'
 import { getBook, deleteBook } from '../api/booksApi'
 import type { Book } from '../types'
 import { TYPE_LABELS, TYPE_BADGE_COLORS } from '../constants/books'
@@ -13,6 +14,7 @@ import ErrorBanner from '../components/ErrorBanner'
 export default function BookDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const goBack = useBackFallback('/coleccion')
 
   const [book, setBook] = useState<Book | null>(null)
   const [loading, setLoading] = useState(true)
@@ -71,7 +73,7 @@ export default function BookDetailPage() {
           title="No se pudo cargar el libro"
           message={error || 'El libro no existe.'}
           action={
-            <button className="btn-primary mt-2" onClick={() => navigate('/coleccion')}>
+            <button className="btn-primary mt-2" onClick={goBack}>
               Volver a la colección
             </button>
           }
@@ -91,7 +93,7 @@ export default function BookDetailPage() {
   return (
     <section className="max-w-3xl flex flex-col gap-24">
       <div className="flex items-center justify-between gap-4">
-        <button className="btn-ghost !px-4 !py-2" onClick={() => navigate('/coleccion')}>
+        <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
         <div className="flex items-center gap-2">

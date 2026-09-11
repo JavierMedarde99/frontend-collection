@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useBackFallback } from '../hooks/useBackFallback'
 import { getDeck, deleteDeck, addCardToDeck, removeCardFromDeck, getDeckStatus } from '../api/deckApi'
 import { searchMagicCards } from '../api/magicApi'
 import type { DeckResponse, DeckStatusResponse, MagicCardSearchResult } from '../types'
@@ -13,6 +14,7 @@ import ErrorBanner from '../components/ErrorBanner'
 export default function DeckDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const goBack = useBackFallback('/magic/mazos')
 
   const [deck, setDeck] = useState<DeckResponse | null>(null)
   const [status, setStatus] = useState<DeckStatusResponse | null>(null)
@@ -164,9 +166,9 @@ export default function DeckDetailPage() {
   return (
     <article className="max-w-4xl mx-auto flex flex-col gap-10">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <Link className="btn-ghost !px-4 !py-2" to="/magic/mazos">
+        <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver a mazos
-        </Link>
+        </button>
         <div className="flex items-center gap-2">
           <button className="btn-primary !px-4 !py-2" onClick={openAddModal}>
             + Añadir carta
