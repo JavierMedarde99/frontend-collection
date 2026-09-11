@@ -3,7 +3,16 @@ import { Link, useNavigate } from 'react-router-dom'
 import { createDeck } from '../api/deckApi'
 import { searchMagicCards } from '../api/magicApi'
 import type { MagicCardSearchResult } from '../types'
-import { MANA_COLOR_OPTIONS, type ManaColorCode } from '../constants/decks'
+import { MANA_COLORS, type ManaColorCode } from '../constants/decks'
+
+const VALID_COLORS = Object.keys(MANA_COLORS) as ManaColorCode[]
+
+function identityFromCard(result: MagicCardSearchResult): ManaColorCode[] {
+  const identity = result.colorIdentity ?? result.colors ?? []
+  return identity.filter((c): c is ManaColorCode =>
+    (VALID_COLORS as string[]).includes(c),
+  )
+}
 
 export default function DeckCreatePage() {
   const navigate = useNavigate()
@@ -21,12 +30,6 @@ export default function DeckCreatePage() {
   const [searchError, setSearchError] = useState<string | null>(null)
 
   const canCreate = name.trim() !== '' && commander !== null && !submitting
-
-  function toggleColor(color: ManaColorCode) {
-    setCommanderColors((prev) =>
-      prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color],
-    )
-  }
 
   async function handleCommanderSearch(e: FormEvent) {
     e.preventDefault()
@@ -55,6 +58,7 @@ export default function DeckCreatePage() {
     }
     setSearchError(null)
     setCommander(result)
+    setCommanderColors(identityFromCard(result))
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -119,12 +123,14 @@ export default function DeckCreatePage() {
               )}
               <div className="min-w-0 flex-1">
                 <p className="font-display text-heading-sm text-ink line-clamp-1">{commander.name}</p>
-                <p className="text-caption text-graphite">{commander.setName || commander.type}</p>
+                <p className="text-caption text-graphite">
+                  Identidad: {commanderColors.length > 0 ? commanderColors.join(', ') : 'Incolora'}
+                </p>
               </div>
               <button
                 type="button"
                 className="btn-ghost !px-3 !py-1.5 shrink-0"
-                onClick={() => setCommander(null)}
+                onClick={() => { setCommander(null); setCommanderColors([]) }}
               >
                 Cambiar
               </button>
@@ -182,31 +188,6 @@ export default function DeckCreatePage() {
             </>
           )}
         </div>
-
-        <fieldset>
-          <legend className="label">Colores del comandante</legend>
-          <div className="flex flex-wrap gap-2">
-            {MANA_COLOR_OPTIONS.map((color) => {
-              const active = commanderColors.includes(color.value)
-              return (
-                <button
-                  key={color.value}
-                  type="button"
-                  aria-pressed={active}
-                  title={color.label}
-                  onClick={() => toggleColor(color.value)}
-                  className={`w-10 h-10 rounded-full font-bold text-body transition-all duration-200 ${
-                    active
-                      ? 'bg-brand text-white shadow-brand-glow'
-                      : 'bg-brand-soft text-brand hover:bg-brand hover:text-white'
-                  }`}
-                >
-                  {color.value}
-                </button>
-              )
-            })}
-          </div>
-        </fieldset>
 
         <div className="flex flex-col gap-1.5">
           <label className="label" htmlFor="deck-description">
