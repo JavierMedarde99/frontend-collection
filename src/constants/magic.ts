@@ -17,3 +17,23 @@ export const MAGIC_CONDITIONS = {
   PLAYED: 'Played',
   POOR: 'Poor',
 } as const
+
+export const MAGIC_CARD_TYPES = [
+  'Artifact',
+  'Battle',
+  'Conspiracy',
+  'Creature',
+  'Dungeon',
+  'Emblem',
+  'Enchantment',
+  'Hero',
+  'Instant',
+  'Kindred',
+  'Land',
+  'Phenomenon',
+  'Plane',
+  'Planeswalker',
+  'Scheme',
+  'Sorcery',
+  'Vanguard',
+] as const
