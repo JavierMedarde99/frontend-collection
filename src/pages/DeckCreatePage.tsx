@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { createDeck } from '../api/deckApi'
 import { searchMagicCards } from '../api/magicApi'
+import { getScryfallOracleText, allowsAsCommander } from '../api/scryfallApi'
 import type { MagicCardSearchResult } from '../types'
 import { MANA_COLORS, type ManaColorCode } from '../constants/decks'
 
@@ -51,10 +52,22 @@ export default function DeckCreatePage() {
     return lower.includes('legendary') && lower.includes('creature')
   }
 
-  function handlePickCommander(result: MagicCardSearchResult) {
+  async function handlePickCommander(result: MagicCardSearchResult) {
     if (!isLegendaryCreature(result.type)) {
-      setSearchError(`"${result.name}" no se puede añadir como comandante: debe ser una criatura legendaria.`)
-      return
+      // Fallback: algunas cartas (p. ej. planeswalkers) pueden ser
+      // comandante si su texto lo indica ("can be your commander").
+      let legal = false
+      if (result.scryfallId) {
+        try {
+          legal = allowsAsCommander(await getScryfallOracleText(result.scryfallId))
+        } catch {
+          legal = false
+        }
+      }
+      if (!legal) {
+        setSearchError(`"${result.name}" no se puede añadir como comandante: debe ser una criatura legendaria o indicarlo en su texto.`)
+        return
+      }
     }
     setSearchError(null)
     setCommander(result)
