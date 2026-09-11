@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import ActionLink from './ActionLink'
 import type { MagicCardResponse } from '../types'
 
 interface MagicCardProps {
@@ -48,6 +49,12 @@ export default function MagicCard({ card, index = 0 }: MagicCardProps) {
             </span>
           )}
         </div>
+      </div>
+
+      <div className="mt-auto flex items-center justify-end pt-3 border-t border-silver/60">
+        <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/magic/${card.id}/editar`} label={`Editar ${card.name}`}>
+          Editar
+        </ActionLink>
       </div>
     </article>
   )
