@@ -21,18 +21,6 @@ export function SkeletonBookCard() {
   )
 }
 
-export function SkeletonMagicCard() {
-  return (
-    <div className="card flex flex-col p-4 gap-3" aria-hidden="true">
-      <div className="skeleton w-full aspect-[5/7] !rounded-xl" />
-      <div className="flex flex-col gap-1.5">
-        <div className="skeleton h-5 w-3/4" />
-        <div className="skeleton h-3 w-1/2" />
-      </div>
-    </div>
-  )
-}
-
 interface SkeletonGridProps {
   count?: number
 }
@@ -42,20 +30,6 @@ export default function SkeletonGrid({ count = 6 }: SkeletonGridProps) {
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" aria-busy="true">
       {Array.from({ length: count }).map((_, i) => (
         <SkeletonBookCard key={i} />
-      ))}
-    </div>
-  )
-}
-
-interface SkeletonMagicGridProps {
-  count?: number
-}
-
-export function SkeletonMagicGrid({ count = 8 }: SkeletonMagicGridProps) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" aria-busy="true">
-      {Array.from({ length: count }).map((_, i) => (
-        <SkeletonMagicCard key={i} />
       ))}
     </div>
   )
