@@ -8,6 +8,7 @@ import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
 import Pagination from '../components/Pagination'
+import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 
@@ -119,31 +120,15 @@ export default function BoardGameListPage() {
       {filtersOpen && (
         <div id="filtros" className="flex flex-col gap-5 animate-fade-in">
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
-            <form onSubmit={handleNameSearch} className="relative">
-              <svg
-                aria-hidden="true"
-                className="w-4 h-4 text-stone absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-              <input
-                className="input !pl-11 pr-28"
-                ref={searchRef}
-              aria-keyshortcuts="/"
-              title="Atajo: / para buscar"
-              value={nameInput}
-                onChange={(e) => setNameInput(e.target.value)}
-                placeholder="Buscar por título…"
-                aria-label="Buscar por título"
-              />
-              <button className="btn-primary !py-2 !px-3.5 absolute right-1.5 top-1/2 -translate-y-1/2" type="submit">
-                Buscar <kbd className="ml-1 hidden sm:inline-block px-1 rounded bg-white/25 text-[10px] font-semibold" aria-hidden="true">/</kbd>
-              </button>
-            </form>
+            <SearchField
+            value={nameInput}
+            onChange={setNameInput}
+            onSubmit={handleNameSearch}
+            placeholder="Buscar por título…"
+            label="Buscar por título"
+            inputRef={searchRef}
+            shortcutHint
+          />
           </div>
         </div>
       )}
