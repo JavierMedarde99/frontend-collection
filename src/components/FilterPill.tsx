@@ -15,7 +15,7 @@ export default function FilterPill({ active, onClick, children, label }: FilterP
   return (
     <button
       type="button"
-      className={`btn-ghost !px-4 !py-2 ${active ? '!bg-brand !text-white !border-brand !shadow-brand-glow' : ''}`}
+      className={`btn-ghost !px-4 !py-2 ${active ? '!bg-brand-deep !text-white !border-brand-deep !shadow-brand-glow' : ''}`}
       onClick={onClick}
       aria-pressed={active}
       aria-label={label}
