@@ -31,8 +31,14 @@ import DeckEditPage from './pages/DeckEditPage'
 function Shell() {
   return (
     <ToastProvider>
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[70] focus:px-4 focus:py-2 focus:rounded-xl focus:bg-brand focus:text-white focus:font-semibold"
+      >
+        Saltar al contenido
+      </a>
       <Navbar />
-      <main className="max-w-content mx-auto px-5 md:px-20 py-10">
+      <main id="contenido" tabIndex={-1} className="max-w-content mx-auto px-5 md:px-20 py-10 focus:outline-none">
         <Outlet />
       </main>
     </ToastProvider>
