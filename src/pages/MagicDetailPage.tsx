@@ -186,14 +186,12 @@ export default function MagicDetailPage() {
       </div>
 
       <ConfirmDialog
-        isOpen={showConfirm}
+        open={showConfirm}
         title="Eliminar carta"
         message={`¿Estás seguro de que deseas eliminar "${card.name}" de tu colección? Esta acción no se puede deshacer.`}
-        confirmText="Eliminar"
-        cancelText="Cancelar"
-        loading={deleting}
         onConfirm={handleDelete}
-        onClose={() => setShowConfirm(false)}
+        onCancel={() => setShowConfirm(false)}
+        busy={deleting}
       />
     </article>
   )
