@@ -89,7 +89,14 @@ export default function ConfirmDialog({
             Cancelar
           </button>
           <button type="button" className="btn-danger" onClick={onConfirm} disabled={busy}>
-            {busy ? 'Eliminando…' : confirmLabel}
+            {busy ? (
+              <span className="inline-flex items-center gap-2" aria-live="polite">
+                <span className="w-4 h-4 rounded-full border-2 border-white/60 border-t-white animate-spin" aria-hidden="true" />
+                Eliminando…
+              </span>
+            ) : (
+              confirmLabel
+            )}
           </button>
         </div>
       </div>
