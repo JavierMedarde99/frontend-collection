@@ -4,7 +4,7 @@ import { listMagicCards, deleteMagicCard } from '../api/magicApi'
 import { MAGIC_CARD_TYPES } from '../constants/magic'
 import type { MagicCardResponse } from '../types'
 import MagicCard from '../components/MagicCard'
-import { SkeletonMagicGrid } from '../components/Skeleton'
+import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
 import Pagination from '../components/Pagination'
@@ -200,7 +200,7 @@ export default function MagicListPage() {
       )}
 
       {loading ? (
-        <SkeletonMagicGrid count={8} />
+        <SkeletonGrid count={6} />
       ) : cards.length === 0 ? (
         <EmptyState
           title="No hay cartas Magic"
@@ -209,7 +209,7 @@ export default function MagicListPage() {
           actionTo="/magic/nuevo"
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {cards.map((card, idx) => (
             <MagicCard key={card.id} card={card} index={idx}
               onDelete={async () => { await deleteMagicCard(card.id); load() }}
