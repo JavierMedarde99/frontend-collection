@@ -84,6 +84,8 @@ export default function MagicListPage() {
   const activeFilterCount =
     [nameFilter, rarityFilter, colorFilter, typeFilter].filter(Boolean).length
 
+  const hasActiveFilters = activeFilterCount > 0
+
   return (
     <section className="flex flex-col gap-10">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
@@ -198,10 +200,23 @@ export default function MagicListPage() {
         <SkeletonGrid count={6} />
       ) : cards.length === 0 ? (
         <EmptyState
-          title="No hay cartas Magic"
-          description="Aún no has añadido ninguna carta a tu colección o la búsqueda no arrojó resultados."
-          actionText="Añadir carta"
-          actionTo="/magic/nuevo"
+          title={hasActiveFilters ? 'Sin resultados' : 'No hay cartas Magic'}
+          message={
+            hasActiveFilters
+              ? 'Ninguna carta coincide con los filtros actuales. Limpia los filtros para ver toda tu colección.'
+              : 'Añade tu primera carta importándola desde Scryfall.'
+          }
+          action={
+            hasActiveFilters ? (
+              <button className="btn-ghost mt-2" onClick={handleClearFilters}>
+                Limpiar filtros
+              </button>
+            ) : (
+              <Link className="btn-primary mt-2" to="/magic/nuevo">
+                Añadir carta
+              </Link>
+            )
+          }
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

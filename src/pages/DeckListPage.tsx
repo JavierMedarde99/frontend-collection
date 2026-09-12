@@ -49,6 +49,13 @@ export default function DeckListPage() {
     setNameFilter(nameInput.trim())
   }
 
+  function clearFilters() {
+    setNameInput('')
+    setNameFilter('')
+  }
+
+  const hasActiveFilters = Boolean(nameFilter)
+
   function handleEdit(e: MouseEvent, deckId: string) {
     e.preventDefault()
     navigate(`/magic/mazos/${deckId}/editar`)
@@ -100,12 +107,22 @@ export default function DeckListPage() {
         <SkeletonGrid count={6} />
       ) : decks.length === 0 ? (
         <EmptyState
-          title="No hay mazos"
-          message="Aún no has creado ningún mazo Commander o la búsqueda no arrojó resultados."
+          title={hasActiveFilters ? 'Sin resultados' : 'No hay mazos'}
+          message={
+            hasActiveFilters
+              ? 'Ningún mazo coincide con la búsqueda. Limpia el filtro para verlos todos.'
+              : 'Crea tu primer mazo Commander eligiendo su comandante.'
+          }
           action={
-            <Link className="btn-primary mt-2" to="/magic/mazos/nuevo">
-              Crear mazo
-            </Link>
+            hasActiveFilters ? (
+              <button className="btn-ghost mt-2" onClick={clearFilters}>
+                Limpiar filtros
+              </button>
+            ) : (
+              <Link className="btn-primary mt-2" to="/magic/mazos/nuevo">
+                Crear mazo
+              </Link>
+            )
           }
         />
       ) : (
