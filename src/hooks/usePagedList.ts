@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useQueryPage } from './useQueryState'
 
 export interface PageData<T> {
   content: T[]
@@ -21,7 +22,7 @@ interface UsePagedListOptions<T> {
  */
 export function usePagedList<T>({ size = 12, errorMessage, fetchPage, deps = [] }: UsePagedListOptions<T>) {
   const [items, setItems] = useState<T[]>([])
-  const [page, setPage] = useState(0)
+  const [page, setPage] = useQueryPage()
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
   const [loading, setLoading] = useState(true)

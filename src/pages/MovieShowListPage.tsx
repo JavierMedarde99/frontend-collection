@@ -13,6 +13,7 @@ import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePagedList } from '../hooks/usePagedList'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useQueryState } from '../hooks/useQueryState'
 
 const PAGE_SIZE = 12
 
@@ -20,13 +21,13 @@ const MOVIE_SORTS: { value: string; label: string }[] = [{ value: "title,asc", l
 
 export default function MovieShowListPage() {
   usePageTitle('Películas y series')
-  const [status, setStatus] = useState<MovieShowStatus | ''>('')
-  const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaType | ''>('')
+  const [status, setStatus] = useQueryState<MovieShowStatus | ''>('status', '')
+  const [mediaTypeFilter, setMediaTypeFilter] = useQueryState<MediaType | ''>('mediaType', '')
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
-  const [nameFilter, setNameFilter] = useState('')
-  const [sort, setSort] = useState('title,asc')
+  const [nameFilter, setNameFilter] = useQueryState('name', '')
+  const [sort, setSort] = useQueryState('sort', 'title,asc')
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const {

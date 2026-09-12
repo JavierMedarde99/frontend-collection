@@ -10,6 +10,7 @@ import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
 import SearchField from '../components/SearchField'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useQueryState } from '../hooks/useQueryState'
 
 function totalCards(deck: DeckResponse): number {
   return (deck.cards || []).reduce((sum, c) => sum + (c.quantity || 0), 0)
@@ -22,7 +23,7 @@ export default function DeckListPage() {
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
-  const [nameFilter, setNameFilter] = useState('')
+  const [nameFilter, setNameFilter] = useQueryState('name', '')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

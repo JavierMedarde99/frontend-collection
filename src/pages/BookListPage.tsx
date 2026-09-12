@@ -13,6 +13,7 @@ import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useQueryState } from '../hooks/useQueryState'
 
 const PAGE_SIZE = 12
 
@@ -20,15 +21,15 @@ const BOOK_SORTS: { value: string; label: string }[] = [{ value: "title,asc", la
 
 export default function BookListPage() {
   usePageTitle('Libros')
-  const [status, setStatus] = useState<BookState | ''>('')
-  const [typeFilter, setTypeFilter] = useState<BookType | ''>('')
+  const [status, setStatus] = useQueryState<BookState | ''>('status', '')
+  const [typeFilter, setTypeFilter] = useQueryState<BookType | ''>('type', '')
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
   const [authorInput, setAuthorInput] = useState('')
-  const [nameFilter, setNameFilter] = useState('')
-  const [authorFilter, setAuthorFilter] = useState('')
-  const [sort, setSort] = useState('title,asc')
+  const [nameFilter, setNameFilter] = useQueryState('name', '')
+  const [authorFilter, setAuthorFilter] = useQueryState('author', '')
+  const [sort, setSort] = useQueryState('sort', 'title,asc')
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const {

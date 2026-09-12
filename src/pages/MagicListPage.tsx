@@ -13,6 +13,7 @@ import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePagedList } from '../hooks/usePagedList'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useQueryState } from '../hooks/useQueryState'
 
 const PAGE_SIZE = 12
 
@@ -33,11 +34,11 @@ export default function MagicListPage() {
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
-  const [nameFilter, setNameFilter] = useState('')
-  const [rarityFilter, setRarityFilter] = useState('')
-  const [colorFilter, setColorFilter] = useState('')
-  const [typeFilter, setTypeFilter] = useState('')
-  const [sort, setSort] = useState('name,asc')
+  const [nameFilter, setNameFilter] = useQueryState('name', '')
+  const [rarityFilter, setRarityFilter] = useQueryState('rarity', '')
+  const [colorFilter, setColorFilter] = useQueryState('color', '')
+  const [typeFilter, setTypeFilter] = useQueryState('type', '')
+  const [sort, setSort] = useQueryState('sort', 'name,asc')
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const {
