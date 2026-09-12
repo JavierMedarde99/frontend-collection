@@ -17,18 +17,24 @@ interface Stats {
   completed: number
 }
 
+function countOf(result: PromiseSettledResult<{ totalElements?: number } | null>): number {
+  return result.status === 'fulfilled' ? result.value?.totalElements ?? 0 : 0
+}
+
 async function fetchStats(): Promise<Stats> {
-  const [all, toRead, reading, completed] = await Promise.all([
+  // Promise.allSettled: un fallo parcial no pone el resto a cero.
+  // (Una sola llamada requeriría GET /api/books/stats en el backend.)
+  const [all, toRead, reading, completed] = await Promise.allSettled([
     listBooks({ page: 0, size: 1 }),
     listBooks({ page: 0, size: 1, state: BookState.TO_READ }),
     listBooks({ page: 0, size: 1, state: BookState.READING }),
     listBooks({ page: 0, size: 1, state: BookState.COMPLETED }),
   ])
   return {
-    total: all?.totalElements ?? 0,
-    toRead: toRead?.totalElements ?? 0,
-    reading: reading?.totalElements ?? 0,
-    completed: completed?.totalElements ?? 0,
+    total: countOf(all),
+    toRead: countOf(toRead),
+    reading: countOf(reading),
+    completed: countOf(completed),
   }
 }
 
