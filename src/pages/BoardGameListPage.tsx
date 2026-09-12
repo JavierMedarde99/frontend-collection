@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listBoardGames, deleteBoardGame } from '../api/boardgamesApi'
 import { BOARD_GAME_STATES } from '../constants/boardGames'
@@ -11,56 +11,49 @@ import Pagination from '../components/Pagination'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
+import { usePagedList } from '../hooks/usePagedList'
 
 const PAGE_SIZE = 12
 
 const BOARDGAME_SORTS: { value: string; label: string }[] = [{ value: "title,asc", label: "Título A-Z" },{ value: "title,desc", label: "Título Z-A" },{ value: "bggRating,desc", label: "Mejor valorados" },]
 
 export default function BoardGameListPage() {
-  const [games, setGames] = useState<BoardGame[]>([])
   const [status, setStatus] = useState<BoardGameStatus | ''>('')
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
   const [nameFilter, setNameFilter] = useState('')
   const [sort, setSort] = useState('title,asc')
-  const [page, setPage] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
-  const [totalElements, setTotalElements] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [filtersOpen, setFiltersOpen] = useState(false)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await listBoardGames({
+  const {
+    items: games,
+    page,
+    gotoPage,
+    resetPage,
+    totalPages,
+    totalElements,
+    loading,
+    error,
+    reload: load,
+  } = usePagedList<BoardGame>( {
+    size: PAGE_SIZE,
+    errorMessage: 'No se pudieron cargar los juegos de mesa.',
+    fetchPage: (page, size) => listBoardGames({
         page,
-        size: PAGE_SIZE,
+        size,
         status: status || undefined,
         name: nameFilter || undefined,
         sort,
-      })
-      setGames(data.content || [])
-      setTotalPages(data.totalPages || 0)
-      setTotalElements(data.totalElements || 0)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'No se pudieron cargar los juegos de mesa.'
-      setError(message)
-    } finally {
-      setLoading(false)
-    }
-  }, [page, status, nameFilter, sort])
+      }),
+    deps: [status, nameFilter, sort],
+  })
 
-  useEffect(() => {
-    load()
-  }, [load])
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
     setNameFilter(nameInput.trim())
-    setPage(0)
+    resetPage()
   }
 
   const activeFilterCount = [nameFilter].filter(Boolean).length
@@ -77,7 +70,7 @@ export default function BoardGameListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => { setSort(v); setPage(0) }} options={BOARDGAME_SORTS} />
+          <SortSelect value={sort} onChange={(v) => { setSort(v); resetPage() }} options={BOARDGAME_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -134,14 +127,14 @@ export default function BoardGameListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <FilterPill active={!status} onClick={() => { setStatus(''); setPage(0) }} label="Todos los estados">
+        <FilterPill active={!status} onClick={() => { setStatus(''); resetPage() }} label="Todos los estados">
           Todos
         </FilterPill>
         {Object.entries(BOARD_GAME_STATES).map(([key, label]) => (
           <FilterPill
             key={key}
             active={status === key}
-            onClick={() => { setStatus(key as BoardGameStatus); setPage(0) }}
+            onClick={() => { setStatus(key as BoardGameStatus); resetPage() }}
             label={`Filtrar por estado: ${label}`}
           >
             {label}
@@ -177,7 +170,7 @@ export default function BoardGameListPage() {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onChange={setPage} disabled={loading} />
+      <Pagination page={page} totalPages={totalPages} onChange={gotoPage} disabled={loading} />
     </section>
   )
 }

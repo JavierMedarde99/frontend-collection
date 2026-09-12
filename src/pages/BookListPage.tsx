@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { usePagedList } from '../hooks/usePagedList'
 import { listBooks, deleteBook } from '../api/booksApi'
 import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
 import { BookType, BookState, type Book } from '../types'
@@ -17,7 +18,6 @@ const PAGE_SIZE = 12
 const BOOK_SORTS: { value: string; label: string }[] = [{ value: "title,asc", label: "Título A-Z" },{ value: "title,desc", label: "Título Z-A" },{ value: "start,desc", label: "Mejor valorados" },]
 
 export default function BookListPage() {
-  const [books, setBooks] = useState<Book[]>([])
   const [status, setStatus] = useState<BookState | ''>('')
   const [typeFilter, setTypeFilter] = useState<BookType | ''>('')
   const [nameInput, setNameInput] = useState('')
@@ -27,51 +27,44 @@ export default function BookListPage() {
   const [nameFilter, setNameFilter] = useState('')
   const [authorFilter, setAuthorFilter] = useState('')
   const [sort, setSort] = useState('title,asc')
-  const [page, setPage] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
-  const [totalElements, setTotalElements] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [filtersOpen, setFiltersOpen] = useState(false)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await listBooks({
+  const {
+    items: books,
+    page,
+    gotoPage,
+    resetPage,
+    totalPages,
+    totalElements,
+    loading,
+    error,
+    reload: load,
+  } = usePagedList<Book>({
+    size: PAGE_SIZE,
+    errorMessage: 'No se pudieron cargar los libros.',
+    fetchPage: (page, size) =>
+      listBooks({
         page,
-        size: PAGE_SIZE,
+        size,
         state: status || undefined,
         type: typeFilter || undefined,
         name: nameFilter || undefined,
         author: authorFilter || undefined,
         sort,
-      })
-      setBooks(data.content || [])
-      setTotalPages(data.totalPages || 0)
-      setTotalElements(data.totalElements || 0)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'No se pudieron cargar los libros.'
-      setError(message)
-    } finally {
-      setLoading(false)
-    }
-  }, [page, status, typeFilter, nameFilter, authorFilter, sort])
-
-  useEffect(() => {
-    load()
-  }, [load])
+      }),
+    deps: [status, typeFilter, nameFilter, authorFilter, sort],
+  })
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
     setNameFilter(nameInput.trim())
-    setPage(0)
+    resetPage()
   }
 
   function handleAuthorSearch(e: FormEvent) {
     e.preventDefault()
     setAuthorFilter(authorInput.trim())
-    setPage(0)
+    resetPage()
   }
 
   const activeFilterCount =
@@ -89,7 +82,7 @@ export default function BookListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => { setSort(v); setPage(0) }} options={BOOK_SORTS} />
+          <SortSelect value={sort} onChange={(v) => { setSort(v); resetPage() }} options={BOOK_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -152,7 +145,7 @@ export default function BookListPage() {
           <select
             className="input md:w-48"
             value={typeFilter}
-            onChange={(e) => { setTypeFilter(e.target.value as BookType); setPage(0) }}
+            onChange={(e) => { setTypeFilter(e.target.value as BookType); resetPage() }}
             aria-label="Filtrar por tipo"
           >
             <option value="">Todos los tipos</option>
@@ -165,14 +158,14 @@ export default function BookListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <FilterPill active={!status} onClick={() => { setStatus(''); setPage(0) }} label="Todos los estados">
+        <FilterPill active={!status} onClick={() => { setStatus(''); resetPage() }} label="Todos los estados">
           Todos
         </FilterPill>
         {Object.entries(BOOK_STATES).map(([key, label]) => (
           <FilterPill
             key={key}
             active={status === key}
-            onClick={() => { setStatus(key as BookState); setPage(0) }}
+            onClick={() => { setStatus(key as BookState); resetPage() }}
             label={`Filtrar por estado: ${label}`}
           >
             {label}
@@ -208,7 +201,7 @@ export default function BookListPage() {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onChange={setPage} disabled={loading} />
+      <Pagination page={page} totalPages={totalPages} onChange={gotoPage} disabled={loading} />
     </section>
   )
 }

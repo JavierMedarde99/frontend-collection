@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listMovieShows, deleteMovieShow } from '../api/movieshowsApi'
 import { MEDIA_TYPES, MOVIE_SHOW_STATES } from '../constants/movieshows'
@@ -11,13 +11,13 @@ import Pagination from '../components/Pagination'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
+import { usePagedList } from '../hooks/usePagedList'
 
 const PAGE_SIZE = 12
 
 const MOVIE_SORTS: { value: string; label: string }[] = [{ value: "title,asc", label: "Título A-Z" },{ value: "title,desc", label: "Título Z-A" },{ value: "releaseDate,desc", label: "Novedades" },]
 
 export default function MovieShowListPage() {
-  const [movieShows, setMovieShows] = useState<MovieShow[]>([])
   const [status, setStatus] = useState<MovieShowStatus | ''>('')
   const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaType | ''>('')
   const [nameInput, setNameInput] = useState('')
@@ -25,44 +25,37 @@ export default function MovieShowListPage() {
   useSearchShortcut(searchRef)
   const [nameFilter, setNameFilter] = useState('')
   const [sort, setSort] = useState('title,asc')
-  const [page, setPage] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
-  const [totalElements, setTotalElements] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [filtersOpen, setFiltersOpen] = useState(false)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await listMovieShows({
+  const {
+    items: movieShows,
+    page,
+    gotoPage,
+    resetPage,
+    totalPages,
+    totalElements,
+    loading,
+    error,
+    reload: load,
+  } = usePagedList<MovieShow>( {
+    size: PAGE_SIZE,
+    errorMessage: 'No se pudieron cargar las películas/series.',
+    fetchPage: (page, size) => listMovieShows({
         page,
-        size: PAGE_SIZE,
+        size,
         status: status || undefined,
         mediaType: mediaTypeFilter || undefined,
         name: nameFilter || undefined,
         sort,
-      })
-      setMovieShows(data.content || [])
-      setTotalPages(data.totalPages || 0)
-      setTotalElements(data.totalElements || 0)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'No se pudieron cargar las películas/series.'
-      setError(message)
-    } finally {
-      setLoading(false)
-    }
-  }, [page, status, mediaTypeFilter, nameFilter, sort])
+      }),
+    deps: [status, mediaTypeFilter, nameFilter, sort],
+  })
 
-  useEffect(() => {
-    load()
-  }, [load])
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
     setNameFilter(nameInput.trim())
-    setPage(0)
+    resetPage()
   }
 
   const activeFilterCount = [mediaTypeFilter, nameFilter].filter(Boolean).length
@@ -79,7 +72,7 @@ export default function MovieShowListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => { setSort(v); setPage(0) }} options={MOVIE_SORTS} />
+          <SortSelect value={sort} onChange={(v) => { setSort(v); resetPage() }} options={MOVIE_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -134,7 +127,7 @@ export default function MovieShowListPage() {
             <select
               className="input md:w-48"
               value={mediaTypeFilter}
-              onChange={(e) => { setMediaTypeFilter(e.target.value as MediaType); setPage(0) }}
+              onChange={(e) => { setMediaTypeFilter(e.target.value as MediaType); resetPage() }}
               aria-label="Filtrar por tipo"
             >
               <option value="">Películas y series</option>
@@ -147,14 +140,14 @@ export default function MovieShowListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <FilterPill active={!status} onClick={() => { setStatus(''); setPage(0) }} label="Todos los estados">
+        <FilterPill active={!status} onClick={() => { setStatus(''); resetPage() }} label="Todos los estados">
           Todos
         </FilterPill>
         {Object.entries(MOVIE_SHOW_STATES).map(([key, label]) => (
           <FilterPill
             key={key}
             active={status === key}
-            onClick={() => { setStatus(key as MovieShowStatus); setPage(0) }}
+            onClick={() => { setStatus(key as MovieShowStatus); resetPage() }}
             label={`Filtrar por estado: ${label}`}
           >
             {label}
@@ -190,7 +183,7 @@ export default function MovieShowListPage() {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onChange={setPage} disabled={loading} />
+      <Pagination page={page} totalPages={totalPages} onChange={gotoPage} disabled={loading} />
     </section>
   )
 }
