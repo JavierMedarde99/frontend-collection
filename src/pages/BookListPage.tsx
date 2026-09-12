@@ -8,6 +8,7 @@ import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
 import Pagination from '../components/Pagination'
+import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 
@@ -131,53 +132,23 @@ export default function BookListPage() {
       {filtersOpen && (
         <div id="filtros" className="flex flex-col gap-5 animate-fade-in">
           <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-3">
-          <form onSubmit={handleNameSearch} className="relative">
-            <svg
-              aria-hidden="true"
-              className="w-4 h-4 text-stone absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-            </svg>
-            <input
-              className="input !pl-11 pr-28"
-              ref={searchRef}
-              aria-keyshortcuts="/"
-              title="Atajo: / para buscar"
+          <SearchField
               value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
+              onChange={setNameInput}
+              onSubmit={handleNameSearch}
               placeholder="Buscar por título…"
-              aria-label="Buscar por título"
+              label="Buscar por título"
+              inputRef={searchRef}
+              shortcutHint
             />
-            <button className="btn-primary !py-2 !px-3.5 absolute right-1.5 top-1/2 -translate-y-1/2" type="submit">
-              Buscar <kbd className="ml-1 hidden sm:inline-block px-1 rounded bg-white/25 text-[10px] font-semibold" aria-hidden="true">/</kbd>
-            </button>
-          </form>
-          <form onSubmit={handleAuthorSearch} className="relative">
-            <svg
-              aria-hidden="true"
-              className="w-4 h-4 text-stone absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-            </svg>
-            <input
-              className="input !pl-11 pr-28"
+          <SearchField
               value={authorInput}
-              onChange={(e) => setAuthorInput(e.target.value)}
+              onChange={setAuthorInput}
+              onSubmit={handleAuthorSearch}
               placeholder="Filtrar por autor…"
-              aria-label="Filtrar por autor"
+              label="Filtrar por autor"
+              variant="ghost"
             />
-            <button className="btn-ghost !py-2 !px-3.5 absolute right-1.5 top-1/2 -translate-y-1/2" type="submit">
-              Buscar
-            </button>
-          </form>
           <select
             className="input md:w-48"
             value={typeFilter}
