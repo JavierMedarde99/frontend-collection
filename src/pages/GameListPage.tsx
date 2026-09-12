@@ -13,6 +13,7 @@ import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePagedList } from '../hooks/usePagedList'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useQueryState } from '../hooks/useQueryState'
 
 const PAGE_SIZE = 12
 
@@ -20,13 +21,13 @@ const GAME_SORTS: { value: string; label: string }[] = [{ value: "title,asc", la
 
 export default function GameListPage() {
   usePageTitle('Videojuegos')
-  const [status, setStatus] = useState<GameStatus | ''>('')
-  const [platformFilter, setPlatformFilter] = useState<GamePlatform | ''>('')
+  const [status, setStatus] = useQueryState<GameStatus | ''>('status', '')
+  const [platformFilter, setPlatformFilter] = useQueryState<GamePlatform | ''>('platform', '')
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
-  const [nameFilter, setNameFilter] = useState('')
-  const [sort, setSort] = useState('title,asc')
+  const [nameFilter, setNameFilter] = useQueryState('name', '')
+  const [sort, setSort] = useQueryState('sort', 'title,asc')
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const {
