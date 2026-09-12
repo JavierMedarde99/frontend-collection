@@ -184,6 +184,7 @@ export default function BookListPage() {
         <button
           className={`btn-ghost !px-4 !py-2 ${!status ? '!bg-brand !text-white !border-brand !shadow-brand-glow' : ''}`}
           onClick={() => { setStatus(''); setPage(0) }}
+          aria-pressed={!status}
         >
           Todos
         </button>
@@ -192,6 +193,7 @@ export default function BookListPage() {
             key={key}
             className={`btn-ghost !px-4 !py-2 ${status === key ? '!bg-brand !text-white !border-brand !shadow-brand-glow' : ''}`}
             onClick={() => { setStatus(key as BookState); setPage(0) }}
+          aria-pressed={status === key}
           >
             {label}
           </button>
