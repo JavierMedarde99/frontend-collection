@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
+import ExportButton from './ExportButton'
 
 const links = [
   { to: '/', label: 'Inicio', end: true },
@@ -119,6 +120,9 @@ export default function Navbar() {
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <span className="hidden sm:inline-flex">
+            <ExportButton />
+          </span>
           <NavLink className="btn-primary !px-4 !py-2 shrink-0" to={addTo}>
             {addLabel}
           </NavLink>
@@ -176,6 +180,12 @@ export default function Navbar() {
                 </NavLink>
               </li>
             ))}
+            <li>
+              <span className="flex items-center gap-2 px-4 py-2.5">
+                <ExportButton onDone={() => setMenuOpen(false)} />
+                <span className="text-body text-graphite">Exportar colección</span>
+              </span>
+            </li>
             {inMagic && (
               <li className="flex items-center gap-2 pl-4 pt-1" aria-label="Sub-apartados de Magic">
                 {magicLinks.map((link) => (
