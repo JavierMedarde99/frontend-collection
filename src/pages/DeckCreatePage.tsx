@@ -5,6 +5,8 @@ import { searchMagicCards } from '../api/magicApi'
 import type { MagicCardSearchResult } from '../types'
 import { MANA_COLORS, type ManaColorCode } from '../constants/decks'
 import ErrorBanner from '../components/ErrorBanner'
+import ConfirmDialog from '../components/ConfirmDialog'
+import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
 
@@ -25,6 +27,8 @@ export default function DeckCreatePage() {
   const [commander, setCommander] = useState<MagicCardSearchResult | null>(null)
   const [commanderColors, setCommanderColors] = useState<ManaColorCode[]>([])
   const [submitting, setSubmitting] = useState(false)
+  const [dirty, setDirty] = useState(false)
+  const guard = useUnsavedGuard(dirty)
   const [error, setError] = useState<string | null>(null)
 
   // Búsqueda del comandante en Scryfall
@@ -65,6 +69,7 @@ export default function DeckCreatePage() {
       }
     }
     setSearchError(null)
+    setDirty(true)
     setCommander(result)
     setCommanderColors(identityFromCard(result))
   }
@@ -76,6 +81,7 @@ export default function DeckCreatePage() {
       return
     }
     setSubmitting(true)
+    setDirty(false)
     setError(null)
     try {
       const created = await createDeck({
@@ -89,6 +95,7 @@ export default function DeckCreatePage() {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo crear el mazo.'
       setError(message)
+      setDirty(true)
       setSubmitting(false)
     }
   }
@@ -103,7 +110,7 @@ export default function DeckCreatePage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="card flex flex-col gap-6 p-6 md:p-8">
+      <form onSubmit={handleSubmit} onChange={() => setDirty(true)} className="card flex flex-col gap-6 p-6 md:p-8">
         <div className="flex flex-col gap-1.5">
           <label className="label" htmlFor="deck-name">
             Nombre <span className="text-brand">*</span>
@@ -222,6 +229,15 @@ export default function DeckCreatePage() {
             {submitting ? 'Creando…' : 'Crear mazo'}
           </button>
         </div>
+
+      <ConfirmDialog
+        open={guard.showPrompt}
+        title="Cambios sin guardar"
+        message="Tienes cambios sin guardar. ¿Seguro que quieres salir? Se perderán."
+        confirmLabel="Salir sin guardar"
+        onConfirm={guard.confirmNavigation}
+        onCancel={guard.cancelNavigation}
+      />
       </form>
     </div>
   )

@@ -4,6 +4,7 @@ import { getMagicCard, updateMagicCard, deleteMagicCard } from '../api/magicApi'
 import type { MagicCardRequest, MagicCondition, MagicLanguage } from '../types'
 import { MAGIC_CONDITIONS, MAGIC_LANGUAGES } from '../constants/magic'
 import ConfirmDialog from '../components/ConfirmDialog'
+import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import SkeletonGrid from '../components/Skeleton'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -16,6 +17,8 @@ export default function MagicEditPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [dirty, setDirty] = useState(false)
+  const guard = useUnsavedGuard(dirty)
   const [deleting, setDeleting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
@@ -72,6 +75,7 @@ export default function MagicEditPage() {
     e.preventDefault()
     if (!id || !originalCard) return
     setSubmitting(true)
+    setDirty(false)
     setError(null)
     try {
       await updateMagicCard(id, {
@@ -96,6 +100,7 @@ export default function MagicEditPage() {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo actualizar la carta.'
       setError(message)
+      setDirty(true)
       setSubmitting(false)
     }
   }
@@ -139,7 +144,7 @@ export default function MagicEditPage() {
         <ErrorBanner message={error} />
       )}
 
-      <form onSubmit={handleSubmit} className="card flex flex-col gap-6 p-8">
+      <form onSubmit={handleSubmit} onChange={() => setDirty(true)} className="card flex flex-col gap-6 p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="flex flex-col gap-2">
             <label className="text-caption font-semibold text-ink">Nombre</label>
@@ -302,6 +307,14 @@ export default function MagicEditPage() {
             </button>
           </div>
         </div>
+      <ConfirmDialog
+        open={guard.showPrompt}
+        title="Cambios sin guardar"
+        message="Tienes cambios sin guardar. ¿Seguro que quieres salir? Se perderán."
+        confirmLabel="Salir sin guardar"
+        onConfirm={guard.confirmNavigation}
+        onCancel={guard.cancelNavigation}
+      />
       </form>
 
       <ConfirmDialog

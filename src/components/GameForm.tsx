@@ -3,6 +3,8 @@ import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
 import { GamePlatform, GameStatus } from '../types'
 import type { GameFormData } from '../types'
 import StarRating from './StarRating'
+import ConfirmDialog from './ConfirmDialog'
+import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import FormSection from './FormSection'
 
 type IconName = 'title' | 'thumbnail' | 'externalId' | 'date' | 'comment' | 'source' | 'steam'
@@ -103,6 +105,8 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
     ...initial,
   })
   const [submitting, setSubmitting] = useState(false)
+  const [dirty, setDirty] = useState(false)
+  const guard = useUnsavedGuard(dirty)
   const [localError, setLocalError] = useState<string | null>(null)
 
   const showStartDate =
@@ -145,18 +149,20 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
     }
 
     setSubmitting(true)
+    setDirty(false)
     try {
       await onSubmit(payload)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo guardar el videojuego.'
       setLocalError(message)
+      setDirty(true)
     } finally {
       setSubmitting(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card flex flex-col gap-6">
+    <form onSubmit={handleSubmit} onChange={() => setDirty(true)} className="card flex flex-col gap-6">
       <FormSection title="Información básica">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field label="Título" required icon="title">
@@ -236,7 +242,7 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
         {showRating && (
           <Field label="Valoración">
             <div className="pt-2">
-              <StarRating value={form.userRating} onChange={(n) => setForm((f) => ({ ...f, userRating: n }))} />
+              <StarRating value={form.userRating} onChange={(n) => { setDirty(true); setForm((f) => ({ ...f, userRating: n })) }} />
             </div>
           </Field>
         )}
@@ -277,6 +283,15 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
           {submitting ? 'Guardando…' : submitLabel}
         </button>
       </div>
+
+      <ConfirmDialog
+        open={guard.showPrompt}
+        title="Cambios sin guardar"
+        message="Tienes cambios sin guardar. ¿Seguro que quieres salir? Se perderán."
+        confirmLabel="Salir sin guardar"
+        onConfirm={guard.confirmNavigation}
+        onCancel={guard.cancelNavigation}
+      />
     </form>
   )
 }

@@ -3,6 +3,8 @@ import { MEDIA_TYPES, MOVIE_SHOW_STATES } from '../constants/movieshows'
 import { MediaType, MovieShowStatus } from '../types'
 import type { MovieShowFormData } from '../types'
 import StarRating from './StarRating'
+import ConfirmDialog from './ConfirmDialog'
+import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import FormSection from './FormSection'
 
 interface FieldProps {
@@ -47,6 +49,8 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
     ...initial,
   })
   const [submitting, setSubmitting] = useState(false)
+  const [dirty, setDirty] = useState(false)
+  const guard = useUnsavedGuard(dirty)
   const [localError, setLocalError] = useState<string | null>(null)
 
   const showStartDate =
@@ -88,18 +92,20 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
     }
 
     setSubmitting(true)
+    setDirty(false)
     try {
       await onSubmit(payload)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo guardar la película/serie.'
       setLocalError(message)
+      setDirty(true)
     } finally {
       setSubmitting(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card flex flex-col gap-6">
+    <form onSubmit={handleSubmit} onChange={() => setDirty(true)} className="card flex flex-col gap-6">
       <FormSection title="Información básica">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field label="Título" required>
@@ -169,7 +175,7 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
         {showRating && (
           <Field label="Valoración">
             <div className="pt-2">
-              <StarRating value={form.userRating} onChange={(n) => setForm((f) => ({ ...f, userRating: n }))} />
+              <StarRating value={form.userRating} onChange={(n) => { setDirty(true); setForm((f) => ({ ...f, userRating: n })) }} />
             </div>
           </Field>
         )}
@@ -208,6 +214,15 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
           {submitting ? 'Guardando…' : submitLabel}
         </button>
       </div>
+
+      <ConfirmDialog
+        open={guard.showPrompt}
+        title="Cambios sin guardar"
+        message="Tienes cambios sin guardar. ¿Seguro que quieres salir? Se perderán."
+        confirmLabel="Salir sin guardar"
+        onConfirm={guard.confirmNavigation}
+        onCancel={guard.cancelNavigation}
+      />
     </form>
   )
 }

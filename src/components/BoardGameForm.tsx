@@ -3,6 +3,8 @@ import { BOARD_GAME_STATES } from '../constants/boardGames'
 import { BoardGameStatus } from '../types'
 import type { BoardGameFormData } from '../types'
 import FormSection from './FormSection'
+import ConfirmDialog from './ConfirmDialog'
+import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 
 interface FieldProps {
   label: string
@@ -67,6 +69,8 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
   const [dateAdded, setDateAdded] = useState(initial.dateAdded || '')
   const [submitting, setSubmitting] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
+  const [dirty, setDirty] = useState(false)
+  const guard = useUnsavedGuard(dirty)
 
   const set =
     (setter: (v: string) => void) =>
@@ -103,18 +107,20 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
     }
 
     setSubmitting(true)
+    setDirty(false)
     try {
       await onSubmit(payload)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo guardar el juego de mesa.'
       setLocalError(message)
+      setDirty(true)
     } finally {
       setSubmitting(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card flex flex-col gap-6">
+    <form onSubmit={handleSubmit} onChange={() => setDirty(true)} className="card flex flex-col gap-6">
       <FormSection title="Información básica">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field label="Título" required>
@@ -218,6 +224,15 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
           {submitting ? 'Guardando…' : submitLabel}
         </button>
       </div>
+
+      <ConfirmDialog
+        open={guard.showPrompt}
+        title="Cambios sin guardar"
+        message="Tienes cambios sin guardar. ¿Seguro que quieres salir? Se perderán."
+        confirmLabel="Salir sin guardar"
+        onConfirm={guard.confirmNavigation}
+        onCancel={guard.cancelNavigation}
+      />
     </form>
   )
 }
