@@ -18,10 +18,12 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { useToast } from '../components/Toast'
 
 export default function DeckEditPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const notify = useToast()
 
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -119,6 +121,7 @@ export default function DeckEditPage() {
         commanderColors: commanderColors.length > 0 ? commanderColors : undefined,
       })
       navigate(`/magic/mazos/${id}`, { replace: true })
+      notify('Cambios guardados.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo guardar el mazo.')
     } finally {

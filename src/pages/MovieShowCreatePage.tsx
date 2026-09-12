@@ -5,6 +5,7 @@ import type { MovieShowFormData } from '../types'
 import MovieShowForm from '../components/MovieShowForm'
 import MovieShowSearch from '../components/MovieShowSearch'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { useToast } from '../components/Toast'
 
 type Mode = 'search' | 'manual'
 
@@ -15,10 +16,12 @@ const MODES: { key: Mode; label: string }[] = [
 
 export default function MovieShowCreatePage() {
   const navigate = useNavigate()
+  const notify = useToast()
   const [mode, setMode] = useState<Mode>('search')
 
   async function handleSubmit(payload: MovieShowFormData) {
     await createMovieShow(payload)
+    notify('Película/serie guardada.')
     navigate('/movieshows', { replace: true })
   }
 

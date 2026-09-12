@@ -6,6 +6,7 @@ import type { MagicCardSearchResult } from '../types'
 import { MANA_COLORS, type ManaColorCode } from '../constants/decks'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { useToast } from '../components/Toast'
 
 const VALID_COLORS = Object.keys(MANA_COLORS) as ManaColorCode[]
 
@@ -18,6 +19,7 @@ function identityFromCard(result: MagicCardSearchResult): ManaColorCode[] {
 
 export default function DeckCreatePage() {
   const navigate = useNavigate()
+  const notify = useToast()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [commander, setCommander] = useState<MagicCardSearchResult | null>(null)
@@ -83,6 +85,7 @@ export default function DeckCreatePage() {
         commanderColors: commanderColors.length > 0 ? commanderColors : undefined,
       })
       navigate(`/magic/mazos/${created.id}`)
+      notify('Mazo creado.')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo crear el mazo.'
       setError(message)

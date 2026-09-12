@@ -8,10 +8,12 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { useToast } from '../components/Toast'
 
 export default function BookEditPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const notify = useToast()
 
   const [book, setBook] = useState<Book | null>(null)
   const [loading, setLoading] = useState(true)
@@ -43,6 +45,7 @@ export default function BookEditPage() {
   async function handleSubmit(payload: BookFormData) {
     if (!id) return
     await updateBook(id, payload)
+    notify('Cambios guardados.')
     navigate('/coleccion', { replace: true })
   }
 

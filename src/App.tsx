@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { ToastProvider } from './components/Toast'
 import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
 import BookListPage from './pages/BookListPage'
@@ -30,6 +31,7 @@ import DeckEditPage from './pages/DeckEditPage'
 export default function App() {
   return (
     <BrowserRouter>
+      <ToastProvider>
       <Navbar />
       <main className="max-w-content mx-auto px-5 md:px-20 py-10">
         <Routes>
@@ -61,6 +63,7 @@ export default function App() {
           <Route path="/movieshows/:id" element={<MovieShowDetailPage />} />
         </Routes>
       </main>
+      </ToastProvider>
     </BrowserRouter>
   )
 }
