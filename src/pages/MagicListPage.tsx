@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listMagicCards, deleteMagicCard } from '../api/magicApi'
 import { MAGIC_CARD_TYPES } from '../constants/magic'
@@ -11,6 +11,7 @@ import Pagination from '../components/Pagination'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
+import { usePagedList } from '../hooks/usePagedList'
 
 const PAGE_SIZE = 12
 
@@ -27,7 +28,6 @@ const COLOR_OPTIONS = [
 ]
 
 export default function MagicListPage() {
-  const [cards, setCards] = useState<MagicCardResponse[]>([])
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
@@ -36,45 +36,38 @@ export default function MagicListPage() {
   const [colorFilter, setColorFilter] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [sort, setSort] = useState('name,asc')
-  const [page, setPage] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
-  const [totalElements, setTotalElements] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [filtersOpen, setFiltersOpen] = useState(false)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await listMagicCards({
+  const {
+    items: cards,
+    page,
+    gotoPage,
+    resetPage,
+    totalPages,
+    totalElements,
+    loading,
+    error,
+    reload: load,
+  } = usePagedList<MagicCardResponse>( {
+    size: PAGE_SIZE,
+    errorMessage: 'No se pudieron cargar las cartas Magic.',
+    fetchPage: (page, size) => listMagicCards({
         page,
-        size: PAGE_SIZE,
+        size,
         name: nameFilter || undefined,
         rarity: rarityFilter || undefined,
         color: colorFilter || undefined,
         type: typeFilter || undefined,
         sort,
-      })
-      setCards(data.content || [])
-      setTotalPages(data.totalPages || 0)
-      setTotalElements(data.totalElements || 0)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'No se pudieron cargar las cartas Magic.'
-      setError(message)
-    } finally {
-      setLoading(false)
-    }
-  }, [page, nameFilter, rarityFilter, colorFilter, typeFilter, sort])
+      }),
+    deps: [nameFilter, rarityFilter, colorFilter, typeFilter, sort],
+  })
 
-  useEffect(() => {
-    load()
-  }, [load])
 
   function handleSearch(e: FormEvent) {
     e.preventDefault()
     setNameFilter(nameInput.trim())
-    setPage(0)
+    resetPage()
   }
 
   function handleClearFilters() {
@@ -83,7 +76,7 @@ export default function MagicListPage() {
     setRarityFilter('')
     setColorFilter('')
     setTypeFilter('')
-    setPage(0)
+    resetPage()
   }
 
   const activeFilterCount =
@@ -101,7 +94,7 @@ export default function MagicListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => { setSort(v); setPage(0) }} options={MAGIC_SORTS} />
+          <SortSelect value={sort} onChange={(v) => { setSort(v); resetPage() }} options={MAGIC_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -161,7 +154,7 @@ export default function MagicListPage() {
             <select
               className="input"
               value={rarityFilter}
-              onChange={(e) => { setRarityFilter(e.target.value); setPage(0) }}
+              onChange={(e) => { setRarityFilter(e.target.value); resetPage() }}
               aria-label="Filtrar por rareza"
             >
               <option value="">Todas las rarezas</option>
@@ -172,7 +165,7 @@ export default function MagicListPage() {
             <select
               className="input"
               value={colorFilter}
-              onChange={(e) => { setColorFilter(e.target.value); setPage(0) }}
+              onChange={(e) => { setColorFilter(e.target.value); resetPage() }}
               aria-label="Filtrar por color"
             >
               <option value="">Todos los colores</option>
@@ -183,7 +176,7 @@ export default function MagicListPage() {
             <select
               className="input"
               value={typeFilter}
-              onChange={(e) => { setTypeFilter(e.target.value); setPage(0) }}
+              onChange={(e) => { setTypeFilter(e.target.value); resetPage() }}
               aria-label="Filtrar por tipo"
             >
               <option value="">Todos los tipos</option>
@@ -218,7 +211,7 @@ export default function MagicListPage() {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+      <Pagination page={page} totalPages={totalPages} onChange={gotoPage} />
     </section>
   )
 }

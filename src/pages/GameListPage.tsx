@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listGames, deleteGame } from '../api/gamesApi'
 import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
@@ -11,13 +11,13 @@ import Pagination from '../components/Pagination'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
+import { usePagedList } from '../hooks/usePagedList'
 
 const PAGE_SIZE = 12
 
 const GAME_SORTS: { value: string; label: string }[] = [{ value: "title,asc", label: "Título A-Z" },{ value: "title,desc", label: "Título Z-A" },]
 
 export default function GameListPage() {
-  const [games, setGames] = useState<Game[]>([])
   const [status, setStatus] = useState<GameStatus | ''>('')
   const [platformFilter, setPlatformFilter] = useState<GamePlatform | ''>('')
   const [nameInput, setNameInput] = useState('')
@@ -25,44 +25,37 @@ export default function GameListPage() {
   useSearchShortcut(searchRef)
   const [nameFilter, setNameFilter] = useState('')
   const [sort, setSort] = useState('title,asc')
-  const [page, setPage] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
-  const [totalElements, setTotalElements] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [filtersOpen, setFiltersOpen] = useState(false)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await listGames({
+  const {
+    items: games,
+    page,
+    gotoPage,
+    resetPage,
+    totalPages,
+    totalElements,
+    loading,
+    error,
+    reload: load,
+  } = usePagedList<Game>( {
+    size: PAGE_SIZE,
+    errorMessage: 'No se pudieron cargar los videojuegos.',
+    fetchPage: (page, size) => listGames({
         page,
-        size: PAGE_SIZE,
+        size,
         status: status || undefined,
         platform: platformFilter || undefined,
         name: nameFilter || undefined,
         sort,
-      })
-      setGames(data.content || [])
-      setTotalPages(data.totalPages || 0)
-      setTotalElements(data.totalElements || 0)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'No se pudieron cargar los videojuegos.'
-      setError(message)
-    } finally {
-      setLoading(false)
-    }
-  }, [page, status, platformFilter, nameFilter, sort])
+      }),
+    deps: [status, platformFilter, nameFilter, sort],
+  })
 
-  useEffect(() => {
-    load()
-  }, [load])
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
     setNameFilter(nameInput.trim())
-    setPage(0)
+    resetPage()
   }
 
   const activeFilterCount = [platformFilter, nameFilter].filter(Boolean).length
@@ -79,7 +72,7 @@ export default function GameListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => { setSort(v); setPage(0) }} options={GAME_SORTS} />
+          <SortSelect value={sort} onChange={(v) => { setSort(v); resetPage() }} options={GAME_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -134,7 +127,7 @@ export default function GameListPage() {
             <select
               className="input md:w-48"
               value={platformFilter}
-              onChange={(e) => { setPlatformFilter(e.target.value as GamePlatform); setPage(0) }}
+              onChange={(e) => { setPlatformFilter(e.target.value as GamePlatform); resetPage() }}
               aria-label="Filtrar por plataforma"
             >
               <option value="">Todas las plataformas</option>
@@ -147,14 +140,14 @@ export default function GameListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <FilterPill active={!status} onClick={() => { setStatus(''); setPage(0) }} label="Todos los estados">
+        <FilterPill active={!status} onClick={() => { setStatus(''); resetPage() }} label="Todos los estados">
           Todos
         </FilterPill>
         {Object.entries(GAME_STATES).map(([key, label]) => (
           <FilterPill
             key={key}
             active={status === key}
-            onClick={() => { setStatus(key as GameStatus); setPage(0) }}
+            onClick={() => { setStatus(key as GameStatus); resetPage() }}
             label={`Filtrar por estado: ${label}`}
           >
             {label}
@@ -190,7 +183,7 @@ export default function GameListPage() {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onChange={setPage} disabled={loading} />
+      <Pagination page={page} totalPages={totalPages} onChange={gotoPage} disabled={loading} />
     </section>
   )
 }
