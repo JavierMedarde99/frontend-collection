@@ -8,6 +8,7 @@ import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import DeckCommanderImage from '../components/DeckCommanderImage'
+import ErrorBanner from '../components/ErrorBanner'
 
 export default function DeckDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -150,9 +151,7 @@ export default function DeckDetailPage() {
   if (error || !deck) {
     return (
       <div className="max-w-xl mx-auto text-center py-12 flex flex-col items-center gap-4">
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 w-full">
-          {error || 'Mazo no encontrado'}
-        </div>
+        <ErrorBanner message={error || 'Mazo no encontrado'} />
         <Link className="btn-primary" to="/magic/mazos">
           Volver a mazos
         </Link>
@@ -182,9 +181,7 @@ export default function DeckDetailPage() {
       </div>
 
       {deleteError && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-          {deleteError}
-        </div>
+        <ErrorBanner message={deleteError} />
       )}
 
       <div className="flex flex-col gap-2">
@@ -322,9 +319,7 @@ export default function DeckDetailPage() {
               </form>
 
               {searchError && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-                  {searchError}
-                </div>
+                <ErrorBanner message={searchError} />
               )}
 
               {searchResults.length > 0 && (
@@ -373,9 +368,7 @@ export default function DeckDetailPage() {
               )}
 
               {addError && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-                  {addError}
-                </div>
+                <ErrorBanner message={addError} />
               )}
 
               <div className="flex justify-end border-t border-silver/60 pt-4">

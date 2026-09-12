@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { searchMagicCards, addMagicCardFromScryfall } from '../api/magicApi'
 import type { MagicCardSearchResult } from '../types'
+import ErrorBanner from '../components/ErrorBanner'
 
 export default function MagicCreatePage() {
   const navigate = useNavigate()
@@ -77,15 +78,11 @@ export default function MagicCreatePage() {
       </form>
 
       {searchError && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-          {searchError}
-        </div>
+        <ErrorBanner message={searchError} />
       )}
 
       {saveError && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-          {saveError}
-        </div>
+        <ErrorBanner message={saveError} />
       )}
 
       {results.length > 0 && (

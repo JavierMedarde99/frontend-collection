@@ -5,6 +5,7 @@ import type { MagicCardResponse } from '../types'
 import { MAGIC_CONDITIONS } from '../constants/magic'
 import ConfirmDialog from '../components/ConfirmDialog'
 import SkeletonGrid from '../components/Skeleton'
+import ErrorBanner from '../components/ErrorBanner'
 
 export default function MagicDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -58,9 +59,7 @@ export default function MagicDetailPage() {
   if (error || !card) {
     return (
       <div className="max-w-xl mx-auto text-center py-12 flex flex-col items-center gap-4">
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 w-full">
-          {error || 'Carta no encontrada'}
-        </div>
+        <ErrorBanner message={error || 'Carta no encontrada'} />
         <Link className="btn-primary" to="/magic">
           Volver al listado
         </Link>

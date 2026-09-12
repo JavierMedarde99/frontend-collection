@@ -4,6 +4,7 @@ import { createDeck } from '../api/deckApi'
 import { searchMagicCards } from '../api/magicApi'
 import type { MagicCardSearchResult } from '../types'
 import { MANA_COLORS, type ManaColorCode } from '../constants/decks'
+import ErrorBanner from '../components/ErrorBanner'
 
 const VALID_COLORS = Object.keys(MANA_COLORS) as ManaColorCode[]
 
@@ -159,9 +160,7 @@ export default function DeckCreatePage() {
                 </button>
               </div>
               {searchError && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-                  {searchError}
-                </div>
+                <ErrorBanner message={searchError} />
               )}
               {commanderResults.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto">
@@ -207,9 +206,7 @@ export default function DeckCreatePage() {
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-            {error}
-          </div>
+          <ErrorBanner message={error} />
         )}
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-silver/60">

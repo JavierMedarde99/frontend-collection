@@ -16,6 +16,7 @@ function identityFromCard(result: MagicCardSearchResult): ManaColorCode[] {
 import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
+import ErrorBanner from '../components/ErrorBanner'
 
 export default function DeckEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -178,9 +179,7 @@ export default function DeckEditPage() {
       </div>
 
       {deleteError && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-          {deleteError}
-        </div>
+        <ErrorBanner message={deleteError} />
       )}
 
       <form onSubmit={handleSubmit} className="card flex flex-col gap-6 p-6 md:p-8">
@@ -236,9 +235,7 @@ export default function DeckEditPage() {
                 </button>
               </div>
               {searchError && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-                  {searchError}
-                </div>
+                <ErrorBanner message={searchError} />
               )}
               {commanderResults.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto">
@@ -284,9 +281,7 @@ export default function DeckEditPage() {
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-body">
-            {error}
-          </div>
+          <ErrorBanner message={error} />
         )}
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-silver/60">
