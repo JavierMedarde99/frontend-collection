@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 
 const links = [
@@ -16,6 +17,21 @@ const magicLinks = [
 
 export default function Navbar() {
   const location = useLocation()
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!menuOpen) return
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [menuOpen])
+
   const inGames = location.pathname.startsWith('/juegos')
   const inMagic = location.pathname.startsWith('/magic')
   const inDecks = location.pathname.startsWith('/magic/mazos')
@@ -102,10 +118,87 @@ export default function Navbar() {
             )}
           </div>
         </div>
-        <NavLink className="btn-primary !px-4 !py-2 shrink-0" to={addTo}>
-          {addLabel}
-        </NavLink>
+        <div className="flex items-center gap-2 shrink-0">
+          <NavLink className="btn-primary !px-4 !py-2 shrink-0" to={addTo}>
+            {addLabel}
+          </NavLink>
+          <button
+            type="button"
+            className="btn-ghost !p-2 md:hidden"
+            aria-expanded={menuOpen}
+            aria-controls="menu-movil"
+            aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <svg
+              aria-hidden="true"
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              {menuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              )}
+            </svg>
+          </button>
+        </div>
       </nav>
+      {menuOpen && (
+        <nav id="menu-movil" aria-label="Navegación principal" className="md:hidden border-t border-silver/70 bg-cream px-5 py-3 animate-fade-in">
+          <ul className="flex flex-col gap-1">
+            {links.map((link) => (
+              <li key={link.to}>
+                <NavLink
+                  to={link.to}
+                  end={link.end}
+                  className={({ isActive }) =>
+                    `flex items-center justify-between px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${
+                      isActive
+                        ? 'bg-brand text-white shadow-brand-glow font-semibold'
+                        : 'text-graphite hover:text-brand hover:bg-brand-soft'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <span className="text-body">{link.label}</span>
+                      {isActive && (
+                        <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              </li>
+            ))}
+            {inMagic && (
+              <li className="flex items-center gap-2 pl-4 pt-1" aria-label="Sub-apartados de Magic">
+                {magicLinks.map((link) => (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    end={link.end}
+                    className={({ isActive }) =>
+                      `text-body-sm px-3.5 py-1.5 rounded-full font-medium transition-all duration-200 ${
+                        isActive
+                          ? 'bg-ink text-white font-semibold'
+                          : 'text-graphite hover:text-brand hover:bg-brand-soft'
+                      }`
+                    }
+                  >
+                    {link.label}
+                  </NavLink>
+                ))}
+              </li>
+            )}
+          </ul>
+        </nav>
+      )}
     </header>
   )
 }
