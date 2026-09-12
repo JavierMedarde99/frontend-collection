@@ -25,10 +25,10 @@ export default function ConfirmDialog({
         <h3 className="font-display text-heading-sm mb-2">{title}</h3>
         <p className="text-body text-slate mb-6">{message}</p>
         <div className="flex justify-end gap-3">
-          <button className="btn-ghost" onClick={onCancel} disabled={busy}>
+          <button type="button" className="btn-ghost" onClick={onCancel} disabled={busy}>
             Cancelar
           </button>
-          <button className="btn-danger" onClick={onConfirm} disabled={busy}>
+          <button type="button" className="btn-danger" onClick={onConfirm} disabled={busy}>
             {busy ? 'Eliminando…' : confirmLabel}
           </button>
         </div>

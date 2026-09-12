@@ -4,6 +4,8 @@ import { BookType, BookState } from '../types'
 import type { BookFormData } from '../types'
 import StarRating from './StarRating'
 import FormSection from './FormSection'
+import ConfirmDialog from './ConfirmDialog'
+import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 
 type IconName = 'title' | 'author' | 'pages' | 'cover' | 'externalId' | 'date' | 'synopsis' | 'comment'
 
@@ -107,6 +109,8 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
   })
   const [submitting, setSubmitting] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
+  const [dirty, setDirty] = useState(false)
+  const guard = useUnsavedGuard(dirty)
 
   const showStartDate = form.state !== BookState.TO_READ
   const showEndDate = form.state === BookState.COMPLETED
@@ -146,18 +150,20 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
     }
 
     setSubmitting(true)
+    setDirty(false)
     try {
       await onSubmit(payload)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo guardar el libro.'
       setLocalError(message)
+      setDirty(true)
     } finally {
       setSubmitting(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card flex flex-col gap-6">
+    <form onSubmit={handleSubmit} onChange={() => setDirty(true)} className="card flex flex-col gap-6">
       <FormSection title="Información básica">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field label="Título" required icon="title">
@@ -233,7 +239,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
         {showRating && (
           <Field label="Valoración">
             <div className="pt-2">
-              <StarRating value={form.start} onChange={(n) => setForm((f) => ({ ...f, start: n }))} />
+              <StarRating value={form.start} onChange={(n) => { setDirty(true); setForm((f) => ({ ...f, start: n })) }} />
             </div>
           </Field>
         )}
@@ -285,6 +291,15 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
           {submitting ? 'Guardando…' : submitLabel}
         </button>
       </div>
+
+      <ConfirmDialog
+        open={guard.showPrompt}
+        title="Cambios sin guardar"
+        message="Tienes cambios sin guardar. ¿Seguro que quieres salir? Se perderán."
+        confirmLabel="Salir sin guardar"
+        onConfirm={guard.confirmNavigation}
+        onCancel={guard.cancelNavigation}
+      />
     </form>
   )
 }
