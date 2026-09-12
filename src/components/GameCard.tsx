@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
+import CardMenu from './CardMenu'
 import GameStatusBadge from './GameStatusBadge'
 import GamePlatformBadge from './GamePlatformBadge'
 import GamePlatinumBadge from './GamePlatinumBadge'
@@ -10,14 +11,18 @@ import type { Game } from '../types'
 interface GameCardProps {
   game: Game
   index?: number
+  onDelete: () => Promise<void>
 }
 
-export default function GameCard({ game, index = 0 }: GameCardProps) {
+export default function GameCard({ game, index = 0, onDelete }: GameCardProps) {
   return (
     <article
-      className="card card-hover animate-fade-up flex flex-col gap-5 group"
+      className="card card-hover animate-fade-up relative flex flex-col gap-5 group"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
+      <div className="absolute top-3 right-3">
+        <CardMenu detailTo={`/juegos/${game.id}`} editTo={`/juegos/editar/${game.id}`} itemName={game.title} onDelete={onDelete} />
+      </div>
       <div className="flex gap-5">
         {game.thumbnailUrl ? (
           <Link to={`/juegos/${game.id}`} className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper block">

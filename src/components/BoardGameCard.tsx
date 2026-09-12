@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
+import CardMenu from './CardMenu'
 import BoardGameStatusBadge from './BoardGameStatusBadge'
 import StarRating from './StarRating'
 import { bggRatingToStars } from '../constants/boardGames'
@@ -8,6 +9,7 @@ import type { BoardGame } from '../types'
 interface BoardGameCardProps {
   game: BoardGame
   index?: number
+  onDelete: () => Promise<void>
 }
 
 function formatRange(min?: number, max?: number): string | null {
@@ -18,15 +20,18 @@ function formatRange(min?: number, max?: number): string | null {
   return `${min ?? max}`
 }
 
-export default function BoardGameCard({ game, index = 0 }: BoardGameCardProps) {
+export default function BoardGameCard({ game, index = 0, onDelete }: BoardGameCardProps) {
   const players = formatRange(game.minPlayers, game.maxPlayers)
   const duration = formatRange(game.minPlaytime, game.maxPlaytime)
 
   return (
     <article
-      className="card card-hover animate-fade-up flex flex-col gap-5 group"
+      className="card card-hover animate-fade-up relative flex flex-col gap-5 group"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
+      <div className="absolute top-3 right-3">
+        <CardMenu detailTo={`/boardgames/${game.id}`} editTo={`/boardgames/${game.id}/editar`} itemName={game.title} onDelete={onDelete} />
+      </div>
       <div className="flex gap-5">
         {game.thumbnailUrl || game.imageUrl ? (
           <Link to={`/boardgames/${game.id}`} className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper block">

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
-import { listDecks } from '../api/deckApi'
+import { listDecks, deleteDeck } from '../api/deckApi'
+import CardMenu from '../components/CardMenu'
 import DeckCommanderImage from '../components/DeckCommanderImage'
 import type { DeckResponse } from '../types'
 import SkeletonGrid from '../components/Skeleton'
@@ -126,9 +127,17 @@ export default function DeckListPage() {
             <Link
               key={deck.id}
               to={`/magic/mazos/${deck.id}`}
-              className="card card-hover animate-fade-up flex gap-4 p-5 group"
+              className="card card-hover animate-fade-up relative flex gap-4 p-5 group"
               style={{ animationDelay: `${Math.min(idx, 12) * 40}ms` }}
             >
+              <div className="absolute top-3 right-3">
+                <CardMenu
+                  detailTo={`/magic/mazos/${deck.id}`}
+                  editTo={`/magic/mazos/${deck.id}/editar`}
+                  itemName={deck.name}
+                  onDelete={async () => { await deleteDeck(deck.id); load() }}
+                />
+              </div>
               {deck.commander ? (
                 <DeckCommanderImage commanderName={deck.commander} />
               ) : (

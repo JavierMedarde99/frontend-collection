@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { listBooks } from '../api/booksApi'
+import { listBooks, deleteBook } from '../api/booksApi'
 import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
 import { BookType, BookState, type Book } from '../types'
 import BookCard from '../components/BookCard'
@@ -230,7 +230,9 @@ export default function BookListPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {books.map((book, index) => (
-            <BookCard key={book.id} book={book} index={index} />
+            <BookCard key={book.id} book={book} index={index}
+              onDelete={async () => { await deleteBook(book.id); load() }}
+            />
           ))}
         </div>
       )}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { listGames } from '../api/gamesApi'
+import { listGames, deleteGame } from '../api/gamesApi'
 import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
 import { GamePlatform, GameStatus, type Game } from '../types'
 import GameCard from '../components/GameCard'
@@ -198,7 +198,9 @@ export default function GameListPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {games.map((game, index) => (
-            <GameCard key={game.id} game={game} index={index} />
+            <GameCard key={game.id} game={game} index={index}
+              onDelete={async () => { await deleteGame(game.id); load() }}
+            />
           ))}
         </div>
       )}

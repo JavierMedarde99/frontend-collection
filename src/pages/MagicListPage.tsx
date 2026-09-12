@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { listMagicCards } from '../api/magicApi'
+import { listMagicCards, deleteMagicCard } from '../api/magicApi'
 import { MAGIC_CARD_TYPES } from '../constants/magic'
 import type { MagicCardResponse } from '../types'
 import MagicCard from '../components/MagicCard'
@@ -226,7 +226,9 @@ export default function MagicListPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {cards.map((card, idx) => (
-            <MagicCard key={card.id} card={card} index={idx} />
+            <MagicCard key={card.id} card={card} index={idx}
+              onDelete={async () => { await deleteMagicCard(card.id); load() }}
+            />
           ))}
         </div>
       )}

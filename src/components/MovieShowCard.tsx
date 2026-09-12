@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
+import CardMenu from './CardMenu'
 import MovieShowStatusBadge from './MovieShowStatusBadge'
 import StarRating from './StarRating'
 import { MEDIA_TYPE_LABELS, MEDIA_TYPE_BADGE_COLORS } from '../constants/movieshows'
@@ -8,17 +9,21 @@ import type { MovieShow } from '../types'
 interface MovieShowCardProps {
   movieShow: MovieShow
   index?: number
+  onDelete: () => Promise<void>
 }
 
-export default function MovieShowCard({ movieShow, index = 0 }: MovieShowCardProps) {
+export default function MovieShowCard({ movieShow, index = 0, onDelete }: MovieShowCardProps) {
   const typeColor = MEDIA_TYPE_BADGE_COLORS[movieShow.mediaType]
   const year = movieShow.releaseDate ? movieShow.releaseDate.slice(0, 4) : null
 
   return (
     <article
-      className="card card-hover animate-fade-up flex flex-col gap-5 group"
+      className="card card-hover animate-fade-up relative flex flex-col gap-5 group"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
+      <div className="absolute top-3 right-3">
+        <CardMenu detailTo={`/movieshows/${movieShow.id}`} editTo={`/movieshows/editar/${movieShow.id}`} itemName={movieShow.title} onDelete={onDelete} />
+      </div>
       <div className="flex gap-5">
         {movieShow.posterUrl ? (
           <Link to={`/movieshows/${movieShow.id}`} className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper block">
