@@ -135,10 +135,10 @@ export default function BoardGameDetailPage() {
             <img
               src={game.imageUrl || game.thumbnailUrl}
               alt={game.title}
-              className="w-full sm:w-56 h-72 object-cover rounded-xl shadow-sm bg-paper shrink-0"
+              className="w-full sm:w-48 h-72 object-cover rounded-xl shadow-sm bg-paper shrink-0"
             />
           ) : (
-            <div className="w-full sm:w-56 h-72 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite">
+            <div className="w-full sm:w-48 h-72 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite">
               <span>Sin imagen</span>
             </div>
           )}
