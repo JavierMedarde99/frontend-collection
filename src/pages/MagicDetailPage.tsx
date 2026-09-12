@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useBackFallback } from '../hooks/useBackFallback'
 import { getMagicCard, deleteMagicCard } from '../api/magicApi'
 import type { MagicCardResponse } from '../types'
 import { MAGIC_CONDITIONS } from '../constants/magic'
@@ -10,6 +11,7 @@ import ErrorBanner from '../components/ErrorBanner'
 export default function MagicDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const goBack = useBackFallback('/magic')
   const [card, setCard] = useState<MagicCardResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -73,9 +75,9 @@ export default function MagicDetailPage() {
   return (
     <article className="max-w-5xl mx-auto flex flex-col gap-10">
       <div className="flex items-center justify-between">
-        <Link className="btn-ghost !px-4 !py-2" to="/magic">
+        <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver al listado
-        </Link>
+        </button>
         <div className="flex items-center gap-3">
           <Link className="btn-ghost" to={`/magic/${card.id}/editar`}>
             Editar

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useBackFallback } from '../hooks/useBackFallback'
 import { getMovieShow, deleteMovieShow } from '../api/movieshowsApi'
 import type { MovieShow } from '../types'
 import { MEDIA_TYPE_LABELS, MEDIA_TYPE_BADGE_COLORS } from '../constants/movieshows'
@@ -13,6 +14,7 @@ import ErrorBanner from '../components/ErrorBanner'
 export default function MovieShowDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const goBack = useBackFallback('/movieshows')
 
   const [movieShow, setMovieShow] = useState<MovieShow | null>(null)
   const [loading, setLoading] = useState(true)
@@ -71,7 +73,7 @@ export default function MovieShowDetailPage() {
           title="No se pudo cargar"
           message={error || 'No existe.'}
           action={
-            <button className="btn-primary mt-2" onClick={() => navigate('/movieshows')}>
+            <button className="btn-primary mt-2" onClick={goBack}>
               Volver a la colección
             </button>
           }
@@ -96,7 +98,7 @@ export default function MovieShowDetailPage() {
   return (
     <section className="max-w-3xl flex flex-col gap-24">
       <div className="flex items-center justify-between gap-4">
-        <button className="btn-ghost !px-4 !py-2" onClick={() => navigate('/movieshows')}>
+        <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
         <div className="flex items-center gap-2">
