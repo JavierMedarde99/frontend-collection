@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useReducer, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getDeck, deleteDeck, addCardToDeck, removeCardFromDeck, getDeckStatus } from '../api/deckApi'
@@ -11,6 +11,71 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import DeckCommanderImage from '../components/DeckCommanderImage'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+
+interface AddCardModalState {
+  open: boolean
+  query: string
+  searchResults: MagicCardSearchResult[]
+  searching: boolean
+  searchError: string | null
+  selected: MagicCardSearchResult | null
+  quantity: number
+  adding: boolean
+  addError: string | null
+}
+
+type AddCardModalAction =
+  | { type: 'open' }
+  | { type: 'close' }
+  | { type: 'query'; query: string }
+  | { type: 'search/start' }
+  | { type: 'search/success'; results: MagicCardSearchResult[] }
+  | { type: 'search/error'; message: string }
+  | { type: 'select'; card: MagicCardSearchResult }
+  | { type: 'quantity'; quantity: number }
+  | { type: 'add/start' }
+  | { type: 'add/success' }
+  | { type: 'add/error'; message: string }
+
+const initialAddCardModal: AddCardModalState = {
+  open: false,
+  query: '',
+  searchResults: [],
+  searching: false,
+  searchError: null,
+  selected: null,
+  quantity: 1,
+  adding: false,
+  addError: null,
+}
+
+function addCardModalReducer(state: AddCardModalState, action: AddCardModalAction): AddCardModalState {
+  switch (action.type) {
+    case 'open':
+      return { ...initialAddCardModal, open: true }
+    case 'close':
+      // No se cierra mientras se está añadiendo
+      return state.adding ? state : { ...state, open: false }
+    case 'query':
+      return { ...state, query: action.query }
+    case 'search/start':
+      return { ...state, searching: true, searchError: null }
+    case 'search/success':
+      return { ...state, searching: false, searchResults: action.results }
+    case 'search/error':
+      return { ...state, searching: false, searchError: action.message }
+    case 'select':
+      return { ...state, selected: action.card, quantity: 1, addError: null }
+    case 'quantity':
+      return { ...state, quantity: action.quantity }
+    case 'add/start':
+      return { ...state, adding: true, addError: null }
+    case 'add/success':
+      return { ...initialAddCardModal }
+    case 'add/error':
+      return { ...state, adding: false, addError: action.message }
+  }
+}
 
 export default function DeckDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -26,17 +91,10 @@ export default function DeckDetailPage() {
   const [deleteBusy, setDeleteBusy] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
-  // PopUp añadir carta: búsqueda Scryfall
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [query, setQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<MagicCardSearchResult[]>([])
-  const [searching, setSearching] = useState(false)
-  const [searchError, setSearchError] = useState<string | null>(null)
-  const [selected, setSelected] = useState<MagicCardSearchResult | null>(null)
-  const [quantity, setQuantity] = useState(1)
-  const [adding, setAdding] = useState(false)
-  const [addError, setAddError] = useState<string | null>(null)
+  // PopUp añadir carta: máquina de estados del modal
+  const [modal, dispatchModal] = useReducer(addCardModalReducer, initialAddCardModal)
   const [removingId, setRemovingId] = useState<string | null>(null)
+  const { query, searchResults, searching, searchError, selected, quantity, adding, addError } = modal
 
   const load = useCallback(async () => {
     if (!id) return
@@ -62,39 +120,32 @@ export default function DeckDetailPage() {
   }, [load])
 
   function openAddModal() {
-    setShowAddModal(true)
-    setQuery('')
-    setSearchResults([])
-    setSearchError(null)
-    setSelected(null)
-    setQuantity(1)
-    setAddError(null)
+    dispatchModal({ type: 'open' })
   }
 
   function closeAddModal() {
-    if (adding) return
-    setShowAddModal(false)
+    dispatchModal({ type: 'close' })
   }
 
   async function handleSearch(e: FormEvent) {
     e.preventDefault()
     if (!query.trim()) return
-    setSearching(true)
-    setSearchError(null)
+    dispatchModal({ type: 'search/start' })
     try {
-      setSearchResults(await searchMagicCards(query.trim()))
+      const results = await searchMagicCards(query.trim())
+      dispatchModal({ type: 'search/success', results })
     } catch (err) {
-      setSearchError(err instanceof Error ? err.message : 'Error al buscar cartas.')
-    } finally {
-      setSearching(false)
+      dispatchModal({
+        type: 'search/error',
+        message: err instanceof Error ? err.message : 'Error al buscar cartas.',
+      })
     }
   }
 
   async function handleAddCard(e: FormEvent) {
     e.preventDefault()
     if (!id || !selected?.scryfallId) return
-    setAdding(true)
-    setAddError(null)
+    dispatchModal({ type: 'add/start' })
     try {
       const updated = await addCardToDeck(id, { scryfallId: selected.scryfallId, quantity })
       setDeck(updated)
@@ -103,11 +154,12 @@ export default function DeckDetailPage() {
       } catch {
         /* mantiene el estado anterior */
       }
-      closeAddModal()
+      dispatchModal({ type: 'add/success' })
     } catch (err) {
-      setAddError(err instanceof Error ? err.message : 'No se pudo añadir la carta.')
-    } finally {
-      setAdding(false)
+      dispatchModal({
+        type: 'add/error',
+        message: err instanceof Error ? err.message : 'No se pudo añadir la carta.',
+      })
     }
   }
 
@@ -292,7 +344,7 @@ export default function DeckDetailPage() {
         )}
       </div>
 
-      {showAddModal && (
+      {modal.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md modal-sheet">
           <div role="dialog" aria-modal="true" aria-label="Añadir carta al mazo" className="modal w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
@@ -313,7 +365,7 @@ export default function DeckDetailPage() {
                 <input
                   className="input flex-1"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => dispatchModal({ type: 'query', query: e.target.value })}
                   placeholder="Buscar en Scryfall…"
                   aria-label="Buscar carta en Scryfall"
                 />
@@ -332,7 +384,7 @@ export default function DeckDetailPage() {
                     <button
                       key={result.scryfallId || result.name}
                       type="button"
-                      onClick={() => { setSelected(result); setQuantity(1); setAddError(null) }}
+                      onClick={() => dispatchModal({ type: 'select', card: result })}
                       className={`card p-3 flex items-center gap-3 text-left transition-all ${
                         selected?.scryfallId === result.scryfallId ? '!border-brand !shadow-brand-glow' : ''
                       }`}
@@ -362,7 +414,7 @@ export default function DeckDetailPage() {
                       min="1"
                       className="input w-28"
                       value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      onChange={(e) => dispatchModal({ type: 'quantity', quantity: Math.max(1, parseInt(e.target.value) || 1) })}
                     />
                   </div>
                   <button type="submit" className="btn-primary shrink-0" disabled={adding}>
