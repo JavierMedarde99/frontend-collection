@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import ExportButton from './ExportButton'
 import HelpModal from './HelpModal'
 import GlobalSearch from './GlobalSearch'
+import ThemeToggle from './ThemeToggle'
 
 const links = [
   { to: '/', label: 'Inicio', end: true },
@@ -141,6 +142,7 @@ export default function Navbar() {
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <ThemeToggle />
           <GlobalSearch />
           <button
             type="button"
@@ -217,6 +219,12 @@ export default function Navbar() {
               <span className="flex items-center gap-2 px-4 py-2.5">
                 <ExportButton onDone={() => setMenuOpen(false)} />
                 <span className="text-body text-graphite">Exportar colección</span>
+              </span>
+            </li>
+            <li>
+              <span className="flex items-center gap-2 px-4 py-2.5">
+                <ThemeToggle className="inline-flex" />
+                <span className="text-body text-graphite">Modo oscuro</span>
               </span>
             </li>
             {inMagic && (
