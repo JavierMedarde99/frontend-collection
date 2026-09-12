@@ -7,6 +7,7 @@ import MagicCard from '../components/MagicCard'
 import { SkeletonMagicGrid } from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
+import Pagination from '../components/Pagination'
 
 const PAGE_SIZE = 12
 
@@ -219,27 +220,7 @@ export default function MagicListPage() {
         </div>
       )}
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4 mt-6">
-          <button
-            className="btn-ghost"
-            disabled={page === 0}
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
-          >
-            Anterior
-          </button>
-          <span className="text-body-sm text-graphite">
-            Página {page + 1} de {totalPages}
-          </span>
-          <button
-            className="btn-ghost"
-            disabled={page >= totalPages - 1}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Siguiente
-          </button>
-        </div>
-      )}
+      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
     </section>
   )
 }
