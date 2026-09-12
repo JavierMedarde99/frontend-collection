@@ -3,6 +3,7 @@ import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
 import { BookType, BookState } from '../types'
 import type { BookFormData } from '../types'
 import StarRating from './StarRating'
+import FormSection from './FormSection'
 
 type IconName = 'title' | 'author' | 'pages' | 'cover' | 'externalId' | 'date' | 'synopsis' | 'comment'
 
@@ -157,44 +158,49 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
 
   return (
     <form onSubmit={handleSubmit} className="card flex flex-col gap-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Field label="Título" required icon="title">
-          <input className="input" value={form.title} onChange={set('title')} placeholder="Título del libro" />
-        </Field>
-        <Field label="Autor" required icon="author">
-          <input className="input" value={form.author} onChange={set('author')} placeholder="Autor" />
-        </Field>
+      <FormSection title="Información básica">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Field label="Título" required icon="title">
+            <input className="input" value={form.title} onChange={set('title')} placeholder="Título del libro" />
+          </Field>
+          <Field label="Autor" required icon="author">
+            <input className="input" value={form.author} onChange={set('author')} placeholder="Autor" />
+          </Field>
 
-        <Field label="Tipo" required>
-          <select className="input" value={form.type} onChange={set('type')}>
-            {Object.entries(BOOK_TYPES).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Estado" required>
-          <select className="input" value={form.state} onChange={set('state')}>
-            {Object.entries(BOOK_STATES).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </Field>
+          <Field label="Tipo" required>
+            <select className="input" value={form.type} onChange={set('type')}>
+              {Object.entries(BOOK_TYPES).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Estado" required>
+            <select className="input" value={form.state} onChange={set('state')}>
+              {Object.entries(BOOK_STATES).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </Field>
 
-        <Field label="Nº de páginas" icon="pages">
-          <input
-            className="input"
-            type="number"
-            min="0"
-            value={form.pages}
-            onChange={setNumber('pages')}
-            placeholder="120"
-          />
-        </Field>
-        {!isCreate && (
+          <Field label="Nº de páginas" icon="pages">
+            <input
+              className="input"
+              type="number"
+              min="0"
+              value={form.pages}
+              onChange={setNumber('pages')}
+              placeholder="120"
+            />
+          </Field>
+        </div>
+      </FormSection>
+
+      {!isCreate && (
+        <FormSection title="Multimedia">
           <Field label="URL de portada" icon="cover">
             <input
               className="input"
@@ -203,19 +209,27 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
               placeholder="https://…"
             />
           </Field>
-        )}
+        </FormSection>
+      )}
 
-        {showStartDate && (
-          <Field label="Fecha de inicio" icon="date">
-            <input className="input" type="date" value={form.startDate} onChange={set('startDate')} />
-          </Field>
-        )}
-        {showEndDate && (
-          <Field label="Fecha de fin" icon="date">
-            <input className="input" type="date" value={form.endDate} onChange={set('endDate')} />
-          </Field>
-        )}
+      {(showStartDate || showEndDate) && (
+        <FormSection title="Fechas">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {showStartDate && (
+              <Field label="Fecha de inicio" icon="date">
+                <input className="input" type="date" value={form.startDate} onChange={set('startDate')} />
+              </Field>
+            )}
+            {showEndDate && (
+              <Field label="Fecha de fin" icon="date">
+                <input className="input" type="date" value={form.endDate} onChange={set('endDate')} />
+              </Field>
+            )}
+          </div>
+        </FormSection>
+      )}
 
+      <FormSection title="Valoración y notas">
         {showRating && (
           <Field label="Valoración">
             <div className="pt-2">
@@ -223,7 +237,29 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
             </div>
           </Field>
         )}
-        {!isCreate && (
+        <Field label="Sinopsis" icon="synopsis">
+          <textarea
+            className="input !h-auto !min-h-[120px] !py-3"
+            value={form.descripcion}
+            onChange={set('descripcion')}
+            placeholder="Sinopsis del libro…"
+          />
+        </Field>
+
+        {showComment && (
+          <Field label="Comentario" icon="comment">
+            <textarea
+              className="input !h-auto !min-h-[100px] !py-3"
+              value={form.comment}
+              onChange={set('comment')}
+              placeholder="Notas personales…"
+            />
+          </Field>
+        )}
+      </FormSection>
+
+      {!isCreate && (
+        <FormSection title="Externo">
           <Field label="ID externo (Google Books)" icon="externalId">
             <input
               className="input"
@@ -232,27 +268,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
               placeholder="Opcional"
             />
           </Field>
-        )}
-      </div>
-
-      <Field label="Sinopsis" icon="synopsis">
-        <textarea
-          className="input !h-auto !min-h-[120px] !py-3"
-          value={form.descripcion}
-          onChange={set('descripcion')}
-          placeholder="Sinopsis del libro…"
-        />
-      </Field>
-
-      {showComment && (
-        <Field label="Comentario" icon="comment">
-          <textarea
-            className="input !h-auto !min-h-[100px] !py-3"
-            value={form.comment}
-            onChange={set('comment')}
-            placeholder="Notas personales…"
-          />
-        </Field>
+        </FormSection>
       )}
 
       {(error || localError) && (

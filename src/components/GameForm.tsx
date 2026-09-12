@@ -3,6 +3,7 @@ import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
 import { GamePlatform, GameStatus } from '../types'
 import type { GameFormData } from '../types'
 import StarRating from './StarRating'
+import FormSection from './FormSection'
 
 type IconName = 'title' | 'thumbnail' | 'externalId' | 'date' | 'comment' | 'source' | 'steam'
 
@@ -156,69 +157,82 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
 
   return (
     <form onSubmit={handleSubmit} className="card flex flex-col gap-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Field label="Título" required icon="title">
-          <input className="input" value={form.title} onChange={set('title')} placeholder="Título del videojuego" />
-        </Field>
-        <Field label="Plataforma" required>
-          <select className="input" value={form.platform} onChange={set('platform')}>
-            {Object.entries(GAME_PLATFORMS).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </Field>
+      <FormSection title="Información básica">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Field label="Título" required icon="title">
+            <input className="input" value={form.title} onChange={set('title')} placeholder="Título del videojuego" />
+          </Field>
+          <Field label="Plataforma" required>
+            <select className="input" value={form.platform} onChange={set('platform')}>
+              {Object.entries(GAME_PLATFORMS).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </Field>
 
-        <Field label="Estado" required>
-          <select className="input" value={form.status} onChange={set('status')}>
-            {Object.entries(GAME_STATES).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </Field>
-        {form.platform === GamePlatform.PC && (
-          <Field label="Objetivo">
-            <label className="flex items-center gap-2.5 text-body cursor-pointer">
+          <Field label="Estado" required>
+            <select className="input" value={form.status} onChange={set('status')}>
+              {Object.entries(GAME_STATES).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          {form.platform === GamePlatform.PC && (
+            <Field label="Objetivo">
+              <label className="flex items-center gap-2.5 text-body cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded accent-brand"
+                  checked={form.obtainPlatinum === true}
+                  onChange={(e) => setForm((f) => ({ ...f, obtainPlatinum: e.target.checked }))}
+                />
+                Platinar
+              </label>
+            </Field>
+          )}
+          {form.platform === GamePlatform.PC && (
+            <Field label="Steam App ID" icon="steam">
               <input
-                type="checkbox"
-                className="w-4 h-4 rounded accent-brand"
-                checked={form.obtainPlatinum === true}
-                onChange={(e) => setForm((f) => ({ ...f, obtainPlatinum: e.target.checked }))}
+                className="input"
+                value={form.steamAppId}
+                onChange={set('steamAppId')}
+                placeholder="Ej: 730"
               />
-              Platinar
-            </label>
-          </Field>
-        )}
-        {form.platform === GamePlatform.PC && (
-          <Field label="Steam App ID" icon="steam">
-            <input
-              className="input"
-              value={form.steamAppId}
-              onChange={set('steamAppId')}
-              placeholder="Ej: 730"
-            />
-          </Field>
-        )}
-        {!isCreate && (
+            </Field>
+          )}
+        </div>
+      </FormSection>
+
+      {!isCreate && (
+        <FormSection title="Multimedia">
           <Field label="URL de imagen" icon="thumbnail">
             <input className="input" value={form.thumbnailUrl} onChange={set('thumbnailUrl')} placeholder="https://…" />
           </Field>
-        )}
+        </FormSection>
+      )}
 
-        {showStartDate && (
-          <Field label="Fecha de inicio" icon="date">
-            <input className="input" type="date" value={form.dateAdded} onChange={set('dateAdded')} />
-          </Field>
-        )}
-        {showEndDate && (
-          <Field label="Fecha de fin" icon="date">
-            <input className="input" type="date" value={form.dateCompleted} onChange={set('dateCompleted')} />
-          </Field>
-        )}
+      {(showStartDate || showEndDate) && (
+        <FormSection title="Fechas">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {showStartDate && (
+              <Field label="Fecha de inicio" icon="date">
+                <input className="input" type="date" value={form.dateAdded} onChange={set('dateAdded')} />
+              </Field>
+            )}
+            {showEndDate && (
+              <Field label="Fecha de fin" icon="date">
+                <input className="input" type="date" value={form.dateCompleted} onChange={set('dateCompleted')} />
+              </Field>
+            )}
+          </div>
+        </FormSection>
+      )}
 
+      <FormSection title="Valoración y notas">
         {showRating && (
           <Field label="Valoración">
             <div className="pt-2">
@@ -226,28 +240,27 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
             </div>
           </Field>
         )}
-        {!isCreate && (
+        {showComment && (
+          <Field label="Comentario" icon="comment">
+            <textarea
+              className="input !h-auto !min-h-[100px] !py-3"
+              value={form.comment}
+              onChange={set('comment')}
+              placeholder="Notas personales…"
+            />
+          </Field>
+        )}
+      </FormSection>
+
+      {!isCreate && (
+        <FormSection title="Externo">
           <Field label="Fuente externa" icon="source">
             <input className="input" value={form.externalSource} onChange={set('externalSource')} placeholder="Opcional" />
           </Field>
-        )}
-      </div>
-
-      {showComment && (
-        <Field label="Comentario" icon="comment">
-          <textarea
-            className="input !h-auto !min-h-[100px] !py-3"
-            value={form.comment}
-            onChange={set('comment')}
-            placeholder="Notas personales…"
-          />
-        </Field>
-      )}
-
-      {!isCreate && (
-        <Field label="ID externo" icon="externalId">
-          <input className="input" value={form.externalId} onChange={set('externalId')} placeholder="Opcional" />
-        </Field>
+          <Field label="ID externo" icon="externalId">
+            <input className="input" value={form.externalId} onChange={set('externalId')} placeholder="Opcional" />
+          </Field>
+        </FormSection>
       )}
 
       {(error || localError) && (
