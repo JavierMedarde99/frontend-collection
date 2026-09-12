@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent } from 'react'
+import { useRef, useState, type FormEvent, type MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { usePagedList } from '../hooks/usePagedList'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import { listDecks, deleteDeck } from '../api/deckApi'
 import CardMenu from '../components/CardMenu'
@@ -9,6 +10,7 @@ import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
 import SearchField from '../components/SearchField'
+import Pagination from '../components/Pagination'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useListQuery } from '../hooks/useListQuery'
 
@@ -16,44 +18,41 @@ function totalCards(deck: DeckResponse): number {
   return (deck.cards || []).reduce((sum, c) => sum + (c.quantity || 0), 0)
 }
 
+const PAGE_SIZE = 12
+
 export default function DeckListPage() {
   usePageTitle('Mazos Commander')
   const navigate = useNavigate()
-  const [decks, setDecks] = useState<DeckResponse[]>([])
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
-  const [query, setQuery] = useListQuery({ name: '' })
-  const { name: nameFilter } = query
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [query, setQuery] = useListQuery({ page: 0, name: '' })
+  const { name: nameFilter, page } = query
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await listDecks(nameFilter || undefined)
-      setDecks(data || [])
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'No se pudieron cargar los mazos.'
-      setError(message)
-    } finally {
-      setLoading(false)
-    }
-  }, [nameFilter])
-
-  useEffect(() => {
-    load()
-  }, [load])
+  const {
+    items: decks,
+    totalPages,
+    totalElements,
+    loading,
+    error,
+    reload: load,
+  } = usePagedList<DeckResponse>({
+    page,
+    size: PAGE_SIZE,
+    errorMessage: 'No se pudieron cargar los mazos.',
+    fetchPage: (page, size) =>
+      listDecks({ page, size, name: nameFilter || undefined, sort: 'name,asc' }),
+    deps: [nameFilter],
+  })
 
   function handleSearch(e: FormEvent) {
     e.preventDefault()
-    setQuery({ name: nameInput.trim() })
+    setQuery({ name: nameInput.trim(), page: 0 })
   }
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ name: '' })
+    setQuery({ name: '', page: 0 })
   }
 
   const hasActiveFilters = Boolean(nameFilter)
@@ -71,7 +70,7 @@ export default function DeckListPage() {
           <p className="text-body text-slate">
             {loading
               ? 'Cargando mazos…'
-              : `${decks.length} mazo${decks.length === 1 ? '' : 's'} en tu colección`}
+              : `${totalElements} mazo${totalElements === 1 ? '' : 's'} en tu colección`}
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
@@ -197,6 +196,12 @@ export default function DeckListPage() {
           ))}
         </div>
       )}
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onChange={(n) => setQuery({ page: n })}
+      />
     </section>
   )
 }
