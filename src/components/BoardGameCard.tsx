@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import ActionLink from './ActionLink'
 import BoardGameStatusBadge from './BoardGameStatusBadge'
 import StarRating from './StarRating'
 import { bggRatingToStars } from '../constants/boardGames'
@@ -82,9 +83,9 @@ export default function BoardGameCard({ game, index = 0 }: BoardGameCardProps) {
       )}
 
       <div className="mt-auto flex items-center justify-end gap-2 pt-4 border-t border-silver/60">
-        <Link className="btn-ghost !px-3 !py-1.5" to={`/boardgames/${game.id}/editar`}>
+        <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/boardgames/${game.id}/editar`} label={`Editar ${game.title}`}>
           Editar
-        </Link>
+        </ActionLink>
       </div>
     </article>
   )

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import ActionLink from './ActionLink'
 import StatusBadge from './StatusBadge'
 import StarRating from './StarRating'
 import { TYPE_LABELS, TYPE_BADGE_COLORS } from '../constants/books'
@@ -65,9 +66,9 @@ export default function BookCard({ book, index = 0 }: BookCardProps) {
 
       <div className="mt-auto flex items-center justify-between pt-4 border-t border-silver/60">
         <StarRating value={book.start} readOnly />
-        <Link className="btn-ghost !px-3 !py-1.5" to={`/editar/${book.id}`}>
+        <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/editar/${book.id}`} label={`Editar ${book.title}`}>
           Editar
-        </Link>
+        </ActionLink>
       </div>
     </article>
   )

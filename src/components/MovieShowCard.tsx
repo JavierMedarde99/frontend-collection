@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import ActionLink from './ActionLink'
 import MovieShowStatusBadge from './MovieShowStatusBadge'
 import StarRating from './StarRating'
 import { MEDIA_TYPE_LABELS, MEDIA_TYPE_BADGE_COLORS } from '../constants/movieshows'
@@ -67,9 +68,9 @@ export default function MovieShowCard({ movieShow, index = 0 }: MovieShowCardPro
 
       <div className="mt-auto flex items-center justify-between pt-4 border-t border-silver/60">
         <StarRating value={movieShow.userRating} readOnly />
-        <Link className="btn-ghost !px-3 !py-1.5" to={`/movieshows/editar/${movieShow.id}`}>
+        <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/movieshows/editar/${movieShow.id}`} label={`Editar ${movieShow.title}`}>
           Editar
-        </Link>
+        </ActionLink>
       </div>
     </article>
   )

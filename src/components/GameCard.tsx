@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import ActionLink from './ActionLink'
 import GameStatusBadge from './GameStatusBadge'
 import GamePlatformBadge from './GamePlatformBadge'
 import GamePlatinumBadge from './GamePlatinumBadge'
@@ -80,9 +81,9 @@ export default function GameCard({ game, index = 0 }: GameCardProps) {
               Ver logros
             </Link>
           )}
-          <Link className="btn-ghost !px-3 !py-1.5" to={`/juegos/editar/${game.id}`}>
+          <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/juegos/editar/${game.id}`} label={`Editar ${game.title}`}>
             Editar
-          </Link>
+          </ActionLink>
         </div>
       </div>
     </article>
