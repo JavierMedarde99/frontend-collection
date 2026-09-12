@@ -102,7 +102,7 @@ export default function Navbar() {
               Collection
             </span>
           </NavLink>
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1">
             {links.map((link) => (
               <NavLink
                 key={link.to}
@@ -163,7 +163,7 @@ export default function Navbar() {
           </NavLink>
           <button
             type="button"
-            className="btn-ghost !p-2 md:hidden"
+            className="btn-ghost !p-2 lg:hidden"
             aria-expanded={menuOpen}
             aria-controls="menu-movil"
             aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
@@ -187,7 +187,7 @@ export default function Navbar() {
         </div>
       </nav>
       {menuOpen && (
-        <nav id="menu-movil" aria-label="Navegación principal" className="md:hidden border-t border-silver/70 bg-cream px-5 py-3 animate-fade-in">
+        <nav id="menu-movil" aria-label="Navegación principal" className="lg:hidden border-t border-silver/70 bg-cream px-5 py-3 animate-fade-in">
           <ul className="flex flex-col gap-1">
             {links.map((link) => (
               <li key={link.to}>
