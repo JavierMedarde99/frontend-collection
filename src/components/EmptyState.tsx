@@ -8,7 +8,7 @@ interface EmptyStateProps {
 
 export default function EmptyState({ title, message, action }: EmptyStateProps) {
   return (
-    <div className="card animate-fade-in flex flex-col items-center text-center gap-5 py-16 px-8 bg-gradient-to-b from-white to-brand-soft/50">
+    <div className="card animate-fade-in flex flex-col items-center text-center gap-5 py-16 px-8 bg-gradient-to-b from-white to-brand-soft/50 dark:from-[#241b12] dark:to-[#3a2413]/50">
       <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-brand to-accent flex items-center justify-center shadow-brand-glow">
         <svg
           aria-hidden="true"
