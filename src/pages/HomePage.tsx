@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listBooks } from '../api/booksApi'
+import { listGames } from '../api/gamesApi'
+import { listMagicCards } from '../api/magicApi'
+import { listDecks } from '../api/deckApi'
+import { listBoardGames } from '../api/boardgamesApi'
+import { listMovieShows } from '../api/movieshowsApi'
 import { BOOK_STATES } from '../constants/books'
 import { BookState } from '../types'
 
@@ -26,6 +31,44 @@ async function fetchStats(): Promise<Stats> {
   }
 }
 
+interface RecentItem {
+  key: string
+  kind: string
+  kindColor: string
+  title: string
+  date: string
+  to: string
+}
+
+function toTime(value?: string): number | null {
+  if (!value) return null
+  const time = Date.parse(value)
+  return Number.isNaN(time) ? null : time
+}
+
+async function fetchRecent(): Promise<RecentItem[]> {
+  const [books, games, magic, decks, boardGames, movieShows] = await Promise.all([
+    listBooks({ page: 0, size: 5 }).catch(() => null),
+    listGames({ page: 0, size: 5 }).catch(() => null),
+    listMagicCards({ page: 0, size: 5 }).catch(() => null),
+    listDecks().catch(() => []),
+    listBoardGames({ page: 0, size: 5 }).catch(() => null),
+    listMovieShows({ page: 0, size: 5 }).catch(() => null),
+  ])
+  const items: (RecentItem & { time: number })[] = []
+  const push = (kind: string, kindColor: string, title: string, date: string | undefined, to: string, key: string) => {
+    const time = toTime(date)
+    if (time !== null) items.push({ key, kind, kindColor, title, date, to, time })
+  }
+  books?.content?.forEach((b) => push('Libro', 'bg-indigo-100 text-indigo-700', b.title, b.startDate, `/coleccion/${b.id}`, `book-${b.id}`))
+  games?.content?.forEach((g) => push('Videojuego', 'bg-sky-100 text-sky-700', g.title, g.dateAdded, `/juegos/${g.id}`, `game-${g.id}`))
+  magic?.content?.forEach((c) => push('Magic', 'bg-rose-100 text-rose-700', c.name, c.dateAdded, `/magic/${c.id}`, `magic-${c.id}`))
+  decks?.forEach((d) => push('Mazo', 'bg-amber-100 text-amber-800', d.name, d.createdAt, `/magic/mazos/${d.id}`, `deck-${d.id}`))
+  boardGames?.content?.forEach((g) => push('Mesa', 'bg-emerald-100 text-emerald-700', g.title, g.dateAdded, `/boardgames/${g.id}`, `board-${g.id}`))
+  movieShows?.content?.forEach((m) => push('Cine', 'bg-purple-100 text-purple-700', m.title, m.dateAdded, `/movieshows/${m.id}`, `movie-${m.id}`))
+  return items.sort((a, b) => b.time - a.time).slice(0, 5)
+}
+
 const BOOK_ICON = (
   <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
     <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -34,11 +77,14 @@ const BOOK_ICON = (
 
 export default function HomePage() {
   const [stats, setStats] = useState<Stats | null>(null)
+  const [recent, setRecent] = useState<RecentItem[]>([])
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {
     try {
-      setStats(await fetchStats())
+      const [fetchedStats, fetchedRecent] = await Promise.all([fetchStats(), fetchRecent()])
+      setStats(fetchedStats)
+      setRecent(fetchedRecent)
     } catch {
       setStats({ total: 0, toRead: 0, reading: 0, completed: 0 })
     } finally {
@@ -116,6 +162,25 @@ export default function HomePage() {
           </div>
         ))}
       </div>
+
+      {!loading && recent.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <h2 className="font-display text-heading text-ink">Añadido recientemente</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {recent.map((item) => (
+              <Link key={item.key} to={item.to} className="card card-hover flex items-center gap-4 p-4">
+                <span className={`shrink-0 px-2.5 py-1 rounded-full text-caption font-semibold ${item.kindColor}`}>
+                  {item.kind}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-display text-heading-sm text-ink line-clamp-1">{item.title}</span>
+                  <span className="block text-caption text-graphite mt-0.5">{item.date.slice(0, 10)}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   )
 }
