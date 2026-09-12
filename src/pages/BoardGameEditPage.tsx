@@ -8,10 +8,12 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { useToast } from '../components/Toast'
 
 export default function BoardGameEditPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const notify = useToast()
 
   const [game, setGame] = useState<BoardGame | null>(null)
   const [loading, setLoading] = useState(true)
@@ -43,6 +45,7 @@ export default function BoardGameEditPage() {
   async function handleSubmit(payload: BoardGameFormData) {
     if (!id) return
     await updateBoardGame(id, payload)
+    notify('Cambios guardados.')
     navigate('/boardgames', { replace: true })
   }
 

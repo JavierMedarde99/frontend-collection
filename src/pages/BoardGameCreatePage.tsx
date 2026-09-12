@@ -5,6 +5,7 @@ import type { BoardGameFormData } from '../types'
 import BoardGameForm from '../components/BoardGameForm'
 import BoardGameSearch from '../components/BoardGameSearch'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { useToast } from '../components/Toast'
 
 type Mode = 'search' | 'manual'
 
@@ -15,10 +16,12 @@ const MODES: { key: Mode; label: string }[] = [
 
 export default function BoardGameCreatePage() {
   const navigate = useNavigate()
+  const notify = useToast()
   const [mode, setMode] = useState<Mode>('search')
 
   async function handleSubmit(payload: BoardGameFormData) {
     await createBoardGame(payload)
+    notify('Juego de mesa guardado.')
     navigate('/boardgames', { replace: true })
   }
 

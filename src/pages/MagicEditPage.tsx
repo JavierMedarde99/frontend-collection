@@ -7,10 +7,12 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import SkeletonGrid from '../components/Skeleton'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { useToast } from '../components/Toast'
 
 export default function MagicEditPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const notify = useToast()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -90,6 +92,7 @@ export default function MagicEditPage() {
         notes,
       })
       navigate(`/magic/${id}`)
+      notify('Cambios guardados.')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo actualizar la carta.'
       setError(message)

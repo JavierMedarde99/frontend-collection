@@ -8,10 +8,12 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { useToast } from '../components/Toast'
 
 export default function MovieShowEditPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const notify = useToast()
 
   const [movieShow, setMovieShow] = useState<MovieShow | null>(null)
   const [loading, setLoading] = useState(true)
@@ -43,6 +45,7 @@ export default function MovieShowEditPage() {
   async function handleSubmit(payload: MovieShowFormData) {
     if (!id) return
     await updateMovieShow(id, payload)
+    notify('Cambios guardados.')
     navigate('/movieshows', { replace: true })
   }
 

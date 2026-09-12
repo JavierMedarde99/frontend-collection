@@ -5,6 +5,7 @@ import type { GameFormData } from '../types'
 import GameForm from '../components/GameForm'
 import GameSearch from '../components/GameSearch'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { useToast } from '../components/Toast'
 
 type Mode = 'search' | 'manual'
 
@@ -15,10 +16,12 @@ const MODES: { key: Mode; label: string }[] = [
 
 export default function GameCreatePage() {
   const navigate = useNavigate()
+  const notify = useToast()
   const [mode, setMode] = useState<Mode>('manual')
 
   async function handleSubmit(payload: GameFormData) {
     await createGame(payload)
+    notify('Videojuego guardado.')
     navigate('/juegos', { replace: true })
   }
 
