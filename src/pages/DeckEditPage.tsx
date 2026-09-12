@@ -17,6 +17,7 @@ import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function DeckEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -165,6 +166,7 @@ export default function DeckEditPage() {
 
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-8">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Mazos", to: "/magic/mazos" }, { label: name || 'Editar', to: `/magic/mazos/${id}` }, { label: "Editar" }]} />
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-heading-lg mb-2">Editar mazo</h1>

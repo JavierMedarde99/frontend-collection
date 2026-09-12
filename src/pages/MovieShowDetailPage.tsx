@@ -10,6 +10,7 @@ import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function MovieShowDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -97,6 +98,7 @@ export default function MovieShowDetailPage() {
 
   return (
     <section className="max-w-3xl flex flex-col gap-24">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Películas", to: "/movieshows" }, { label: movieShow?.title || 'Detalle' }]} />
       <div className="flex items-center justify-between gap-4">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver

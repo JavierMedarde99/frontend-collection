@@ -4,6 +4,7 @@ import { createGame } from '../api/gamesApi'
 import type { GameFormData } from '../types'
 import GameForm from '../components/GameForm'
 import GameSearch from '../components/GameSearch'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 type Mode = 'search' | 'manual'
 
@@ -23,6 +24,7 @@ export default function GameCreatePage() {
 
   return (
     <section className="max-w-3xl flex flex-col gap-24">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Videojuegos", to: "/juegos" }, { label: "Añadir" }]} />
       <div>
         <h1 className="font-display text-heading-lg mb-2">Añadir videojuego</h1>
         <p className="text-body text-slate">

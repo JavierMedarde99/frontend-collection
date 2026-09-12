@@ -6,6 +6,7 @@ import { MAGIC_CONDITIONS, MAGIC_LANGUAGES } from '../constants/magic'
 import ConfirmDialog from '../components/ConfirmDialog'
 import SkeletonGrid from '../components/Skeleton'
 import ErrorBanner from '../components/ErrorBanner'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function MagicEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -120,6 +121,7 @@ export default function MagicEditPage() {
 
   return (
     <div className="max-w-3xl mx-auto flex flex-col gap-8">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: card?.name || 'Detalle', to: `/magic/${id}` }, { label: "Editar" }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-heading-lg mb-2">Editar carta Magic</h1>

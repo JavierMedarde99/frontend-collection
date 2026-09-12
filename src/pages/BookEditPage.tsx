@@ -7,6 +7,7 @@ import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function BookEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -62,6 +63,7 @@ export default function BookEditPage() {
 
   return (
     <section className="max-w-3xl flex flex-col gap-24">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Libros", to: "/coleccion" }, { label: book?.title || 'Detalle', to: `/coleccion/${id}` }, { label: "Editar" }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-heading-lg mb-2">Editar libro</h1>

@@ -7,6 +7,7 @@ import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function BoardGameEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -62,6 +63,7 @@ export default function BoardGameEditPage() {
 
   return (
     <section className="max-w-3xl flex flex-col gap-24">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Juegos de mesa", to: "/boardgames" }, { label: game?.title || 'Detalle', to: `/boardgames/${id}` }, { label: "Editar" }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-heading-lg mb-2">Editar juego de mesa</h1>

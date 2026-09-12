@@ -7,6 +7,7 @@ import { MAGIC_CONDITIONS } from '../constants/magic'
 import ConfirmDialog from '../components/ConfirmDialog'
 import SkeletonGrid from '../components/Skeleton'
 import ErrorBanner from '../components/ErrorBanner'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function MagicDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -74,6 +75,7 @@ export default function MagicDetailPage() {
 
   return (
     <article className="max-w-5xl mx-auto flex flex-col gap-10">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: card?.name || 'Detalle' }]} />
       <div className="flex items-center justify-between">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver al listado

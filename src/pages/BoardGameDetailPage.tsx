@@ -10,6 +10,7 @@ import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 function formatRange(min?: number, max?: number, suffix = ''): string | null {
   if (min === undefined && max === undefined) return null
@@ -108,6 +109,7 @@ export default function BoardGameDetailPage() {
 
   return (
     <section className="max-w-3xl flex flex-col gap-24">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Juegos de mesa", to: "/boardgames" }, { label: game?.title || 'Detalle' }]} />
       <div className="flex items-center justify-between gap-4">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
