@@ -9,8 +9,11 @@ import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
 import Pagination from '../components/Pagination'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
+import SortSelect from '../components/SortSelect'
 
 const PAGE_SIZE = 12
+
+const BOARDGAME_SORTS: { value: string; label: string }[] = [{ value: "title,asc", label: "Título A-Z" },{ value: "title,desc", label: "Título Z-A" },{ value: "bggRating,desc", label: "Mejor valorados" },]
 
 export default function BoardGameListPage() {
   const [games, setGames] = useState<BoardGame[]>([])
@@ -19,6 +22,7 @@ export default function BoardGameListPage() {
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
   const [nameFilter, setNameFilter] = useState('')
+  const [sort, setSort] = useState('title,asc')
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
@@ -35,7 +39,7 @@ export default function BoardGameListPage() {
         size: PAGE_SIZE,
         status: status || undefined,
         name: nameFilter || undefined,
-        sort: 'title,asc',
+        sort,
       })
       setGames(data.content || [])
       setTotalPages(data.totalPages || 0)
@@ -46,7 +50,7 @@ export default function BoardGameListPage() {
     } finally {
       setLoading(false)
     }
-  }, [page, status, nameFilter])
+  }, [page, status, nameFilter, sort])
 
   useEffect(() => {
     load()
@@ -72,6 +76,7 @@ export default function BoardGameListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
+          <SortSelect value={sort} onChange={(v) => { setSort(v); setPage(0) }} options={BOARDGAME_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}

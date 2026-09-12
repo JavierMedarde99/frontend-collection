@@ -9,8 +9,11 @@ import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
 import Pagination from '../components/Pagination'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
+import SortSelect from '../components/SortSelect'
 
 const PAGE_SIZE = 12
+
+const MAGIC_SORTS: { value: string; label: string }[] = [{ value: "name,asc", label: "Nombre A-Z" },{ value: "name,desc", label: "Nombre Z-A" },]
 
 const RARITY_OPTIONS = ['common', 'uncommon', 'rare', 'mythic', 'special', 'bonus']
 
@@ -31,6 +34,7 @@ export default function MagicListPage() {
   const [rarityFilter, setRarityFilter] = useState('')
   const [colorFilter, setColorFilter] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
+  const [sort, setSort] = useState('name,asc')
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
@@ -49,7 +53,7 @@ export default function MagicListPage() {
         rarity: rarityFilter || undefined,
         color: colorFilter || undefined,
         type: typeFilter || undefined,
-        sort: 'name,asc',
+        sort,
       })
       setCards(data.content || [])
       setTotalPages(data.totalPages || 0)
@@ -60,7 +64,7 @@ export default function MagicListPage() {
     } finally {
       setLoading(false)
     }
-  }, [page, nameFilter, rarityFilter, colorFilter, typeFilter])
+  }, [page, nameFilter, rarityFilter, colorFilter, typeFilter, sort])
 
   useEffect(() => {
     load()
@@ -96,6 +100,7 @@ export default function MagicListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
+          <SortSelect value={sort} onChange={(v) => { setSort(v); setPage(0) }} options={MAGIC_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
