@@ -9,8 +9,11 @@ import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
 import Pagination from '../components/Pagination'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
+import SortSelect from '../components/SortSelect'
 
 const PAGE_SIZE = 12
+
+const MOVIE_SORTS: { value: string; label: string }[] = [{ value: "title,asc", label: "Título A-Z" },{ value: "title,desc", label: "Título Z-A" },{ value: "releaseDate,desc", label: "Novedades" },]
 
 export default function MovieShowListPage() {
   const [movieShows, setMovieShows] = useState<MovieShow[]>([])
@@ -20,6 +23,7 @@ export default function MovieShowListPage() {
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
   const [nameFilter, setNameFilter] = useState('')
+  const [sort, setSort] = useState('title,asc')
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
@@ -37,7 +41,7 @@ export default function MovieShowListPage() {
         status: status || undefined,
         mediaType: mediaTypeFilter || undefined,
         name: nameFilter || undefined,
-        sort: 'title,asc',
+        sort,
       })
       setMovieShows(data.content || [])
       setTotalPages(data.totalPages || 0)
@@ -48,7 +52,7 @@ export default function MovieShowListPage() {
     } finally {
       setLoading(false)
     }
-  }, [page, status, mediaTypeFilter, nameFilter])
+  }, [page, status, mediaTypeFilter, nameFilter, sort])
 
   useEffect(() => {
     load()
@@ -74,6 +78,7 @@ export default function MovieShowListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
+          <SortSelect value={sort} onChange={(v) => { setSort(v); setPage(0) }} options={MOVIE_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
