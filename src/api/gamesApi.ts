@@ -1,7 +1,7 @@
 import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, GameAchievementsResponse } from '../types'
 import { throwRequestError } from './errors'
 
-const BASE_URL = '/api/games'
+const BASE_URL = '/api/v1/games'
 const STEAM_ID = '76561198809807580'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T | null> {

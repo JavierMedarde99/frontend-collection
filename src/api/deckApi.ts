@@ -1,7 +1,7 @@
 import type { DeckResponse, DeckRequest, DeckCardRequest, DeckStatusResponse } from '../types'
 import { RequestError, throwRequestError } from './errors'
 
-const BASE_URL = '/api/decks'
+const BASE_URL = '/api/v1/decks'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T | null> {
   const res = await fetch(url, {

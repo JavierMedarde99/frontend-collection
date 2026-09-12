@@ -1,7 +1,7 @@
 import type { PageBookResponse, ListBooksParams, Book, BookFormData, SearchBookResult } from '../types'
 import { throwRequestError } from './errors'
 
-const BASE_URL = '/api/books'
+const BASE_URL = '/api/v1/books'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T | null> {
   const res = await fetch(url, {

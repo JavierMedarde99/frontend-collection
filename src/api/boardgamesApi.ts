@@ -1,7 +1,7 @@
 import type { PageBoardGameResponse, ListBoardGamesParams, BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse } from '../types'
 import { throwRequestError } from './errors'
 
-const BASE_URL = '/api/boardgames'
+const BASE_URL = '/api/v1/boardgames'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T | null> {
   const res = await fetch(url, {
