@@ -1,3 +1,5 @@
+import type { KeyboardEvent } from 'react'
+
 interface StarRatingProps {
   value?: number
   onChange?: (value: number) => void
@@ -29,18 +31,33 @@ export default function StarRating({ value = 0, onChange, readOnly = false }: St
     )
   }
 
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
+    e.preventDefault()
+    const next = e.key === 'ArrowRight'
+      ? Math.min(5, (value || 0) + 1)
+      : Math.max(1, (value || 0) - 1)
+    onChange?.(next)
+  }
+
   return (
-    <div className="flex items-center gap-1">
+    <div
+      className="flex items-center gap-1"
+      role="radiogroup"
+      aria-label="Valoración"
+      onKeyDown={handleKeyDown}
+    >
       {stars.map((n) => (
         <button
           key={n}
           type="button"
+          role="radio"
+          aria-checked={value === n}
           onClick={() => onChange?.(n)}
-          className={`text-2xl leading-none transition-all duration-150 ease-smooth cursor-pointer hover:scale-110 ${
+          className={`text-2xl leading-none transition-all duration-150 ease-smooth cursor-pointer hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-white rounded-sm ${
             n <= value ? 'text-accent drop-shadow-sm' : 'text-stone/50 hover:text-accent/70'
           }`}
-          aria-label={`${n} estrellas`}
-          aria-pressed={value >= n}
+          aria-label={`${n} estrella${n === 1 ? '' : 's'}`}
         >
           ★
         </button>
