@@ -9,6 +9,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const VALID_COLORS = Object.keys(MANA_COLORS) as ManaColorCode[]
 
@@ -20,6 +21,7 @@ function identityFromCard(result: MagicCardSearchResult): ManaColorCode[] {
 }
 
 export default function DeckCreatePage() {
+  usePageTitle('Nuevo mazo')
   const navigate = useNavigate()
   const notify = useToast()
   const [name, setName] = useState('')

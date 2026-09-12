@@ -9,6 +9,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function BoardGameEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -16,6 +17,7 @@ export default function BoardGameEditPage() {
   const notify = useToast()
 
   const [game, setGame] = useState<BoardGame | null>(null)
+  usePageTitle((game?.title ? `Editar ${game.title}` : 'Editar juego'))
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

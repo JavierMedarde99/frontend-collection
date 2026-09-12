@@ -6,6 +6,7 @@ import BoardGameForm from '../components/BoardGameForm'
 import BoardGameSearch from '../components/BoardGameSearch'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 type Mode = 'search' | 'manual'
 
@@ -15,6 +16,7 @@ const MODES: { key: Mode; label: string }[] = [
 ]
 
 export default function BoardGameCreatePage() {
+  usePageTitle('Añadir juego de mesa')
   const navigate = useNavigate()
   const notify = useToast()
   const [mode, setMode] = useState<Mode>('search')

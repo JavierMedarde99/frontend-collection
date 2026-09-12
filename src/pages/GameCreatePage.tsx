@@ -6,6 +6,7 @@ import GameForm from '../components/GameForm'
 import GameSearch from '../components/GameSearch'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 type Mode = 'search' | 'manual'
 
@@ -15,6 +16,7 @@ const MODES: { key: Mode; label: string }[] = [
 ]
 
 export default function GameCreatePage() {
+  usePageTitle('Añadir videojuego')
   const navigate = useNavigate()
   const notify = useToast()
   const [mode, setMode] = useState<Mode>('manual')

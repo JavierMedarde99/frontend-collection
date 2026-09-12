@@ -6,6 +6,7 @@ import BookForm from '../components/BookForm'
 import BookSearch from '../components/BookSearch'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 type Mode = 'search' | 'manual'
 
@@ -15,6 +16,7 @@ const MODES: { key: Mode; label: string }[] = [
 ]
 
 export default function BookCreatePage() {
+  usePageTitle('Añadir libro')
   const navigate = useNavigate()
   const notify = useToast()
   const [mode, setMode] = useState<Mode>('manual')

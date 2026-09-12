@@ -11,6 +11,7 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function MovieShowDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -18,6 +19,7 @@ export default function MovieShowDetailPage() {
   const goBack = useBackFallback('/movieshows')
 
   const [movieShow, setMovieShow] = useState<MovieShow | null>(null)
+  usePageTitle(movieShow?.title || 'Películas')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

@@ -11,6 +11,7 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function BookDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -18,6 +19,7 @@ export default function BookDetailPage() {
   const goBack = useBackFallback('/coleccion')
 
   const [book, setBook] = useState<Book | null>(null)
+  usePageTitle(book?.title || 'Libros')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

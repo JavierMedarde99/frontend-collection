@@ -11,6 +11,7 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function GameDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -18,6 +19,7 @@ export default function GameDetailPage() {
   const goBack = useBackFallback('/juegos')
 
   const [game, setGame] = useState<Game | null>(null)
+  usePageTitle(game?.title || 'Videojuegos')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

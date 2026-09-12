@@ -8,12 +8,14 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import SkeletonGrid from '../components/Skeleton'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function MagicDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const goBack = useBackFallback('/magic')
   const [card, setCard] = useState<MagicCardResponse | null>(null)
+  usePageTitle(card?.name || 'Magic')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)

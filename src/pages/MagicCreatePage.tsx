@@ -5,8 +5,10 @@ import type { MagicCardSearchResult } from '../types'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function MagicCreatePage() {
+  usePageTitle('Añadir carta Magic')
   const navigate = useNavigate()
   const notify = useToast()
   const [query, setQuery] = useState('')

@@ -8,6 +8,7 @@ import { listBoardGames } from '../api/boardgamesApi'
 import { listMovieShows } from '../api/movieshowsApi'
 import { BOOK_STATES } from '../constants/books'
 import { BookState } from '../types'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 interface Stats {
   total: number
@@ -76,6 +77,7 @@ const BOOK_ICON = (
 )
 
 export default function HomePage() {
+  usePageTitle('Inicio')
   const [stats, setStats] = useState<Stats | null>(null)
   const [recent, setRecent] = useState<RecentItem[]>([])
   const [loading, setLoading] = useState(true)

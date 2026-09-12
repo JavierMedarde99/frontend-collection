@@ -20,6 +20,7 @@ import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function DeckEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -30,6 +31,7 @@ export default function DeckEditPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
 
   const [name, setName] = useState('')
+  usePageTitle((name ? `Editar ${name}` : 'Editar mazo'))
   const [description, setDescription] = useState('')
   const [commander, setCommander] = useState('')
   const [commanderColors, setCommanderColors] = useState<ManaColorCode[]>([])

@@ -11,6 +11,7 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 function formatRange(min?: number, max?: number, suffix = ''): string | null {
   if (min === undefined && max === undefined) return null
@@ -26,6 +27,7 @@ export default function BoardGameDetailPage() {
   const goBack = useBackFallback('/boardgames')
 
   const [game, setGame] = useState<BoardGame | null>(null)
+  usePageTitle(game?.title || 'Juegos de mesa')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
