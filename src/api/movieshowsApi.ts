@@ -2,7 +2,7 @@ import type { PageMovieShowResponse, ListMovieShowsParams, MovieShow, MovieShowF
 import { throwRequestError } from './errors'
 import { MediaType } from '../types'
 
-const BASE_URL = '/api/movieshows'
+const BASE_URL = '/api/v1/movieshows'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T | null> {
   const res = await fetch(url, {

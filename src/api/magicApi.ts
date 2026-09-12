@@ -1,7 +1,7 @@
 import type { PageMagicCardResponse, ListMagicCardsParams, MagicCardResponse, MagicCardRequest, MagicCardSearchResult, MagicCardSearchResponse } from '../types'
 import { throwRequestError } from './errors'
 
-const BASE_URL = '/api/magic'
+const BASE_URL = '/api/v1/magic'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T | null> {
   const res = await fetch(url, {
