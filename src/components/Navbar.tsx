@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import ExportButton from './ExportButton'
 import HelpModal from './HelpModal'
+import GlobalSearch from './GlobalSearch'
 
 const links = [
   { to: '/', label: 'Inicio', end: true },
@@ -140,6 +141,7 @@ export default function Navbar() {
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <GlobalSearch />
           <button
             type="button"
             className="btn-ghost !p-2 hidden sm:inline-flex"
