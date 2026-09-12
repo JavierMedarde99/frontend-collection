@@ -119,26 +119,6 @@ export default function Navbar() {
                 {link.label}
               </NavLink>
             ))}
-            {inMagic && (
-              <span className="flex items-center gap-1 ml-2 pl-2 border-l border-silver/70" aria-label="Sub-apartados de Magic">
-                {magicLinks.map((link) => (
-                  <NavLink
-                    key={link.to}
-                    to={link.to}
-                    end={link.end}
-                    className={({ isActive }) =>
-                      `text-body-sm px-3 py-1 rounded-full font-medium transition-all duration-200 ${
-                        isActive
-                          ? 'bg-ink text-white'
-                          : 'text-graphite hover:text-brand hover:bg-brand-soft'
-                      }`
-                    }
-                  >
-                    {link.label}
-                  </NavLink>
-                ))}
-              </span>
-            )}
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -248,6 +228,28 @@ export default function Navbar() {
               </li>
             )}
           </ul>
+        </nav>
+      )}
+      {inMagic && (
+        <nav aria-label="Sub-apartados de Magic" className="hidden lg:block border-t border-silver/70 bg-cream/60">
+          <div className="max-w-content mx-auto px-5 md:px-20 py-2 flex items-center gap-1">
+            {magicLinks.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.end}
+                className={({ isActive }) =>
+                  `text-body-sm px-3 py-1 rounded-full font-medium transition-all duration-200 ${
+                    isActive
+                      ? 'bg-ink text-white'
+                      : 'text-graphite hover:text-brand hover:bg-brand-soft'
+                  }`
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </div>
         </nav>
       )}
       <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
