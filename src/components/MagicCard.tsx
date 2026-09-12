@@ -1,18 +1,23 @@
 import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
+import CardMenu from './CardMenu'
 import type { MagicCardResponse } from '../types'
 
 interface MagicCardProps {
   card: MagicCardResponse
   index?: number
+  onDelete: () => Promise<void>
 }
 
-export default function MagicCard({ card, index = 0 }: MagicCardProps) {
+export default function MagicCard({ card, index = 0, onDelete }: MagicCardProps) {
   return (
     <article
-      className="card card-hover animate-fade-up flex flex-col group p-4 gap-3"
+      className="card card-hover animate-fade-up relative flex flex-col group p-4 gap-3"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
+      <div className="absolute top-3 right-3">
+        <CardMenu detailTo={`/magic/${card.id}`} editTo={`/magic/${card.id}/editar`} itemName={card.name} onDelete={onDelete} />
+      </div>
       <Link to={`/magic/${card.id}`} className="block overflow-hidden rounded-xl bg-paper aspect-[5/7] shadow-sm relative group">
         {card.imageUrl ? (
           <img

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
+import CardMenu from './CardMenu'
 import StatusBadge from './StatusBadge'
 import StarRating from './StarRating'
 import { TYPE_LABELS, TYPE_BADGE_COLORS } from '../constants/books'
@@ -8,15 +9,19 @@ import type { Book } from '../types'
 interface BookCardProps {
   book: Book
   index?: number
+  onDelete: () => Promise<void>
 }
 
-export default function BookCard({ book, index = 0 }: BookCardProps) {
+export default function BookCard({ book, index = 0, onDelete }: BookCardProps) {
   const typeColor = TYPE_BADGE_COLORS[book.type] || TYPE_BADGE_COLORS.NOVEL
   return (
     <article
-      className="card card-hover animate-fade-up flex flex-col gap-5 group"
+      className="card card-hover animate-fade-up relative flex flex-col gap-5 group"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
+      <div className="absolute top-3 right-3">
+        <CardMenu detailTo={`/coleccion/${book.id}`} editTo={`/editar/${book.id}`} itemName={book.title} onDelete={onDelete} />
+      </div>
       <div className="flex gap-5">
         {book.frontpage ? (
           <Link to={`/coleccion/${book.id}`} className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper block">

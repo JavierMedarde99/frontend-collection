@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { listMovieShows } from '../api/movieshowsApi'
+import { listMovieShows, deleteMovieShow } from '../api/movieshowsApi'
 import { MEDIA_TYPES, MOVIE_SHOW_STATES } from '../constants/movieshows'
 import { MediaType, MovieShowStatus, type MovieShow } from '../types'
 import MovieShowCard from '../components/MovieShowCard'
@@ -198,7 +198,9 @@ export default function MovieShowListPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {movieShows.map((movieShow, index) => (
-            <MovieShowCard key={movieShow.id} movieShow={movieShow} index={index} />
+            <MovieShowCard key={movieShow.id} movieShow={movieShow} index={index}
+              onDelete={async () => { await deleteMovieShow(movieShow.id); load() }}
+            />
           ))}
         </div>
       )}
