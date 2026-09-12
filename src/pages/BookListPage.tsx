@@ -69,6 +69,18 @@ export default function BookListPage() {
     resetPage()
   }
 
+  function clearFilters() {
+    setStatus('')
+    setTypeFilter('')
+    setNameInput('')
+    setNameFilter('')
+    setAuthorInput('')
+    setAuthorFilter('')
+    resetPage()
+  }
+
+  const hasActiveFilters = Boolean(status || typeFilter || nameFilter || authorFilter)
+
   const activeFilterCount =
     [typeFilter, nameFilter, authorFilter].filter(Boolean).length
 
@@ -185,12 +197,22 @@ export default function BookListPage() {
         <SkeletonGrid count={6} />
       ) : books.length === 0 ? (
         <EmptyState
-          title="Sin resultados"
-          message="No se encontraron libros con los filtros seleccionados."
+          title={hasActiveFilters ? 'Sin resultados' : 'Aún no tienes libros'}
+          message={
+            hasActiveFilters
+              ? 'Ningún libro coincide con los filtros actuales. Limpia los filtros para ver toda tu colección.'
+              : 'Añade tu primer libro buscándolo en Google Books o manualmente.'
+          }
           action={
-            <Link className="btn-primary mt-2" to="/nuevo">
-              Añadir libro
-            </Link>
+            hasActiveFilters ? (
+              <button className="btn-ghost mt-2" onClick={clearFilters}>
+                Limpiar filtros
+              </button>
+            ) : (
+              <Link className="btn-primary mt-2" to="/nuevo">
+                Añadir libro
+              </Link>
+            )
           }
         />
       ) : (

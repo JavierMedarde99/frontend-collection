@@ -60,6 +60,16 @@ export default function GameListPage() {
     resetPage()
   }
 
+  function clearFilters() {
+    setStatus('')
+    setPlatformFilter('')
+    setNameInput('')
+    setNameFilter('')
+    resetPage()
+  }
+
+  const hasActiveFilters = Boolean(status || platformFilter || nameFilter)
+
   const activeFilterCount = [platformFilter, nameFilter].filter(Boolean).length
 
   return (
@@ -167,12 +177,22 @@ export default function GameListPage() {
         <SkeletonGrid count={6} />
       ) : games.length === 0 ? (
         <EmptyState
-          title="Sin resultados"
-          message="No se encontraron videojuegos con los filtros seleccionados."
+          title={hasActiveFilters ? 'Sin resultados' : 'Aún no tienes videojuegos'}
+          message={
+            hasActiveFilters
+              ? 'Ningún videojuego coincide con los filtros actuales. Limpia los filtros para ver toda tu colección.'
+              : 'Añade tu primer videojuego buscándolo en el catálogo o manualmente.'
+          }
           action={
-            <Link className="btn-primary mt-2" to="/juegos/nuevo">
-              Añadir videojuego
-            </Link>
+            hasActiveFilters ? (
+              <button className="btn-ghost mt-2" onClick={clearFilters}>
+                Limpiar filtros
+              </button>
+            ) : (
+              <Link className="btn-primary mt-2" to="/juegos/nuevo">
+                Añadir videojuego
+              </Link>
+            )
           }
         />
       ) : (

@@ -60,6 +60,16 @@ export default function MovieShowListPage() {
     resetPage()
   }
 
+  function clearFilters() {
+    setStatus('')
+    setMediaTypeFilter('')
+    setNameInput('')
+    setNameFilter('')
+    resetPage()
+  }
+
+  const hasActiveFilters = Boolean(status || mediaTypeFilter || nameFilter)
+
   const activeFilterCount = [mediaTypeFilter, nameFilter].filter(Boolean).length
 
   return (
@@ -167,12 +177,22 @@ export default function MovieShowListPage() {
         <SkeletonGrid count={6} />
       ) : movieShows.length === 0 ? (
         <EmptyState
-          title="Sin resultados"
-          message="No se encontraron películas/series con los filtros seleccionados."
+          title={hasActiveFilters ? 'Sin resultados' : 'Aún no tienes películas ni series'}
+          message={
+            hasActiveFilters
+              ? 'Ningún título coincide con los filtros actuales. Limpia los filtros para ver toda tu colección.'
+              : 'Añade tu primera película o serie buscándola en TMDB o manualmente.'
+          }
           action={
-            <Link className="btn-primary mt-2" to="/movieshows/nuevo">
-              Añadir película/serie
-            </Link>
+            hasActiveFilters ? (
+              <button className="btn-ghost mt-2" onClick={clearFilters}>
+                Limpiar filtros
+              </button>
+            ) : (
+              <Link className="btn-primary mt-2" to="/movieshows/nuevo">
+                Añadir película/serie
+              </Link>
+            )
           }
         />
       ) : (

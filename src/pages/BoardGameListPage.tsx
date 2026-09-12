@@ -58,6 +58,15 @@ export default function BoardGameListPage() {
     resetPage()
   }
 
+  function clearFilters() {
+    setStatus('')
+    setNameInput('')
+    setNameFilter('')
+    resetPage()
+  }
+
+  const hasActiveFilters = Boolean(status || nameFilter)
+
   const activeFilterCount = [nameFilter].filter(Boolean).length
 
   return (
@@ -154,12 +163,22 @@ export default function BoardGameListPage() {
         <SkeletonGrid count={6} />
       ) : games.length === 0 ? (
         <EmptyState
-          title="Sin resultados"
-          message="No se encontraron juegos de mesa con los filtros seleccionados."
+          title={hasActiveFilters ? 'Sin resultados' : 'Aún no tienes juegos de mesa'}
+          message={
+            hasActiveFilters
+              ? 'Ningún juego coincide con los filtros actuales. Limpia los filtros para ver toda tu colección.'
+              : 'Añade tu primer juego buscándolo en BoardGameGeek o manualmente.'
+          }
           action={
-            <Link className="btn-primary mt-2" to="/boardgames/nuevo">
-              Añadir juego
-            </Link>
+            hasActiveFilters ? (
+              <button className="btn-ghost mt-2" onClick={clearFilters}>
+                Limpiar filtros
+              </button>
+            ) : (
+              <Link className="btn-primary mt-2" to="/boardgames/nuevo">
+                Añadir juego
+              </Link>
+            )
           }
         />
       ) : (
