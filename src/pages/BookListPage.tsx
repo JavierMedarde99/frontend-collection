@@ -13,7 +13,7 @@ import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePageTitle } from '../hooks/usePageTitle'
-import { useQueryState } from '../hooks/useQueryState'
+import { useListQuery } from '../hooks/useListQuery'
 
 const PAGE_SIZE = 12
 
@@ -21,28 +21,31 @@ const BOOK_SORTS: { value: string; label: string }[] = [{ value: "title,asc", la
 
 export default function BookListPage() {
   usePageTitle('Libros')
-  const [status, setStatus] = useQueryState<BookState | ''>('status', '')
-  const [typeFilter, setTypeFilter] = useQueryState<BookType | ''>('type', '')
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
   const [authorInput, setAuthorInput] = useState('')
-  const [nameFilter, setNameFilter] = useQueryState('name', '')
-  const [authorFilter, setAuthorFilter] = useQueryState('author', '')
-  const [sort, setSort] = useQueryState('sort', 'title,asc')
   const [filtersOpen, setFiltersOpen] = useState(false)
+
+  const [query, setQuery] = useListQuery({
+    page: 0,
+    status: '' as BookState | '',
+    type: '' as BookType | '',
+    name: '',
+    author: '',
+    sort: 'title,asc',
+  })
+  const { status, type: typeFilter, name: nameFilter, author: authorFilter, sort, page } = query
 
   const {
     items: books,
-    page,
-    gotoPage,
-    resetPage,
     totalPages,
     totalElements,
     loading,
     error,
     reload: load,
   } = usePagedList<Book>({
+    page,
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar los libros.',
     fetchPage: (page, size) =>
@@ -60,24 +63,18 @@ export default function BookListPage() {
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
-    setNameFilter(nameInput.trim())
-    resetPage()
+    setQuery({ name: nameInput.trim(), page: 0 })
   }
 
   function handleAuthorSearch(e: FormEvent) {
     e.preventDefault()
-    setAuthorFilter(authorInput.trim())
-    resetPage()
+    setQuery({ author: authorInput.trim(), page: 0 })
   }
 
   function clearFilters() {
-    setStatus('')
-    setTypeFilter('')
     setNameInput('')
-    setNameFilter('')
     setAuthorInput('')
-    setAuthorFilter('')
-    resetPage()
+    setQuery({ status: '', type: '', name: '', author: '', page: 0 })
   }
 
   const hasActiveFilters = Boolean(status || typeFilter || nameFilter || authorFilter)
@@ -97,7 +94,7 @@ export default function BookListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => { setSort(v); resetPage() }} options={BOOK_SORTS} />
+          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v, page: 0 })} options={BOOK_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -160,7 +157,7 @@ export default function BookListPage() {
           <select
             className="input md:w-48"
             value={typeFilter}
-            onChange={(e) => { setTypeFilter(e.target.value as BookType); resetPage() }}
+            onChange={(e) => setQuery({ type: e.target.value as BookType, page: 0 })}
             aria-label="Filtrar por tipo"
           >
             <option value="">Todos los tipos</option>
@@ -173,14 +170,14 @@ export default function BookListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <FilterPill active={!status} onClick={() => { setStatus(''); resetPage() }} label="Todos los estados">
+        <FilterPill active={!status} onClick={() => setQuery({ status: '', page: 0 })} label="Todos los estados">
           Todos
         </FilterPill>
         {Object.entries(BOOK_STATES).map(([key, label]) => (
           <FilterPill
             key={key}
             active={status === key}
-            onClick={() => { setStatus(key as BookState); resetPage() }}
+            onClick={() => setQuery({ status: key as BookState, page: 0 })}
             label={`Filtrar por estado: ${label}`}
           >
             {label}
@@ -226,7 +223,7 @@ export default function BookListPage() {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onChange={gotoPage} disabled={loading} />
+      <Pagination page={page} totalPages={totalPages} onChange={(n) => setQuery({ page: n })} disabled={loading} />
     </section>
   )
 }

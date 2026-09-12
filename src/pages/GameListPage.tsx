@@ -13,7 +13,7 @@ import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePagedList } from '../hooks/usePagedList'
 import { usePageTitle } from '../hooks/usePageTitle'
-import { useQueryState } from '../hooks/useQueryState'
+import { useListQuery } from '../hooks/useListQuery'
 
 const PAGE_SIZE = 12
 
@@ -21,26 +21,29 @@ const GAME_SORTS: { value: string; label: string }[] = [{ value: "title,asc", la
 
 export default function GameListPage() {
   usePageTitle('Videojuegos')
-  const [status, setStatus] = useQueryState<GameStatus | ''>('status', '')
-  const [platformFilter, setPlatformFilter] = useQueryState<GamePlatform | ''>('platform', '')
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
-  const [nameFilter, setNameFilter] = useQueryState('name', '')
-  const [sort, setSort] = useQueryState('sort', 'title,asc')
   const [filtersOpen, setFiltersOpen] = useState(false)
+
+  const [query, setQuery] = useListQuery({
+    page: 0,
+    status: '' as GameStatus | '',
+    platform: '' as GamePlatform | '',
+    name: '',
+    sort: 'title,asc',
+  })
+  const { status, platform: platformFilter, name: nameFilter, sort, page } = query
 
   const {
     items: games,
-    page,
-    gotoPage,
-    resetPage,
     totalPages,
     totalElements,
     loading,
     error,
     reload: load,
   } = usePagedList<Game>( {
+    page,
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar los videojuegos.',
     fetchPage: (page, size) => listGames({
@@ -57,16 +60,12 @@ export default function GameListPage() {
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
-    setNameFilter(nameInput.trim())
-    resetPage()
+    setQuery({ name: nameInput.trim(), page: 0 })
   }
 
   function clearFilters() {
-    setStatus('')
-    setPlatformFilter('')
     setNameInput('')
-    setNameFilter('')
-    resetPage()
+    setQuery({ status: '', platform: '', name: '', page: 0 })
   }
 
   const hasActiveFilters = Boolean(status || platformFilter || nameFilter)
@@ -85,7 +84,7 @@ export default function GameListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => { setSort(v); resetPage() }} options={GAME_SORTS} />
+          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v, page: 0 })} options={GAME_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -140,7 +139,7 @@ export default function GameListPage() {
             <select
               className="input md:w-48"
               value={platformFilter}
-              onChange={(e) => { setPlatformFilter(e.target.value as GamePlatform); resetPage() }}
+              onChange={(e) => { setQuery({ platform: e.target.value as GamePlatform, page: 0 }) }}
               aria-label="Filtrar por plataforma"
             >
               <option value="">Todas las plataformas</option>
@@ -153,14 +152,14 @@ export default function GameListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <FilterPill active={!status} onClick={() => { setStatus(''); resetPage() }} label="Todos los estados">
+        <FilterPill active={!status} onClick={() => setQuery({ status: '', page: 0 })} label="Todos los estados">
           Todos
         </FilterPill>
         {Object.entries(GAME_STATES).map(([key, label]) => (
           <FilterPill
             key={key}
             active={status === key}
-            onClick={() => { setStatus(key as GameStatus); resetPage() }}
+            onClick={() => setQuery({ status: key as GameStatus, page: 0 })}
             label={`Filtrar por estado: ${label}`}
           >
             {label}
@@ -206,7 +205,7 @@ export default function GameListPage() {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onChange={gotoPage} disabled={loading} />
+      <Pagination page={page} totalPages={totalPages} onChange={(n) => setQuery({ page: n })} disabled={loading} />
     </section>
   )
 }
