@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useQueryPage } from './useQueryState'
 
 export interface PageData<T> {
   content: T[]
@@ -8,21 +7,21 @@ export interface PageData<T> {
 }
 
 interface UsePagedListOptions<T> {
+  page: number
   size?: number
   errorMessage: string
   fetchPage: (page: number, size: number) => Promise<PageData<T>>
-  /** Deps extra (filtros, ordenación): al cambiar, la página vuelve a 0 y recarga. */
+  /** Deps extra (filtros, ordenación): al cambiar recargan. */
   deps?: unknown[]
 }
 
 /**
- * Estado común de páginas de listado: paginación, carga, error y
- * totales. Los filtros los mantiene cada página; al cambiar recargan
- * desde la primera página.
+ * Estado común de páginas de listado: carga, error y totales.
+ * La página y los filtros los mantiene cada página (ver useListQuery)
+ * para que cada cambio sea un único setParams atómico.
  */
-export function usePagedList<T>({ size = 12, errorMessage, fetchPage, deps = [] }: UsePagedListOptions<T>) {
+export function usePagedList<T>({ page, size = 12, errorMessage, fetchPage, deps = [] }: UsePagedListOptions<T>) {
   const [items, setItems] = useState<T[]>([])
-  const [page, setPage] = useQueryPage()
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -47,13 +46,5 @@ export function usePagedList<T>({ size = 12, errorMessage, fetchPage, deps = [] 
     load()
   }, [load])
 
-  const gotoPage = useCallback((next: number) => {
-    setPage(next)
-  }, [])
-
-  const resetPage = useCallback(() => {
-    setPage(0)
-  }, [])
-
-  return { items, page, gotoPage, resetPage, totalPages, totalElements, loading, error, reload: load }
+  return { items, totalPages, totalElements, loading, error, reload: load }
 }

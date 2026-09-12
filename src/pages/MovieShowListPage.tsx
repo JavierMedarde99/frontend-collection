@@ -13,7 +13,7 @@ import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePagedList } from '../hooks/usePagedList'
 import { usePageTitle } from '../hooks/usePageTitle'
-import { useQueryState } from '../hooks/useQueryState'
+import { useListQuery } from '../hooks/useListQuery'
 
 const PAGE_SIZE = 12
 
@@ -21,26 +21,29 @@ const MOVIE_SORTS: { value: string; label: string }[] = [{ value: "title,asc", l
 
 export default function MovieShowListPage() {
   usePageTitle('Películas y series')
-  const [status, setStatus] = useQueryState<MovieShowStatus | ''>('status', '')
-  const [mediaTypeFilter, setMediaTypeFilter] = useQueryState<MediaType | ''>('mediaType', '')
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
-  const [nameFilter, setNameFilter] = useQueryState('name', '')
-  const [sort, setSort] = useQueryState('sort', 'title,asc')
   const [filtersOpen, setFiltersOpen] = useState(false)
+
+  const [query, setQuery] = useListQuery({
+    page: 0,
+    status: '' as MovieShowStatus | '',
+    mediaType: '' as MediaType | '',
+    name: '',
+    sort: 'title,asc',
+  })
+  const { status, mediaType: mediaTypeFilter, name: nameFilter, sort, page } = query
 
   const {
     items: movieShows,
-    page,
-    gotoPage,
-    resetPage,
     totalPages,
     totalElements,
     loading,
     error,
     reload: load,
   } = usePagedList<MovieShow>( {
+    page,
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar las películas/series.',
     fetchPage: (page, size) => listMovieShows({
@@ -57,16 +60,12 @@ export default function MovieShowListPage() {
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
-    setNameFilter(nameInput.trim())
-    resetPage()
+    setQuery({ name: nameInput.trim(), page: 0 })
   }
 
   function clearFilters() {
-    setStatus('')
-    setMediaTypeFilter('')
     setNameInput('')
-    setNameFilter('')
-    resetPage()
+    setQuery({ status: '', mediaType: '', name: '', page: 0 })
   }
 
   const hasActiveFilters = Boolean(status || mediaTypeFilter || nameFilter)
@@ -85,7 +84,7 @@ export default function MovieShowListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => { setSort(v); resetPage() }} options={MOVIE_SORTS} />
+          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v, page: 0 })} options={MOVIE_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -140,7 +139,7 @@ export default function MovieShowListPage() {
             <select
               className="input md:w-48"
               value={mediaTypeFilter}
-              onChange={(e) => { setMediaTypeFilter(e.target.value as MediaType); resetPage() }}
+              onChange={(e) => { setQuery({ mediaType: e.target.value as MediaType, page: 0 }) }}
               aria-label="Filtrar por tipo"
             >
               <option value="">Películas y series</option>
@@ -153,14 +152,14 @@ export default function MovieShowListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <FilterPill active={!status} onClick={() => { setStatus(''); resetPage() }} label="Todos los estados">
+        <FilterPill active={!status} onClick={() => setQuery({ status: '', page: 0 })} label="Todos los estados">
           Todos
         </FilterPill>
         {Object.entries(MOVIE_SHOW_STATES).map(([key, label]) => (
           <FilterPill
             key={key}
             active={status === key}
-            onClick={() => { setStatus(key as MovieShowStatus); resetPage() }}
+            onClick={() => setQuery({ status: key as MovieShowStatus, page: 0 })}
             label={`Filtrar por estado: ${label}`}
           >
             {label}
@@ -206,7 +205,7 @@ export default function MovieShowListPage() {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onChange={gotoPage} disabled={loading} />
+      <Pagination page={page} totalPages={totalPages} onChange={(n) => setQuery({ page: n })} disabled={loading} />
     </section>
   )
 }

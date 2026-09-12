@@ -13,7 +13,7 @@ import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePagedList } from '../hooks/usePagedList'
 import { usePageTitle } from '../hooks/usePageTitle'
-import { useQueryState } from '../hooks/useQueryState'
+import { useListQuery } from '../hooks/useListQuery'
 
 const PAGE_SIZE = 12
 
@@ -21,25 +21,28 @@ const BOARDGAME_SORTS: { value: string; label: string }[] = [{ value: "title,asc
 
 export default function BoardGameListPage() {
   usePageTitle('Juegos de mesa')
-  const [status, setStatus] = useQueryState<BoardGameStatus | ''>('status', '')
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
-  const [nameFilter, setNameFilter] = useQueryState('name', '')
-  const [sort, setSort] = useQueryState('sort', 'title,asc')
   const [filtersOpen, setFiltersOpen] = useState(false)
+
+  const [query, setQuery] = useListQuery({
+    page: 0,
+    status: '' as BoardGameStatus | '',
+    name: '',
+    sort: 'title,asc',
+  })
+  const { status, name: nameFilter, sort, page } = query
 
   const {
     items: games,
-    page,
-    gotoPage,
-    resetPage,
     totalPages,
     totalElements,
     loading,
     error,
     reload: load,
   } = usePagedList<BoardGame>( {
+    page,
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar los juegos de mesa.',
     fetchPage: (page, size) => listBoardGames({
@@ -55,15 +58,12 @@ export default function BoardGameListPage() {
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
-    setNameFilter(nameInput.trim())
-    resetPage()
+    setQuery({ name: nameInput.trim(), page: 0 })
   }
 
   function clearFilters() {
-    setStatus('')
     setNameInput('')
-    setNameFilter('')
-    resetPage()
+    setQuery({ status: '', name: '', page: 0 })
   }
 
   const hasActiveFilters = Boolean(status || nameFilter)
@@ -82,7 +82,7 @@ export default function BoardGameListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => { setSort(v); resetPage() }} options={BOARDGAME_SORTS} />
+          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v, page: 0 })} options={BOARDGAME_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -139,14 +139,14 @@ export default function BoardGameListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <FilterPill active={!status} onClick={() => { setStatus(''); resetPage() }} label="Todos los estados">
+        <FilterPill active={!status} onClick={() => setQuery({ status: '', page: 0 })} label="Todos los estados">
           Todos
         </FilterPill>
         {Object.entries(BOARD_GAME_STATES).map(([key, label]) => (
           <FilterPill
             key={key}
             active={status === key}
-            onClick={() => { setStatus(key as BoardGameStatus); resetPage() }}
+            onClick={() => setQuery({ status: key as BoardGameStatus, page: 0 })}
             label={`Filtrar por estado: ${label}`}
           >
             {label}
@@ -192,7 +192,7 @@ export default function BoardGameListPage() {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onChange={gotoPage} disabled={loading} />
+      <Pagination page={page} totalPages={totalPages} onChange={(n) => setQuery({ page: n })} disabled={loading} />
     </section>
   )
 }

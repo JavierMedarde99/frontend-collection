@@ -10,7 +10,7 @@ import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
 import SearchField from '../components/SearchField'
 import { usePageTitle } from '../hooks/usePageTitle'
-import { useQueryState } from '../hooks/useQueryState'
+import { useListQuery } from '../hooks/useListQuery'
 
 function totalCards(deck: DeckResponse): number {
   return (deck.cards || []).reduce((sum, c) => sum + (c.quantity || 0), 0)
@@ -23,7 +23,8 @@ export default function DeckListPage() {
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
-  const [nameFilter, setNameFilter] = useQueryState('name', '')
+  const [query, setQuery] = useListQuery({ name: '' })
+  const { name: nameFilter } = query
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -47,12 +48,12 @@ export default function DeckListPage() {
 
   function handleSearch(e: FormEvent) {
     e.preventDefault()
-    setNameFilter(nameInput.trim())
+    setQuery({ name: nameInput.trim() })
   }
 
   function clearFilters() {
     setNameInput('')
-    setNameFilter('')
+    setQuery({ name: '' })
   }
 
   const hasActiveFilters = Boolean(nameFilter)

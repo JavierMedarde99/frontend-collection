@@ -13,7 +13,7 @@ import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePagedList } from '../hooks/usePagedList'
 import { usePageTitle } from '../hooks/usePageTitle'
-import { useQueryState } from '../hooks/useQueryState'
+import { useListQuery } from '../hooks/useListQuery'
 
 const PAGE_SIZE = 12
 
@@ -34,24 +34,27 @@ export default function MagicListPage() {
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
-  const [nameFilter, setNameFilter] = useQueryState('name', '')
-  const [rarityFilter, setRarityFilter] = useQueryState('rarity', '')
-  const [colorFilter, setColorFilter] = useQueryState('color', '')
-  const [typeFilter, setTypeFilter] = useQueryState('type', '')
-  const [sort, setSort] = useQueryState('sort', 'name,asc')
   const [filtersOpen, setFiltersOpen] = useState(false)
+
+  const [query, setQuery] = useListQuery({
+    page: 0,
+    name: '',
+    rarity: '',
+    color: '',
+    type: '',
+    sort: 'name,asc',
+  })
+  const { name: nameFilter, rarity: rarityFilter, color: colorFilter, type: typeFilter, sort, page } = query
 
   const {
     items: cards,
-    page,
-    gotoPage,
-    resetPage,
     totalPages,
     totalElements,
     loading,
     error,
     reload: load,
   } = usePagedList<MagicCardResponse>( {
+    page,
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar las cartas Magic.',
     fetchPage: (page, size) => listMagicCards({
@@ -69,17 +72,12 @@ export default function MagicListPage() {
 
   function handleSearch(e: FormEvent) {
     e.preventDefault()
-    setNameFilter(nameInput.trim())
-    resetPage()
+    setQuery({ name: nameInput.trim(), page: 0 })
   }
 
   function handleClearFilters() {
     setNameInput('')
-    setNameFilter('')
-    setRarityFilter('')
-    setColorFilter('')
-    setTypeFilter('')
-    resetPage()
+    setQuery({ name: '', rarity: '', color: '', type: '', page: 0 })
   }
 
   const activeFilterCount =
@@ -99,7 +97,7 @@ export default function MagicListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => { setSort(v); resetPage() }} options={MAGIC_SORTS} />
+          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v, page: 0 })} options={MAGIC_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -159,7 +157,7 @@ export default function MagicListPage() {
             <select
               className="input"
               value={rarityFilter}
-              onChange={(e) => { setRarityFilter(e.target.value); resetPage() }}
+              onChange={(e) => setQuery({ rarity: e.target.value, page: 0 })}
               aria-label="Filtrar por rareza"
             >
               <option value="">Todas las rarezas</option>
@@ -170,7 +168,7 @@ export default function MagicListPage() {
             <select
               className="input"
               value={colorFilter}
-              onChange={(e) => { setColorFilter(e.target.value); resetPage() }}
+              onChange={(e) => setQuery({ color: e.target.value, page: 0 })}
               aria-label="Filtrar por color"
             >
               <option value="">Todos los colores</option>
@@ -181,7 +179,7 @@ export default function MagicListPage() {
             <select
               className="input"
               value={typeFilter}
-              onChange={(e) => { setTypeFilter(e.target.value); resetPage() }}
+              onChange={(e) => setQuery({ type: e.target.value, page: 0 })}
               aria-label="Filtrar por tipo"
             >
               <option value="">Todos los tipos</option>
@@ -229,7 +227,7 @@ export default function MagicListPage() {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onChange={gotoPage} />
+      <Pagination page={page} totalPages={totalPages} onChange={(n) => setQuery({ page: n })} />
     </section>
   )
 }
