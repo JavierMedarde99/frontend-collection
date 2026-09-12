@@ -12,12 +12,14 @@ import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePagedList } from '../hooks/usePagedList'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const PAGE_SIZE = 12
 
 const MOVIE_SORTS: { value: string; label: string }[] = [{ value: "title,asc", label: "Título A-Z" },{ value: "title,desc", label: "Título Z-A" },{ value: "releaseDate,desc", label: "Novedades" },]
 
 export default function MovieShowListPage() {
+  usePageTitle('Películas y series')
   const [status, setStatus] = useState<MovieShowStatus | ''>('')
   const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaType | ''>('')
   const [nameInput, setNameInput] = useState('')

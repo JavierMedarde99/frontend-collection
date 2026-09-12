@@ -12,12 +12,14 @@ import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePagedList } from '../hooks/usePagedList'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const PAGE_SIZE = 12
 
 const BOARDGAME_SORTS: { value: string; label: string }[] = [{ value: "title,asc", label: "Título A-Z" },{ value: "title,desc", label: "Título Z-A" },{ value: "bggRating,desc", label: "Mejor valorados" },]
 
 export default function BoardGameListPage() {
+  usePageTitle('Juegos de mesa')
   const [status, setStatus] = useState<BoardGameStatus | ''>('')
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)

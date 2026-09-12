@@ -6,6 +6,7 @@ import MovieShowForm from '../components/MovieShowForm'
 import MovieShowSearch from '../components/MovieShowSearch'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 type Mode = 'search' | 'manual'
 
@@ -15,6 +16,7 @@ const MODES: { key: Mode; label: string }[] = [
 ]
 
 export default function MovieShowCreatePage() {
+  usePageTitle('Añadir película/serie')
   const navigate = useNavigate()
   const notify = useToast()
   const [mode, setMode] = useState<Mode>('search')

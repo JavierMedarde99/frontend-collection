@@ -9,12 +9,14 @@ import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
 import SearchField from '../components/SearchField'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 function totalCards(deck: DeckResponse): number {
   return (deck.cards || []).reduce((sum, c) => sum + (c.quantity || 0), 0)
 }
 
 export default function DeckListPage() {
+  usePageTitle('Mazos Commander')
   const navigate = useNavigate()
   const [decks, setDecks] = useState<DeckResponse[]>([])
   const [nameInput, setNameInput] = useState('')

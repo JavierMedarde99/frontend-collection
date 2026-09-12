@@ -9,6 +9,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function MovieShowEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -16,6 +17,7 @@ export default function MovieShowEditPage() {
   const notify = useToast()
 
   const [movieShow, setMovieShow] = useState<MovieShow | null>(null)
+  usePageTitle((movieShow?.title ? `Editar ${movieShow.title}` : 'Editar película'))
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

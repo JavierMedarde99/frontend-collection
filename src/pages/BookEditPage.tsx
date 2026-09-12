@@ -9,6 +9,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function BookEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -16,6 +17,7 @@ export default function BookEditPage() {
   const notify = useToast()
 
   const [book, setBook] = useState<Book | null>(null)
+  usePageTitle((book?.title ? `Editar ${book.title}` : 'Editar libro'))
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

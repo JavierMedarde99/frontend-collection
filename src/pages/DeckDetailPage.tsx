@@ -11,6 +11,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import DeckCommanderImage from '../components/DeckCommanderImage'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 interface AddCardModalState {
   open: boolean
@@ -83,6 +84,7 @@ export default function DeckDetailPage() {
   const goBack = useBackFallback('/magic/mazos')
 
   const [deck, setDeck] = useState<DeckResponse | null>(null)
+  usePageTitle(deck?.name || 'Mazos')
   const [status, setStatus] = useState<DeckStatusResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

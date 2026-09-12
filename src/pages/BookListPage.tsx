@@ -12,12 +12,14 @@ import Pagination from '../components/Pagination'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const PAGE_SIZE = 12
 
 const BOOK_SORTS: { value: string; label: string }[] = [{ value: "title,asc", label: "Título A-Z" },{ value: "title,desc", label: "Título Z-A" },{ value: "start,desc", label: "Mejor valorados" },]
 
 export default function BookListPage() {
+  usePageTitle('Libros')
   const [status, setStatus] = useState<BookState | ''>('')
   const [typeFilter, setTypeFilter] = useState<BookType | ''>('')
   const [nameInput, setNameInput] = useState('')

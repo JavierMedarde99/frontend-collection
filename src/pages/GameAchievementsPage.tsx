@@ -5,10 +5,12 @@ import type { Game, GameAchievementsResponse } from '../types'
 import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function GameAchievementsPage() {
   const { id } = useParams<{ id: string }>()
   const [game, setGame] = useState<Game | null>(null)
+  usePageTitle((game?.title ? `Logros de ${game.title}` : 'Logros'))
   const [data, setData] = useState<GameAchievementsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

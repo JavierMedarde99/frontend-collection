@@ -12,12 +12,14 @@ import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePagedList } from '../hooks/usePagedList'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const PAGE_SIZE = 12
 
 const GAME_SORTS: { value: string; label: string }[] = [{ value: "title,asc", label: "Título A-Z" },{ value: "title,desc", label: "Título Z-A" },]
 
 export default function GameListPage() {
+  usePageTitle('Videojuegos')
   const [status, setStatus] = useState<GameStatus | ''>('')
   const [platformFilter, setPlatformFilter] = useState<GamePlatform | ''>('')
   const [nameInput, setNameInput] = useState('')

@@ -12,6 +12,7 @@ import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePagedList } from '../hooks/usePagedList'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const PAGE_SIZE = 12
 
@@ -28,6 +29,7 @@ const COLOR_OPTIONS = [
 ]
 
 export default function MagicListPage() {
+  usePageTitle('Magic')
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)

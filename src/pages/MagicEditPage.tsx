@@ -9,6 +9,7 @@ import SkeletonGrid from '../components/Skeleton'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function MagicEditPage() {
   const { id } = useParams<{ id: string }>()
@@ -24,6 +25,7 @@ export default function MagicEditPage() {
 
   // Form fields
   const [name, setName] = useState('')
+  usePageTitle((name ? `Editar ${name}` : 'Editar carta'))
   const [language, setLanguage] = useState<MagicLanguage>('ENGLISH')
   const [manaCost, setManaCost] = useState('')
   const [type, setType] = useState('')
