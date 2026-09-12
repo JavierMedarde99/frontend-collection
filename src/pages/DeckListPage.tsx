@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState, type FormEvent, type MouseEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import { listDecks } from '../api/deckApi'
 import DeckCommanderImage from '../components/DeckCommanderImage'
 import type { DeckResponse } from '../types'
@@ -15,6 +16,8 @@ export default function DeckListPage() {
   const navigate = useNavigate()
   const [decks, setDecks] = useState<DeckResponse[]>([])
   const [nameInput, setNameInput] = useState('')
+  const searchRef = useRef<HTMLInputElement>(null)
+  useSearchShortcut(searchRef)
   const [nameFilter, setNameFilter] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -87,6 +90,9 @@ export default function DeckListPage() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
         </svg>
         <input
+          ref={searchRef}
+          aria-keyshortcuts="/"
+          title="Atajo: / para buscar"
           className="input !pl-11 pr-28"
           value={nameInput}
           onChange={(e) => setNameInput(e.target.value)}
@@ -94,7 +100,7 @@ export default function DeckListPage() {
           aria-label="Buscar mazo por nombre"
         />
         <button className="btn-primary !py-2 !px-3.5 absolute right-1.5 top-1/2 -translate-y-1/2" type="submit">
-          Buscar
+          Buscar <kbd className="ml-1 hidden sm:inline-block px-1 rounded bg-white/25 text-[10px] font-semibold" aria-hidden="true">/</kbd>
         </button>
       </form>
 
