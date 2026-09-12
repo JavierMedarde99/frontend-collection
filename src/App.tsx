@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { ToastProvider } from './components/Toast'
 import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
@@ -28,42 +28,51 @@ import DeckCreatePage from './pages/DeckCreatePage'
 import DeckDetailPage from './pages/DeckDetailPage'
 import DeckEditPage from './pages/DeckEditPage'
 
-export default function App() {
+function Shell() {
   return (
-    <BrowserRouter>
-      <ToastProvider>
+    <ToastProvider>
       <Navbar />
       <main className="max-w-content mx-auto px-5 md:px-20 py-10">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/coleccion" element={<BookListPage />} />
-          <Route path="/coleccion/:id" element={<BookDetailPage />} />
-          <Route path="/nuevo" element={<BookCreatePage />} />
-          <Route path="/editar/:id" element={<BookEditPage />} />
-          <Route path="/juegos" element={<GameListPage />} />
-          <Route path="/juegos/nuevo" element={<GameCreatePage />} />
-          <Route path="/juegos/editar/:id" element={<GameEditPage />} />
-          <Route path="/juegos/:id/logros" element={<GameAchievementsPage />} />
-          <Route path="/juegos/:id" element={<GameDetailPage />} />
-          <Route path="/magic" element={<MagicListPage />} />
-          <Route path="/magic/nuevo" element={<MagicCreatePage />} />
-          <Route path="/magic/:id" element={<MagicDetailPage />} />
-          <Route path="/magic/:id/editar" element={<MagicEditPage />} />
-          <Route path="/magic/mazos" element={<DeckListPage />} />
-          <Route path="/magic/mazos/nuevo" element={<DeckCreatePage />} />
-          <Route path="/magic/mazos/:id" element={<DeckDetailPage />} />
-          <Route path="/magic/mazos/:id/editar" element={<DeckEditPage />} />
-          <Route path="/boardgames" element={<BoardGameListPage />} />
-          <Route path="/boardgames/nuevo" element={<BoardGameCreatePage />} />
-          <Route path="/boardgames/:id" element={<BoardGameDetailPage />} />
-          <Route path="/boardgames/:id/editar" element={<BoardGameEditPage />} />
-          <Route path="/movieshows" element={<MovieShowListPage />} />
-          <Route path="/movieshows/nuevo" element={<MovieShowCreatePage />} />
-          <Route path="/movieshows/editar/:id" element={<MovieShowEditPage />} />
-          <Route path="/movieshows/:id" element={<MovieShowDetailPage />} />
-        </Routes>
+        <Outlet />
       </main>
-      </ToastProvider>
-    </BrowserRouter>
+    </ToastProvider>
   )
+}
+
+const router = createBrowserRouter([
+  {
+    element: <Shell />,
+    children: [
+      { path: '/', element: <HomePage /> },
+      { path: '/coleccion', element: <BookListPage /> },
+      { path: '/coleccion/:id', element: <BookDetailPage /> },
+      { path: '/nuevo', element: <BookCreatePage /> },
+      { path: '/editar/:id', element: <BookEditPage /> },
+      { path: '/juegos', element: <GameListPage /> },
+      { path: '/juegos/nuevo', element: <GameCreatePage /> },
+      { path: '/juegos/editar/:id', element: <GameEditPage /> },
+      { path: '/juegos/:id/logros', element: <GameAchievementsPage /> },
+      { path: '/juegos/:id', element: <GameDetailPage /> },
+      { path: '/magic', element: <MagicListPage /> },
+      { path: '/magic/nuevo', element: <MagicCreatePage /> },
+      { path: '/magic/:id', element: <MagicDetailPage /> },
+      { path: '/magic/:id/editar', element: <MagicEditPage /> },
+      { path: '/magic/mazos', element: <DeckListPage /> },
+      { path: '/magic/mazos/nuevo', element: <DeckCreatePage /> },
+      { path: '/magic/mazos/:id', element: <DeckDetailPage /> },
+      { path: '/magic/mazos/:id/editar', element: <DeckEditPage /> },
+      { path: '/boardgames', element: <BoardGameListPage /> },
+      { path: '/boardgames/nuevo', element: <BoardGameCreatePage /> },
+      { path: '/boardgames/:id', element: <BoardGameDetailPage /> },
+      { path: '/boardgames/:id/editar', element: <BoardGameEditPage /> },
+      { path: '/movieshows', element: <MovieShowListPage /> },
+      { path: '/movieshows/nuevo', element: <MovieShowCreatePage /> },
+      { path: '/movieshows/editar/:id', element: <MovieShowEditPage /> },
+      { path: '/movieshows/:id', element: <MovieShowDetailPage /> },
+    ],
+  },
+])
+
+export default function App() {
+  return <RouterProvider router={router} />
 }

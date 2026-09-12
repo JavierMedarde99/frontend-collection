@@ -51,7 +51,7 @@ describe('BookCard', () => {
 
   it('enlaza a la página de edición', () => {
     renderCard()
-    expect(screen.getByRole('link', { name: 'Editar' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Editar Dune' })).toHaveAttribute(
       'href',
       '/editar/1',
     )

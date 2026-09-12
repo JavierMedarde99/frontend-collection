@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { useBlocker } from 'react-router-dom'
+import { useContext, useEffect } from 'react'
+import { useBlocker, UNSAFE_DataRouterContext as DataRouterContext } from 'react-router-dom'
 
 interface UnsavedGuard {
   showPrompt: boolean
@@ -7,12 +7,25 @@ interface UnsavedGuard {
   cancelNavigation: () => void
 }
 
+const idle: UnsavedGuard = {
+  showPrompt: false,
+  confirmNavigation: () => {},
+  cancelNavigation: () => {},
+}
+
 /**
  * Avisa al navegar con cambios sin guardar (enlaces, atrás del
  * navegador y cierre de pestaña). Llamar con dirty=false tras guardar.
+ *
+ * Nota: useBlocker exige un data router. La app usa createBrowserRouter;
+ * fuera de él (p. ej. tests) solo se cubre el cierre de pestaña.
+ * La llamada condicional es estable porque cada árbol o siempre tiene
+ * router o nunca lo tiene.
  */
 export function useUnsavedGuard(dirty: boolean): UnsavedGuard {
-  const blocker = useBlocker(dirty)
+  const inDataRouter = useContext(DataRouterContext) != null
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const blocker = inDataRouter ? useBlocker(dirty) : null
 
   useEffect(() => {
     if (!dirty) return
@@ -23,6 +36,7 @@ export function useUnsavedGuard(dirty: boolean): UnsavedGuard {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [dirty])
 
+  if (!blocker) return idle
   return {
     showPrompt: blocker.state === 'blocked',
     confirmNavigation: () => {
