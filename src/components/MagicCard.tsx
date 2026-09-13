@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import ActionLink from './ActionLink'
 import CardMenu from './CardMenu'
 import type { MagicCardResponse } from '../types'
 
@@ -16,7 +15,7 @@ export default function MagicCard({ card, index = 0, onDelete }: MagicCardProps)
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
       <div className="absolute top-3 right-3">
-        <CardMenu detailTo={`/magic/${card.id}`} editTo={`/magic/${card.id}/editar`} itemName={card.name} onDelete={onDelete} />
+        <CardMenu detailTo={`/magic/${card.id}`} itemName={card.name} onDelete={onDelete} />
       </div>
       <div className="flex gap-5">
         {card.imageUrl ? (
@@ -68,12 +67,6 @@ export default function MagicCard({ card, index = 0, onDelete }: MagicCardProps)
             )}
           </div>
         </div>
-      </div>
-
-      <div className="mt-auto flex items-center justify-end pt-4 border-t border-silver/60">
-        <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/magic/${card.id}/editar`} label={`Editar ${card.name}`}>
-          Editar
-        </ActionLink>
       </div>
     </article>
   )

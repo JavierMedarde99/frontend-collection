@@ -14,7 +14,6 @@ import GameDetailPage from './pages/GameDetailPage'
 import MagicListPage from './pages/MagicListPage'
 import MagicDetailPage from './pages/MagicDetailPage'
 import MagicCreatePage from './pages/MagicCreatePage'
-import MagicEditPage from './pages/MagicEditPage'
 import BoardGameListPage from './pages/BoardGameListPage'
 import BoardGameCreatePage from './pages/BoardGameCreatePage'
 import BoardGameDetailPage from './pages/BoardGameDetailPage'
@@ -62,7 +61,6 @@ const router = createBrowserRouter([
       { path: '/magic', element: <MagicListPage /> },
       { path: '/magic/nuevo', element: <MagicCreatePage /> },
       { path: '/magic/:id', element: <MagicDetailPage /> },
-      { path: '/magic/:id/editar', element: <MagicEditPage /> },
       { path: '/magic/mazos', element: <DeckListPage /> },
       { path: '/magic/mazos/nuevo', element: <DeckCreatePage /> },
       { path: '/magic/mazos/:id', element: <DeckDetailPage /> },
