@@ -5,6 +5,7 @@ import type { BookFormData } from '../types'
 import StarRating from './StarRating'
 import FormSection from './FormSection'
 import ConfirmDialog from './ConfirmDialog'
+import ImageUpload from './ImageUpload'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 
 type IconName = 'title' | 'author' | 'pages' | 'cover' | 'externalId' | 'date' | 'synopsis' | 'comment'
@@ -146,7 +147,8 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
       ...(showRating ? { start: form.start || undefined } : {}),
       ...(showStartDate ? { startDate: form.startDate || undefined } : {}),
       ...(showEndDate ? { endDate: form.endDate || undefined } : {}),
-      ...(isCreate ? {} : { frontpage: form.frontpage?.trim() || undefined, externalId: form.externalId?.trim() || undefined }),
+      frontpage: form.frontpage?.trim() || undefined,
+      ...(isCreate ? {} : { externalId: form.externalId?.trim() || undefined }),
     }
 
     setSubmitting(true)
@@ -205,18 +207,14 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
         </div>
       </FormSection>
 
-      {!isCreate && (
-        <FormSection title="Multimedia">
-          <Field label="URL de portada" icon="cover">
-            <input
-              className="input"
-              value={form.frontpage}
-              onChange={set('frontpage')}
-              placeholder="https://…"
-            />
-          </Field>
-        </FormSection>
-      )}
+      <FormSection title="Portada">
+        <ImageUpload
+          label="Foto de portada"
+          value={form.frontpage || ''}
+          onChange={(url) => setForm((f) => ({ ...f, frontpage: url }))}
+          onTouched={() => setDirty(true)}
+        />
+      </FormSection>
 
       {(showStartDate || showEndDate) && (
         <FormSection title="Fechas">

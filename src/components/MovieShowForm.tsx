@@ -4,6 +4,7 @@ import { MediaType, MovieShowStatus } from '../types'
 import type { MovieShowFormData } from '../types'
 import StarRating from './StarRating'
 import ConfirmDialog from './ConfirmDialog'
+import ImageUpload from './ImageUpload'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import FormSection from './FormSection'
 
@@ -72,23 +73,25 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
     if (!form.title.trim()) return setLocalError('El título es obligatorio.')
     if (!form.mediaType) return setLocalError('El tipo es obligatorio.')
     if (!form.status) return setLocalError('El estado es obligatorio.')
-    if (!form.externalId?.trim()) return setLocalError('El ID externo es obligatorio (lo exige el backend).')
 
     const payload: MovieShowFormData = {
       title: form.title.trim(),
       mediaType: form.mediaType,
       status: form.status,
-      externalId: form.externalId.trim(),
+      // El backend exige externalId: si viene de TMDB se conserva, si es
+      // alta manual se genera uno para no pedirlo en el formulario.
+      externalId: initial.externalId?.trim() || `manual-${Date.now()}`,
       overview: form.overview?.trim() || undefined,
       releaseDate: form.releaseDate || undefined,
       posterUrl: form.posterUrl?.trim() || undefined,
-      backdropUrl: form.backdropUrl?.trim() || undefined,
       voteAverage: form.voteAverage,
       userRating: showRating && form.userRating ? form.userRating : undefined,
       comment: showComment ? form.comment?.trim() || undefined : undefined,
       dateAdded: showStartDate ? form.dateAdded || undefined : undefined,
       dateCompleted: showEndDate ? form.dateCompleted || undefined : undefined,
-      externalSource: form.externalSource?.trim() || undefined,
+      // Datos venidos de TMDB: se conservan sin mostrarse en el formulario manual.
+      ...(initial.backdropUrl ? { backdropUrl: initial.backdropUrl } : {}),
+      ...(initial.externalSource ? { externalSource: initial.externalSource } : {}),
     }
 
     setSubmitting(true)
@@ -130,28 +133,19 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
               ))}
             </select>
           </Field>
-          <Field label="ID externo (TMDB)" required>
-            <input className="input" value={form.externalId} onChange={set('externalId')} placeholder="Ej: 438631" />
-          </Field>
-
           <Field label="Fecha de estreno">
             <input className="input" type="date" value={form.releaseDate} onChange={set('releaseDate')} />
-          </Field>
-          <Field label="Fuente externa">
-            <input className="input" value={form.externalSource} onChange={set('externalSource')} placeholder="Opcional" />
           </Field>
         </div>
       </FormSection>
 
-      <FormSection title="Multimedia">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Field label="URL del póster">
-            <input className="input" value={form.posterUrl} onChange={set('posterUrl')} placeholder="https://…" />
-          </Field>
-          <Field label="URL del backdrop">
-            <input className="input" value={form.backdropUrl} onChange={set('backdropUrl')} placeholder="https://…" />
-          </Field>
-        </div>
+      <FormSection title="Portada">
+        <ImageUpload
+          label="Foto de portada"
+          value={form.posterUrl || ''}
+          onChange={(url) => setForm((f) => ({ ...f, posterUrl: url }))}
+          onTouched={() => setDirty(true)}
+        />
       </FormSection>
 
       {(showStartDate || showEndDate) && (
