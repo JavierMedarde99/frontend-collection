@@ -146,7 +146,9 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
         form.platform === GamePlatform.PC && form.obtainPlatinum === true && form.steamAppId?.trim()
           ? form.steamAppId.trim()
           : undefined,
-      ...(isCreate ? {} : { externalSource: form.externalSource?.trim() || undefined, externalId: form.externalId?.trim() || undefined }),
+      // Datos externos: se conservan sin mostrarse en el formulario.
+      ...(initial.externalSource?.trim() ? { externalSource: initial.externalSource.trim() } : {}),
+      ...(initial.externalId?.trim() ? { externalId: initial.externalId.trim() } : {}),
     }
 
     setSubmitting(true)
@@ -259,17 +261,6 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
           </Field>
         )}
       </FormSection>
-
-      {!isCreate && (
-        <FormSection title="Externo">
-          <Field label="Fuente externa" icon="source">
-            <input className="input" value={form.externalSource} onChange={set('externalSource')} placeholder="Opcional" />
-          </Field>
-          <Field label="ID externo" icon="externalId">
-            <input className="input" value={form.externalId} onChange={set('externalId')} placeholder="Opcional" />
-          </Field>
-        </FormSection>
-      )}
 
       {(error || localError) && (
         <div
