@@ -4,6 +4,7 @@ import { BoardGameStatus } from '../types'
 import type { BoardGameFormData } from '../types'
 import FormSection from './FormSection'
 import ConfirmDialog from './ConfirmDialog'
+import ImageUpload from './ImageUpload'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 
 interface FieldProps {
@@ -62,9 +63,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
   const [categories, setCategories] = useState(toCSV(initial.categories))
   const [mechanics, setMechanics] = useState(toCSV(initial.mechanics))
   const [imageUrl, setImageUrl] = useState(initial.imageUrl || '')
-  const [thumbnailUrl, setThumbnailUrl] = useState(initial.thumbnailUrl || '')
   const [status, setStatus] = useState<BoardGameStatus>(initial.status || BoardGameStatus.OWNED)
-  const [bggRating, setBggRating] = useState(toNumberInput(initial.bggRating))
   const [notes, setNotes] = useState(initial.notes || '')
   const [dateAdded, setDateAdded] = useState(initial.dateAdded || '')
   const [submitting, setSubmitting] = useState(false)
@@ -99,10 +98,10 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
       categories: fromCSV(categories),
       mechanics: fromCSV(mechanics),
       imageUrl: imageUrl.trim() || undefined,
-      thumbnailUrl: thumbnailUrl.trim() || undefined,
-      bggRating: fromNumberInput(bggRating),
       notes: notes.trim() || undefined,
       dateAdded: status === BoardGameStatus.OWNED ? dateAdded || undefined : undefined,
+      // Datos venidos de BGG: se conservan sin mostrarse en el formulario manual.
+      ...(initial.thumbnailUrl ? { thumbnailUrl: initial.thumbnailUrl } : {}),
       ...(initial.bggId ? { bggId: initial.bggId } : {}),
     }
 
@@ -167,9 +166,6 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
           <Field label="Mecánicas (separadas por comas)">
             <input className="input" value={mechanics} onChange={set(setMechanics)} placeholder="Ej: Dados, Losetas" />
           </Field>
-          <Field label="Rating BGG (0–10)">
-            <input className="input" type="number" min="0" max="10" step="0.1" value={bggRating} onChange={set(setBggRating)} placeholder="Ej: 7.2" />
-          </Field>
 
           {status === BoardGameStatus.OWNED && (
             <Field label="Fecha de adición">
@@ -179,15 +175,12 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
         </div>
       </FormSection>
 
-      <FormSection title="Multimedia">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Field label="URL de imagen">
-            <input className="input" value={imageUrl} onChange={set(setImageUrl)} placeholder="https://…" />
-          </Field>
-          <Field label="URL de miniatura">
-            <input className="input" value={thumbnailUrl} onChange={set(setThumbnailUrl)} placeholder="https://…" />
-          </Field>
-        </div>
+      <FormSection title="Imagen">
+        <ImageUpload
+          label="Foto del juego"
+          value={imageUrl}
+          onChange={(url) => { setImageUrl(url); setDirty(true) }}
+        />
       </FormSection>
 
       <FormSection title="Descripción y notas">

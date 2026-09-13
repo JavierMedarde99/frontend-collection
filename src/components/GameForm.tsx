@@ -4,6 +4,7 @@ import { GamePlatform, GameStatus } from '../types'
 import type { GameFormData } from '../types'
 import StarRating from './StarRating'
 import ConfirmDialog from './ConfirmDialog'
+import ImageUpload from './ImageUpload'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import FormSection from './FormSection'
 
@@ -142,7 +143,7 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
       obtainPlatinum:
         form.platform === GamePlatform.PC && form.obtainPlatinum ? true : undefined,
       steamAppId:
-        form.platform === GamePlatform.PC && form.steamAppId
+        form.platform === GamePlatform.PC && form.obtainPlatinum === true && form.steamAppId?.trim()
           ? form.steamAppId.trim()
           : undefined,
       ...(isCreate ? {} : { externalSource: form.externalSource?.trim() || undefined, externalId: form.externalId?.trim() || undefined }),
@@ -200,7 +201,7 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
               </label>
             </Field>
           )}
-          {form.platform === GamePlatform.PC && (
+          {form.platform === GamePlatform.PC && form.obtainPlatinum === true && (
             <Field label="Steam App ID" icon="steam">
               <input
                 className="input"
@@ -213,11 +214,14 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
         </div>
       </FormSection>
 
-      {!isCreate && (
-        <FormSection title="Multimedia">
-          <Field label="URL de imagen" icon="thumbnail">
-            <input className="input" value={form.thumbnailUrl} onChange={set('thumbnailUrl')} placeholder="https://…" />
-          </Field>
+      {form.platform === GamePlatform.PC && form.obtainPlatinum === true && (
+        <FormSection title="Portada">
+          <ImageUpload
+            label="Foto de portada"
+            value={form.thumbnailUrl || ''}
+            onChange={(url) => setForm((f) => ({ ...f, thumbnailUrl: url }))}
+            onTouched={() => setDirty(true)}
+          />
         </FormSection>
       )}
 
