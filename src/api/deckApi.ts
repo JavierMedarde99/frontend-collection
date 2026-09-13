@@ -1,4 +1,4 @@
-import type { DeckResponse, DeckRequest, DeckCardRequest, DeckStatusResponse } from '../types'
+import type { DeckResponse, DeckRequest, DeckCardRequest, DeckStatusResponse, PageDeckResponse, ListDecksParams } from '../types'
 import { RequestError, throwRequestError } from './errors'
 
 const BASE_URL = '/api/v1/decks'
@@ -19,9 +19,15 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T | n
   return null
 }
 
-export function listDecks(name?: string): Promise<DeckResponse[]> {
-  const qs = name ? `?name=${encodeURIComponent(name)}` : ''
-  return request<DeckResponse[]>(`${BASE_URL}${qs}`) as Promise<DeckResponse[]>
+export function listDecks(params: ListDecksParams = {}): Promise<PageDeckResponse> {
+  const search = new URLSearchParams()
+  const { page, size, sort, name } = params
+  if (page !== undefined && page !== null) search.set('page', String(page))
+  if (size !== undefined && size !== null) search.set('size', String(size))
+  if (sort) search.set('sort', sort)
+  if (name) search.set('name', name)
+  const qs = search.toString()
+  return request<PageDeckResponse>(`${BASE_URL}${qs ? `?${qs}` : ''}`) as Promise<PageDeckResponse>
 }
 
 export function getDeck(id: string): Promise<DeckResponse> {

@@ -39,3 +39,19 @@ export interface DeckStatusResponse {
   status: DeckStatus
   message?: string | null
 }
+
+export interface PageDeckResponse {
+  content: DeckResponse[]
+  totalPages: number
+  totalElements: number
+  number: number
+  size: number
+  empty: boolean
+}
+
+export interface ListDecksParams {
+  page?: number
+  size?: number
+  sort?: string
+  name?: string
+}
