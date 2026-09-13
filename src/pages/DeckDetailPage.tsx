@@ -274,10 +274,14 @@ export default function DeckDetailPage() {
                     {cards.map((card) => (
                       <tr
                         key={card.scryfallId || card.cardName}
-                        className="border-b border-silver/40 last:border-0 hover:bg-brand-soft/40 transition-colors"
+                        className="border-b border-silver/40 last:border-0 even:bg-slate-50/60 hover:bg-brand-soft/40 transition-colors"
                       >
-                        <td className="px-4 py-2.5 font-bold text-ink whitespace-nowrap">x{card.quantity}</td>
-                        <td className="px-4 py-2.5">
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className="inline-block px-2.5 py-1 rounded-lg bg-ink text-white text-body-sm font-bold">
+                            x{card.quantity}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
                           <div className="flex items-center gap-3 min-w-0">
                             {card.imageUrl ? (
                               <img
@@ -285,10 +289,10 @@ export default function DeckDetailPage() {
                                 alt=""
                                 aria-hidden="true"
                                 loading="lazy"
-                                className="w-9 h-12 object-cover rounded-md shadow-sm shrink-0 bg-paper"
+                                className="w-20 h-28 object-cover rounded-lg shadow-sm shrink-0 bg-paper"
                               />
                             ) : (
-                              <div className="w-9 h-12 rounded-md shrink-0 bg-brand-soft flex items-center justify-center text-caption text-graphite">
+                              <div className="w-20 h-28 rounded-lg shrink-0 bg-brand-soft flex items-center justify-center text-caption text-graphite">
                                 ?
                               </div>
                             )}
@@ -309,17 +313,17 @@ export default function DeckDetailPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-2.5 font-mono text-body-sm text-slate whitespace-nowrap">
+                        <td className="px-4 py-3 font-mono text-body font-semibold text-ink whitespace-nowrap">
                           {card.manaCost || '—'}
                         </td>
-                        <td className="px-4 py-2.5 text-body-sm text-graphite max-w-[220px]">
+                        <td className="px-4 py-3 text-body-sm text-graphite max-w-[220px]">
                           <span className="line-clamp-2">{card.typeLine || '—'}</span>
                         </td>
-                        <td className="px-4 py-2.5 text-right whitespace-nowrap">
+                        <td className="px-4 py-3 text-right whitespace-nowrap">
                           {card.scryfallId && (
                             <button
                               type="button"
-                              className="btn-ghost !px-3 !py-1 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
+                              className="btn-ghost !px-3 !py-1.5 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
                               disabled={removingId === card.scryfallId}
                               onClick={() => handleRemoveCard(card.scryfallId!)}
                             >
@@ -339,16 +343,16 @@ export default function DeckDetailPage() {
         <aside className="card p-5 flex flex-col gap-4 lg:sticky lg:top-24" aria-label="Información del mazo">
           <div className="flex justify-center">
             {deck.commander ? (
-              <DeckCommanderImage commanderName={deck.commander} size="lg" />
+              <DeckCommanderImage commanderName={deck.commander} size="xl" />
             ) : (
-              <div className="w-28 h-40 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite text-center px-1">
+              <div className="w-32 h-44 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite text-center px-1">
                 Sin imagen
               </div>
             )}
           </div>
           <div className="text-center flex flex-col items-center gap-1.5">
             <h1 className="font-display text-heading text-ink">{deck.name}</h1>
-            <ManaColorDots colors={deck.commanderColors} />
+            <ManaColorDots colors={deck.commanderColors} size="lg" />
             {deck.commander && (
               <p className="text-body-sm text-graphite line-clamp-1" title={deck.commander}>
                 {deck.commander}
@@ -356,7 +360,7 @@ export default function DeckDetailPage() {
             )}
           </div>
           {deck.description && (
-            <p className="text-body-sm text-slate whitespace-pre-line">{deck.description}</p>
+            <p className="text-body text-slate whitespace-pre-line">{deck.description}</p>
           )}
           <dl className="flex flex-col gap-1.5 text-body-sm border-t border-silver/60 pt-4">
             <div className="flex items-center justify-between gap-3">
@@ -370,7 +374,7 @@ export default function DeckDetailPage() {
           </dl>
           {status && (
             <div className="border-t border-silver/60 pt-4 flex flex-col gap-2">
-              <span className={`self-start px-3 py-1 rounded-full text-caption font-semibold ${DECK_STATUS_COLORS[status.status]}`}>
+              <span className={`self-start px-4 py-1.5 rounded-full text-body-sm font-semibold ${DECK_STATUS_COLORS[status.status]}`}>
                 {DECK_STATUS_LABELS[status.status]}
               </span>
               {status.message && (
