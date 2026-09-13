@@ -17,6 +17,11 @@ export default function MagicCreatePage() {
   const [searchError, setSearchError] = useState<string | null>(null)
   const [savingId, setSavingId] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [quantities, setQuantities] = useState<Record<string, number>>({})
+
+  function quantityOf(key: string): number {
+    return quantities[key] ?? 1
+  }
 
   async function handleSearch(e: FormEvent) {
     e.preventDefault()
@@ -36,11 +41,12 @@ export default function MagicCreatePage() {
 
   async function handleAdd(card: MagicCardSearchResult) {
     const key = card.scryfallId || card.name
+    const quantity = Math.max(1, Math.floor(quantityOf(key)) || 1)
     setSavingId(key)
     setSaveError(null)
     try {
-      await addMagicCardFromScryfall(card.scryfallId)
-      notify('Carta añadida a tu colección.')
+      await addMagicCardFromScryfall(card.scryfallId, quantity)
+      notify(quantity > 1 ? `${quantity} copias añadidas a tu colección.` : 'Carta añadida a tu colección.')
       navigate('/magic')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo guardar la carta.'
@@ -122,6 +128,23 @@ export default function MagicCreatePage() {
                   >
                     {saving ? 'Guardando…' : 'Añadir a mi colección'}
                   </button>
+                  <div className="flex items-center justify-between gap-3">
+                    <label className="label !mb-0" htmlFor={`qty-${key}`}>
+                      Cantidad
+                    </label>
+                    <input
+                      id={`qty-${key}`}
+                      className="input w-24 !py-1.5"
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={quantityOf(key)}
+                      disabled={savingId !== null}
+                      onChange={(e) =>
+                        setQuantities((q) => ({ ...q, [key]: Math.max(1, Math.floor(Number(e.target.value)) || 1) }))
+                      }
+                    />
+                  </div>
                 </div>
               )
             })}

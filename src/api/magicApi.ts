@@ -60,8 +60,9 @@ export async function searchMagicCards(name: string): Promise<MagicCardSearchRes
   return data?.results ?? []
 }
 
-export function addMagicCardFromScryfall(scryfallId: string): Promise<MagicCardResponse> {
-  return request<MagicCardResponse>(`${BASE_URL}/scryfall/${encodeURIComponent(scryfallId)}`, {
+export function addMagicCardFromScryfall(scryfallId: string, quantity = 1): Promise<MagicCardResponse> {
+  const qs = quantity > 1 ? `?quantity=${Math.floor(quantity)}` : ''
+  return request<MagicCardResponse>(`${BASE_URL}/scryfall/${encodeURIComponent(scryfallId)}${qs}`, {
     method: 'POST',
   }) as Promise<MagicCardResponse>
 }
