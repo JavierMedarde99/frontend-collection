@@ -3,7 +3,7 @@ import { searchMagicCards } from '../api/magicApi'
 
 interface DeckCommanderImageProps {
   commanderName: string
-  size?: 'md' | 'lg'
+  size?: 'md' | 'lg' | 'xl'
 }
 
 /**
@@ -12,7 +12,7 @@ interface DeckCommanderImageProps {
  */
 export default function DeckCommanderImage({ commanderName, size = 'md' }: DeckCommanderImageProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const dims = size === 'lg' ? 'w-28 h-40' : 'w-20 h-28'
+  const dims = size === 'xl' ? 'w-32 h-44' : size === 'lg' ? 'w-28 h-40' : 'w-20 h-28'
 
   useEffect(() => {
     if (!commanderName.trim()) return
