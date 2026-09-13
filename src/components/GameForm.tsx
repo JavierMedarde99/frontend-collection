@@ -214,16 +214,14 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
         </div>
       </FormSection>
 
-      {form.platform === GamePlatform.PC && form.obtainPlatinum === true && (
-        <FormSection title="Portada">
-          <ImageUpload
-            label="Foto de portada"
-            value={form.thumbnailUrl || ''}
-            onChange={(url) => setForm((f) => ({ ...f, thumbnailUrl: url }))}
-            onTouched={() => setDirty(true)}
-          />
-        </FormSection>
-      )}
+      <FormSection title="Portada">
+        <ImageUpload
+          label="Foto de portada"
+          value={form.thumbnailUrl || ''}
+          onChange={(url) => setForm((f) => ({ ...f, thumbnailUrl: url }))}
+          onTouched={() => setDirty(true)}
+        />
+      </FormSection>
 
       {(showStartDate || showEndDate) && (
         <FormSection title="Fechas">
