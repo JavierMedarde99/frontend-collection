@@ -4,7 +4,7 @@ import ConfirmDialog from './ConfirmDialog'
 
 interface CardMenuProps {
   detailTo: string
-  editTo: string
+  editTo?: string
   itemName: string
   onDelete: () => Promise<void>
 }
@@ -89,9 +89,11 @@ export default function CardMenu({ detailTo, editTo, itemName, onDelete }: CardM
             <button type="button" role="menuitem" className="text-left text-body-sm px-3 py-2 rounded-lg hover:bg-brand-soft hover:text-brand" onClick={go(detailTo)}>
               Ver detalle
             </button>
-            <button type="button" role="menuitem" className="text-left text-body-sm px-3 py-2 rounded-lg hover:bg-brand-soft hover:text-brand" onClick={go(editTo)}>
-              Editar
-            </button>
+{editTo && (
+              <button type="button" role="menuitem" className="text-left text-body-sm px-3 py-2 rounded-lg hover:bg-brand-soft hover:text-brand" onClick={go(editTo)}>
+                Editar
+              </button>
+            )}
             <button
               type="button"
               role="menuitem"
