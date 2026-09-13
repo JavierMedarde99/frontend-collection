@@ -1,6 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { usePagedList } from '../hooks/usePagedList'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import { listDecks, deleteDeck } from '../api/deckApi'
 import DeckCommanderImage from '../components/DeckCommanderImage'
@@ -11,7 +11,7 @@ import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
 import SearchField from '../components/SearchField'
-import Pagination from '../components/Pagination'
+import SkeletonInline from '../components/SkeletonInline'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useListQuery } from '../hooks/useListQuery'
 
@@ -27,18 +27,19 @@ export default function DeckListPage() {
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
-  const [query, setQuery] = useListQuery({ page: 0, name: '' })
-  const { name: nameFilter, page } = query
+  const [query, setQuery] = useListQuery({ name: '' })
+  const { name: nameFilter } = query
 
   const {
     items: decks,
-    totalPages,
     totalElements,
+    hasMore,
     loading,
+    loadingMore,
     error,
+    sentinelRef,
     reload: load,
-  } = usePagedList<DeckResponse>({
-    page,
+  } = useInfiniteScroll<DeckResponse>({
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar los mazos.',
     fetchPage: (page, size) =>
@@ -48,12 +49,12 @@ export default function DeckListPage() {
 
   function handleSearch(e: FormEvent) {
     e.preventDefault()
-    setQuery({ name: nameInput.trim(), page: 0 })
+    setQuery({ name: nameInput.trim() })
   }
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ name: '', page: 0 })
+    setQuery({ name: '' })
   }
 
   const hasActiveFilters = Boolean(nameFilter)
@@ -211,6 +212,13 @@ export default function DeckListPage() {
             )
           })}
         </div>
+        {loadingMore && <SkeletonInline />}
+        {!hasMore && (
+          <p className="text-body-sm text-graphite text-center" role="status">
+            No hay más mazos
+          </p>
+        )}
+        <div ref={sentinelRef} className="h-px" aria-hidden="true" />
       )}
 
       <ConfirmDialog
@@ -220,12 +228,6 @@ export default function DeckListPage() {
         onConfirm={confirmDelete}
         onCancel={() => setDeleting(null)}
         busy={deleteBusy}
-      />
-
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        onChange={(n) => setQuery({ page: n })}
       />
     </section>
   )
