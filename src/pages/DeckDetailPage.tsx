@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getDeck, deleteDeck, addCardToDeck, removeCardFromDeck, getDeckStatus } from '../api/deckApi'
 import { searchMagicCards } from '../api/magicApi'
-import type { DeckResponse, DeckStatusResponse, MagicCardSearchResult } from '../types'
+import type { DeckCardResponse, DeckResponse, DeckStatusResponse, MagicCardSearchResult } from '../types'
 import { DECK_STATUS_LABELS, DECK_STATUS_COLORS } from '../constants/decks'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
@@ -98,6 +98,18 @@ export default function DeckDetailPage() {
   const [modal, dispatchModal] = useReducer(addCardModalReducer, initialAddCardModal)
   const [removingId, setRemovingId] = useState<string | null>(null)
   const { query, searchResults, searching, searchError, selected, quantity, adding, addError } = modal
+
+  // PopUp detalle de carta al hacer clic en una fila
+  const [selectedCard, setSelectedCard] = useState<DeckCardResponse | null>(null)
+
+  useEffect(() => {
+    if (!selectedCard) return
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setSelectedCard(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selectedCard])
 
   const load = useCallback(async () => {
     if (!id) return
@@ -274,7 +286,9 @@ export default function DeckDetailPage() {
                     {cards.map((card) => (
                       <tr
                         key={card.scryfallId || card.cardName}
-                        className="border-b border-silver/40 last:border-0 even:bg-slate-50/60 hover:bg-brand-soft/40 transition-colors"
+                        onClick={() => setSelectedCard(card)}
+                        title={`Ver detalle de ${card.cardName}`}
+                        className="border-b border-silver/40 last:border-0 even:bg-slate-50/60 hover:bg-brand-soft/40 transition-colors cursor-pointer"
                       >
                         <td className="px-4 py-3 whitespace-nowrap">
                           <span className="inline-block px-2.5 py-1 rounded-lg bg-ink text-white text-body-sm font-bold">
@@ -297,7 +311,14 @@ export default function DeckDetailPage() {
                               </div>
                             )}
                             <div className="min-w-0">
-                              <p className="font-medium text-ink line-clamp-1">{card.cardName}</p>
+                              <button
+                                type="button"
+                                className="font-medium text-ink line-clamp-1 text-left hover:text-brand transition-colors"
+                                onClick={() => setSelectedCard(card)}
+                                aria-label={`Ver detalle de ${card.cardName}`}
+                              >
+                                {card.cardName}
+                              </button>
                               <div className="flex flex-wrap gap-1 mt-1">
                                 {card.inCollection && (
                                   <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium text-caption">
@@ -325,7 +346,7 @@ export default function DeckDetailPage() {
                               type="button"
                               className="btn-ghost !px-3 !py-1.5 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
                               disabled={removingId === card.scryfallId}
-                              onClick={() => handleRemoveCard(card.scryfallId!)}
+                              onClick={(e) => { e.stopPropagation(); handleRemoveCard(card.scryfallId!) }}
                             >
                               {removingId === card.scryfallId ? 'Quitando…' : 'Quitar'}
                             </button>
@@ -384,6 +405,70 @@ export default function DeckDetailPage() {
           )}
         </aside>
       </div>
+
+      {selectedCard && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md modal-sheet"
+          onClick={() => setSelectedCard(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Detalle de ${selectedCard.cardName}`}
+            className="modal w-full max-w-md max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3 mb-5">
+              <h3 className="font-display text-heading-sm leading-snug">{selectedCard.cardName}</h3>
+              <button
+                type="button"
+                className="btn-ghost !px-3 !py-1.5 shrink-0"
+                onClick={() => setSelectedCard(null)}
+                aria-label="Cerrar detalle"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex gap-5">
+              {selectedCard.imageUrl ? (
+                <img
+                  src={selectedCard.imageUrl}
+                  alt={selectedCard.cardName}
+                  className="w-32 h-44 object-cover rounded-xl shadow-sm shrink-0 bg-paper"
+                />
+              ) : (
+                <div className="w-32 h-44 rounded-xl shrink-0 bg-brand-soft flex items-center justify-center text-caption text-graphite text-center px-2">
+                  Sin imagen
+                </div>
+              )}
+              <div className="min-w-0 flex-1 flex flex-col gap-2.5">
+                <span className="self-start px-2.5 py-1 rounded-lg bg-ink text-white text-body-sm font-bold">
+                  x{selectedCard.quantity}
+                </span>
+                {selectedCard.manaCost && (
+                  <p className="font-mono text-body font-semibold text-ink">{selectedCard.manaCost}</p>
+                )}
+                {selectedCard.typeLine && (
+                  <p className="text-body-sm text-graphite">{selectedCard.typeLine}</p>
+                )}
+                <ManaColorDots colors={selectedCard.colorIdentity} />
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedCard.inCollection && (
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium text-caption">
+                      En colección
+                    </span>
+                  )}
+                  {selectedCard.isProxy && (
+                    <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-medium text-caption">
+                      Proxy
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {modal.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md modal-sheet">
