@@ -143,8 +143,9 @@ export default function DeckListPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {decks.map((deck, idx) => {
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {decks.map((deck, idx) => {
             const total = totalCards(deck)
             return (
               <article
@@ -219,6 +220,7 @@ export default function DeckListPage() {
           </p>
         )}
         <div ref={sentinelRef} className="h-px" aria-hidden="true" />
+        </>
       )}
 
       <ConfirmDialog
