@@ -32,7 +32,7 @@ export function usePagedList<T>({ page, size = 12, errorMessage, fetchPage, deps
     setError(null)
     try {
       const data = await fetchPage(page, size)
-      setItems(data.content || [])
+      setItems(Array.isArray(data?.content) ? data.content : [])
       setTotalPages(data.totalPages || 0)
       setTotalElements(data.totalElements || 0)
     } catch (err) {
