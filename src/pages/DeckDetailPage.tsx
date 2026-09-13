@@ -9,6 +9,7 @@ import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import DeckCommanderImage from '../components/DeckCommanderImage'
+import ManaColorDots from '../components/ManaColorDots'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { usePageTitle } from '../hooks/usePageTitle'
@@ -217,9 +218,10 @@ export default function DeckDetailPage() {
   }
 
   const cards = deck.cards || []
+  const totalCount = cards.reduce((sum, c) => sum + (c.quantity || 0), 0)
 
   return (
-    <article className="max-w-4xl mx-auto flex flex-col gap-10">
+    <article className="max-w-6xl mx-auto flex flex-col gap-8">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Mazos", to: "/magic/mazos" }, { label: deck?.name || 'Detalle' }]} />
       <div className="flex items-center justify-between flex-wrap gap-3">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
@@ -242,108 +244,141 @@ export default function DeckDetailPage() {
         <ErrorBanner message={deleteError} />
       )}
 
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-display text-heading-lg text-ink">{deck.name}</h1>
-          {status && (
-            <span className={`px-3 py-1 rounded-full text-caption font-semibold ${DECK_STATUS_COLORS[status.status]}`}>
-              {DECK_STATUS_LABELS[status.status]}
-            </span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="lg:col-span-2 flex flex-col gap-4 min-w-0">
+          <div className="flex items-baseline justify-between gap-3 flex-wrap">
+            <h2 className="font-display text-heading-sm">Cartas del mazo</h2>
+            <p className="text-caption text-graphite">
+              {totalCount} carta{totalCount === 1 ? '' : 's'} · {cards.length} distinta{cards.length === 1 ? '' : 's'}
+            </p>
+          </div>
+          {cards.length === 0 ? (
+            <EmptyState
+              title="Mazo vacío"
+              message="Usa el botón Añadir carta para buscar en Scryfall."
+            />
+          ) : (
+            <div className="card !p-0 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left min-w-[600px]">
+                  <thead>
+                    <tr className="border-b border-silver/60 text-caption uppercase tracking-wide text-stone">
+                      <th scope="col" className="px-4 py-3 font-semibold">Cant.</th>
+                      <th scope="col" className="px-4 py-3 font-semibold">Carta</th>
+                      <th scope="col" className="px-4 py-3 font-semibold">Coste</th>
+                      <th scope="col" className="px-4 py-3 font-semibold">Tipo</th>
+                      <th scope="col" className="px-4 py-3"><span className="sr-only">Acciones</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cards.map((card) => (
+                      <tr
+                        key={card.scryfallId || card.cardName}
+                        className="border-b border-silver/40 last:border-0 hover:bg-brand-soft/40 transition-colors"
+                      >
+                        <td className="px-4 py-2.5 font-bold text-ink whitespace-nowrap">x{card.quantity}</td>
+                        <td className="px-4 py-2.5">
+                          <div className="flex items-center gap-3 min-w-0">
+                            {card.imageUrl ? (
+                              <img
+                                src={card.imageUrl}
+                                alt=""
+                                aria-hidden="true"
+                                loading="lazy"
+                                className="w-9 h-12 object-cover rounded-md shadow-sm shrink-0 bg-paper"
+                              />
+                            ) : (
+                              <div className="w-9 h-12 rounded-md shrink-0 bg-brand-soft flex items-center justify-center text-caption text-graphite">
+                                ?
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <p className="font-medium text-ink line-clamp-1">{card.cardName}</p>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {card.inCollection && (
+                                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium text-caption">
+                                    En colección
+                                  </span>
+                                )}
+                                {card.isProxy && (
+                                  <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-medium text-caption">
+                                    Proxy
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5 font-mono text-body-sm text-slate whitespace-nowrap">
+                          {card.manaCost || '—'}
+                        </td>
+                        <td className="px-4 py-2.5 text-body-sm text-graphite max-w-[220px]">
+                          <span className="line-clamp-2">{card.typeLine || '—'}</span>
+                        </td>
+                        <td className="px-4 py-2.5 text-right whitespace-nowrap">
+                          {card.scryfallId && (
+                            <button
+                              type="button"
+                              className="btn-ghost !px-3 !py-1 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
+                              disabled={removingId === card.scryfallId}
+                              onClick={() => handleRemoveCard(card.scryfallId!)}
+                            >
+                              {removingId === card.scryfallId ? 'Quitando…' : 'Quitar'}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           )}
         </div>
-        {status?.message && (
-          <div
-            className={`p-4 rounded-xl border text-body ${
-              status.status === 'INVALID'
-                ? 'bg-red-50 border-red-200 text-red-700'
-                : 'bg-slate-50 border-silver/60 text-slate'
-            }`}
-            role={status.status === 'INVALID' ? 'alert' : 'status'}
-          >
-            {status.message}
-          </div>
-        )}
-        {deck.description && (
-          <p className="text-body text-slate whitespace-pre-line">{deck.description}</p>
-        )}
-        <p className="text-caption text-graphite">
-          {cards.length} carta{cards.length === 1 ? '' : 's'} distintas
-        </p>
-      </div>
 
-      {deck.commander && (
-        <div className="flex flex-col gap-4">
-          <h2 className="font-display text-heading-sm">Comandante</h2>
-          <div className="card p-4 flex items-center gap-4">
-            <DeckCommanderImage commanderName={deck.commander} />
-            <div className="min-w-0">
-              <p className="font-display text-heading text-ink line-clamp-1">{deck.commander}</p>
-              {(deck.commanderColors?.length ?? 0) > 0 && (
-                <p className="text-body-sm text-graphite mt-1">
-                  Colores: {deck.commanderColors!.join(', ')}
-                </p>
+        <aside className="card p-5 flex flex-col gap-4 lg:sticky lg:top-24" aria-label="Información del mazo">
+          <div className="flex justify-center">
+            {deck.commander ? (
+              <DeckCommanderImage commanderName={deck.commander} size="lg" />
+            ) : (
+              <div className="w-28 h-40 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite text-center px-1">
+                Sin imagen
+              </div>
+            )}
+          </div>
+          <div className="text-center flex flex-col items-center gap-1.5">
+            <h1 className="font-display text-heading text-ink">{deck.name}</h1>
+            <ManaColorDots colors={deck.commanderColors} />
+            {deck.commander && (
+              <p className="text-body-sm text-graphite line-clamp-1" title={deck.commander}>
+                {deck.commander}
+              </p>
+            )}
+          </div>
+          {deck.description && (
+            <p className="text-body-sm text-slate whitespace-pre-line">{deck.description}</p>
+          )}
+          <dl className="flex flex-col gap-1.5 text-body-sm border-t border-silver/60 pt-4">
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-graphite">Cartas</dt>
+              <dd className="font-semibold text-ink">{totalCount}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-graphite">Distintas</dt>
+              <dd className="font-semibold text-ink">{cards.length}</dd>
+            </div>
+          </dl>
+          {status && (
+            <div className="border-t border-silver/60 pt-4 flex flex-col gap-2">
+              <span className={`self-start px-3 py-1 rounded-full text-caption font-semibold ${DECK_STATUS_COLORS[status.status]}`}>
+                {DECK_STATUS_LABELS[status.status]}
+              </span>
+              {status.message && (
+                <p className="text-body-sm text-slate">{status.message}</p>
               )}
             </div>
-          </div>
-        </div>
-      )}
-
-      <div className="flex flex-col gap-4">
-        <h2 className="font-display text-heading-sm">Mazo</h2>
-        {cards.length === 0 ? (
-          <EmptyState
-            title="Mazo vacío"
-            message="Usa el botón Añadir carta para buscar en Scryfall."
-          />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {cards.map((card) => (
-              <div key={card.scryfallId || card.cardName} className="card flex gap-4 p-4">
-                {card.imageUrl ? (
-                  <img
-                    src={card.imageUrl}
-                    alt={card.cardName}
-                    loading="lazy"
-                    className="w-16 h-[88px] object-cover rounded-lg shadow-sm shrink-0 bg-paper"
-                  />
-                ) : (
-                  <div className="w-16 h-[88px] rounded-lg shrink-0 bg-brand-soft flex items-center justify-center text-caption text-graphite text-center px-1">
-                    Sin imagen
-                  </div>
-                )}
-                <div className="min-w-0 flex-1 flex flex-col">
-                  <h3 className="font-display text-heading-sm leading-snug line-clamp-1">{card.cardName}</h3>
-                  <p className="text-caption text-graphite mt-0.5">
-                    {[card.manaCost, card.typeLine].filter(Boolean).join(' · ') || 'Carta'}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1 text-caption">
-                    <span className="font-semibold text-ink">x{card.quantity}</span>
-                    {card.inCollection && (
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">
-                        En colección
-                      </span>
-                    )}
-                    {card.isProxy && (
-                      <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-medium">
-                        Proxy
-                      </span>
-                    )}
-                  </div>
-                  {card.scryfallId && (
-                    <button
-                      type="button"
-                      className="btn-ghost !px-3 !py-1 mt-auto self-start !text-red-600 hover:!bg-red-50 hover:!border-red-200"
-                      disabled={removingId === card.scryfallId}
-                      onClick={() => handleRemoveCard(card.scryfallId!)}
-                    >
-                      {removingId === card.scryfallId ? 'Quitando…' : 'Quitar'}
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+          )}
+        </aside>
       </div>
 
       {modal.open && (
