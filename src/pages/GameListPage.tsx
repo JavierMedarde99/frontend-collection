@@ -7,11 +7,11 @@ import GameCard from '../components/GameCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
-import Pagination from '../components/Pagination'
+import SkeletonInline from '../components/SkeletonInline'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
-import { usePagedList } from '../hooks/usePagedList'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useListQuery } from '../hooks/useListQuery'
 
@@ -27,23 +27,23 @@ export default function GameListPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const [query, setQuery] = useListQuery({
-    page: 0,
     status: '' as GameStatus | '',
     platform: '' as GamePlatform | '',
     name: '',
     sort: 'title,asc',
   })
-  const { status, platform: platformFilter, name: nameFilter, sort, page } = query
+  const { status, platform: platformFilter, name: nameFilter, sort } = query
 
   const {
     items: games,
-    totalPages,
     totalElements,
+    hasMore,
     loading,
+    loadingMore,
     error,
+    sentinelRef,
     reload: load,
-  } = usePagedList<Game>( {
-    page,
+  } = useInfiniteScroll<Game>( {
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar los videojuegos.',
     fetchPage: (page, size) => listGames({
@@ -60,12 +60,12 @@ export default function GameListPage() {
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
-    setQuery({ name: nameInput.trim(), page: 0 })
+    setQuery({ name: nameInput.trim() })
   }
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ status: '', platform: '', name: '', page: 0 })
+    setQuery({ status: '', platform: '', name: '' })
   }
 
   const hasActiveFilters = Boolean(status || platformFilter || nameFilter)
@@ -84,7 +84,7 @@ export default function GameListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v, page: 0 })} options={GAME_SORTS} />
+          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v })} options={GAME_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -139,7 +139,7 @@ export default function GameListPage() {
             <select
               className="input md:w-48"
               value={platformFilter}
-              onChange={(e) => { setQuery({ platform: e.target.value as GamePlatform, page: 0 }) }}
+              onChange={(e) => { setQuery({ platform: e.target.value as GamePlatform }) }}
               aria-label="Filtrar por plataforma"
             >
               <option value="">Todas las plataformas</option>
@@ -152,14 +152,14 @@ export default function GameListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <FilterPill active={!status} onClick={() => setQuery({ status: '', page: 0 })} label="Todos los estados">
+        <FilterPill active={!status} onClick={() => setQuery({ status: '' })} label="Todos los estados">
           Todos
         </FilterPill>
         {Object.entries(GAME_STATES).map(([key, label]) => (
           <FilterPill
             key={key}
             active={status === key}
-            onClick={() => setQuery({ status: key as GameStatus, page: 0 })}
+            onClick={() => setQuery({ status: key as GameStatus })}
             label={`Filtrar por estado: ${label}`}
           >
             {label}
@@ -196,16 +196,23 @@ export default function GameListPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {games.map((game, index) => (
-            <GameCard key={game.id} game={game} index={index}
-              onDelete={async () => { await deleteGame(game.id); load() }}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {games.map((game, index) => (
+              <GameCard key={game.id} game={game} index={index}
+                onDelete={async () => { await deleteGame(game.id); load() }}
+              />
+            ))}
+          </div>
+          {loadingMore && <SkeletonInline />}
+          {!hasMore && (
+            <p className="text-body-sm text-graphite text-center" role="status">
+              No hay más videojuegos
+            </p>
+          )}
+          <div ref={sentinelRef} className="h-px" aria-hidden="true" />
+        </>
       )}
-
-      <Pagination page={page} totalPages={totalPages} onChange={(n) => setQuery({ page: n })} disabled={loading} />
     </section>
   )
 }
