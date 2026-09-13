@@ -174,17 +174,17 @@ export default function DeckListPage() {
                         {deck.commander}
                       </p>
                     )}
-                    <p className="text-caption font-semibold text-brand mt-auto pt-1">
+                    <p className="text-body font-semibold text-brand mt-auto pt-1">
                       {total} carta{total === 1 ? '' : 's'}
                     </p>
                   </div>
                 </div>
                 {deck.description && (
-                  <p className="text-body-sm text-slate line-clamp-2 px-5 pb-4">{deck.description}</p>
+                  <p className="text-body text-slate line-clamp-2 px-5 pb-4">{deck.description}</p>
                 )}
                 <div className="mt-auto flex items-center gap-2 px-4 py-3 border-t border-silver/60">
                   <Link
-                    className="btn-ghost !px-3 !py-1.5 flex-1 text-center"
+                    className="btn-ghost !px-4 !py-2 flex-1 text-center"
                     to={`/magic/mazos/${deck.id}`}
                     aria-label={`Ver ${deck.name}`}
                   >
@@ -192,7 +192,7 @@ export default function DeckListPage() {
                   </Link>
                   <button
                     type="button"
-                    className="btn-ghost !px-3 !py-1.5 flex-1"
+                    className="btn-ghost !px-4 !py-2 flex-1"
                     onClick={() => handleEdit(deck.id)}
                     aria-label={`Editar ${deck.name}`}
                   >
@@ -200,7 +200,7 @@ export default function DeckListPage() {
                   </button>
                   <button
                     type="button"
-                    className="btn-ghost !px-3 !py-1.5 flex-1 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
+                    className="btn-ghost !px-4 !py-2 flex-1 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
                     onClick={() => setDeleting(deck)}
                     aria-label={`Eliminar ${deck.name}`}
                   >

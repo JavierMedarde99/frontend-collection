@@ -10,14 +10,15 @@ const DOT_STYLES: Record<ManaColorCode, string> = {
 
 interface ManaColorDotsProps {
   colors?: string[]
-  size?: 'sm' | 'md'
+  size?: 'sm' | 'md' | 'lg'
 }
 
 /** Identidad de color del comandante como círculos de colores MTG. */
 export default function ManaColorDots({ colors, size = 'md' }: ManaColorDotsProps) {
   const valid = (colors || []).filter((c): c is ManaColorCode => c in MANA_COLORS)
   if (valid.length === 0) return null
-  const dims = size === 'sm' ? 'w-4 h-4 text-[10px]' : 'w-5 h-5 text-[11px]'
+  const dims =
+    size === 'sm' ? 'w-4 h-4 text-[10px]' : size === 'lg' ? 'w-8 h-8 text-sm' : 'w-6 h-6 text-xs'
   return (
     <span
       className="inline-flex items-center gap-1 shrink-0"
