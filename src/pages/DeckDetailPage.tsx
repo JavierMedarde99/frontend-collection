@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getDeck, deleteDeck, addCardToDeck, removeCardFromDeck, getDeckStatus } from '../api/deckApi'
 import { searchMagicCards } from '../api/magicApi'
-import type { DeckResponse, DeckStatusResponse, MagicCardSearchResult } from '../types'
+import type { DeckCardResponse, DeckResponse, DeckStatusResponse, MagicCardSearchResult } from '../types'
 import { DECK_STATUS_LABELS, DECK_STATUS_COLORS } from '../constants/decks'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
@@ -99,18 +99,20 @@ export default function DeckDetailPage() {
   const [removingId, setRemovingId] = useState<string | null>(null)
   const { query, searchResults, searching, searchError, selected, quantity, adding, addError } = modal
 
-  // PopUp imagen en grande (carta de la tabla o comandante)
-  const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
+  // PopUp imagen en grande (carta de la tabla o comandante), con carrusel
+  const [preview, setPreview] = useState<{ kind: 'card'; index: number } | { kind: 'commander' } | null>(null)
   const [commanderImage, setCommanderImage] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!selectedImage) return
+    if (!preview) return
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setSelectedImage(null)
+      if (e.key === 'Escape') setPreview(null)
+      else if (e.key === 'ArrowRight') step(1)
+      else if (e.key === 'ArrowLeft') step(-1)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selectedImage])
+  })
 
   useEffect(() => {
     setCommanderImage(null)
@@ -236,6 +238,23 @@ export default function DeckDetailPage() {
 
   const cards = deck.cards || []
   const totalCount = cards.reduce((sum, c) => sum + (c.quantity || 0), 0)
+  const imageCards = cards.filter((c) => c.imageUrl)
+  const currentIndex =
+    preview?.kind === 'card' && imageCards.length > 0
+      ? ((preview.index % imageCards.length) + imageCards.length) % imageCards.length
+      : 0
+  const currentCard = preview?.kind === 'card' && imageCards.length > 0 ? imageCards[currentIndex] : null
+  const showCommander = preview?.kind === 'commander' && commanderImage
+
+  function openCardImage(card: DeckCardResponse) {
+    const index = imageCards.findIndex((c) => (c.scryfallId || c.cardName) === (card.scryfallId || card.cardName))
+    if (index >= 0) setPreview({ kind: 'card', index })
+  }
+
+  function step(dir: 1 | -1) {
+    if (preview?.kind !== 'card' || imageCards.length < 2) return
+    setPreview({ kind: 'card', index: (currentIndex + dir + imageCards.length) % imageCards.length })
+  }
 
   return (
     <article className="max-w-6xl mx-auto flex flex-col gap-8">
@@ -291,9 +310,7 @@ export default function DeckDetailPage() {
                     {cards.map((card) => (
                       <tr
                         key={card.scryfallId || card.cardName}
-                        onClick={() => {
-                          if (card.imageUrl) setSelectedImage({ url: card.imageUrl, title: card.cardName })
-                        }}
+                        onClick={() => openCardImage(card)}
                         title={card.imageUrl ? `Ver ${card.cardName} en grande` : undefined}
                         className="border-b border-silver/40 last:border-0 even:bg-slate-50/60 hover:bg-brand-soft/40 transition-colors cursor-pointer"
                       >
@@ -321,9 +338,7 @@ export default function DeckDetailPage() {
                               <button
                                 type="button"
                                 className="font-medium text-ink line-clamp-1 text-left hover:text-brand transition-colors"
-                                onClick={() => {
-                                  if (card.imageUrl) setSelectedImage({ url: card.imageUrl, title: card.cardName })
-                                }}
+                                onClick={() => openCardImage(card)}
                                 aria-label={`Ver ${card.cardName} en grande`}
                               >
                                 {card.cardName}
@@ -377,7 +392,7 @@ export default function DeckDetailPage() {
                 <button
                   type="button"
                   className="rounded-xl cursor-pointer hover:opacity-95 transition-opacity"
-                  onClick={() => setSelectedImage({ url: commanderImage, title: deck.commander! })}
+                  onClick={() => setPreview({ kind: 'commander' })}
                   aria-label={`Ver ${deck.commander} en grande`}
                   title={`Ver ${deck.commander} en grande`}
                 >
@@ -427,31 +442,56 @@ export default function DeckDetailPage() {
         </aside>
       </div>
 
-      {selectedImage && (
+      {(currentCard || showCommander) && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/70 backdrop-blur-md modal-sheet"
-          onClick={() => setSelectedImage(null)}
+          onClick={() => setPreview(null)}
         >
           <div
             role="dialog"
             aria-modal="true"
-            aria-label={selectedImage.title}
+            aria-label={currentCard ? currentCard.cardName : deck.commander}
             className="relative"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
-              className="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-ink text-white text-body font-bold shadow-lg hover:bg-brand transition-colors"
-              onClick={() => setSelectedImage(null)}
+              className="absolute -top-3 -right-3 z-10 w-9 h-9 rounded-full bg-ink text-white text-body font-bold shadow-lg hover:bg-brand transition-colors"
+              onClick={() => setPreview(null)}
               aria-label="Cerrar detalle"
             >
               ✕
             </button>
+            {preview?.kind === 'card' && imageCards.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-ink/70 text-white text-heading font-bold shadow-lg hover:bg-brand transition-colors"
+                  onClick={() => step(-1)}
+                  aria-label="Carta anterior"
+                >
+                  ←
+                </button>
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-ink/70 text-white text-heading font-bold shadow-lg hover:bg-brand transition-colors"
+                  onClick={() => step(1)}
+                  aria-label="Carta siguiente"
+                >
+                  →
+                </button>
+              </>
+            )}
             <img
-              src={selectedImage.url}
-              alt={selectedImage.title}
+              src={currentCard?.imageUrl ?? commanderImage ?? ''}
+              alt={currentCard ? currentCard.cardName : deck.commander}
               className="max-h-[85vh] w-auto max-w-[90vw] rounded-xl shadow-2xl bg-paper"
             />
+            {preview?.kind === 'card' && imageCards.length > 1 && (
+              <p className="absolute bottom-3 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-ink/70 text-white text-caption font-semibold">
+                {currentIndex + 1} / {imageCards.length}
+              </p>
+            )}
           </div>
         </div>
       )}
