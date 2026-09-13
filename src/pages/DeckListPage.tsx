@@ -1,10 +1,11 @@
-import { useRef, useState, type FormEvent, type MouseEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { usePagedList } from '../hooks/usePagedList'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import { listDecks, deleteDeck } from '../api/deckApi'
-import CardMenu from '../components/CardMenu'
 import DeckCommanderImage from '../components/DeckCommanderImage'
+import ManaColorDots from '../components/ManaColorDots'
+import ConfirmDialog from '../components/ConfirmDialog'
 import type { DeckResponse } from '../types'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
@@ -57,9 +58,23 @@ export default function DeckListPage() {
 
   const hasActiveFilters = Boolean(nameFilter)
 
-  function handleEdit(e: MouseEvent, deckId: string) {
-    e.preventDefault()
+  const [deleting, setDeleting] = useState<DeckResponse | null>(null)
+  const [deleteBusy, setDeleteBusy] = useState(false)
+
+  function handleEdit(deckId: string) {
     navigate(`/magic/mazos/${deckId}/editar`)
+  }
+
+  async function confirmDelete() {
+    if (!deleting) return
+    setDeleteBusy(true)
+    try {
+      await deleteDeck(deleting.id)
+      setDeleting(null)
+      load()
+    } finally {
+      setDeleteBusy(false)
+    }
   }
 
   return (
@@ -91,14 +106,14 @@ export default function DeckListPage() {
       </div>
 
       <SearchField
-            value={nameInput}
-            onChange={setNameInput}
-            onSubmit={handleSearch}
-            placeholder="Buscar mazo por nombre…"
-            label="Buscar mazo por nombre"
-            inputRef={searchRef}
-            shortcutHint
-          />
+        value={nameInput}
+        onChange={setNameInput}
+        onSubmit={handleSearch}
+        placeholder="Buscar mazo por nombre…"
+        label="Buscar mazo por nombre"
+        inputRef={searchRef}
+        shortcutHint
+      />
 
       {error && (
         <ErrorBanner message={error} />
@@ -128,74 +143,84 @@ export default function DeckListPage() {
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {decks.map((deck, idx) => (
-            <Link
-              key={deck.id}
-              to={`/magic/mazos/${deck.id}`}
-              className="card card-hover animate-fade-up relative flex gap-4 p-5 group"
-              style={{ animationDelay: `${Math.min(idx, 12) * 40}ms` }}
-            >
-              <div className="absolute top-3 right-3">
-                <CardMenu
-                  detailTo={`/magic/mazos/${deck.id}`}
-                  editTo={`/magic/mazos/${deck.id}/editar`}
-                  itemName={deck.name}
-                  onDelete={async () => { await deleteDeck(deck.id); load() }}
-                />
-              </div>
-              {deck.commander ? (
-                <DeckCommanderImage commanderName={deck.commander} />
-              ) : (
-                <div className="w-20 h-28 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite text-center px-1">
-                  Sin imagen
-                </div>
-              )}
-              <div className="min-w-0 flex-1 flex flex-col gap-1.5">
-                <div className="flex items-start justify-between gap-3">
-                  <h3
-                    className="font-display text-heading-sm leading-snug text-ink line-clamp-1 min-w-0 flex-1"
-                    title={deck.name}
-                  >
-                    {deck.name}
-                  </h3>
-                  {(deck.commanderColors?.length ?? 0) > 0 && (
-                    <div className="flex items-center gap-1 shrink-0">
-                      {deck.commanderColors!.map((color) => (
-                        <span
-                          key={color}
-                          className="w-5 h-5 rounded-full bg-brand-soft text-brand text-caption font-bold flex items-center justify-center"
-                        >
-                          {color}
-                        </span>
-                      ))}
+          {decks.map((deck, idx) => {
+            const total = totalCards(deck)
+            return (
+              <article
+                key={deck.id}
+                className="card card-hover animate-fade-up group flex flex-col overflow-hidden hover:!border-accent hover:shadow-lg"
+                style={{ animationDelay: `${Math.min(idx, 12) * 40}ms` }}
+              >
+                <div className="flex gap-4 p-5">
+                  {deck.commander ? (
+                    <DeckCommanderImage commanderName={deck.commander} size="lg" />
+                  ) : (
+                    <div className="w-28 h-40 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite text-center px-1">
+                      Sin imagen
                     </div>
                   )}
+                  <div className="min-w-0 flex-1 flex flex-col gap-1.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3
+                        className="font-display text-heading leading-snug text-ink line-clamp-1 min-w-0 flex-1"
+                        title={deck.name}
+                      >
+                        {deck.name}
+                      </h3>
+                      <ManaColorDots colors={deck.commanderColors} />
+                    </div>
+                    {deck.commander && (
+                      <p className="text-body-sm text-graphite line-clamp-1" title={deck.commander}>
+                        {deck.commander}
+                      </p>
+                    )}
+                    <p className="text-caption font-semibold text-brand mt-auto pt-1">
+                      {total} carta{total === 1 ? '' : 's'}
+                    </p>
+                  </div>
                 </div>
-                {deck.commander && (
-                  <p className="text-body-sm text-graphite line-clamp-1" title={deck.commander}>
-                    Comandante: {deck.commander}
-                  </p>
-                )}
                 {deck.description && (
-                  <p className="text-body text-slate line-clamp-2">{deck.description}</p>
+                  <p className="text-body-sm text-slate line-clamp-2 px-5 pb-4">{deck.description}</p>
                 )}
-                <p className="text-caption text-graphite">
-                  {totalCards(deck)} carta{totalCards(deck) === 1 ? '' : 's'}
-                </p>
-                <div className="mt-auto pt-3 border-t border-silver/60 flex justify-end">
+                <div className="mt-auto flex items-center gap-2 px-4 py-3 border-t border-silver/60">
+                  <Link
+                    className="btn-ghost !px-3 !py-1.5 flex-1 text-center"
+                    to={`/magic/mazos/${deck.id}`}
+                    aria-label={`Ver ${deck.name}`}
+                  >
+                    Ver
+                  </Link>
                   <button
                     type="button"
-                    className="btn-ghost !px-3 !py-1.5"
-                    onClick={(e) => handleEdit(e, deck.id)}
+                    className="btn-ghost !px-3 !py-1.5 flex-1"
+                    onClick={() => handleEdit(deck.id)}
+                    aria-label={`Editar ${deck.name}`}
                   >
                     Editar
                   </button>
+                  <button
+                    type="button"
+                    className="btn-ghost !px-3 !py-1.5 flex-1 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
+                    onClick={() => setDeleting(deck)}
+                    aria-label={`Eliminar ${deck.name}`}
+                  >
+                    Eliminar
+                  </button>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </article>
+            )
+          })}
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleting !== null}
+        title="Eliminar mazo"
+        message={deleting ? `¿Seguro que quieres eliminar "${deleting.name}"? Esta acción no se puede deshacer.` : ''}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleting(null)}
+        busy={deleteBusy}
+      />
 
       <Pagination
         page={page}
