@@ -148,7 +148,8 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
       ...(showStartDate ? { startDate: form.startDate || undefined } : {}),
       ...(showEndDate ? { endDate: form.endDate || undefined } : {}),
       frontpage: form.frontpage?.trim() || undefined,
-      ...(isCreate ? {} : { externalId: form.externalId?.trim() || undefined }),
+      // ID venido de Google Books: se conserva sin mostrarse en el formulario.
+      ...(initial.externalId?.trim() ? { externalId: initial.externalId.trim() } : {}),
     }
 
     setSubmitting(true)
@@ -261,19 +262,6 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
           </Field>
         )}
       </FormSection>
-
-      {!isCreate && (
-        <FormSection title="Externo">
-          <Field label="ID externo (Google Books)" icon="externalId">
-            <input
-              className="input"
-              value={form.externalId}
-              onChange={set('externalId')}
-              placeholder="Opcional"
-            />
-          </Field>
-        </FormSection>
-      )}
 
       {(error || localError) && (
         <div
