@@ -4,13 +4,15 @@ import { searchMagicCards } from '../api/magicApi'
 interface DeckCommanderImageProps {
   commanderName: string
   size?: 'md' | 'lg' | 'xl'
+  /** Avisa con la URL resuelta (o null si falla) para reutilizarla fuera. */
+  onImageLoad?: (url: string | null) => void
 }
 
 /**
  * Muestra la foto de la carta del comandante buscándola en Scryfall
  * por nombre (el backend no guarda la imagen del comandante en el mazo).
  */
-export default function DeckCommanderImage({ commanderName, size = 'md' }: DeckCommanderImageProps) {
+export default function DeckCommanderImage({ commanderName, size = 'md', onImageLoad }: DeckCommanderImageProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const dims = size === 'xl' ? 'w-32 h-44' : size === 'lg' ? 'w-28 h-40' : 'w-20 h-28'
 
@@ -19,17 +21,20 @@ export default function DeckCommanderImage({ commanderName, size = 'md' }: DeckC
     let cancelled = false
     searchMagicCards(commanderName.trim())
       .then((results) => {
-        if (!cancelled) {
-          setImageUrl(results[0]?.imageUrl || null)
-        }
+        if (cancelled) return
+        const url = results[0]?.imageUrl || null
+        setImageUrl(url)
+        onImageLoad?.(url)
       })
       .catch(() => {
-        if (!cancelled) setImageUrl(null)
+        if (cancelled) return
+        setImageUrl(null)
+        onImageLoad?.(null)
       })
     return () => {
       cancelled = true
     }
-  }, [commanderName])
+  }, [commanderName, onImageLoad])
 
   if (!imageUrl) {
     return (

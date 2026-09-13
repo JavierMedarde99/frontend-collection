@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getDeck, deleteDeck, addCardToDeck, removeCardFromDeck, getDeckStatus } from '../api/deckApi'
 import { searchMagicCards } from '../api/magicApi'
-import type { DeckCardResponse, DeckResponse, DeckStatusResponse, MagicCardSearchResult } from '../types'
+import type { DeckResponse, DeckStatusResponse, MagicCardSearchResult } from '../types'
 import { DECK_STATUS_LABELS, DECK_STATUS_COLORS } from '../constants/decks'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
@@ -99,17 +99,22 @@ export default function DeckDetailPage() {
   const [removingId, setRemovingId] = useState<string | null>(null)
   const { query, searchResults, searching, searchError, selected, quantity, adding, addError } = modal
 
-  // PopUp detalle de carta al hacer clic en una fila
-  const [selectedCard, setSelectedCard] = useState<DeckCardResponse | null>(null)
+  // PopUp imagen en grande (carta de la tabla o comandante)
+  const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
+  const [commanderImage, setCommanderImage] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!selectedCard) return
+    if (!selectedImage) return
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setSelectedCard(null)
+      if (e.key === 'Escape') setSelectedImage(null)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selectedCard])
+  }, [selectedImage])
+
+  useEffect(() => {
+    setCommanderImage(null)
+  }, [deck?.commander])
 
   const load = useCallback(async () => {
     if (!id) return
@@ -286,8 +291,10 @@ export default function DeckDetailPage() {
                     {cards.map((card) => (
                       <tr
                         key={card.scryfallId || card.cardName}
-                        onClick={() => setSelectedCard(card)}
-                        title={`Ver detalle de ${card.cardName}`}
+                        onClick={() => {
+                          if (card.imageUrl) setSelectedImage({ url: card.imageUrl, title: card.cardName })
+                        }}
+                        title={card.imageUrl ? `Ver ${card.cardName} en grande` : undefined}
                         className="border-b border-silver/40 last:border-0 even:bg-slate-50/60 hover:bg-brand-soft/40 transition-colors cursor-pointer"
                       >
                         <td className="px-4 py-3 whitespace-nowrap">
@@ -314,8 +321,10 @@ export default function DeckDetailPage() {
                               <button
                                 type="button"
                                 className="font-medium text-ink line-clamp-1 text-left hover:text-brand transition-colors"
-                                onClick={() => setSelectedCard(card)}
-                                aria-label={`Ver detalle de ${card.cardName}`}
+                                onClick={() => {
+                                  if (card.imageUrl) setSelectedImage({ url: card.imageUrl, title: card.cardName })
+                                }}
+                                aria-label={`Ver ${card.cardName} en grande`}
                               >
                                 {card.cardName}
                               </button>
@@ -364,7 +373,19 @@ export default function DeckDetailPage() {
         <aside className="card p-5 flex flex-col gap-4 lg:sticky lg:top-24" aria-label="Información del mazo">
           <div className="flex justify-center">
             {deck.commander ? (
-              <DeckCommanderImage commanderName={deck.commander} size="xl" />
+              commanderImage ? (
+                <button
+                  type="button"
+                  className="rounded-xl cursor-pointer hover:opacity-95 transition-opacity"
+                  onClick={() => setSelectedImage({ url: commanderImage, title: deck.commander! })}
+                  aria-label={`Ver ${deck.commander} en grande`}
+                  title={`Ver ${deck.commander} en grande`}
+                >
+                  <DeckCommanderImage commanderName={deck.commander} size="xl" onImageLoad={setCommanderImage} />
+                </button>
+              ) : (
+                <DeckCommanderImage commanderName={deck.commander} size="xl" onImageLoad={setCommanderImage} />
+              )
             ) : (
               <div className="w-32 h-44 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite text-center px-1">
                 Sin imagen
@@ -406,37 +427,31 @@ export default function DeckDetailPage() {
         </aside>
       </div>
 
-      {selectedCard && (
+      {selectedImage && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/70 backdrop-blur-md modal-sheet"
-          onClick={() => setSelectedCard(null)}
+          onClick={() => setSelectedImage(null)}
         >
           <div
             role="dialog"
             aria-modal="true"
-            aria-label={`Detalle de ${selectedCard.cardName}`}
+            aria-label={selectedImage.title}
             className="relative"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               className="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-ink text-white text-body font-bold shadow-lg hover:bg-brand transition-colors"
-              onClick={() => setSelectedCard(null)}
+              onClick={() => setSelectedImage(null)}
               aria-label="Cerrar detalle"
             >
               ✕
             </button>
-            {selectedCard.imageUrl ? (
-              <img
-                src={selectedCard.imageUrl}
-                alt={selectedCard.cardName}
-                className="max-h-[85vh] w-auto max-w-[90vw] rounded-xl shadow-2xl bg-paper"
-              />
-            ) : (
-              <div className="w-64 aspect-[5/7] max-h-[85vh] rounded-xl bg-brand-soft border border-silver/60 flex items-center justify-center text-body text-graphite text-center px-4">
-                Sin imagen
-              </div>
-            )}
+            <img
+              src={selectedImage.url}
+              alt={selectedImage.title}
+              className="max-h-[85vh] w-auto max-w-[90vw] rounded-xl shadow-2xl bg-paper"
+            />
           </div>
         </div>
       )}
