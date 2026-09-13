@@ -1,6 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { usePagedList } from '../hooks/usePagedList'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import { listBooks, deleteBook } from '../api/booksApi'
 import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
 import { BookType, BookState, type Book } from '../types'
@@ -8,7 +8,7 @@ import BookCard from '../components/BookCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
-import Pagination from '../components/Pagination'
+import SkeletonInline from '../components/SkeletonInline'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
@@ -28,24 +28,24 @@ export default function BookListPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const [query, setQuery] = useListQuery({
-    page: 0,
     status: '' as BookState | '',
     type: '' as BookType | '',
     name: '',
     author: '',
     sort: 'title,asc',
   })
-  const { status, type: typeFilter, name: nameFilter, author: authorFilter, sort, page } = query
+  const { status, type: typeFilter, name: nameFilter, author: authorFilter, sort } = query
 
   const {
     items: books,
-    totalPages,
     totalElements,
+    hasMore,
     loading,
+    loadingMore,
     error,
+    sentinelRef,
     reload: load,
-  } = usePagedList<Book>({
-    page,
+  } = useInfiniteScroll<Book>({
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar los libros.',
     fetchPage: (page, size) =>
@@ -63,18 +63,18 @@ export default function BookListPage() {
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
-    setQuery({ name: nameInput.trim(), page: 0 })
+    setQuery({ name: nameInput.trim() })
   }
 
   function handleAuthorSearch(e: FormEvent) {
     e.preventDefault()
-    setQuery({ author: authorInput.trim(), page: 0 })
+    setQuery({ author: authorInput.trim() })
   }
 
   function clearFilters() {
     setNameInput('')
     setAuthorInput('')
-    setQuery({ status: '', type: '', name: '', author: '', page: 0 })
+    setQuery({ status: '', type: '', name: '', author: '' })
   }
 
   const hasActiveFilters = Boolean(status || typeFilter || nameFilter || authorFilter)
@@ -94,7 +94,7 @@ export default function BookListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v, page: 0 })} options={BOOK_SORTS} />
+          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v })} options={BOOK_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -157,7 +157,7 @@ export default function BookListPage() {
           <select
             className="input md:w-48"
             value={typeFilter}
-            onChange={(e) => setQuery({ type: e.target.value as BookType, page: 0 })}
+            onChange={(e) => setQuery({ type: e.target.value as BookType })}
             aria-label="Filtrar por tipo"
           >
             <option value="">Todos los tipos</option>
@@ -170,14 +170,14 @@ export default function BookListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <FilterPill active={!status} onClick={() => setQuery({ status: '', page: 0 })} label="Todos los estados">
+        <FilterPill active={!status} onClick={() => setQuery({ status: '' })} label="Todos los estados">
           Todos
         </FilterPill>
         {Object.entries(BOOK_STATES).map(([key, label]) => (
           <FilterPill
             key={key}
             active={status === key}
-            onClick={() => setQuery({ status: key as BookState, page: 0 })}
+            onClick={() => setQuery({ status: key as BookState })}
             label={`Filtrar por estado: ${label}`}
           >
             {label}
@@ -214,16 +214,23 @@ export default function BookListPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {books.map((book, index) => (
-            <BookCard key={book.id} book={book} index={index}
-              onDelete={async () => { await deleteBook(book.id); load() }}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {books.map((book, index) => (
+              <BookCard key={book.id} book={book} index={index}
+                onDelete={async () => { await deleteBook(book.id); load() }}
+              />
+            ))}
+          </div>
+          {loadingMore && <SkeletonInline />}
+          {!hasMore && (
+            <p className="text-body-sm text-graphite text-center" role="status">
+              No hay más libros
+            </p>
+          )}
+          <div ref={sentinelRef} className="h-px" aria-hidden="true" />
+        </>
       )}
-
-      <Pagination page={page} totalPages={totalPages} onChange={(n) => setQuery({ page: n })} disabled={loading} />
     </section>
   )
 }
