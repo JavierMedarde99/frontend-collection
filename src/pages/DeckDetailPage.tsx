@@ -100,13 +100,13 @@ export default function DeckDetailPage() {
   const { query, searchResults, searching, searchError, selected, quantity, adding, addError } = modal
 
   // PopUp imagen en grande (carta de la tabla o comandante), con carrusel
-  const [selected, setSelected] = useState<{ kind: 'card'; index: number } | { kind: 'commander' } | null>(null)
+  const [preview, setPreview] = useState<{ kind: 'card'; index: number } | { kind: 'commander' } | null>(null)
   const [commanderImage, setCommanderImage] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!selected) return
+    if (!preview) return
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setSelected(null)
+      if (e.key === 'Escape') setPreview(null)
       else if (e.key === 'ArrowRight') step(1)
       else if (e.key === 'ArrowLeft') step(-1)
     }
@@ -240,20 +240,20 @@ export default function DeckDetailPage() {
   const totalCount = cards.reduce((sum, c) => sum + (c.quantity || 0), 0)
   const imageCards = cards.filter((c) => c.imageUrl)
   const currentIndex =
-    selected?.kind === 'card' && imageCards.length > 0
-      ? ((selected.index % imageCards.length) + imageCards.length) % imageCards.length
+    preview?.kind === 'card' && imageCards.length > 0
+      ? ((preview.index % imageCards.length) + imageCards.length) % imageCards.length
       : 0
-  const currentCard = selected?.kind === 'card' && imageCards.length > 0 ? imageCards[currentIndex] : null
-  const showCommander = selected?.kind === 'commander' && commanderImage
+  const currentCard = preview?.kind === 'card' && imageCards.length > 0 ? imageCards[currentIndex] : null
+  const showCommander = preview?.kind === 'commander' && commanderImage
 
   function openCardImage(card: DeckCardResponse) {
     const index = imageCards.findIndex((c) => (c.scryfallId || c.cardName) === (card.scryfallId || card.cardName))
-    if (index >= 0) setSelected({ kind: 'card', index })
+    if (index >= 0) setPreview({ kind: 'card', index })
   }
 
   function step(dir: 1 | -1) {
-    if (selected?.kind !== 'card' || imageCards.length < 2) return
-    setSelected({ kind: 'card', index: (currentIndex + dir + imageCards.length) % imageCards.length })
+    if (preview?.kind !== 'card' || imageCards.length < 2) return
+    setPreview({ kind: 'card', index: (currentIndex + dir + imageCards.length) % imageCards.length })
   }
 
   return (
@@ -392,7 +392,7 @@ export default function DeckDetailPage() {
                 <button
                   type="button"
                   className="rounded-xl cursor-pointer hover:opacity-95 transition-opacity"
-                  onClick={() => setSelected({ kind: 'commander' })}
+                  onClick={() => setPreview({ kind: 'commander' })}
                   aria-label={`Ver ${deck.commander} en grande`}
                   title={`Ver ${deck.commander} en grande`}
                 >
@@ -445,7 +445,7 @@ export default function DeckDetailPage() {
       {(currentCard || showCommander) && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/70 backdrop-blur-md modal-sheet"
-          onClick={() => setSelected(null)}
+          onClick={() => setPreview(null)}
         >
           <div
             role="dialog"
@@ -457,12 +457,12 @@ export default function DeckDetailPage() {
             <button
               type="button"
               className="absolute -top-3 -right-3 z-10 w-9 h-9 rounded-full bg-ink text-white text-body font-bold shadow-lg hover:bg-brand transition-colors"
-              onClick={() => setSelected(null)}
+              onClick={() => setPreview(null)}
               aria-label="Cerrar detalle"
             >
               ✕
             </button>
-            {selected?.kind === 'card' && imageCards.length > 1 && (
+            {preview?.kind === 'card' && imageCards.length > 1 && (
               <>
                 <button
                   type="button"
@@ -487,7 +487,7 @@ export default function DeckDetailPage() {
               alt={currentCard ? currentCard.cardName : deck.commander}
               className="max-h-[85vh] w-auto max-w-[90vw] rounded-xl shadow-2xl bg-paper"
             />
-            {selected?.kind === 'card' && imageCards.length > 1 && (
+            {preview?.kind === 'card' && imageCards.length > 1 && (
               <p className="absolute bottom-3 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-ink/70 text-white text-caption font-semibold">
                 {currentIndex + 1} / {imageCards.length}
               </p>
