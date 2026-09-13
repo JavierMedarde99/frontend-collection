@@ -152,21 +152,28 @@ export default function DeckListPage() {
                 style={{ animationDelay: `${Math.min(idx, 12) * 40}ms` }}
               >
                 <div className="flex gap-4 p-5">
-                  {deck.commander ? (
-                    <DeckCommanderImage commanderName={deck.commander} size="lg" />
-                  ) : (
-                    <div className="w-28 h-40 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite text-center px-1">
-                      Sin imagen
-                    </div>
-                  )}
+                  <Link
+                    to={`/magic/mazos/${deck.id}`}
+                    aria-label={`Ver ${deck.name}`}
+                    className="shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-brand"
+                  >
+                    {deck.commander ? (
+                      <DeckCommanderImage commanderName={deck.commander} size="lg" />
+                    ) : (
+                      <div className="w-28 h-40 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite text-center px-1">
+                        Sin imagen
+                      </div>
+                    )}
+                  </Link>
                   <div className="min-w-0 flex-1 flex flex-col gap-1.5">
                     <div className="flex items-start justify-between gap-2">
-                      <h3
-                        className="font-display text-heading leading-snug text-ink line-clamp-1 min-w-0 flex-1"
+                      <Link
+                        to={`/magic/mazos/${deck.id}`}
+                        className="font-display text-heading leading-snug text-ink line-clamp-1 min-w-0 flex-1 hover:text-brand transition-colors"
                         title={deck.name}
                       >
                         {deck.name}
-                      </h3>
+                      </Link>
                       <ManaColorDots colors={deck.commanderColors} />
                     </div>
                     {deck.commander && (
@@ -183,13 +190,6 @@ export default function DeckListPage() {
                   <p className="text-body text-slate line-clamp-2 px-5 pb-4">{deck.description}</p>
                 )}
                 <div className="mt-auto flex items-center gap-2 px-4 py-3 border-t border-silver/60">
-                  <Link
-                    className="btn-ghost !px-4 !py-2 flex-1 text-center"
-                    to={`/magic/mazos/${deck.id}`}
-                    aria-label={`Ver ${deck.name}`}
-                  >
-                    Ver
-                  </Link>
                   <button
                     type="button"
                     className="btn-ghost !px-4 !py-2 flex-1"
