@@ -1,10 +1,11 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import BookSearch from '../components/BookSearch'
 import { BookState } from '../types/BookState'
 import { BookType } from '../types/BookType'
 import type { SearchBookResult } from '../types/Api'
+import type { PageBookSearchResult } from '../types/Api'
 
 const results: SearchBookResult[] = [
   {
@@ -15,23 +16,47 @@ const results: SearchBookResult[] = [
   },
 ]
 
+function bookPage(items: SearchBookResult[]): PageBookSearchResult {
+  return { content: items, totalPages: 1, totalElements: items.length, number: 0, size: 10, empty: items.length === 0 }
+}
+
 vi.mock('react-router-dom', () => ({
   useNavigate: () => vi.fn(),
 }))
 
 vi.mock('../api/booksApi', () => ({
-  searchBooks: vi.fn(),
+  searchBooksPage: vi.fn(),
   createBook: vi.fn(),
 }))
 
-import { searchBooks, createBook } from '../api/booksApi'
+import { searchBooksPage, createBook } from '../api/booksApi'
 
-const mockedSearch = vi.mocked(searchBooks)
+const mockedSearch = vi.mocked(searchBooksPage)
 const mockedCreate = vi.mocked(createBook)
+
+let trigger: ((entries: [{ isIntersecting: boolean }]) => void) | null = null
+
+class MockIntersectionObserver {
+  constructor(cb: (entries: [{ isIntersecting: boolean }]) => void) {
+    trigger = cb
+  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+beforeEach(() => {
+  trigger = null
+  vi.stubGlobal('IntersectionObserver', MockIntersectionObserver)
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
 
 describe('BookSearch', () => {
   it('busca libros y muestra los resultados', async () => {
-    mockedSearch.mockResolvedValue(results)
+    mockedSearch.mockResolvedValue(bookPage(results))
     render(<BookSearch />)
 
     const input = screen.getByRole('textbox', { name: 'Búsqueda' })
@@ -40,11 +65,11 @@ describe('BookSearch', () => {
 
     expect(await screen.findByRole('heading', { name: 'Dune' })).toBeInTheDocument()
     expect(screen.getByText('Frank Herbert')).toBeInTheDocument()
-    expect(mockedSearch).toHaveBeenCalledWith('dune')
+    expect(mockedSearch).toHaveBeenCalledWith('dune', 0, 10)
   })
 
   it('muestra el estado vacío cuando no hay resultados', async () => {
-    mockedSearch.mockResolvedValue([])
+    mockedSearch.mockResolvedValue(bookPage([]))
     render(<BookSearch />)
 
     const input = screen.getByRole('textbox', { name: 'Búsqueda' })
@@ -66,7 +91,7 @@ describe('BookSearch', () => {
   })
 
   it('añade un libro desde el modal y resetea el formulario', async () => {
-    mockedSearch.mockResolvedValue(results)
+    mockedSearch.mockResolvedValue(bookPage(results))
     let captured: unknown
     mockedCreate.mockImplementation(async (payload) => {
       captured = payload
@@ -96,7 +121,7 @@ describe('BookSearch', () => {
 
   it('mantiene el modal abierto si falla al añadir', async () => {
     vi.spyOn(window, 'alert').mockImplementation(() => {})
-    mockedSearch.mockResolvedValue(results)
+    mockedSearch.mockResolvedValue(bookPage(results))
     mockedCreate.mockRejectedValue(new Error('No se pudo añadir el libro.'))
 
     render(<BookSearch />)
