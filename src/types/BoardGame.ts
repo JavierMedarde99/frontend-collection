@@ -67,7 +67,17 @@ export interface BoardGameSearchResult {
 
 export interface BoardGameSearchResponse {
   query: string
-  results: BoardGameSearchResult[]
+  /** El backend pagina los resultados: antes era un array directo. */
+  results: BoardGameSearchResult[] | PageBoardGameSearchResult
+}
+
+export interface PageBoardGameSearchResult {
+  content: BoardGameSearchResult[]
+  totalPages: number
+  totalElements: number
+  number: number
+  size: number
+  empty: boolean
 }
 
 export interface PageBoardGameResponse {

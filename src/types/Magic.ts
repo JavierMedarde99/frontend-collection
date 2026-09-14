@@ -100,7 +100,17 @@ export interface MagicCardSearchResult {
 
 export interface MagicCardSearchResponse {
   query: string
-  results: MagicCardSearchResult[]
+  /** El backend pagina los resultados: antes era un array directo. */
+  results: MagicCardSearchResult[] | PageMagicCardSearchResult
+}
+
+export interface PageMagicCardSearchResult {
+  content: MagicCardSearchResult[]
+  totalPages: number
+  totalElements: number
+  number: number
+  size: number
+  empty: boolean
 }
 
 export interface PageMagicCardResponse {
