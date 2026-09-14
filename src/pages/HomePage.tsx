@@ -21,6 +21,44 @@ function countOf(result: PromiseSettledResult<{ totalElements?: number } | null>
   return result.status === 'fulfilled' ? result.value?.totalElements ?? 0 : 0
 }
 
+interface EntityTotals {
+  books: number
+  games: number
+  magic: number
+  decks: number
+  boardGames: number
+  movieShows: number
+}
+
+const ENTITIES: { key: keyof EntityTotals; label: string; short: string; to: string; chip: string }[] = [
+  { key: 'books', label: 'Libros', short: 'L', to: '/coleccion', chip: 'bg-indigo-100 text-indigo-700' },
+  { key: 'games', label: 'Videojuegos', short: 'V', to: '/juegos', chip: 'bg-sky-100 text-sky-700' },
+  { key: 'magic', label: 'Cartas Magic', short: 'M', to: '/magic', chip: 'bg-rose-100 text-rose-700' },
+  { key: 'decks', label: 'Mazos', short: 'Z', to: '/magic/mazos', chip: 'bg-amber-100 text-amber-800' },
+  { key: 'boardGames', label: 'Juegos de mesa', short: 'J', to: '/boardgames', chip: 'bg-emerald-100 text-emerald-700' },
+  { key: 'movieShows', label: 'Películas y series', short: 'C', to: '/movieshows', chip: 'bg-purple-100 text-purple-700' },
+]
+
+async function fetchEntityTotals(): Promise<EntityTotals> {
+  // allSettled por entidad: si una API falla, las demás siguen mostrándose.
+  const [books, games, magic, decks, boardGames, movieShows] = await Promise.allSettled([
+    listBooks({ page: 0, size: 1 }),
+    listGames({ page: 0, size: 1 }),
+    listMagicCards({ page: 0, size: 1 }),
+    listDecks({ page: 0, size: 1 }),
+    listBoardGames({ page: 0, size: 1 }),
+    listMovieShows({ page: 0, size: 1 }),
+  ])
+  return {
+    books: countOf(books),
+    games: countOf(games),
+    magic: countOf(magic),
+    decks: countOf(decks),
+    boardGames: countOf(boardGames),
+    movieShows: countOf(movieShows),
+  }
+}
+
 async function fetchStats(): Promise<Stats> {
   // Promise.allSettled: un fallo parcial no pone el resto a cero.
   // (Una sola llamada requeriría GET /api/books/stats en el backend.)
@@ -58,7 +96,7 @@ async function fetchRecent(): Promise<RecentItem[]> {
     listBooks({ page: 0, size: 5 }).catch(() => null),
     listGames({ page: 0, size: 5 }).catch(() => null),
     listMagicCards({ page: 0, size: 5 }).catch(() => null),
-    listDecks().catch(() => []),
+    listDecks({ page: 0, size: 5 }).catch(() => null),
     listBoardGames({ page: 0, size: 5 }).catch(() => null),
     listMovieShows({ page: 0, size: 5 }).catch(() => null),
   ])
@@ -70,7 +108,7 @@ async function fetchRecent(): Promise<RecentItem[]> {
   books?.content?.forEach((b) => push('Libro', 'bg-indigo-100 text-indigo-700', b.title, b.startDate, `/coleccion/${b.id}`, `book-${b.id}`))
   games?.content?.forEach((g) => push('Videojuego', 'bg-sky-100 text-sky-700', g.title, g.dateAdded, `/juegos/${g.id}`, `game-${g.id}`))
   magic?.content?.forEach((c) => push('Magic', 'bg-rose-100 text-rose-700', c.name, c.dateAdded, `/magic/${c.id}`, `magic-${c.id}`))
-  decks?.forEach((d) => push('Mazo', 'bg-amber-100 text-amber-800', d.name, d.createdAt, `/magic/mazos/${d.id}`, `deck-${d.id}`))
+  decks?.content?.forEach((d) => push('Mazo', 'bg-amber-100 text-amber-800', d.name, d.createdAt, `/magic/mazos/${d.id}`, `deck-${d.id}`))
   boardGames?.content?.forEach((g) => push('Mesa', 'bg-emerald-100 text-emerald-700', g.title, g.dateAdded, `/boardgames/${g.id}`, `board-${g.id}`))
   movieShows?.content?.forEach((m) => push('Cine', 'bg-purple-100 text-purple-700', m.title, m.dateAdded, `/movieshows/${m.id}`, `movie-${m.id}`))
   return items.sort((a, b) => b.time - a.time).slice(0, 5)
@@ -85,16 +123,23 @@ const BOOK_ICON = (
 export default function HomePage() {
   usePageTitle('Inicio')
   const [stats, setStats] = useState<Stats | null>(null)
+  const [entities, setEntities] = useState<EntityTotals | null>(null)
   const [recent, setRecent] = useState<RecentItem[]>([])
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {
     try {
-      const [fetchedStats, fetchedRecent] = await Promise.all([fetchStats(), fetchRecent()])
+      const [fetchedStats, fetchedEntities, fetchedRecent] = await Promise.all([
+        fetchStats(),
+        fetchEntityTotals(),
+        fetchRecent(),
+      ])
       setStats(fetchedStats)
+      setEntities(fetchedEntities)
       setRecent(fetchedRecent)
     } catch {
       setStats({ total: 0, toRead: 0, reading: 0, completed: 0 })
+      setEntities({ books: 0, games: 0, magic: 0, decks: 0, boardGames: 0, movieShows: 0 })
     } finally {
       setLoading(false)
     }
@@ -169,6 +214,29 @@ export default function HomePage() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <h2 className="font-display text-heading text-ink">Tu colección en cifras</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          {ENTITIES.map((entity) => (
+            <Link key={entity.key} to={entity.to} className="card card-hover flex items-center gap-4 p-5">
+              <span className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center font-display font-bold text-heading-sm ${entity.chip}`} aria-hidden="true">
+                {entity.short}
+              </span>
+              <div className="min-w-0">
+                <p className="font-display text-heading text-ink leading-none">
+                  {loading || entities === null ? (
+                    <span className="skeleton h-7 w-10 inline-block align-middle" />
+                  ) : (
+                    entities[entity.key]
+                  )}
+                </p>
+                <p className="text-caption text-slate mt-1 line-clamp-1">{entity.label}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {!loading && recent.length > 0 && (
