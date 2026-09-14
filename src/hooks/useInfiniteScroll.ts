@@ -7,6 +7,8 @@ interface UseInfiniteScrollOptions<T> {
   fetchPage: (page: number, size: number) => Promise<PageData<T>>
   /** Deps extra (filtros, ordenación): al cambiar resetean la acumulación. */
   deps?: unknown[]
+  /** Si es false no carga nada hasta que pase a true (p. ej. búsquedas sin enviar). */
+  enabled?: boolean
 }
 
 /**
@@ -17,11 +19,11 @@ interface UseInfiniteScrollOptions<T> {
  * - Cambiar filtros (deps) o llamar a `reload` resetea y recarga
  *   desde la página 0. Las respuestas en vuelo se ignoran.
  */
-export function useInfiniteScroll<T>({ size = 12, errorMessage, fetchPage, deps = [] }: UseInfiniteScrollOptions<T>) {
+export function useInfiniteScroll<T>({ size = 12, errorMessage, fetchPage, deps = [], enabled = true }: UseInfiniteScrollOptions<T>) {
   const [items, setItems] = useState<T[]>([])
   const [totalElements, setTotalElements] = useState(0)
   const [hasMore, setHasMore] = useState(true)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(enabled)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
@@ -32,10 +34,13 @@ export function useInfiniteScroll<T>({ size = 12, errorMessage, fetchPage, deps 
   fetchRef.current = fetchPage
   const sizeRef = useRef(size)
   sizeRef.current = size
-  const stateRef = useRef({ hasMore: true, loading: true, loadingMore: false })
-  stateRef.current = { hasMore, loading, loadingMore }
+  const enabledRef = useRef(enabled)
+  enabledRef.current = enabled
+  const stateRef = useRef({ hasMore: true, loading: true, loadingMore: false, enabled: true })
+  stateRef.current = { hasMore, loading, loadingMore, enabled }
 
   const loadFirst = useCallback(async () => {
+    if (!enabledRef.current) return
     const gen = ++genRef.current
     pageRef.current = 0
     setLoading(true)
@@ -56,11 +61,11 @@ export function useInfiniteScroll<T>({ size = 12, errorMessage, fetchPage, deps 
     } finally {
       if (gen === genRef.current) setLoading(false)
     }
-  }, [size, errorMessage, ...deps])
+  }, [size, errorMessage, enabled, ...deps])
 
   const loadMore = useCallback(async () => {
     const s = stateRef.current
-    if (!s.hasMore || s.loading || s.loadingMore) return
+    if (!s.enabled || !s.hasMore || s.loading || s.loadingMore) return
     const gen = genRef.current
     setLoadingMore(true)
     try {
@@ -84,6 +89,7 @@ export function useInfiniteScroll<T>({ size = 12, errorMessage, fetchPage, deps 
   }, [loadFirst])
 
   useEffect(() => {
+    if (!enabled) return
     const el = sentinelRef.current
     if (!el) return
     const observer = new IntersectionObserver(
@@ -94,7 +100,7 @@ export function useInfiniteScroll<T>({ size = 12, errorMessage, fetchPage, deps 
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [loadMore])
+  }, [loadMore, enabled])
 
   return { items, totalElements, hasMore, loading, loadingMore, error, sentinelRef, reload: loadFirst }
 }

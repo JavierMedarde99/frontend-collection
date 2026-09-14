@@ -1,4 +1,4 @@
-import type { PageMovieShowResponse, ListMovieShowsParams, MovieShow, MovieShowFormData, SearchMovieShowResult } from '../types'
+import type { PageMovieShowResponse, ListMovieShowsParams, MovieShow, MovieShowFormData, SearchMovieShowResult, PageMovieSearchResult } from '../types'
 import { throwRequestError } from './errors'
 import { MediaType } from '../types'
 
@@ -59,4 +59,10 @@ export function searchMovieShows(name: string, mediaType?: MediaType): Promise<S
   const qs = new URLSearchParams({ name })
   if (mediaType) qs.set('mediaType', mediaType)
   return request<SearchMovieShowResult[]>(`${BASE_URL}/search?${qs}`) as Promise<SearchMovieShowResult[]>
+}
+
+export function searchMovieShowsPage(name: string, page = 0, size = 10, mediaType?: MediaType): Promise<PageMovieSearchResult> {
+  const qs = new URLSearchParams({ name, page: String(page), size: String(size) })
+  if (mediaType) qs.set('mediaType', mediaType)
+  return request<PageMovieSearchResult>(`${BASE_URL}/search?${qs}`) as Promise<PageMovieSearchResult>
 }

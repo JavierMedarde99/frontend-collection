@@ -48,6 +48,15 @@ export interface SearchMovieShowResult {
   externalSource?: string
 }
 
+export interface PageMovieSearchResult {
+  content: SearchMovieShowResult[]
+  totalPages: number
+  totalElements: number
+  number: number
+  size: number
+  empty: boolean
+}
+
 export interface PageMovieShowResponse {
   content: MovieShow[]
   totalPages: number
