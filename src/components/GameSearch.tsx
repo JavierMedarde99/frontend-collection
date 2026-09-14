@@ -176,7 +176,6 @@ export default function GameSearch() {
           <div ref={sentinelRef} className="h-px" aria-hidden="true" />
         </>
       )}
-      )}
 
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md modal-sheet">
