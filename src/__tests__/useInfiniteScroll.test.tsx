@@ -49,6 +49,27 @@ function Probe({ filter, fetchPage }: { filter: string; fetchPage: (page: number
   )
 }
 
+function ProbeEnabled({ enabled, fetchPage }: { enabled: boolean; fetchPage: (page: number, size: number) => Promise<PageData<Item>> }) {
+  const result = useInfiniteScroll({
+    size: 2,
+    errorMessage: 'Error',
+    fetchPage,
+    deps: [],
+    enabled,
+  })
+  return (
+    <>
+      <div ref={result.sentinelRef} data-testid="sentinel" />
+      <div data-testid="state">
+        {JSON.stringify({
+          ids: result.items.map((i) => i.id),
+          loading: result.loading,
+        })}
+      </div>
+    </>
+  )
+}
+
 function stateJson(container: HTMLElement) {
   const el = container.querySelector('[data-testid="state"]')
   return JSON.parse(el?.textContent || '{}')
@@ -130,5 +151,21 @@ describe('useInfiniteScroll', () => {
     await waitFor(() => expect(stateJson(container).loading).toBe(false))
     expect(stateJson(container).error).toBe('Caído')
     expect(stateJson(container).ids).toEqual([])
+  })
+
+  it('no busca nada mientras enabled es false y carga al activarse', async () => {
+    const fetchPage = vi.fn(async () => page(['a'], 1))
+    const { container, rerender } = render(<ProbeEnabled enabled={false} fetchPage={fetchPage} />)
+
+    await act(async () => {})
+    expect(fetchPage).not.toHaveBeenCalled()
+    expect(stateJson(container).loading).toBe(false)
+    expect(stateJson(container).ids).toEqual([])
+
+    rerender(<ProbeEnabled enabled fetchPage={fetchPage} />)
+
+    await waitFor(() => expect(stateJson(container).ids).toEqual(['a']))
+    expect(fetchPage).toHaveBeenCalledTimes(1)
+    expect(fetchPage).toHaveBeenLastCalledWith(0, 2)
   })
 })
