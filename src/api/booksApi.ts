@@ -1,4 +1,4 @@
-import type { PageBookResponse, ListBooksParams, Book, BookFormData, SearchBookResult, PageBookSearchResult } from '../types'
+import type { PageBookResponse, ListBooksParams, Book, BookFormData, PageBookSearchResult } from '../types'
 import { throwRequestError } from './errors'
 
 const BASE_URL = '/api/v1/books'
@@ -53,10 +53,6 @@ export function updateBook(id: string, book: BookFormData): Promise<Book> {
 
 export function deleteBook(id: string): Promise<null> {
   return request<null>(`${BASE_URL}/${id}`, { method: 'DELETE' })
-}
-
-export function searchBooks(name: string): Promise<SearchBookResult[]> {
-  return request<SearchBookResult[]>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`) as Promise<SearchBookResult[]>
 }
 
 export function searchBooksPage(name: string, page = 0, size = 10): Promise<PageBookSearchResult> {
