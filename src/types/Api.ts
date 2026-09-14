@@ -50,6 +50,15 @@ export interface SearchBookResult {
   categories?: string[]
 }
 
+export interface PageBookSearchResult {
+  content: SearchBookResult[]
+  totalPages: number
+  totalElements: number
+  number: number
+  size: number
+  empty: boolean
+}
+
 export interface ApiError extends Error {
   status?: number
 }

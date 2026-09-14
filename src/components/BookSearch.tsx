@@ -1,13 +1,15 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { searchBooks, createBook } from '../api/booksApi'
+import { searchBooksPage, createBook } from '../api/booksApi'
 import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
 import { BookType, BookState, type BookFormData, type SearchBookResult } from '../types'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import Spinner from './Spinner'
 import StarRating from './StarRating'
 import EmptyState from './EmptyState'
 import ErrorBanner from './ErrorBanner'
 import SearchField from './SearchField'
+import SkeletonInline from './SkeletonInline'
 
 function mapResultToBook(result: SearchBookResult): Omit<BookFormData, 'type' | 'state'> {
   return {
@@ -23,10 +25,23 @@ function mapResultToBook(result: SearchBookResult): Omit<BookFormData, 'type' | 
 export default function BookSearch() {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<SearchBookResult[] | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState<string | null>(null)
   const [searching, setSearching] = useState<string | null>(null)
+
+  const {
+    items: results,
+    hasMore,
+    loading,
+    loadingMore,
+    error,
+    sentinelRef,
+  } = useInfiniteScroll<SearchBookResult>({
+    size: 10,
+    errorMessage: 'No se pudo realizar la búsqueda.',
+    enabled: submitted !== null,
+    fetchPage: (page, size) => searchBooksPage(submitted ?? '', page, size),
+    deps: [submitted],
+  })
 
   const [selected, setSelected] = useState<SearchBookResult | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -42,21 +57,11 @@ export default function BookSearch() {
   const showRating = modalState === BookState.COMPLETED
   const showComment = modalState === BookState.COMPLETED
 
-  async function handleSearch(e: FormEvent<HTMLFormElement>) {
+  function handleSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const q = query.trim()
     if (!q) return
-    setLoading(true)
-    setError(null)
-    setResults(null)
-    try {
-      const data = await searchBooks(q)
-      setResults(data || [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo realizar la búsqueda.')
-    } finally {
-      setLoading(false)
-    }
+    setSubmitted(q)
   }
 
   function handleAddClick(result: SearchBookResult) {
@@ -108,13 +113,14 @@ export default function BookSearch() {
 
       {loading && <Spinner label="Buscando…" />}
 
-      {!loading && results !== null && results.length === 0 && (
-        <EmptyState title="Sin resultados" message={`No se encontraron resultados para "${query}".`} />
+      {!loading && submitted !== null && results.length === 0 && !error && (
+        <EmptyState title="Sin resultados" message={`No se encontraron resultados para "${submitted}".`} />
       )}
 
-      {!loading && results && results.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {results.map((result) => (
+      {!loading && results.length > 0 && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {results.map((result) => (
             <article key={result.id} className="card card-hover flex gap-5">
               {result.coverImage ? (
                 <img
@@ -151,7 +157,15 @@ export default function BookSearch() {
               </div>
             </article>
           ))}
-        </div>
+          </div>
+          {loadingMore && <SkeletonInline count={2} />}
+          {!hasMore && (
+            <p className="text-body-sm text-graphite text-center" role="status">
+              No hay más resultados
+            </p>
+          )}
+          <div ref={sentinelRef} className="h-px" aria-hidden="true" />
+        </>
       )}
 
       {selected && (
