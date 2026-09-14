@@ -7,11 +7,11 @@ import MagicCard from '../components/MagicCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
-import Pagination from '../components/Pagination'
+import SkeletonInline from '../components/SkeletonInline'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
-import { usePagedList } from '../hooks/usePagedList'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useListQuery } from '../hooks/useListQuery'
 
@@ -37,24 +37,24 @@ export default function MagicListPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const [query, setQuery] = useListQuery({
-    page: 0,
     name: '',
     rarity: '',
     color: '',
     type: '',
     sort: 'name,asc',
   })
-  const { name: nameFilter, rarity: rarityFilter, color: colorFilter, type: typeFilter, sort, page } = query
+  const { name: nameFilter, rarity: rarityFilter, color: colorFilter, type: typeFilter, sort } = query
 
   const {
     items: cards,
-    totalPages,
     totalElements,
+    hasMore,
     loading,
+    loadingMore,
     error,
+    sentinelRef,
     reload: load,
-  } = usePagedList<MagicCardResponse>( {
-    page,
+  } = useInfiniteScroll<MagicCardResponse>( {
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar las cartas Magic.',
     fetchPage: (page, size) => listMagicCards({
@@ -72,12 +72,12 @@ export default function MagicListPage() {
 
   function handleSearch(e: FormEvent) {
     e.preventDefault()
-    setQuery({ name: nameInput.trim(), page: 0 })
+    setQuery({ name: nameInput.trim() })
   }
 
   function handleClearFilters() {
     setNameInput('')
-    setQuery({ name: '', rarity: '', color: '', type: '', page: 0 })
+    setQuery({ name: '', rarity: '', color: '', type: '' })
   }
 
   const activeFilterCount =
@@ -97,7 +97,7 @@ export default function MagicListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v, page: 0 })} options={MAGIC_SORTS} />
+          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v })} options={MAGIC_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -157,7 +157,7 @@ export default function MagicListPage() {
             <select
               className="input"
               value={rarityFilter}
-              onChange={(e) => setQuery({ rarity: e.target.value, page: 0 })}
+              onChange={(e) => setQuery({ rarity: e.target.value })}
               aria-label="Filtrar por rareza"
             >
               <option value="">Todas las rarezas</option>
@@ -168,7 +168,7 @@ export default function MagicListPage() {
             <select
               className="input"
               value={colorFilter}
-              onChange={(e) => setQuery({ color: e.target.value, page: 0 })}
+              onChange={(e) => setQuery({ color: e.target.value })}
               aria-label="Filtrar por color"
             >
               <option value="">Todos los colores</option>
@@ -179,7 +179,7 @@ export default function MagicListPage() {
             <select
               className="input"
               value={typeFilter}
-              onChange={(e) => setQuery({ type: e.target.value, page: 0 })}
+              onChange={(e) => setQuery({ type: e.target.value })}
               aria-label="Filtrar por tipo"
             >
               <option value="">Todos los tipos</option>
@@ -218,16 +218,23 @@ export default function MagicListPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {cards.map((card, idx) => (
-            <MagicCard key={card.id} card={card} index={idx}
-              onDelete={async () => { await deleteMagicCard(card.id); load() }}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {cards.map((card, idx) => (
+              <MagicCard key={card.id} card={card} index={idx}
+                onDelete={async () => { await deleteMagicCard(card.id); load() }}
+              />
+            ))}
+          </div>
+          {loadingMore && <SkeletonInline />}
+          {!hasMore && (
+            <p className="text-body-sm text-graphite text-center" role="status">
+              No hay más cartas
+            </p>
+          )}
+          <div ref={sentinelRef} className="h-px" aria-hidden="true" />
+        </>
       )}
-
-      <Pagination page={page} totalPages={totalPages} onChange={(n) => setQuery({ page: n })} />
     </section>
   )
 }
