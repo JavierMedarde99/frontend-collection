@@ -1,8 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { searchMagicCards, addMagicCardFromScryfall } from '../api/magicApi'
+import { searchMagicCardsPage, addMagicCardFromScryfall } from '../api/magicApi'
 import type { MagicCardSearchResult } from '../types'
 import ErrorBanner from '../components/ErrorBanner'
+import SkeletonInline from '../components/SkeletonInline'
+import Spinner from '../components/Spinner'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
@@ -12,9 +15,7 @@ export default function MagicCreatePage() {
   const navigate = useNavigate()
   const notify = useToast()
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<MagicCardSearchResult[]>([])
-  const [searching, setSearching] = useState(false)
-  const [searchError, setSearchError] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState<string | null>(null)
   const [savingId, setSavingId] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [quantities, setQuantities] = useState<Record<string, number>>({})
@@ -23,20 +24,26 @@ export default function MagicCreatePage() {
     return quantities[key] ?? 1
   }
 
-  async function handleSearch(e: FormEvent) {
+  const {
+    items: results,
+    hasMore,
+    loading: searching,
+    loadingMore,
+    error: searchError,
+    sentinelRef,
+  } = useInfiniteScroll<MagicCardSearchResult>({
+    size: 10,
+    errorMessage: 'Error al buscar cartas.',
+    enabled: submitted !== null,
+    fetchPage: (page, size) => searchMagicCardsPage(submitted ?? '', page, size),
+    deps: [submitted],
+  })
+
+  function handleSearch(e: FormEvent) {
     e.preventDefault()
-    if (!query.trim()) return
-    setSearching(true)
-    setSearchError(null)
-    try {
-      const data = await searchMagicCards(query.trim())
-      setResults(data || [])
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al buscar cartas.'
-      setSearchError(message)
-    } finally {
-      setSearching(false)
-    }
+    const q = query.trim()
+    if (!q) return
+    setSubmitted(q)
   }
 
   async function handleAdd(card: MagicCardSearchResult) {
@@ -98,7 +105,15 @@ export default function MagicCreatePage() {
         <ErrorBanner message={saveError} />
       )}
 
-      {results.length > 0 && (
+      {searching && <Spinner label="Buscando…" />}
+
+      {!searching && submitted !== null && results.length === 0 && !searchError && (
+        <p className="text-body text-slate text-center" role="status">
+          Sin resultados para &ldquo;{submitted}&rdquo;.
+        </p>
+      )}
+
+      {!searching && results.length > 0 && (
         <div className="flex flex-col gap-4">
           <h2 className="font-display text-heading-sm">Resultados de búsqueda</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -149,6 +164,13 @@ export default function MagicCreatePage() {
               )
             })}
           </div>
+          {loadingMore && <SkeletonInline count={3} />}
+          {!hasMore && (
+            <p className="text-body-sm text-graphite text-center" role="status">
+              No hay más cartas
+            </p>
+          )}
+          <div ref={sentinelRef} className="h-px" aria-hidden="true" />
         </div>
       )}
     </div>
