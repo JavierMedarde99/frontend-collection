@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { searchMovieShows, createMovieShow } from '../api/movieshowsApi'
+import { searchMovieShowsPage, createMovieShow } from '../api/movieshowsApi'
 import { MEDIA_TYPES, MOVIE_SHOW_STATES } from '../constants/movieshows'
 import { MediaType, MovieShowStatus } from '../types'
 import type { MovieShowFormData, SearchMovieShowResult } from '../types'
@@ -9,6 +9,8 @@ import EmptyState from './EmptyState'
 import StarRating from './StarRating'
 import ErrorBanner from './ErrorBanner'
 import SearchField from './SearchField'
+import SkeletonInline from './SkeletonInline'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 
 function mapResultToMovieShow(result: SearchMovieShowResult): Omit<MovieShowFormData, 'mediaType' | 'status'> {
   return {
@@ -27,10 +29,24 @@ export default function MovieShowSearch() {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaType | ''>('')
-  const [results, setResults] = useState<SearchMovieShowResult[] | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState<{ q: string; mediaType: MediaType | '' } | null>(null)
   const [saving, setSaving] = useState<string | null>(null)
+
+  const {
+    items: results,
+    hasMore,
+    loading,
+    loadingMore,
+    error,
+    sentinelRef,
+  } = useInfiniteScroll<SearchMovieShowResult>({
+    size: 10,
+    errorMessage: 'No se pudo realizar la búsqueda.',
+    enabled: submitted !== null,
+    fetchPage: (page, size) =>
+      searchMovieShowsPage(submitted?.q ?? '', page, size, submitted?.mediaType || undefined),
+    deps: [submitted?.q, submitted?.mediaType],
+  })
 
   const [selected, setSelected] = useState<SearchMovieShowResult | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -48,21 +64,11 @@ export default function MovieShowSearch() {
   const showRating = modalStatus === MovieShowStatus.WATCHED
   const showComment = modalStatus === MovieShowStatus.WATCHED
 
-  async function handleSearch(e: FormEvent<HTMLFormElement>) {
+  function handleSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const q = query.trim()
     if (!q) return
-    setLoading(true)
-    setError(null)
-    setResults(null)
-    try {
-      const data = await searchMovieShows(q, mediaTypeFilter || undefined)
-      setResults(data || [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo realizar la búsqueda.')
-    } finally {
-      setLoading(false)
-    }
+    setSubmitted({ q, mediaType: mediaTypeFilter })
   }
 
   function handleAddClick(result: SearchMovieShowResult) {
@@ -139,12 +145,13 @@ export default function MovieShowSearch() {
 
       {loading && <Spinner label="Buscando…" />}
 
-      {!loading && results !== null && results.length === 0 && (
-        <EmptyState title="Sin resultados" message={`No se encontraron resultados para "${query}".`} />
+      {!loading && submitted !== null && results.length === 0 && !error && (
+        <EmptyState title="Sin resultados" message={`No se encontraron resultados para "${submitted.q}".`} />
       )}
 
-      {!loading && results && results.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {!loading && results.length > 0 && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {results.map((result) => (
             <article key={result.externalId} className="card card-hover flex gap-5">
               {result.posterUrl ? (
@@ -184,7 +191,15 @@ export default function MovieShowSearch() {
               </div>
             </article>
           ))}
-        </div>
+          </div>
+          {loadingMore && <SkeletonInline count={2} />}
+          {!hasMore && (
+            <p className="text-body-sm text-graphite text-center" role="status">
+              No hay más resultados
+            </p>
+          )}
+          <div ref={sentinelRef} className="h-px" aria-hidden="true" />
+        </>
       )}
 
       {selected && (

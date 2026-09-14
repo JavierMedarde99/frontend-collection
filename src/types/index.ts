@@ -12,4 +12,4 @@ export type { BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSear
 export type { DeckStatus, DeckResponse, DeckRequest, DeckCardResponse, DeckCardRequest, DeckStatusResponse, PageDeckResponse, ListDecksParams } from './Deck'
 export { MovieShowStatus } from './MovieShowStatus'
 export { MediaType } from './MovieType'
-export type { MovieShow, MovieShowFormData, SearchMovieShowResult, PageMovieShowResponse, ListMovieShowsParams } from './MovieShow'
+export type { MovieShow, MovieShowFormData, SearchMovieShowResult, PageMovieSearchResult, PageMovieShowResponse, ListMovieShowsParams } from './MovieShow'
