@@ -1,4 +1,4 @@
-import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, GameAchievementsResponse } from '../types'
+import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, PageGameSearchResult, GameAchievementsResponse } from '../types'
 import { throwRequestError } from './errors'
 
 const BASE_URL = '/api/v1/games'
@@ -57,6 +57,11 @@ export function deleteGame(id: string): Promise<null> {
 
 export function searchGames(name: string): Promise<SearchGameResult[]> {
   return request<SearchGameResult[]>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`) as Promise<SearchGameResult[]>
+}
+
+export function searchGamesPage(name: string, page = 0, size = 10): Promise<PageGameSearchResult> {
+  const qs = new URLSearchParams({ name, page: String(page), size: String(size) })
+  return request<PageGameSearchResult>(`${BASE_URL}/search?${qs}`) as Promise<PageGameSearchResult>
 }
 
 export function getGameAchievements(id: string): Promise<GameAchievementsResponse> {
