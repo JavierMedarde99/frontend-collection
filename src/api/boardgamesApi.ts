@@ -55,5 +55,6 @@ export function deleteBoardGame(id: string): Promise<null> {
 
 export async function searchBoardGames(name: string): Promise<BoardGameSearchResult[]> {
   const data = await request<BoardGameSearchResponse>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`)
-  return data?.results ?? []
+  const results = data?.results
+  return Array.isArray(results) ? results : (results?.content ?? [])
 }
