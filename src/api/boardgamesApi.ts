@@ -1,4 +1,4 @@
-import type { PageBoardGameResponse, ListBoardGamesParams, BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse } from '../types'
+import type { PageBoardGameResponse, ListBoardGamesParams, BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse, PageBoardGameSearchResult } from '../types'
 import { throwRequestError } from './errors'
 
 const BASE_URL = '/api/v1/boardgames'
@@ -57,4 +57,21 @@ export async function searchBoardGames(name: string): Promise<BoardGameSearchRes
   const data = await request<BoardGameSearchResponse>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`)
   const results = data?.results
   return Array.isArray(results) ? results : (results?.content ?? [])
+}
+
+export async function searchBoardGamesPage(name: string, page = 0, size = 10): Promise<PageBoardGameSearchResult> {
+  const qs = new URLSearchParams({ name, page: String(page), size: String(size) })
+  const data = await request<BoardGameSearchResponse>(`${BASE_URL}/search?${qs}`)
+  const results = data?.results
+  if (Array.isArray(results)) {
+    return { content: results, totalPages: 1, totalElements: results.length, number: 0, size: results.length, empty: results.length === 0 }
+  }
+  return {
+    content: results?.content ?? [],
+    totalPages: results?.totalPages ?? 0,
+    totalElements: results?.totalElements ?? 0,
+    number: page,
+    size,
+    empty: (results?.content ?? []).length === 0,
+  }
 }

@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { searchBoardGames, createBoardGame } from '../api/boardgamesApi'
+import { searchBoardGamesPage, createBoardGame } from '../api/boardgamesApi'
 import { BOARD_GAME_STATES } from '../constants/boardGames'
 import { BoardGameStatus } from '../types'
 import type { BoardGameFormData, BoardGameSearchResult } from '../types'
@@ -10,6 +10,8 @@ import ErrorBanner from './ErrorBanner'
 import StarRating from './StarRating'
 import { bggRatingToStars } from '../constants/boardGames'
 import SearchField from './SearchField'
+import SkeletonInline from './SkeletonInline'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 
 function mapResultToGame(result: BoardGameSearchResult): Omit<BoardGameFormData, 'status'> {
   return {
@@ -34,10 +36,23 @@ function mapResultToGame(result: BoardGameSearchResult): Omit<BoardGameFormData,
 export default function BoardGameSearch() {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<BoardGameSearchResult[] | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState<string | null>(null)
   const [saving, setSaving] = useState<string | null>(null)
+
+  const {
+    items: results,
+    hasMore,
+    loading,
+    loadingMore,
+    error,
+    sentinelRef,
+  } = useInfiniteScroll<BoardGameSearchResult>({
+    size: 10,
+    errorMessage: 'No se pudo realizar la búsqueda.',
+    enabled: submitted !== null,
+    fetchPage: (page, size) => searchBoardGamesPage(submitted ?? '', page, size),
+    deps: [submitted],
+  })
 
   const [selected, setSelected] = useState<BoardGameSearchResult | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -45,21 +60,11 @@ export default function BoardGameSearch() {
   const [modalNotes, setModalNotes] = useState('')
   const [modalDateAdded, setModalDateAdded] = useState('')
 
-  async function handleSearch(e: FormEvent<HTMLFormElement>) {
+  function handleSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const q = query.trim()
     if (!q) return
-    setLoading(true)
-    setError(null)
-    setResults(null)
-    try {
-      const data = await searchBoardGames(q)
-      setResults(data || [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo realizar la búsqueda.')
-    } finally {
-      setLoading(false)
-    }
+    setSubmitted(q)
   }
 
   function handleAddClick(result: BoardGameSearchResult) {
@@ -109,12 +114,13 @@ export default function BoardGameSearch() {
 
       {loading && <Spinner label="Buscando…" />}
 
-      {!loading && results !== null && results.length === 0 && (
-        <EmptyState title="Sin resultados" message={`No se encontraron resultados para "${query}".`} />
+      {!loading && submitted !== null && results.length === 0 && !error && (
+        <EmptyState title="Sin resultados" message={`No se encontraron resultados para "${submitted}".`} />
       )}
 
-      {!loading && results && results.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {!loading && results.length > 0 && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {results.map((result) => (
             <article key={result.bggId || result.title} className="card card-hover flex gap-5">
               {result.thumbnailUrl || result.imageUrl ? (
@@ -160,7 +166,15 @@ export default function BoardGameSearch() {
               </div>
             </article>
           ))}
-        </div>
+          </div>
+          {loadingMore && <SkeletonInline count={2} />}
+          {!hasMore && (
+            <p className="text-body-sm text-graphite text-center" role="status">
+              No hay más resultados
+            </p>
+          )}
+          <div ref={sentinelRef} className="h-px" aria-hidden="true" />
+        </>
       )}
 
       {selected && (
