@@ -7,11 +7,11 @@ import BoardGameCard from '../components/BoardGameCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
-import Pagination from '../components/Pagination'
+import SkeletonInline from '../components/SkeletonInline'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
-import { usePagedList } from '../hooks/usePagedList'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useListQuery } from '../hooks/useListQuery'
 
@@ -27,22 +27,22 @@ export default function BoardGameListPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const [query, setQuery] = useListQuery({
-    page: 0,
     status: '' as BoardGameStatus | '',
     name: '',
     sort: 'title,asc',
   })
-  const { status, name: nameFilter, sort, page } = query
+  const { status, name: nameFilter, sort } = query
 
   const {
     items: games,
-    totalPages,
     totalElements,
+    hasMore,
     loading,
+    loadingMore,
     error,
+    sentinelRef,
     reload: load,
-  } = usePagedList<BoardGame>( {
-    page,
+  } = useInfiniteScroll<BoardGame>( {
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar los juegos de mesa.',
     fetchPage: (page, size) => listBoardGames({
@@ -58,12 +58,12 @@ export default function BoardGameListPage() {
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
-    setQuery({ name: nameInput.trim(), page: 0 })
+    setQuery({ name: nameInput.trim() })
   }
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ status: '', name: '', page: 0 })
+    setQuery({ status: '', name: '' })
   }
 
   const hasActiveFilters = Boolean(status || nameFilter)
@@ -82,7 +82,7 @@ export default function BoardGameListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v, page: 0 })} options={BOARDGAME_SORTS} />
+          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v })} options={BOARDGAME_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -139,14 +139,14 @@ export default function BoardGameListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <FilterPill active={!status} onClick={() => setQuery({ status: '', page: 0 })} label="Todos los estados">
+        <FilterPill active={!status} onClick={() => setQuery({ status: '' })} label="Todos los estados">
           Todos
         </FilterPill>
         {Object.entries(BOARD_GAME_STATES).map(([key, label]) => (
           <FilterPill
             key={key}
             active={status === key}
-            onClick={() => setQuery({ status: key as BoardGameStatus, page: 0 })}
+            onClick={() => setQuery({ status: key as BoardGameStatus })}
             label={`Filtrar por estado: ${label}`}
           >
             {label}
@@ -183,16 +183,23 @@ export default function BoardGameListPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {games.map((game, index) => (
-            <BoardGameCard key={game.id} game={game} index={index}
-              onDelete={async () => { await deleteBoardGame(game.id); load() }}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {games.map((game, index) => (
+              <BoardGameCard key={game.id} game={game} index={index}
+                onDelete={async () => { await deleteBoardGame(game.id); load() }}
+              />
+            ))}
+          </div>
+          {loadingMore && <SkeletonInline />}
+          {!hasMore && (
+            <p className="text-body-sm text-graphite text-center" role="status">
+              No hay más juegos
+            </p>
+          )}
+          <div ref={sentinelRef} className="h-px" aria-hidden="true" />
+        </>
       )}
-
-      <Pagination page={page} totalPages={totalPages} onChange={(n) => setQuery({ page: n })} disabled={loading} />
     </section>
   )
 }
