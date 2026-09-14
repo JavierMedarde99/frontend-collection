@@ -57,7 +57,8 @@ export function deleteMagicCard(id: string): Promise<null> {
 
 export async function searchMagicCards(name: string): Promise<MagicCardSearchResult[]> {
   const data = await request<MagicCardSearchResponse>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`)
-  return data?.results ?? []
+  const results = data?.results
+  return Array.isArray(results) ? results : (results?.content ?? [])
 }
 
 export function addMagicCardFromScryfall(scryfallId: string, quantity = 1): Promise<MagicCardResponse> {
