@@ -5,7 +5,7 @@ export type { PageBookResponse, ListBooksParams, BookFormData, SearchBookResult,
 export { GamePlatform } from './GamePlatform'
 export { GameStatus } from './GameStatus'
 export type { Game } from './Game'
-export type { PageGameResponse, ListGamesParams, GameFormData, SearchGameResult, GameAchievement, GameAchievementsResponse } from './GameApi'
+export type { PageGameResponse, ListGamesParams, GameFormData, SearchGameResult, PageGameSearchResult, GameAchievement, GameAchievementsResponse } from './GameApi'
 export type { MagicLanguage, MagicCondition, MagicCardResponse, MagicCardRequest, MagicCardSearchResult, MagicCardSearchResponse, PageMagicCardResponse, ListMagicCardsParams } from './Magic'
 export { BoardGameStatus } from './BoardGame'
 export type { BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse, PageBoardGameResponse, ListBoardGamesParams } from './BoardGame'

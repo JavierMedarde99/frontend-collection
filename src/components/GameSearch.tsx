@@ -1,14 +1,16 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { searchGames, createGame } from '../api/gamesApi'
+import { searchGamesPage, createGame } from '../api/gamesApi'
 import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
 import { GamePlatform, GameStatus } from '../types'
 import type { GameFormData, SearchGameResult } from '../types'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import Spinner from './Spinner'
 import EmptyState from './EmptyState'
 import StarRating from './StarRating'
 import ErrorBanner from './ErrorBanner'
 import SearchField from './SearchField'
+import SkeletonInline from './SkeletonInline'
 
 function mapResultToGame(result: SearchGameResult): Omit<GameFormData, 'platform' | 'status'> {
   return {
@@ -22,10 +24,23 @@ function mapResultToGame(result: SearchGameResult): Omit<GameFormData, 'platform
 export default function GameSearch() {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<SearchGameResult[] | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState<string | null>(null)
   const [searching, setSearching] = useState<string | null>(null)
+
+  const {
+    items: results,
+    hasMore,
+    loading,
+    loadingMore,
+    error,
+    sentinelRef,
+  } = useInfiniteScroll<SearchGameResult>({
+    size: 10,
+    errorMessage: 'No se pudo realizar la búsqueda.',
+    enabled: submitted !== null,
+    fetchPage: (page, size) => searchGamesPage(submitted ?? '', page, size),
+    deps: [submitted],
+  })
 
   const [selected, setSelected] = useState<SearchGameResult | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -45,21 +60,11 @@ export default function GameSearch() {
   const showRating = modalStatus === GameStatus.COMPLETED
   const showComment = modalStatus === GameStatus.COMPLETED
 
-  async function handleSearch(e: FormEvent<HTMLFormElement>) {
+  function handleSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const q = query.trim()
     if (!q) return
-    setLoading(true)
-    setError(null)
-    setResults(null)
-    try {
-      const data = await searchGames(q)
-      setResults(data || [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo realizar la búsqueda.')
-    } finally {
-      setLoading(false)
-    }
+    setSubmitted(q)
   }
 
   function handleAddClick(result: SearchGameResult) {
@@ -119,12 +124,13 @@ export default function GameSearch() {
 
       {loading && <Spinner label="Buscando…" />}
 
-      {!loading && results !== null && results.length === 0 && (
-        <EmptyState title="Sin resultados" message={`No se encontraron resultados para "${query}".`} />
+      {!loading && submitted !== null && results.length === 0 && !error && (
+        <EmptyState title="Sin resultados" message={`No se encontraron resultados para "${submitted}".`} />
       )}
 
-      {!loading && results && results.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {!loading && results.length > 0 && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {results.map((result) => (
             <article key={result.id} className="card card-hover flex gap-5">
               {result.thumbnailUrl ? (
@@ -160,7 +166,16 @@ export default function GameSearch() {
               </div>
             </article>
           ))}
-        </div>
+          </div>
+          {loadingMore && <SkeletonInline count={2} />}
+          {!hasMore && (
+            <p className="text-body-sm text-graphite text-center" role="status">
+              No hay más resultados
+            </p>
+          )}
+          <div ref={sentinelRef} className="h-px" aria-hidden="true" />
+        </>
+      )}
       )}
 
       {selected && (

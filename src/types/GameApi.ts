@@ -48,6 +48,15 @@ export interface SearchGameResult {
   externalSource?: string
 }
 
+export interface PageGameSearchResult {
+  content: SearchGameResult[]
+  totalPages: number
+  totalElements: number
+  number: number
+  size: number
+  empty: boolean
+}
+
 export interface GameAchievement {
   name: string
   description?: string
