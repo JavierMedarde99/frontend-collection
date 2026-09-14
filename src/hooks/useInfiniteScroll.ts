@@ -26,10 +26,10 @@ export function useInfiniteScroll<T>({ size = 12, errorMessage, fetchPage, deps 
   const [loading, setLoading] = useState(enabled)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   const pageRef = useRef(0)
   const genRef = useRef(0)
+  const observerRef = useRef<IntersectionObserver | null>(null)
   const fetchRef = useRef(fetchPage)
   fetchRef.current = fetchPage
   const sizeRef = useRef(size)
@@ -88,19 +88,28 @@ export function useInfiniteScroll<T>({ size = 12, errorMessage, fetchPage, deps 
     loadFirst()
   }, [loadFirst])
 
+  // Callback ref: observa el sentinela cuando aparece en el DOM
+  // (tras la carga inicial o al cambiar filtros), no solo al montar.
+  const sentinelRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      observerRef.current?.disconnect()
+      observerRef.current = null
+      if (!el || !enabledRef.current) return
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) loadMore()
+        },
+        { rootMargin: '400px' },
+      )
+      observer.observe(el)
+      observerRef.current = observer
+    },
+    [loadMore, enabled],
+  )
+
   useEffect(() => {
-    if (!enabled) return
-    const el = sentinelRef.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) loadMore()
-      },
-      { rootMargin: '400px' },
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [loadMore, enabled])
+    return () => observerRef.current?.disconnect()
+  }, [])
 
   return { items, totalElements, hasMore, loading, loadingMore, error, sentinelRef, reload: loadFirst }
 }

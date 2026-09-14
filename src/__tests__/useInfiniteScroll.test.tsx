@@ -49,8 +49,7 @@ function Probe({ filter, fetchPage }: { filter: string; fetchPage: (page: number
   )
 }
 
-function ProbeEnabled({ enabled, fetchPage }: { enabled: boolean; fetchPage: (page: number, size: number) => Promise<PageData<Item>> }) {
-  const result = useInfiniteScroll({
+function ProbeEnabled({ enabled, fetchPage }: { enabled: boolean; fetchPage: (page: number, size: number) => Promise<PageData<Item>> }) {  const result = useInfiniteScroll({
     size: 2,
     errorMessage: 'Error',
     fetchPage,
@@ -167,5 +166,35 @@ describe('useInfiniteScroll', () => {
     await waitFor(() => expect(stateJson(container).ids).toEqual(['a']))
     expect(fetchPage).toHaveBeenCalledTimes(1)
     expect(fetchPage).toHaveBeenLastCalledWith(0, 2)
+  })
+
+  it('engancha el observer aunque el sentinela aparezca tras la carga inicial', async () => {
+    const fetchPage = vi.fn(async (pageNum: number) =>
+      pageNum === 0 ? page(['a', 'b'], 2) : page(['c', 'd'], 2),
+    )
+    function LateProbe() {
+      const result = useInfiniteScroll({
+        size: 2,
+        errorMessage: 'Error',
+        fetchPage,
+        deps: [],
+      })
+      return (
+        <>
+          {result.items.length > 0 && <div ref={result.sentinelRef} data-testid="sentinel" />}
+          <div data-testid="state">
+            {JSON.stringify({ ids: result.items.map((i) => i.id), loadingMore: result.loadingMore })}
+          </div>
+        </>
+      )
+    }
+    const { container } = render(<LateProbe />)
+
+    await waitFor(() => expect(stateJson(container).ids).toEqual(['a', 'b']))
+
+    intersect()
+
+    await waitFor(() => expect(stateJson(container).ids).toEqual(['a', 'b', 'c', 'd']))
+    expect(fetchPage).toHaveBeenCalledTimes(2)
   })
 })
