@@ -7,11 +7,11 @@ import MovieShowCard from '../components/MovieShowCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
-import Pagination from '../components/Pagination'
+import SkeletonInline from '../components/SkeletonInline'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
-import { usePagedList } from '../hooks/usePagedList'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useListQuery } from '../hooks/useListQuery'
 
@@ -27,23 +27,23 @@ export default function MovieShowListPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const [query, setQuery] = useListQuery({
-    page: 0,
     status: '' as MovieShowStatus | '',
     mediaType: '' as MediaType | '',
     name: '',
     sort: 'title,asc',
   })
-  const { status, mediaType: mediaTypeFilter, name: nameFilter, sort, page } = query
+  const { status, mediaType: mediaTypeFilter, name: nameFilter, sort } = query
 
   const {
     items: movieShows,
-    totalPages,
     totalElements,
+    hasMore,
     loading,
+    loadingMore,
     error,
+    sentinelRef,
     reload: load,
-  } = usePagedList<MovieShow>( {
-    page,
+  } = useInfiniteScroll<MovieShow>( {
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar las películas/series.',
     fetchPage: (page, size) => listMovieShows({
@@ -60,12 +60,12 @@ export default function MovieShowListPage() {
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
-    setQuery({ name: nameInput.trim(), page: 0 })
+    setQuery({ name: nameInput.trim() })
   }
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ status: '', mediaType: '', name: '', page: 0 })
+    setQuery({ status: '', mediaType: '', name: '' })
   }
 
   const hasActiveFilters = Boolean(status || mediaTypeFilter || nameFilter)
@@ -84,7 +84,7 @@ export default function MovieShowListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v, page: 0 })} options={MOVIE_SORTS} />
+          <SortSelect value={sort} onChange={(v) => setQuery({ sort: v })} options={MOVIE_SORTS} />
           <button
             className="btn-ghost !px-5"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -139,7 +139,7 @@ export default function MovieShowListPage() {
             <select
               className="input md:w-48"
               value={mediaTypeFilter}
-              onChange={(e) => { setQuery({ mediaType: e.target.value as MediaType, page: 0 }) }}
+              onChange={(e) => { setQuery({ mediaType: e.target.value as MediaType }) }}
               aria-label="Filtrar por tipo"
             >
               <option value="">Películas y series</option>
@@ -152,14 +152,14 @@ export default function MovieShowListPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por estado">
-        <FilterPill active={!status} onClick={() => setQuery({ status: '', page: 0 })} label="Todos los estados">
+        <FilterPill active={!status} onClick={() => setQuery({ status: '' })} label="Todos los estados">
           Todos
         </FilterPill>
         {Object.entries(MOVIE_SHOW_STATES).map(([key, label]) => (
           <FilterPill
             key={key}
             active={status === key}
-            onClick={() => setQuery({ status: key as MovieShowStatus, page: 0 })}
+            onClick={() => setQuery({ status: key as MovieShowStatus })}
             label={`Filtrar por estado: ${label}`}
           >
             {label}
@@ -196,16 +196,23 @@ export default function MovieShowListPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {movieShows.map((movieShow, index) => (
-            <MovieShowCard key={movieShow.id} movieShow={movieShow} index={index}
-              onDelete={async () => { await deleteMovieShow(movieShow.id); load() }}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {movieShows.map((movieShow, index) => (
+              <MovieShowCard key={movieShow.id} movieShow={movieShow} index={index}
+                onDelete={async () => { await deleteMovieShow(movieShow.id); load() }}
+              />
+            ))}
+          </div>
+          {loadingMore && <SkeletonInline />}
+          {!hasMore && (
+            <p className="text-body-sm text-graphite text-center" role="status">
+              No hay más títulos
+            </p>
+          )}
+          <div ref={sentinelRef} className="h-px" aria-hidden="true" />
+        </>
       )}
-
-      <Pagination page={page} totalPages={totalPages} onChange={(n) => setQuery({ page: n })} disabled={loading} />
     </section>
   )
 }
