@@ -13,3 +13,4 @@ export type { DeckStatus, DeckResponse, DeckRequest, DeckCardResponse, DeckCardR
 export { MovieShowStatus } from './MovieShowStatus'
 export { MediaType } from './MovieType'
 export type { MovieShow, MovieShowFormData, SearchMovieShowResult, PageMovieSearchResult, PageMovieShowResponse, ListMovieShowsParams } from './MovieShow'
+export type { RegisterRequest, LoginRequest, RefreshTokenRequest, UserResponse, AuthResponse } from './Auth'
