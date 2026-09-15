@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import ExportButton from './ExportButton'
 import ThemeToggle from './ThemeToggle'
 
@@ -19,7 +20,18 @@ const magicLinks = [
 
 export default function Navbar() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, isAuthenticated, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const displayName = user?.displayName || user?.username || ''
+  const initial = displayName.slice(0, 1).toUpperCase()
+
+  function handleLogout() {
+    logout()
+    setMenuOpen(false)
+    navigate('/', { replace: true })
+  }
 
   useEffect(() => {
     setMenuOpen(false)
@@ -105,6 +117,42 @@ export default function Navbar() {
           <span className="hidden sm:inline-flex">
             <ExportButton />
           </span>
+          {isAuthenticated ? (
+            <>
+              <NavLink
+                to="/perfil"
+                className="hidden sm:inline-flex items-center gap-2 px-2 py-1 rounded-full hover:bg-brand-soft transition-colors"
+                aria-label="Mi perfil"
+              >
+                <span aria-hidden="true" className="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-accent flex items-center justify-center font-display font-bold text-sm text-white shrink-0">
+                  {initial}
+                </span>
+                <span className="hidden xl:inline text-body-sm font-medium text-graphite max-w-[7rem] truncate">
+                  {displayName}
+                </span>
+              </NavLink>
+              <button
+                type="button"
+                className="btn-ghost !p-2 hidden sm:inline-flex"
+                onClick={handleLogout}
+                title="Cerrar sesión"
+                aria-label="Cerrar sesión"
+              >
+                <svg aria-hidden="true" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                </svg>
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink className="btn-ghost !px-3 !py-2 shrink-0 hidden sm:inline-flex" to="/login">
+                Entrar
+              </NavLink>
+              <NavLink className="btn-primary !px-3 !py-2 shrink-0 hidden sm:inline-flex" to="/register">
+                Registrarse
+              </NavLink>
+            </>
+          )}
           <NavLink className="btn-primary !px-4 !py-2 shrink-0" to={addTo}>
             {addLabel}
           </NavLink>
@@ -162,6 +210,49 @@ export default function Navbar() {
                 </NavLink>
               </li>
             ))}
+            {isAuthenticated ? (
+              <>
+                <li>
+                  <NavLink
+                    to="/perfil"
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-graphite hover:text-brand hover:bg-brand-soft"
+                  >
+                    <span aria-hidden="true" className="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-accent flex items-center justify-center font-display font-bold text-sm text-white shrink-0">
+                      {initial}
+                    </span>
+                    <span className="text-body truncate">{displayName}</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-red-600 hover:bg-red-50"
+                    onClick={handleLogout}
+                  >
+                    <span className="text-body">Cerrar sesión</span>
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <NavLink
+                    to="/login"
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-graphite hover:text-brand hover:bg-brand-soft"
+                  >
+                    <span className="text-body">Iniciar sesión</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/register"
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-graphite hover:text-brand hover:bg-brand-soft"
+                  >
+                    <span className="text-body">Registrarse</span>
+                  </NavLink>
+                </li>
+              </>
+            )}
             <li>
               <span className="flex items-center gap-2 px-4 py-2.5">
                 <ExportButton onDone={() => setMenuOpen(false)} />
