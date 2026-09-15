@@ -1,10 +1,11 @@
 import type { PageBoardGameResponse, ListBoardGamesParams, BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse, PageBoardGameSearchResult } from '../types'
 import { throwRequestError } from './errors'
+import { authFetch } from './authFetch'
 
 const BASE_URL = '/api/v1/boardgames'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T | null> {
-  const res = await fetch(url, {
+  const res = await authFetch(url, {
     headers: { 'Content-Type': 'application/json' },
     ...options,
   })

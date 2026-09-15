@@ -1,25 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { login as apiLogin, register as apiRegister, refresh as apiRefresh } from '../api/authApi'
+import {
+  getAuthNavigator,
+  readRefreshToken,
+  setOnExpiredAuth,
+  setStoredAccessToken,
+  writeRefreshToken,
+} from '../api/authStore'
 import type { LoginRequest, RegisterRequest, UserResponse } from '../types'
-
-const REFRESH_TOKEN_KEY = 'collection.refreshToken'
-
-export function readRefreshToken(): string | null {
-  try {
-    return localStorage.getItem(REFRESH_TOKEN_KEY)
-  } catch {
-    return null
-  }
-}
-
-function writeRefreshToken(token: string | null) {
-  try {
-    if (token) localStorage.setItem(REFRESH_TOKEN_KEY, token)
-    else localStorage.removeItem(REFRESH_TOKEN_KEY)
-  } catch {
-    /* almacenamiento no disponible: la sesión vive solo en memoria */
-  }
-}
 
 interface AuthContextValue {
   user: UserResponse | null
@@ -52,9 +40,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (cancelled) return
         setUser(res.user)
         setAccessToken(res.accessToken)
+        setStoredAccessToken(res.accessToken)
         writeRefreshToken(res.refreshToken)
       } catch {
         if (cancelled) return
+        setStoredAccessToken(null)
         writeRefreshToken(null)
       } finally {
         if (!cancelled) setInitializing(false)
@@ -70,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await apiLogin(data)
     setUser(res.user)
     setAccessToken(res.accessToken)
+    setStoredAccessToken(res.accessToken)
     writeRefreshToken(res.refreshToken)
   }, [])
 
@@ -77,14 +68,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await apiRegister(data)
     setUser(res.user)
     setAccessToken(res.accessToken)
+    setStoredAccessToken(res.accessToken)
     writeRefreshToken(res.refreshToken)
   }, [])
 
   const logout = useCallback(() => {
     setUser(null)
     setAccessToken(null)
+    setStoredAccessToken(null)
     writeRefreshToken(null)
   }, [])
+
+  // Restore + token expirado: logout y a /login.
+  useEffect(() => {
+    setOnExpiredAuth(() => {
+      logout()
+      getAuthNavigator()?.('/login', { replace: true, state: { expired: true } })
+    })
+  }, [logout])
 
   const value = useMemo<AuthContextValue>(
     () => ({

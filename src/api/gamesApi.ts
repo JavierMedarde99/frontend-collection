@@ -1,11 +1,12 @@
 import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, PageGameSearchResult, GameAchievementsResponse } from '../types'
 import { throwRequestError } from './errors'
+import { authFetch } from './authFetch'
 
 const BASE_URL = '/api/v1/games'
 const STEAM_ID = '76561198809807580'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T | null> {
-  const res = await fetch(url, {
+  const res = await authFetch(url, {
     headers: { 'Content-Type': 'application/json' },
     ...options,
   })

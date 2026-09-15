@@ -1,10 +1,11 @@
 import type { DeckResponse, DeckRequest, DeckCardRequest, DeckStatusResponse, PageDeckResponse, ListDecksParams } from '../types'
 import { RequestError, throwRequestError } from './errors'
+import { authFetch } from './authFetch'
 
 const BASE_URL = '/api/v1/decks'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T | null> {
-  const res = await fetch(url, {
+  const res = await authFetch(url, {
     headers: { 'Content-Type': 'application/json' },
     ...options,
   })

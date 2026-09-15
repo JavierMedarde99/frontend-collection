@@ -1,11 +1,12 @@
 import type { PageMovieShowResponse, ListMovieShowsParams, MovieShow, MovieShowFormData, SearchMovieShowResult, PageMovieSearchResult } from '../types'
 import { throwRequestError } from './errors'
+import { authFetch } from './authFetch'
 import { MediaType } from '../types'
 
 const BASE_URL = '/api/v1/movieshows'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T | null> {
-  const res = await fetch(url, {
+  const res = await authFetch(url, {
     headers: { 'Content-Type': 'application/json' },
     ...options,
   })
