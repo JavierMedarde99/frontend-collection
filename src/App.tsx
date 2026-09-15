@@ -28,6 +28,7 @@ import DeckDetailPage from './pages/DeckDetailPage'
 import DeckEditPage from './pages/DeckEditPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import ProfilePage from './pages/ProfilePage'
 
 function Shell() {
   return (
@@ -53,6 +54,7 @@ const router = createBrowserRouter([
       { path: '/', element: <HomePage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
+      { path: '/perfil', element: <ProfilePage /> },
       { path: '/coleccion', element: <BookListPage /> },
       { path: '/coleccion/:id', element: <BookDetailPage /> },
       { path: '/nuevo', element: <BookCreatePage /> },
