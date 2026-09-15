@@ -1,6 +1,7 @@
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { ToastProvider } from './components/Toast'
 import AuthNavigator from './components/AuthNavigator'
+import ProtectedRoute from './components/ProtectedRoute'
 import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
 import BookListPage from './pages/BookListPage'
@@ -53,27 +54,27 @@ const router = createBrowserRouter([
       { path: '/', element: <HomePage /> },
       { path: '/coleccion', element: <BookListPage /> },
       { path: '/coleccion/:id', element: <BookDetailPage /> },
-      { path: '/nuevo', element: <BookCreatePage /> },
-      { path: '/editar/:id', element: <BookEditPage /> },
+      { path: '/nuevo', element: <ProtectedRoute><BookCreatePage /></ProtectedRoute> },
+      { path: '/editar/:id', element: <ProtectedRoute><BookEditPage /></ProtectedRoute> },
       { path: '/juegos', element: <GameListPage /> },
-      { path: '/juegos/nuevo', element: <GameCreatePage /> },
-      { path: '/juegos/editar/:id', element: <GameEditPage /> },
+      { path: '/juegos/nuevo', element: <ProtectedRoute><GameCreatePage /></ProtectedRoute> },
+      { path: '/juegos/editar/:id', element: <ProtectedRoute><GameEditPage /></ProtectedRoute> },
       { path: '/juegos/:id/logros', element: <GameAchievementsPage /> },
       { path: '/juegos/:id', element: <GameDetailPage /> },
       { path: '/magic', element: <MagicListPage /> },
-      { path: '/magic/nuevo', element: <MagicCreatePage /> },
+      { path: '/magic/nuevo', element: <ProtectedRoute><MagicCreatePage /></ProtectedRoute> },
       { path: '/magic/:id', element: <MagicDetailPage /> },
       { path: '/magic/mazos', element: <DeckListPage /> },
-      { path: '/magic/mazos/nuevo', element: <DeckCreatePage /> },
+      { path: '/magic/mazos/nuevo', element: <ProtectedRoute><DeckCreatePage /></ProtectedRoute> },
       { path: '/magic/mazos/:id', element: <DeckDetailPage /> },
-      { path: '/magic/mazos/:id/editar', element: <DeckEditPage /> },
+      { path: '/magic/mazos/:id/editar', element: <ProtectedRoute><DeckEditPage /></ProtectedRoute> },
       { path: '/boardgames', element: <BoardGameListPage /> },
-      { path: '/boardgames/nuevo', element: <BoardGameCreatePage /> },
+      { path: '/boardgames/nuevo', element: <ProtectedRoute><BoardGameCreatePage /></ProtectedRoute> },
       { path: '/boardgames/:id', element: <BoardGameDetailPage /> },
-      { path: '/boardgames/:id/editar', element: <BoardGameEditPage /> },
+      { path: '/boardgames/:id/editar', element: <ProtectedRoute><BoardGameEditPage /></ProtectedRoute> },
       { path: '/movieshows', element: <MovieShowListPage /> },
-      { path: '/movieshows/nuevo', element: <MovieShowCreatePage /> },
-      { path: '/movieshows/editar/:id', element: <MovieShowEditPage /> },
+      { path: '/movieshows/nuevo', element: <ProtectedRoute><MovieShowCreatePage /></ProtectedRoute> },
+      { path: '/movieshows/editar/:id', element: <ProtectedRoute><MovieShowEditPage /></ProtectedRoute> },
       { path: '/movieshows/:id', element: <MovieShowDetailPage /> },
     ],
   },
