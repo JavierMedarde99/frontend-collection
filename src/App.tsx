@@ -1,5 +1,6 @@
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { ToastProvider } from './components/Toast'
+import AuthNavigator from './components/AuthNavigator'
 import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
 import BookListPage from './pages/BookListPage'
@@ -30,6 +31,7 @@ import DeckEditPage from './pages/DeckEditPage'
 function Shell() {
   return (
     <ToastProvider>
+      <AuthNavigator />
       <a
         href="#contenido"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[70] focus:px-4 focus:py-2 focus:rounded-xl focus:bg-brand focus:text-white focus:font-semibold"
