@@ -26,6 +26,8 @@ import DeckListPage from './pages/DeckListPage'
 import DeckCreatePage from './pages/DeckCreatePage'
 import DeckDetailPage from './pages/DeckDetailPage'
 import DeckEditPage from './pages/DeckEditPage'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 
 function Shell() {
   return (
@@ -49,6 +51,8 @@ const router = createBrowserRouter([
     element: <Shell />,
     children: [
       { path: '/', element: <HomePage /> },
+      { path: '/login', element: <LoginPage /> },
+      { path: '/register', element: <RegisterPage /> },
       { path: '/coleccion', element: <BookListPage /> },
       { path: '/coleccion/:id', element: <BookDetailPage /> },
       { path: '/nuevo', element: <BookCreatePage /> },
