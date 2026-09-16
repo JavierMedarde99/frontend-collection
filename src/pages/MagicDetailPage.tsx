@@ -56,7 +56,7 @@ export default function MagicDetailPage() {
 
   if (loading) {
     return (
-      <div className="w-full">
+      <div className="max-w-4xl mx-auto">
         <SkeletonGrid count={2} />
       </div>
     )
@@ -64,7 +64,7 @@ export default function MagicDetailPage() {
 
   if (error || !card) {
     return (
-      <div className="py-12 flex flex-col items-center gap-4 text-center">
+      <div className="max-w-xl mx-auto text-center py-12 flex flex-col items-center gap-4">
         <ErrorBanner message={error || 'Carta no encontrada'} />
         <Link className="btn-primary" to="/magic">
           Volver al listado
@@ -76,7 +76,7 @@ export default function MagicDetailPage() {
   const imgSrc = card.imageLargeUrl || card.imageUrl
 
   return (
-    <article className="flex flex-col gap-10">
+    <article className="max-w-5xl mx-auto flex flex-col gap-10">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: card?.name || 'Detalle' }]} />
       <div className="flex items-center justify-between">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>

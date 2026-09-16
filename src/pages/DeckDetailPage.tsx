@@ -219,7 +219,7 @@ export default function DeckDetailPage() {
 
   if (loading) {
     return (
-      <div className="w-full">
+      <div className="max-w-4xl mx-auto">
         <SkeletonGrid count={4} />
       </div>
     )
@@ -227,7 +227,7 @@ export default function DeckDetailPage() {
 
   if (error || !deck) {
     return (
-      <div className="py-12 flex flex-col items-center gap-4 text-center">
+      <div className="max-w-xl mx-auto text-center py-12 flex flex-col items-center gap-4">
         <ErrorBanner message={error || 'Mazo no encontrado'} />
         <Link className="btn-primary" to="/magic/mazos">
           Volver a mazos
@@ -257,7 +257,7 @@ export default function DeckDetailPage() {
   }
 
   return (
-    <article className="flex flex-col gap-8">
+    <article className="max-w-6xl mx-auto flex flex-col gap-8">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Mazos", to: "/magic/mazos" }, { label: deck?.name || 'Detalle' }]} />
       <div className="flex items-center justify-between flex-wrap gap-3">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>

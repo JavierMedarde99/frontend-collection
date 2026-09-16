@@ -52,7 +52,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="max-w-md mx-auto flex flex-col gap-8">
       <Breadcrumbs items={[{ label: 'Inicio', to: '/' }, { label: 'Crear cuenta' }]} />
       <div className="card p-6 md:p-8 flex flex-col gap-6">
         <div>

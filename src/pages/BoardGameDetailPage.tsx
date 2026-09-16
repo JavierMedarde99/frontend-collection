@@ -71,7 +71,7 @@ export default function BoardGameDetailPage() {
 
   if (loading) {
     return (
-      <section className="flex flex-col gap-24">
+      <section className="max-w-3xl flex flex-col gap-24">
         <Spinner label="Cargando juego…" />
       </section>
     )
@@ -79,7 +79,7 @@ export default function BoardGameDetailPage() {
 
   if (error || !game) {
     return (
-      <section className="flex flex-col gap-24">
+      <section className="max-w-3xl flex flex-col gap-24">
         <EmptyState
           title="No se pudo cargar el juego"
           message={error || 'El juego no existe.'}
@@ -110,7 +110,7 @@ export default function BoardGameDetailPage() {
   const hasRating = game.bggRating !== undefined && game.bggRating !== null
 
   return (
-    <section className="flex flex-col gap-24">
+    <section className="max-w-3xl flex flex-col gap-24">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Juegos de mesa", to: "/boardgames" }, { label: game?.title || 'Detalle' }]} />
       <div className="flex items-center justify-between gap-4">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>

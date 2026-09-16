@@ -63,7 +63,7 @@ export default function MovieShowDetailPage() {
 
   if (loading) {
     return (
-      <section className="flex flex-col gap-24">
+      <section className="max-w-3xl flex flex-col gap-24">
         <Spinner label="Cargando…" />
       </section>
     )
@@ -71,7 +71,7 @@ export default function MovieShowDetailPage() {
 
   if (error || !movieShow) {
     return (
-      <section className="flex flex-col gap-24">
+      <section className="max-w-3xl flex flex-col gap-24">
         <EmptyState
           title="No se pudo cargar"
           message={error || 'No existe.'}
@@ -99,7 +99,7 @@ export default function MovieShowDetailPage() {
   ]
 
   return (
-    <section className="flex flex-col gap-24">
+    <section className="max-w-3xl flex flex-col gap-24">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Películas", to: "/movieshows" }, { label: movieShow?.title || 'Detalle' }]} />
       <div className="flex items-center justify-between gap-4">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>

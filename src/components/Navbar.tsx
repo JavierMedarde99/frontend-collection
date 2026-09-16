@@ -76,7 +76,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-10 bg-navbar-gradient border-b border-silver/70 shadow-sm-4">
-      <nav className="max-w-content mx-auto px-5 md:px-20 h-16 flex items-center justify-between gap-4">
+      <nav className="px-5 md:px-20 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-6 min-w-0">
           <NavLink to="/" className="flex items-center gap-2.5 shrink-0" aria-label="Collection — inicio">
             <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand to-accent flex items-center justify-center shadow-brand-glow">
@@ -290,7 +290,7 @@ export default function Navbar() {
       )}
       {inMagic && (
         <nav aria-label="Sub-apartados de Magic" className="hidden lg:block border-t border-silver/70 bg-cream/60">
-          <div className="max-w-content mx-auto px-5 md:px-20 py-2 flex items-center gap-1">
+          <div className="px-5 md:px-20 py-2 flex items-center gap-1">
             {magicLinks.map((link) => (
               <NavLink
                 key={link.to}
