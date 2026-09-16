@@ -31,6 +31,7 @@ import DeckEditPage from './pages/DeckEditPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
+import PublicProfilePage from './pages/PublicProfilePage'
 import PreferencesPage from './pages/PreferencesPage'
 
 function Shell() {
@@ -59,6 +60,7 @@ const router = createBrowserRouter([
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
       { path: '/perfil', element: <ProfilePage /> },
+      { path: '/perfil/:username', element: <PublicProfilePage /> },
       { path: '/preferencias', element: <ProtectedRoute><PreferencesPage /></ProtectedRoute> },
       { path: '/coleccion', element: <BookListPage /> },
       { path: '/coleccion/:id', element: <BookDetailPage /> },
