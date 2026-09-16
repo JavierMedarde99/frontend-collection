@@ -19,6 +19,8 @@ export interface ListBooksParams {
   type?: BookType | ''
   name?: string
   author?: string
+  owner?: 'mine' | 'other' | ''
+  viewerId?: string
 }
 
 export interface BookFormData {

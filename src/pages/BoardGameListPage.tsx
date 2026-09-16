@@ -13,6 +13,8 @@ import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useAuth } from '../context/AuthContext'
+import OwnerTabs, { type OwnerTab } from '../components/OwnerTabs'
 import { useListQuery } from '../hooks/useListQuery'
 
 const PAGE_SIZE = 12
@@ -33,6 +35,10 @@ export default function BoardGameListPage() {
   })
   const { status, name: nameFilter, sort } = query
 
+  const { isAuthenticated, user } = useAuth()
+  const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
+  const effectiveTab = isAuthenticated ? ownerTab : 'other'
+
   const {
     items: games,
     totalElements,
@@ -50,9 +56,11 @@ export default function BoardGameListPage() {
         size,
         status: status || undefined,
         name: nameFilter || undefined,
+        owner: effectiveTab,
+        viewerId: user?.id || undefined,
         sort,
       }),
-    deps: [status, nameFilter, sort],
+    deps: [status, nameFilter, sort, effectiveTab, user?.id],
   })
 
 
@@ -153,6 +161,8 @@ export default function BoardGameListPage() {
           </FilterPill>
         ))}
       </div>
+
+      <OwnerTabs value={effectiveTab} onChange={setOwnerTab} showMine={isAuthenticated} />
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">

@@ -13,6 +13,8 @@ import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useAuth } from '../context/AuthContext'
+import OwnerTabs, { type OwnerTab } from '../components/OwnerTabs'
 import { useListQuery } from '../hooks/useListQuery'
 
 const PAGE_SIZE = 12
@@ -36,6 +38,10 @@ export default function BookListPage() {
   })
   const { status, type: typeFilter, name: nameFilter, author: authorFilter, sort } = query
 
+  const { isAuthenticated, user } = useAuth()
+  const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
+  const effectiveTab = isAuthenticated ? ownerTab : 'other'
+
   const {
     items: books,
     totalElements,
@@ -56,9 +62,11 @@ export default function BookListPage() {
         type: typeFilter || undefined,
         name: nameFilter || undefined,
         author: authorFilter || undefined,
+        owner: effectiveTab,
+        viewerId: user?.id || undefined,
         sort,
       }),
-    deps: [status, typeFilter, nameFilter, authorFilter, sort],
+    deps: [status, typeFilter, nameFilter, authorFilter, sort, effectiveTab, user?.id],
   })
 
   function handleNameSearch(e: FormEvent) {
@@ -184,6 +192,8 @@ export default function BookListPage() {
           </FilterPill>
         ))}
       </div>
+
+      <OwnerTabs value={effectiveTab} onChange={setOwnerTab} showMine={isAuthenticated} />
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">

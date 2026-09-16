@@ -22,11 +22,13 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T | n
 
 export function listDecks(params: ListDecksParams = {}): Promise<PageDeckResponse> {
   const search = new URLSearchParams()
-  const { page, size, sort, name } = params
+  const { page, size, sort, name , owner, viewerId } = params
   if (page !== undefined && page !== null) search.set('page', String(page))
   if (size !== undefined && size !== null) search.set('size', String(size))
   if (sort) search.set('sort', sort)
   if (name) search.set('name', name)
+  if (owner) search.set('owner', owner)
+  if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()
   return request<PageDeckResponse>(`${BASE_URL}${qs ? `?${qs}` : ''}`) as Promise<PageDeckResponse>
 }
