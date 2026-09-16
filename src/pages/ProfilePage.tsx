@@ -29,7 +29,7 @@ export default function ProfilePage() {
   const initial = (user.displayName || user.username || '?').slice(0, 1).toUpperCase()
 
   return (
-    <div className="max-w-xl mx-auto flex flex-col gap-8">
+    <div className="flex flex-col gap-8">
       <Breadcrumbs items={[{ label: 'Inicio', to: '/' }, { label: 'Mi perfil' }]} />
       <div className="card p-6 md:p-8 flex flex-col gap-6">
         <div className="flex items-center gap-4">

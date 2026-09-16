@@ -36,7 +36,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto flex flex-col gap-8">
+    <div className="flex flex-col gap-8">
       <Breadcrumbs items={[{ label: 'Inicio', to: '/' }, { label: 'Iniciar sesión' }]} />
       <div className="card p-6 md:p-8 flex flex-col gap-6">
         <div>

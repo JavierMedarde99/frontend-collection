@@ -63,7 +63,7 @@ export default function GameDetailPage() {
 
   if (loading) {
     return (
-      <section className="max-w-3xl flex flex-col gap-24">
+      <section className="flex flex-col gap-24">
         <Spinner label="Cargando videojuego…" />
       </section>
     )
@@ -71,7 +71,7 @@ export default function GameDetailPage() {
 
   if (error || !game) {
     return (
-      <section className="max-w-3xl flex flex-col gap-24">
+      <section className="flex flex-col gap-24">
         <EmptyState
           title="No se pudo cargar el videojuego"
           message={error || 'El videojuego no existe.'}
@@ -92,7 +92,7 @@ export default function GameDetailPage() {
   ]
 
   return (
-    <section className="max-w-3xl flex flex-col gap-24">
+    <section className="flex flex-col gap-24">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Videojuegos", to: "/juegos" }, { label: game?.title || 'Detalle' }]} />
       <div className="flex items-center justify-between gap-4">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>

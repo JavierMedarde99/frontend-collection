@@ -63,7 +63,7 @@ export default function MagicCreatePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-8">
+    <div className="flex flex-col gap-8">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Añadir" }]} />
       <div>
         <h1 className="font-display text-heading-lg mb-2">Añadir carta Magic</h1>

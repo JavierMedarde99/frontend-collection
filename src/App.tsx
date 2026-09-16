@@ -43,7 +43,7 @@ function Shell() {
         Saltar al contenido
       </a>
       <Navbar />
-      <main id="contenido" tabIndex={-1} className="max-w-content mx-auto px-5 md:px-20 py-10 focus:outline-none">
+      <main id="contenido" tabIndex={-1} className="px-5 md:px-20 py-10 focus:outline-none">
         <Outlet />
       </main>
     </ToastProvider>

@@ -152,7 +152,7 @@ export default function DeckEditPage() {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <div className="w-full">
         <Spinner label="Cargando mazo…" />
       </div>
     )
@@ -160,7 +160,7 @@ export default function DeckEditPage() {
 
   if (loadError) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <div className="w-full">
         <EmptyState
           title="No se pudo cargar el mazo"
           message={loadError}
@@ -175,7 +175,7 @@ export default function DeckEditPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto flex flex-col gap-8">
+    <div className="flex flex-col gap-8">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Mazos", to: "/magic/mazos" }, { label: name || 'Editar', to: `/magic/mazos/${id}` }, { label: "Editar" }]} />
       <div className="flex items-center justify-between gap-4">
         <div>
