@@ -46,33 +46,7 @@ export default function Navbar() {
     return () => window.removeEventListener('keydown', onKey)
   }, [menuOpen])
 
-  const inGames = location.pathname.startsWith('/juegos')
   const inMagic = location.pathname.startsWith('/magic')
-  const inDecks = location.pathname.startsWith('/magic/mazos')
-  const inBoardGames = location.pathname.startsWith('/boardgames')
-  const inMovieShows = location.pathname.startsWith('/movieshows')
-  const addTo = inMovieShows
-    ? '/movieshows/nuevo'
-    : inBoardGames
-      ? '/boardgames/nuevo'
-      : inDecks
-        ? '/magic/mazos/nuevo'
-        : inMagic
-          ? '/magic/nuevo'
-          : inGames
-            ? '/juegos/nuevo'
-            : '/nuevo'
-  const addLabel = inMovieShows
-    ? 'Añadir película'
-    : inBoardGames
-      ? 'Añadir juego de mesa'
-      : inDecks
-        ? 'Añadir mazo'
-        : inMagic
-          ? 'Añadir carta Magic'
-          : inGames
-            ? 'Añadir videojuego'
-            : 'Añadir libro'
 
   return (
     <header className="sticky top-0 z-10 bg-navbar-gradient border-b border-silver/70 shadow-sm-4">
@@ -153,9 +127,6 @@ export default function Navbar() {
               </NavLink>
             </>
           )}
-          <NavLink className="btn-primary !px-4 !py-2 shrink-0" to={addTo}>
-            {addLabel}
-          </NavLink>
           <button
             type="button"
             className="btn-ghost !p-2 lg:hidden"
