@@ -14,3 +14,12 @@ export { MovieShowStatus } from './MovieShowStatus'
 export { MediaType } from './MovieType'
 export type { MovieShow, MovieShowFormData, SearchMovieShowResult, PageMovieSearchResult, PageMovieShowResponse, ListMovieShowsParams } from './MovieShow'
 export type { RegisterRequest, LoginRequest, RefreshTokenRequest, UserResponse, AuthResponse } from './Auth'
+export type {
+  CollectionType,
+  CollectionVisibility,
+  UserPreferences,
+  UserPreferencesRequest,
+  ActiveCollectionsRequest,
+  CollectionVisibilityRequest,
+  PublicProfileResponse,
+} from './Preferences'
