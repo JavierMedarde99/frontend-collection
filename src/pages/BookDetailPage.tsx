@@ -63,7 +63,7 @@ export default function BookDetailPage() {
 
   if (loading) {
     return (
-      <section className="max-w-3xl flex flex-col gap-24">
+      <section className="flex flex-col gap-24">
         <Spinner label="Cargando libro…" />
       </section>
     )
@@ -71,7 +71,7 @@ export default function BookDetailPage() {
 
   if (error || !book) {
     return (
-      <section className="max-w-3xl flex flex-col gap-24">
+      <section className="flex flex-col gap-24">
         <EmptyState
           title="No se pudo cargar el libro"
           message={error || 'El libro no existe.'}
@@ -94,7 +94,7 @@ export default function BookDetailPage() {
   ]
 
   return (
-    <section className="max-w-3xl flex flex-col gap-24">
+    <section className="flex flex-col gap-24">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Libros", to: "/coleccion" }, { label: book?.title || 'Detalle' }]} />
       <div className="flex items-center justify-between gap-4">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>

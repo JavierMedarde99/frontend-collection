@@ -67,7 +67,7 @@ export default function MovieShowEditPage() {
   }
 
   return (
-    <section className="max-w-3xl flex flex-col gap-24">
+    <section className="flex flex-col gap-24">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Películas", to: "/movieshows" }, { label: movieShow?.title || 'Detalle', to: `/movieshows/${id}` }, { label: "Editar" }]} />
       <div className="flex items-center justify-between">
         <div>

@@ -67,7 +67,7 @@ export default function GameEditPage() {
   }
 
   return (
-    <section className="max-w-3xl flex flex-col gap-24">
+    <section className="flex flex-col gap-24">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Videojuegos", to: "/juegos" }, { label: game?.title || 'Detalle', to: `/juegos/${id}` }, { label: "Editar" }]} />
       <div className="flex items-center justify-between">
         <div>

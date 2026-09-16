@@ -28,7 +28,7 @@ export default function MovieShowCreatePage() {
   }
 
   return (
-    <section className="max-w-3xl flex flex-col gap-24">
+    <section className="flex flex-col gap-24">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Películas", to: "/movieshows" }, { label: "Añadir" }]} />
       <div>
         <h1 className="font-display text-heading-lg mb-2">Añadir película/serie</h1>
