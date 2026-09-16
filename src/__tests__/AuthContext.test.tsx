@@ -9,7 +9,16 @@ vi.mock('../api/authApi', () => ({
   refresh: vi.fn(),
 }))
 
+vi.mock('../api/preferencesApi', () => ({
+  getPreferences: vi.fn(),
+  getActiveCollections: vi.fn(),
+}))
+
 import { login as apiLogin, register as apiRegister, refresh as apiRefresh } from '../api/authApi'
+import { getActiveCollections, getPreferences } from '../api/preferencesApi'
+
+const mockedGetPreferences = vi.mocked(getPreferences)
+const mockedGetActive = vi.mocked(getActiveCollections)
 
 const mockedLogin = vi.mocked(apiLogin)
 const mockedRegister = vi.mocked(apiRegister)
@@ -40,6 +49,13 @@ function renderProvider() {
 beforeEach(() => {
   localStorage.clear()
   vi.clearAllMocks()
+  mockedGetPreferences.mockResolvedValue({
+    id: 'p1',
+    userId: 'u1',
+    activeCollections: { books: true },
+    collectionVisibility: { books: 'PUBLIC' },
+  })
+  mockedGetActive.mockResolvedValue(['BOOKS'])
 })
 
 describe('AuthContext', () => {
@@ -108,5 +124,42 @@ describe('AuthContext', () => {
     await waitFor(() => expect(captured?.initializing).toBe(false))
     expect(captured?.isAuthenticated).toBe(false)
     expect(localStorage.getItem('collection.refreshToken')).toBeNull()
+  })
+
+  it('carga preferencias y activas al hacer login', async () => {
+    mockedLogin.mockResolvedValue(authResponse())
+    renderProvider()
+    await waitFor(() => expect(captured?.initializing).toBe(false))
+
+    await act(() => captured!.login({ username: 'javi', password: 'secret123' }))
+
+    expect(mockedGetPreferences).toHaveBeenCalledWith('u1')
+    expect(captured?.activeCollections).toEqual(['BOOKS'])
+    expect(captured?.preferences?.activeCollections).toEqual({ books: true })
+  })
+
+  it('refreshPreferences recarga desde el backend', async () => {
+    mockedLogin.mockResolvedValue(authResponse())
+    renderProvider()
+    await waitFor(() => expect(captured?.initializing).toBe(false))
+    await act(() => captured!.login({ username: 'javi', password: 'secret123' }))
+
+    mockedGetActive.mockResolvedValue(['BOOKS', 'GAMES'])
+    await act(() => captured!.refreshPreferences())
+
+    expect(captured?.activeCollections).toEqual(['BOOKS', 'GAMES'])
+  })
+
+  it('logout limpia preferencias y activas', async () => {
+    mockedLogin.mockResolvedValue(authResponse())
+    renderProvider()
+    await waitFor(() => expect(captured?.initializing).toBe(false))
+    await act(() => captured!.login({ username: 'javi', password: 'secret123' }))
+    expect(captured?.activeCollections).toEqual(['BOOKS'])
+
+    act(() => captured!.logout())
+
+    expect(captured?.preferences).toBeNull()
+    expect(captured?.activeCollections).toEqual([])
   })
 })

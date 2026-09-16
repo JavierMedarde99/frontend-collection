@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { login as apiLogin, register as apiRegister, refresh as apiRefresh } from '../api/authApi'
+import { getActiveCollections, getPreferences } from '../api/preferencesApi'
+import type { LoginRequest, RegisterRequest, UserPreferences, UserResponse } from '../types'
 import {
   getAuthNavigator,
   readRefreshToken,
@@ -17,6 +19,11 @@ interface AuthContextValue {
   login: (data: LoginRequest) => Promise<void>
   register: (data: RegisterRequest) => Promise<void>
   logout: () => void
+  /** Códigos del backend en mayúsculas: ["BOOKS", "MAGIC", ...]. Vacío si anónimo. */
+  activeCollections: string[]
+  preferences: UserPreferences | null
+  refreshActiveCollections: () => Promise<void>
+  refreshPreferences: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -25,6 +32,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserResponse | null>(null)
   const [accessToken, setAccessToken] = useState<string | null>(null)
   const [initializing, setInitializing] = useState(true)
+  const [preferences, setPreferences] = useState<UserPreferences | null>(null)
+  const [activeCollections, setActiveCollections] = useState<string[]>([])
+
+  const loadPreferences = useCallback(async (userId: string) => {
+    try {
+      const [prefs, active] = await Promise.all([
+        getPreferences(userId).catch(() => null),
+        getActiveCollections(userId).catch(() => [] as string[]),
+      ])
+      setPreferences(prefs)
+      setActiveCollections(Array.isArray(active) ? active : [])
+    } catch {
+      setPreferences(null)
+      setActiveCollections([])
+    }
+  }, [])
+
+  const refreshPreferences = useCallback(async () => {
+    if (!user?.id) return
+    await loadPreferences(user.id)
+  }, [user?.id, loadPreferences])
+
+  const refreshActiveCollections = useCallback(async () => {
+    if (!user?.id) return
+    try {
+      const active = await getActiveCollections(user.id)
+      setActiveCollections(Array.isArray(active) ? active : [])
+    } catch {
+      /* se conserva el último valor conocido */
+    }
+  }, [user?.id])
 
   // Restaura la sesión al recargar: el refresh rota tokens y trae el usuario.
   useEffect(() => {
@@ -42,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAccessToken(res.accessToken)
         setStoredAccessToken(res.accessToken)
         writeRefreshToken(res.refreshToken)
+        await loadPreferences(res.user.id)
       } catch {
         if (cancelled) return
         setStoredAccessToken(null)
@@ -54,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [loadPreferences])
 
   const login = useCallback(async (data: LoginRequest) => {
     const res = await apiLogin(data)
@@ -62,7 +101,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(res.accessToken)
     setStoredAccessToken(res.accessToken)
     writeRefreshToken(res.refreshToken)
-  }, [])
+    await loadPreferences(res.user.id)
+  }, [loadPreferences])
 
   const register = useCallback(async (data: RegisterRequest) => {
     const res = await apiRegister(data)
@@ -70,13 +110,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(res.accessToken)
     setStoredAccessToken(res.accessToken)
     writeRefreshToken(res.refreshToken)
-  }, [])
+    await loadPreferences(res.user.id)
+  }, [loadPreferences])
 
   const logout = useCallback(() => {
     setUser(null)
     setAccessToken(null)
     setStoredAccessToken(null)
     writeRefreshToken(null)
+    setPreferences(null)
+    setActiveCollections([])
   }, [])
 
   // Restore + token expirado: logout y a /login.
@@ -96,8 +139,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      activeCollections,
+      preferences,
+      refreshActiveCollections,
+      refreshPreferences,
     }),
-    [user, accessToken, initializing, login, register, logout],
+    [user, accessToken, initializing, login, register, logout, activeCollections, preferences, refreshActiveCollections, refreshPreferences],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
