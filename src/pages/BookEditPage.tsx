@@ -67,7 +67,7 @@ export default function BookEditPage() {
   }
 
   return (
-    <section className="flex flex-col gap-24">
+    <section className="max-w-3xl flex flex-col gap-24">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Libros", to: "/coleccion" }, { label: book?.title || 'Detalle', to: `/coleccion/${id}` }, { label: "Editar" }]} />
       <div className="flex items-center justify-between">
         <div>

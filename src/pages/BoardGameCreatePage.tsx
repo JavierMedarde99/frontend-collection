@@ -28,7 +28,7 @@ export default function BoardGameCreatePage() {
   }
 
   return (
-    <section className="flex flex-col gap-24">
+    <section className="max-w-3xl flex flex-col gap-24">
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Juegos de mesa", to: "/boardgames" }, { label: "Añadir" }]} />
       <div>
         <h1 className="font-display text-heading-lg mb-2">Añadir juego de mesa</h1>
