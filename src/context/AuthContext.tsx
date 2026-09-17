@@ -9,7 +9,6 @@ import {
   setStoredAccessToken,
   writeRefreshToken,
 } from '../api/authStore'
-import type { LoginRequest, RegisterRequest, UserResponse } from '../types'
 
 interface AuthContextValue {
   user: UserResponse | null
