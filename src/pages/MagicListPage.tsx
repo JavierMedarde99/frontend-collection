@@ -232,6 +232,7 @@ export default function MagicListPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {cards.map((card, idx) => (
               <MagicCard key={card.id} card={card} index={idx}
+                readOnly={effectiveTab === 'other'}
                 onDelete={async () => { await deleteMagicCard(card.id); load() }}
               />
             ))}

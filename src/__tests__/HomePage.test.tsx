@@ -34,10 +34,14 @@ vi.mock('../api/movieshowsApi', () => ({
   listMovieShows: vi.fn(async () => ({ content: [], totalPages: 0, totalElements: 6, number: 0, size: 1, empty: true })),
 }))
 
+import { AuthProvider } from '../context/AuthContext'
+
 function renderHome() {
   return render(
     <MemoryRouter>
-      <HomePage />
+      <AuthProvider>
+        <HomePage />
+      </AuthProvider>
     </MemoryRouter>,
   )
 }

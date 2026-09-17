@@ -210,6 +210,7 @@ export default function MovieShowListPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {movieShows.map((movieShow, index) => (
               <MovieShowCard key={movieShow.id} movieShow={movieShow} index={index}
+                readOnly={effectiveTab === 'other'}
                 onDelete={async () => { await deleteMovieShow(movieShow.id); load() }}
               />
             ))}

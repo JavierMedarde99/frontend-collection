@@ -12,17 +12,20 @@ interface GameCardProps {
   game: Game
   index?: number
   onDelete: () => Promise<void>
+  readOnly?: boolean
 }
 
-export default function GameCard({ game, index = 0, onDelete }: GameCardProps) {
+export default function GameCard({ game, index = 0, onDelete, readOnly = false }: GameCardProps) {
   return (
     <article
       className="card card-hover animate-fade-up relative flex flex-col gap-5 group"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
-      <div className="absolute top-3 right-3">
-        <CardMenu detailTo={`/juegos/${game.id}`} editTo={`/juegos/editar/${game.id}`} itemName={game.title} onDelete={onDelete} />
-      </div>
+      {!readOnly && (
+        <div className="absolute top-3 right-3">
+          <CardMenu detailTo={`/juegos/${game.id}`} editTo={`/juegos/editar/${game.id}`} itemName={game.title} onDelete={onDelete} />
+        </div>
+      )}
       <div className="flex gap-5">
         {game.thumbnailUrl ? (
           <Link to={`/juegos/${game.id}`} className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper block">
@@ -86,9 +89,11 @@ export default function GameCard({ game, index = 0, onDelete }: GameCardProps) {
               Ver logros
             </Link>
           )}
+{!readOnly && (
           <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/juegos/editar/${game.id}`} label={`Editar ${game.title}`}>
             Editar
           </ActionLink>
+        )}
         </div>
       </div>
     </article>

@@ -6,17 +6,20 @@ interface MagicCardProps {
   card: MagicCardResponse
   index?: number
   onDelete: () => Promise<void>
+  readOnly?: boolean
 }
 
-export default function MagicCard({ card, index = 0, onDelete }: MagicCardProps) {
+export default function MagicCard({ card, index = 0, onDelete, readOnly = false }: MagicCardProps) {
   return (
     <article
       className="card card-hover animate-fade-up relative flex flex-col gap-5 group"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
-      <div className="absolute top-3 right-3">
-        <CardMenu detailTo={`/magic/${card.id}`} itemName={card.name} onDelete={onDelete} />
-      </div>
+      {!readOnly && (
+        <div className="absolute top-3 right-3">
+          <CardMenu detailTo={`/magic/${card.id}`} itemName={card.name} onDelete={onDelete} />
+        </div>
+      )}
       <div className="flex gap-5">
         {card.imageUrl ? (
           <Link to={`/magic/${card.id}`} className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper block">
