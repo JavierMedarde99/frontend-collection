@@ -13,6 +13,8 @@ import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useAuth } from '../context/AuthContext'
+import OwnerTabs, { type OwnerTab } from '../components/OwnerTabs'
 import { useListQuery } from '../hooks/useListQuery'
 
 const PAGE_SIZE = 12
@@ -45,6 +47,10 @@ export default function MagicListPage() {
   })
   const { name: nameFilter, rarity: rarityFilter, color: colorFilter, type: typeFilter, sort } = query
 
+  const { isAuthenticated, user } = useAuth()
+  const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
+  const effectiveTab = isAuthenticated ? ownerTab : 'other'
+
   const {
     items: cards,
     totalElements,
@@ -64,9 +70,11 @@ export default function MagicListPage() {
         rarity: rarityFilter || undefined,
         color: colorFilter || undefined,
         type: typeFilter || undefined,
+        owner: effectiveTab,
+        viewerId: user?.id || undefined,
         sort,
       }),
-    deps: [nameFilter, rarityFilter, colorFilter, typeFilter, sort],
+    deps: [nameFilter, rarityFilter, colorFilter, typeFilter, sort, effectiveTab, user?.id],
   })
 
 
@@ -190,6 +198,8 @@ export default function MagicListPage() {
           </form>
         </div>
       )}
+
+      <OwnerTabs value={effectiveTab} onChange={setOwnerTab} showMine={isAuthenticated} />
 
       {error && (
         <ErrorBanner message={error} />

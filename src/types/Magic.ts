@@ -131,4 +131,6 @@ export interface ListMagicCardsParams {
   rarity?: string
   color?: string
   type?: string
+  owner?: 'mine' | 'other' | ''
+  viewerId?: string
 }

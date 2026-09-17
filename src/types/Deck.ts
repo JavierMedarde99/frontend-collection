@@ -54,4 +54,6 @@ export interface ListDecksParams {
   size?: number
   sort?: string
   name?: string
+  owner?: 'mine' | 'other' | ''
+  viewerId?: string
 }

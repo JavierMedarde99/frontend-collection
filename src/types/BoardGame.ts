@@ -95,4 +95,6 @@ export interface ListBoardGamesParams {
   sort?: string
   name?: string
   status?: BoardGameStatus | ''
+  owner?: 'mine' | 'other' | ''
+  viewerId?: string
 }

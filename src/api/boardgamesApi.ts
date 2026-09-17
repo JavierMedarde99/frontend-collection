@@ -22,12 +22,14 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T | n
 
 export function listBoardGames(params: ListBoardGamesParams = {}): Promise<PageBoardGameResponse> {
   const search = new URLSearchParams()
-  const { page, size, sort, name, status } = params
+  const { page, size, sort, name, status , owner, viewerId } = params
   if (page !== undefined && page !== null) search.set('page', String(page))
   if (size !== undefined && size !== null) search.set('size', String(size))
   if (sort) search.set('sort', sort)
   if (name) search.set('name', name)
   if (status) search.set('status', status)
+  if (owner) search.set('owner', owner)
+  if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()
   return request<PageBoardGameResponse>(`${BASE_URL}${qs ? `?${qs}` : ''}`) as Promise<PageBoardGameResponse>
 }

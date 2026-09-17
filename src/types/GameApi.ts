@@ -18,6 +18,8 @@ export interface ListGamesParams {
   name?: string
   platform?: GamePlatform | ''
   status?: GameStatus | ''
+  owner?: 'mine' | 'other' | ''
+  viewerId?: string
 }
 
 export interface GameFormData {

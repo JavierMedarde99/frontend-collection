@@ -13,6 +13,8 @@ import ErrorBanner from '../components/ErrorBanner'
 import SearchField from '../components/SearchField'
 import SkeletonInline from '../components/SkeletonInline'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useAuth } from '../context/AuthContext'
+import OwnerTabs, { type OwnerTab } from '../components/OwnerTabs'
 import { useListQuery } from '../hooks/useListQuery'
 
 function totalCards(deck: DeckResponse): number {
@@ -30,6 +32,10 @@ export default function DeckListPage() {
   const [query, setQuery] = useListQuery({ name: '' })
   const { name: nameFilter } = query
 
+  const { isAuthenticated, user } = useAuth()
+  const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
+  const effectiveTab = isAuthenticated ? ownerTab : 'other'
+
   const {
     items: decks,
     totalElements,
@@ -43,8 +49,8 @@ export default function DeckListPage() {
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar los mazos.',
     fetchPage: (page, size) =>
-      listDecks({ page, size, name: nameFilter || undefined, sort: 'name,asc' }),
-    deps: [nameFilter],
+      listDecks({ page, size, name: nameFilter || undefined, sort: 'name,asc', owner: effectiveTab, viewerId: user?.id || undefined }),
+    deps: [nameFilter, effectiveTab, user?.id],
   })
 
   function handleSearch(e: FormEvent) {
@@ -115,6 +121,8 @@ export default function DeckListPage() {
         inputRef={searchRef}
         shortcutHint
       />
+
+      <OwnerTabs value={effectiveTab} onChange={setOwnerTab} showMine={isAuthenticated} />
 
       {error && (
         <ErrorBanner message={error} />
