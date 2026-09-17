@@ -9,6 +9,7 @@ import { listMovieShows } from '../api/movieshowsApi'
 import { BOOK_STATES } from '../constants/books'
 import { BookState } from '../types'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useAuth } from '../context/AuthContext'
 
 interface Stats {
   total: number
@@ -122,6 +123,7 @@ const BOOK_ICON = (
 
 export default function HomePage() {
   usePageTitle('Inicio')
+  const { isAuthenticated, activeCollections } = useAuth()
   const [stats, setStats] = useState<Stats | null>(null)
   const [entities, setEntities] = useState<EntityTotals | null>(null)
   const [recent, setRecent] = useState<RecentItem[]>([])
@@ -148,6 +150,10 @@ export default function HomePage() {
   useEffect(() => {
     load()
   }, [load])
+
+  const visibleEntities = !isAuthenticated
+    ? ENTITIES
+    : ENTITIES.filter((entity) => activeCollections.includes(entity.key.toUpperCase()))
 
   const statCards = [
     { key: 'total', label: 'Libros totales', value: stats?.total },
@@ -219,7 +225,7 @@ export default function HomePage() {
       <div className="flex flex-col gap-4">
         <h2 className="font-display text-heading text-ink">Tu colección en cifras</h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {ENTITIES.map((entity) => (
+          {visibleEntities.map((entity) => (
             <Link key={entity.key} to={entity.to} className="card card-hover flex items-center gap-4 p-5">
               <span className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center font-display font-bold text-heading-sm ${entity.chip}`} aria-hidden="true">
                 {entity.short}
