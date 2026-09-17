@@ -10,18 +10,21 @@ interface BookCardProps {
   book: Book
   index?: number
   onDelete: () => Promise<void>
+  readOnly?: boolean
 }
 
-export default function BookCard({ book, index = 0, onDelete }: BookCardProps) {
+export default function BookCard({ book, index = 0, onDelete, readOnly = false }: BookCardProps) {
   const typeColor = TYPE_BADGE_COLORS[book.type] || TYPE_BADGE_COLORS.NOVEL
   return (
     <article
       className="card card-hover animate-fade-up relative flex flex-col gap-5 group"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
-      <div className="absolute top-3 right-3">
-        <CardMenu detailTo={`/coleccion/${book.id}`} editTo={`/editar/${book.id}`} itemName={book.title} onDelete={onDelete} />
-      </div>
+      {!readOnly && (
+        <div className="absolute top-3 right-3">
+          <CardMenu detailTo={`/coleccion/${book.id}`} editTo={`/editar/${book.id}`} itemName={book.title} onDelete={onDelete} />
+        </div>
+      )}
       <div className="flex gap-5">
         {book.frontpage ? (
           <Link to={`/coleccion/${book.id}`} className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper block">
@@ -71,9 +74,11 @@ export default function BookCard({ book, index = 0, onDelete }: BookCardProps) {
 
       <div className="mt-auto flex items-center justify-between pt-4 border-t border-silver/60">
         <StarRating value={book.start} readOnly />
+{!readOnly && (
         <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/editar/${book.id}`} label={`Editar ${book.title}`}>
           Editar
         </ActionLink>
+        )}
       </div>
     </article>
   )

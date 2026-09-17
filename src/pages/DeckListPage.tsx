@@ -199,24 +199,26 @@ export default function DeckListPage() {
                 {deck.description && (
                   <p className="text-body text-slate line-clamp-2 px-5 pb-4">{deck.description}</p>
                 )}
-                <div className="mt-auto flex items-center gap-2 px-4 py-3 border-t border-silver/60">
-                  <button
-                    type="button"
-                    className="btn-ghost !px-4 !py-2 flex-1"
-                    onClick={() => handleEdit(deck.id)}
-                    aria-label={`Editar ${deck.name}`}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-ghost !px-4 !py-2 flex-1 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
-                    onClick={() => setDeleting(deck)}
-                    aria-label={`Eliminar ${deck.name}`}
-                  >
-                    Eliminar
-                  </button>
-                </div>
+                {effectiveTab === 'mine' && (
+                  <div className="mt-auto flex items-center gap-2 px-4 py-3 border-t border-silver/60">
+                    <button
+                      type="button"
+                      className="btn-ghost !px-4 !py-2 flex-1"
+                      onClick={() => handleEdit(deck.id)}
+                      aria-label={`Editar ${deck.name}`}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-ghost !px-4 !py-2 flex-1 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
+                      onClick={() => setDeleting(deck)}
+                      aria-label={`Eliminar ${deck.name}`}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                )}
               </article>
             )
           })}

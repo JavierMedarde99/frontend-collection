@@ -10,6 +10,7 @@ interface BoardGameCardProps {
   game: BoardGame
   index?: number
   onDelete: () => Promise<void>
+  readOnly?: boolean
 }
 
 function formatRange(min?: number, max?: number): string | null {
@@ -20,7 +21,7 @@ function formatRange(min?: number, max?: number): string | null {
   return `${min ?? max}`
 }
 
-export default function BoardGameCard({ game, index = 0, onDelete }: BoardGameCardProps) {
+export default function BoardGameCard({ game, index = 0, onDelete, readOnly = false }: BoardGameCardProps) {
   const players = formatRange(game.minPlayers, game.maxPlayers)
   const duration = formatRange(game.minPlaytime, game.maxPlaytime)
 
@@ -29,9 +30,11 @@ export default function BoardGameCard({ game, index = 0, onDelete }: BoardGameCa
       className="card card-hover animate-fade-up relative flex flex-col gap-5 group"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
-      <div className="absolute top-3 right-3">
-        <CardMenu detailTo={`/boardgames/${game.id}`} editTo={`/boardgames/${game.id}/editar`} itemName={game.title} onDelete={onDelete} />
-      </div>
+      {!readOnly && (
+        <div className="absolute top-3 right-3">
+          <CardMenu detailTo={`/boardgames/${game.id}`} editTo={`/boardgames/${game.id}/editar`} itemName={game.title} onDelete={onDelete} />
+        </div>
+      )}
       <div className="flex gap-5">
         {game.thumbnailUrl || game.imageUrl ? (
           <Link to={`/boardgames/${game.id}`} className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper block">
@@ -88,9 +91,11 @@ export default function BoardGameCard({ game, index = 0, onDelete }: BoardGameCa
       )}
 
       <div className="mt-auto flex items-center justify-end gap-2 pt-4 border-t border-silver/60">
+{!readOnly && (
         <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/boardgames/${game.id}/editar`} label={`Editar ${game.title}`}>
           Editar
         </ActionLink>
+        )}
       </div>
     </article>
   )

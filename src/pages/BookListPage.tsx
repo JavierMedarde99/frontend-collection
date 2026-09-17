@@ -228,6 +228,7 @@ export default function BookListPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {books.map((book, index) => (
               <BookCard key={book.id} book={book} index={index}
+                readOnly={effectiveTab === 'other'}
                 onDelete={async () => { await deleteBook(book.id); load() }}
               />
             ))}

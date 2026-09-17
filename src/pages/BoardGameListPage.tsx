@@ -197,6 +197,7 @@ export default function BoardGameListPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {games.map((game, index) => (
               <BoardGameCard key={game.id} game={game} index={index}
+                readOnly={effectiveTab === 'other'}
                 onDelete={async () => { await deleteBoardGame(game.id); load() }}
               />
             ))}
