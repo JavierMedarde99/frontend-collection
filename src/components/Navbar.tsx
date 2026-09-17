@@ -1,27 +1,36 @@
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { toBackendCollectionKey } from '../constants/collections'
 import ExportButton from './ExportButton'
 import ThemeToggle from './ThemeToggle'
 
-const links = [
+const links: { to: string; label: string; end: boolean; collection?: string }[] = [
   { to: '/', label: 'Inicio', end: true },
-  { to: '/coleccion', label: 'Libros', end: false },
-  { to: '/juegos', label: 'Videojuegos', end: false },
-  { to: '/magic', label: 'Magic', end: false },
-  { to: '/boardgames', label: 'Juegos de Mesa', end: false },
-  { to: '/movieshows', label: 'Películas', end: false },
+  { to: '/coleccion', label: 'Libros', end: false, collection: 'books' },
+  { to: '/juegos', label: 'Videojuegos', end: false, collection: 'games' },
+  { to: '/magic', label: 'Magic', end: false, collection: 'magic' },
+  { to: '/boardgames', label: 'Juegos de Mesa', end: false, collection: 'boardgames' },
+  { to: '/movieshows', label: 'Películas', end: false, collection: 'movieshows' },
 ]
 
-const magicLinks = [
-  { to: '/magic', label: 'Cartas', end: true },
-  { to: '/magic/mazos', label: 'Mazos', end: false },
+const magicLinks: { to: string; label: string; end: boolean; collection?: string }[] = [
+  { to: '/magic', label: 'Cartas', end: true, collection: 'magic' },
+  { to: '/magic/mazos', label: 'Mazos', end: false, collection: 'decks' },
 ]
 
 export default function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, logout, activeCollections } = useAuth()
+
+  // Anónimo o sin preferencias: todo visible.
+  function collectionVisible(collection?: string): boolean {
+    if (!collection || !isAuthenticated) return true
+    return activeCollections.includes(toBackendCollectionKey(collection))
+  }
+  const visibleLinks = links.filter((link) => collectionVisible(link.collection))
+  const visibleMagicLinks = magicLinks.filter((link) => collectionVisible(link.collection))
   const [menuOpen, setMenuOpen] = useState(false)
 
   const displayName = user?.displayName || user?.username || ''
@@ -68,7 +77,7 @@ export default function Navbar() {
             </span>
           </NavLink>
           <div className="hidden lg:flex items-center gap-1">
-            {links.map((link) => (
+            {visibleLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
@@ -155,7 +164,7 @@ export default function Navbar() {
       {menuOpen && (
         <nav id="menu-movil" aria-label="Navegación principal" className="lg:hidden border-t border-silver/70 bg-cream px-5 py-3 animate-fade-in">
           <ul className="flex flex-col gap-1">
-            {links.map((link) => (
+            {visibleLinks.map((link) => (
               <li key={link.to}>
                 <NavLink
                   to={link.to}
@@ -238,7 +247,7 @@ export default function Navbar() {
             </li>
             {inMagic && (
               <li className="flex items-center gap-2 pl-4 pt-1" aria-label="Sub-apartados de Magic">
-                {magicLinks.map((link) => (
+                {visibleMagicLinks.map((link) => (
                   <NavLink
                     key={link.to}
                     to={link.to}
@@ -262,7 +271,7 @@ export default function Navbar() {
       {inMagic && (
         <nav aria-label="Sub-apartados de Magic" className="hidden lg:block border-t border-silver/70 bg-cream/60">
           <div className="px-5 md:px-20 py-2 flex items-center gap-1">
-            {magicLinks.map((link) => (
+            {visibleMagicLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
