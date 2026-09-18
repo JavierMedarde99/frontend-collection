@@ -11,6 +11,7 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import OwnerLine from '../components/OwnerLine'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
 
@@ -132,6 +133,7 @@ export default function GameDetailPage() {
           )}
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-heading-lg mb-2 leading-tight">{game.title}</h1>
+            <OwnerLine owner={game.userOwned} />
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <GameStatusBadge status={game.status} />
               <GamePlatformBadge platform={game.platform} />

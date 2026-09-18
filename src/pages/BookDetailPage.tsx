@@ -11,6 +11,7 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import OwnerLine from '../components/OwnerLine'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
 
@@ -134,6 +135,7 @@ export default function BookDetailPage() {
           )}
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-heading-lg mb-1 leading-tight">{book.title}</h1>
+            <OwnerLine owner={book.userOwned} />
             <p className="text-body text-graphite mb-4">{book.author}</p>
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <StatusBadge state={book.state} />
