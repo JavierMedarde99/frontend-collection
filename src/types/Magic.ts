@@ -1,3 +1,5 @@
+import type { UserOwned } from './Api'
+
 export type MagicLanguage = 'ENGLISH' | 'SPANISH' | 'FRENCH' | 'GERMAN' | 'ITALIAN' | 'PORTUGUESE' | 'JAPANESE' | 'CHINESE'
 
 export type MagicCondition = 'MINT' | 'NEAR_MINT' | 'EXCELLENT' | 'GOOD' | 'PLAYED' | 'POOR'
@@ -37,6 +39,7 @@ export interface MagicCardResponse {
   quantity?: number
   notes?: string
   dateAdded?: string
+  userOwned?: UserOwned | null
 }
 
 export interface MagicCardRequest {

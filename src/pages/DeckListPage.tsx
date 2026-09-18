@@ -186,7 +186,10 @@ export default function DeckListPage() {
                       </Link>
                       <ManaColorDots colors={deck.commanderColors} />
                     </div>
-                    {deck.commander && (
+                    {effectiveTab === 'other' && deck.userOwned?.ownerName && (
+                  <p className="text-caption text-graphite">Colección de {deck.userOwned.ownerName}</p>
+                )}
+                {deck.commander && (
                       <p className="text-body-sm text-graphite line-clamp-1" title={deck.commander}>
                         {deck.commander}
                       </p>

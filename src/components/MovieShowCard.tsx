@@ -60,6 +60,9 @@ export default function MovieShowCard({ movieShow, index = 0, onDelete, readOnly
           <Link to={`/movieshows/${movieShow.id}`} className="font-display text-heading-sm leading-snug line-clamp-2 text-ink hover:text-brand transition-colors">
             {movieShow.title}
           </Link>
+            {readOnly && movieShow.userOwned?.ownerName && (
+              <p className="text-caption text-graphite">Colección de {movieShow.userOwned.ownerName}</p>
+            )}
           <p className="text-body-sm text-graphite mt-1 line-clamp-1">{year || 'Película/Serie'}</p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <MovieShowStatusBadge status={movieShow.status} />
