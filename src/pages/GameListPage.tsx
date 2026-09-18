@@ -187,10 +187,11 @@ export default function GameListPage() {
         <SkeletonGrid count={6} />
       ) : games.length === 0 ? (
         <EmptyState
-          title={hasActiveFilters ? 'Sin resultados' : 'Aún no tienes videojuegos'}
+          title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'Aún no tienes videojuegos'}
           message={
             hasActiveFilters
               ? 'Ningún videojuego coincide con los filtros actuales. Limpia los filtros para ver toda tu colección.'
+              : (effectiveTab === 'other' && !hasActiveFilters) ? 'Ningún usuario ha añadido nada a esta colección todavía.'
               : 'Añade tu primer videojuego buscándolo en el catálogo o manualmente.'
           }
           action={
