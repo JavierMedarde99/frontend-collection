@@ -205,10 +205,11 @@ export default function BookListPage() {
         <SkeletonGrid count={6} />
       ) : books.length === 0 ? (
         <EmptyState
-          title={hasActiveFilters ? 'Sin resultados' : 'Aún no tienes libros'}
+          title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'Aún no tienes libros'}
           message={
             hasActiveFilters
               ? 'Ningún libro coincide con los filtros actuales. Limpia los filtros para ver toda tu colección.'
+              : (effectiveTab === 'other' && !hasActiveFilters) ? 'Ningún usuario ha añadido nada a esta colección todavía.'
               : 'Añade tu primer libro buscándolo en Google Books o manualmente.'
           }
           action={

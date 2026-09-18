@@ -174,10 +174,11 @@ export default function BoardGameListPage() {
         <SkeletonGrid count={6} />
       ) : games.length === 0 ? (
         <EmptyState
-          title={hasActiveFilters ? 'Sin resultados' : 'Aún no tienes juegos de mesa'}
+          title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'Aún no tienes juegos de mesa'}
           message={
             hasActiveFilters
               ? 'Ningún juego coincide con los filtros actuales. Limpia los filtros para ver toda tu colección.'
+              : (effectiveTab === 'other' && !hasActiveFilters) ? 'Ningún usuario ha añadido nada a esta colección todavía.'
               : 'Añade tu primer juego buscándolo en BoardGameGeek o manualmente.'
           }
           action={

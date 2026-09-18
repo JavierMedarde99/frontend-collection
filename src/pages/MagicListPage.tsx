@@ -209,10 +209,11 @@ export default function MagicListPage() {
         <SkeletonGrid count={6} />
       ) : cards.length === 0 ? (
         <EmptyState
-          title={hasActiveFilters ? 'Sin resultados' : 'No hay cartas Magic'}
+          title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'No hay cartas Magic'}
           message={
             hasActiveFilters
               ? 'Ninguna carta coincide con los filtros actuales. Limpia los filtros para ver toda tu colección.'
+              : (effectiveTab === 'other' && !hasActiveFilters) ? 'Ningún usuario ha añadido nada a esta colección todavía.'
               : 'Añade tu primera carta importándola desde Scryfall.'
           }
           action={

@@ -133,10 +133,11 @@ export default function DeckListPage() {
         <SkeletonGrid count={6} />
       ) : decks.length === 0 ? (
         <EmptyState
-          title={hasActiveFilters ? 'Sin resultados' : 'No hay mazos'}
+          title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'No hay mazos'}
           message={
             hasActiveFilters
               ? 'Ningún mazo coincide con la búsqueda. Limpia el filtro para verlos todos.'
+              : (effectiveTab === 'other' && !hasActiveFilters) ? 'Ningún usuario ha añadido nada a esta colección todavía.'
               : 'Crea tu primer mazo Commander eligiendo su comandante.'
           }
           action={
