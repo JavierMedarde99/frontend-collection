@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { login as apiLogin, register as apiRegister, refresh as apiRefresh } from '../api/authApi'
+import { login as apiLogin, register as apiRegister, refresh as apiRefresh, updateMe as apiUpdateMe, deleteMe as apiDeleteMe } from '../api/authApi'
 import { getActiveCollections, getPreferences } from '../api/preferencesApi'
 import type { LoginRequest, RegisterRequest, UserPreferences, UserResponse } from '../types'
 import {
@@ -18,6 +18,8 @@ interface AuthContextValue {
   login: (data: LoginRequest) => Promise<void>
   register: (data: RegisterRequest) => Promise<void>
   logout: () => void
+  updateProfile: (data: UpdateProfileRequest) => Promise<void>
+  deleteAccount: () => Promise<void>
   /** Códigos del backend en mayúsculas: ["BOOKS", "MAGIC", ...]. Vacío si anónimo. */
   activeCollections: string[]
   preferences: UserPreferences | null
@@ -112,6 +114,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await loadPreferences(res.user.id)
   }, [loadPreferences])
 
+  const updateProfile = useCallback(async (data: UpdateProfileRequest) => {
+    const updated = await apiUpdateMe(data)
+    setUser(updated)
+  }, [])
+
+  const deleteAccount = useCallback(async () => {
+    await apiDeleteMe()
+    setUser(null)
+    setAccessToken(null)
+    setStoredAccessToken(null)
+    writeRefreshToken(null)
+    setPreferences(null)
+    setActiveCollections([])
+  }, [])
+
   const logout = useCallback(() => {
     setUser(null)
     setAccessToken(null)
@@ -138,12 +155,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      updateProfile,
+      deleteAccount,
       activeCollections,
       preferences,
       refreshActiveCollections,
       refreshPreferences,
     }),
-    [user, accessToken, initializing, login, register, logout, activeCollections, preferences, refreshActiveCollections, refreshPreferences],
+    [user, accessToken, initializing, login, register, logout, updateProfile, deleteAccount, activeCollections, preferences, refreshActiveCollections, refreshPreferences],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

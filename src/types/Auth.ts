@@ -14,6 +14,12 @@ export interface RefreshTokenRequest {
   refreshToken: string
 }
 
+export interface UpdateProfileRequest {
+  displayName?: string
+  avatarUrl?: string
+  bio?: string
+}
+
 export interface UserResponse {
   id: string
   username: string

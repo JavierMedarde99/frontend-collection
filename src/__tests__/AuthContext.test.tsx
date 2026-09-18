@@ -7,6 +7,8 @@ vi.mock('../api/authApi', () => ({
   login: vi.fn(),
   register: vi.fn(),
   refresh: vi.fn(),
+  updateMe: vi.fn(),
+  deleteMe: vi.fn(),
 }))
 
 vi.mock('../api/preferencesApi', () => ({
@@ -161,5 +163,35 @@ describe('AuthContext', () => {
 
     expect(captured?.preferences).toBeNull()
     expect(captured?.activeCollections).toEqual([])
+  })
+
+  it('updateProfile actualiza el usuario', async () => {
+    const { updateMe } = await import('../api/authApi')
+    vi.mocked(updateMe).mockResolvedValue({ ...user, displayName: 'Nuevo' })
+    mockedLogin.mockResolvedValue(authResponse())
+    renderProvider()
+    await waitFor(() => expect(captured?.initializing).toBe(false))
+    await act(() => captured!.login({ username: 'javi', password: 'secret123' }))
+
+    await act(() => captured!.updateProfile({ displayName: 'Nuevo' }))
+
+    expect(updateMe).toHaveBeenCalledWith({ displayName: 'Nuevo' })
+    expect(captured?.user?.displayName).toBe('Nuevo')
+  })
+
+  it('deleteAccount borra y limpia la sesión', async () => {
+    const { deleteMe } = await import('../api/authApi')
+    vi.mocked(deleteMe).mockResolvedValue(undefined)
+    mockedLogin.mockResolvedValue(authResponse())
+    renderProvider()
+    await waitFor(() => expect(captured?.initializing).toBe(false))
+    await act(() => captured!.login({ username: 'javi', password: 'secret123' }))
+
+    await act(() => captured!.deleteAccount())
+
+    expect(deleteMe).toHaveBeenCalledTimes(1)
+    expect(captured?.user).toBeNull()
+    expect(captured?.isAuthenticated).toBe(false)
+    expect(localStorage.getItem('collection.refreshToken')).toBeNull()
   })
 })
