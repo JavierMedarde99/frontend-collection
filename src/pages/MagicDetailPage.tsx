@@ -18,7 +18,7 @@ export default function MagicDetailPage() {
   const goBack = useBackFallback('/magic')
   const [card, setCard] = useState<MagicCardResponse | null>(null)
   usePageTitle(card?.name || 'Magic')
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -85,7 +85,7 @@ export default function MagicDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver al listado
         </button>
-        {isAuthenticated && (
+        {isAuthenticated && (!card.userOwned?.username || card.userOwned.username === user?.username) && (
         <div className="flex items-center gap-3">
           <button
             className="btn-ghost text-red-600 hover:bg-red-50 hover:border-red-200"

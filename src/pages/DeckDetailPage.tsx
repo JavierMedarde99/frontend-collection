@@ -88,7 +88,7 @@ export default function DeckDetailPage() {
 
   const [deck, setDeck] = useState<DeckResponse | null>(null)
   usePageTitle(deck?.name || 'Mazos')
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const [status, setStatus] = useState<DeckStatusResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -266,7 +266,7 @@ export default function DeckDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver a mazos
         </button>
-        {isAuthenticated && (
+        {isAuthenticated && (!deck.userOwned?.username || deck.userOwned.username === user?.username) && (
         <div className="flex items-center gap-2">
           <button className="btn-primary !px-4 !py-2" onClick={openAddModal}>
             + Añadir carta
@@ -370,7 +370,7 @@ export default function DeckDetailPage() {
                           <span className="line-clamp-2">{card.typeLine || '—'}</span>
                         </td>
                         <td className="px-4 py-3 text-right whitespace-nowrap">
-                          {isAuthenticated && card.scryfallId && (
+                          {isAuthenticated && (!deck.userOwned?.username || deck.userOwned.username === user?.username) && card.scryfallId && (
                             <button
                               type="button"
                               className="btn-ghost !px-3 !py-1.5 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
