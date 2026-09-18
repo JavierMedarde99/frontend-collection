@@ -12,6 +12,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useAuth } from '../context/AuthContext'
 
 export default function GameDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -20,6 +21,7 @@ export default function GameDetailPage() {
 
   const [game, setGame] = useState<Game | null>(null)
   usePageTitle(game?.title || 'Videojuegos')
+  const { isAuthenticated } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -98,6 +100,7 @@ export default function GameDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
+        {isAuthenticated && (
         <div className="flex items-center gap-2">
           <Link className="btn-ghost !px-4 !py-2" to={`/juegos/editar/${game.id}`}>
             Editar
@@ -109,6 +112,7 @@ export default function GameDetailPage() {
             Eliminar
           </button>
         </div>
+        )}
       </div>
 
       {deleteError && <ErrorBanner message={deleteError} />}

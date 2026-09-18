@@ -12,6 +12,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useAuth } from '../context/AuthContext'
 
 export default function BookDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -20,6 +21,7 @@ export default function BookDetailPage() {
 
   const [book, setBook] = useState<Book | null>(null)
   usePageTitle(book?.title || 'Libros')
+  const { isAuthenticated } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -100,6 +102,7 @@ export default function BookDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
+        {isAuthenticated && (
         <div className="flex items-center gap-2">
           <Link className="btn-ghost !px-4 !py-2" to={`/editar/${book.id}`}>
             Editar
@@ -111,6 +114,7 @@ export default function BookDetailPage() {
             Eliminar
           </button>
         </div>
+        )}
       </div>
 
       {deleteError && <ErrorBanner message={deleteError} />}

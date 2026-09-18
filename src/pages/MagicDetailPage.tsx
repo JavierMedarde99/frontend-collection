@@ -9,6 +9,7 @@ import SkeletonGrid from '../components/Skeleton'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useAuth } from '../context/AuthContext'
 
 export default function MagicDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -16,6 +17,7 @@ export default function MagicDetailPage() {
   const goBack = useBackFallback('/magic')
   const [card, setCard] = useState<MagicCardResponse | null>(null)
   usePageTitle(card?.name || 'Magic')
+  const { isAuthenticated } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -82,6 +84,7 @@ export default function MagicDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver al listado
         </button>
+        {isAuthenticated && (
         <div className="flex items-center gap-3">
           <button
             className="btn-ghost text-red-600 hover:bg-red-50 hover:border-red-200"
@@ -90,6 +93,7 @@ export default function MagicDetailPage() {
             Eliminar
           </button>
         </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[350px_1fr] gap-10 items-start">
