@@ -21,22 +21,23 @@ interface PublicItem {
   title: string
   subtitle?: string
   imageUrl?: string
+  to: string
 }
 
 function toPublicItem(collection: string, item: any): PublicItem {
   switch (collection) {
     case 'books':
-      return { key: item.id, title: item.title, subtitle: item.author, imageUrl: item.frontpage }
+      return { key: item.id, title: item.title, subtitle: item.author, imageUrl: item.frontpage, to: `/coleccion/${item.id}` }
     case 'games':
-      return { key: item.id, title: item.title, subtitle: item.platform, imageUrl: item.thumbnailUrl }
+      return { key: item.id, title: item.title, subtitle: item.platform, imageUrl: item.thumbnailUrl, to: `/juegos/${item.id}` }
     case 'magic':
-      return { key: item.id, title: item.name, subtitle: item.setName || item.type, imageUrl: item.imageUrl }
+      return { key: item.id, title: item.name, subtitle: item.setName || item.type, imageUrl: item.imageUrl, to: `/magic/${item.id}` }
     case 'decks':
-      return { key: item.id, title: item.name, subtitle: item.commander, imageUrl: undefined }
+      return { key: item.id, title: item.name, subtitle: item.commander, imageUrl: undefined, to: `/magic/mazos/${item.id}` }
     case 'boardgames':
-      return { key: item.id, title: item.title, subtitle: item.publisher, imageUrl: item.imageUrl || item.thumbnailUrl }
+      return { key: item.id, title: item.title, subtitle: item.publisher, imageUrl: item.imageUrl || item.thumbnailUrl, to: `/boardgames/${item.id}` }
     default:
-      return { key: item.id, title: item.title, subtitle: item.releaseDate?.slice(0, 4), imageUrl: item.posterUrl }
+      return { key: item.id, title: item.title, subtitle: item.releaseDate?.slice(0, 4), imageUrl: item.posterUrl, to: `/movieshows/${item.id}` }
   }
 }
 
@@ -178,22 +179,32 @@ export default function ProfileView({ username }: ProfileViewProps) {
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {items.map((item) => (
-                      <article key={item.key} className="card flex gap-4 p-4">
+                      <article key={item.key} className="card card-hover flex gap-4 p-4 group">
                         {item.imageUrl ? (
-                          <img
-                            src={item.imageUrl}
-                            alt=""
-                            aria-hidden="true"
-                            loading="lazy"
-                            className="w-16 h-24 object-cover rounded-lg shadow-sm shrink-0 bg-paper"
-                          />
+                          <Link
+                            to={item.to}
+                            className="shrink-0 rounded-lg overflow-hidden shadow-sm bg-paper block"
+                            aria-label={`Ver ${item.title}`}
+                          >
+                            <img
+                              src={item.imageUrl}
+                              alt=""
+                              aria-hidden="true"
+                              loading="lazy"
+                              className="w-16 h-24 object-cover transition-transform duration-300 group-hover:scale-[1.05]"
+                            />
+                          </Link>
                         ) : (
                           <div className="w-16 h-24 rounded-lg shrink-0 bg-brand-soft flex items-center justify-center text-caption text-graphite text-center px-1">
                             Sin imagen
                           </div>
                         )}
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-display text-heading-sm leading-snug line-clamp-2">{item.title}</h3>
+                          <h3 className="font-display text-heading-sm leading-snug line-clamp-2">
+                            <Link to={item.to} className="hover:text-brand transition-colors">
+                              {item.title}
+                            </Link>
+                          </h3>
                           {item.subtitle && (
                             <p className="text-caption text-graphite mt-1 line-clamp-1">{item.subtitle}</p>
                           )}

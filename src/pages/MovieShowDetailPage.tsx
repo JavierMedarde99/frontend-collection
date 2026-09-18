@@ -22,7 +22,7 @@ export default function MovieShowDetailPage() {
 
   const [movieShow, setMovieShow] = useState<MovieShow | null>(null)
   usePageTitle(movieShow?.title || 'Películas')
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -108,7 +108,7 @@ export default function MovieShowDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
-        {isAuthenticated && (
+        {isAuthenticated && (!movieShow.userOwned?.username || movieShow.userOwned.username === user?.username) && (
         <div className="flex items-center gap-2">
           <Link className="btn-ghost !px-4 !py-2" to={`/movieshows/editar/${movieShow.id}`}>
             Editar

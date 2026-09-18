@@ -30,7 +30,7 @@ export default function BoardGameDetailPage() {
 
   const [game, setGame] = useState<BoardGame | null>(null)
   usePageTitle(game?.title || 'Juegos de mesa')
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -119,7 +119,7 @@ export default function BoardGameDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
-        {isAuthenticated && (
+        {isAuthenticated && (!game.userOwned?.username || game.userOwned.username === user?.username) && (
         <div className="flex items-center gap-2">
           <Link className="btn-ghost !px-4 !py-2" to={`/boardgames/${game.id}/editar`}>
             Editar

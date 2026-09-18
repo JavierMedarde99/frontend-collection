@@ -22,7 +22,7 @@ export default function BookDetailPage() {
 
   const [book, setBook] = useState<Book | null>(null)
   usePageTitle(book?.title || 'Libros')
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -103,7 +103,7 @@ export default function BookDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
-        {isAuthenticated && (
+        {isAuthenticated && (!book.userOwned?.username || book.userOwned.username === user?.username) && (
         <div className="flex items-center gap-2">
           <Link className="btn-ghost !px-4 !py-2" to={`/editar/${book.id}`}>
             Editar
