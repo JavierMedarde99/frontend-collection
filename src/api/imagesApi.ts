@@ -1,5 +1,6 @@
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
+import { apiUrl } from './apiBase'
 
 const BASE_URL = '/api/v1/images'
 const MAX_SIZE = 5 * 1024 * 1024
@@ -33,7 +34,7 @@ export async function uploadImage(file: File): Promise<ImageResponse> {
   const form = new FormData()
   form.append('file', file)
   // Sin Content-Type: el navegador pone el boundary del multipart.
-  const res = await authFetch(`${BASE_URL}/upload`, { method: 'POST', body: form })
+  const res = await authFetch(`${apiUrl(BASE_URL)}/upload`, { method: 'POST', body: form })
   if (!res.ok) {
     await throwRequestError(res)
   }
@@ -41,7 +42,7 @@ export async function uploadImage(file: File): Promise<ImageResponse> {
 }
 
 export async function deleteImage(filename: string): Promise<void> {
-  const res = await authFetch(`${BASE_URL}/${encodeURIComponent(filename)}`, { method: 'DELETE' })
+  const res = await authFetch(`${apiUrl(BASE_URL)}/${encodeURIComponent(filename)}`, { method: 'DELETE' })
   if (!res.ok && res.status !== 404) {
     await throwRequestError(res)
   }

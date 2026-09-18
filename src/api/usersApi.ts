@@ -8,6 +8,7 @@ import type {
   PublicProfileResponse,
 } from '../types'
 import { throwRequestError } from './errors'
+import { apiUrl } from './apiBase'
 
 const BASE_URL = '/api/v1/users'
 
@@ -29,29 +30,29 @@ function pageQs(page: number, size: number): string {
 }
 
 export function getPublicProfile(username: string): Promise<PublicProfileResponse> {
-  return request<PublicProfileResponse>(`${BASE_URL}/${encodeURIComponent(username)}`)
+  return request<PublicProfileResponse>(`${apiUrl(BASE_URL)}/${encodeURIComponent(username)}`)
 }
 
 export function getUserBooks(username: string, page = 0, size = 12): Promise<PageBookResponse> {
-  return request<PageBookResponse>(`${BASE_URL}/${encodeURIComponent(username)}/books?${pageQs(page, size)}`)
+  return request<PageBookResponse>(`${apiUrl(BASE_URL)}/${encodeURIComponent(username)}/books?${pageQs(page, size)}`)
 }
 
 export function getUserGames(username: string, page = 0, size = 12): Promise<PageGameResponse> {
-  return request<PageGameResponse>(`${BASE_URL}/${encodeURIComponent(username)}/games?${pageQs(page, size)}`)
+  return request<PageGameResponse>(`${apiUrl(BASE_URL)}/${encodeURIComponent(username)}/games?${pageQs(page, size)}`)
 }
 
 export function getUserMagicCards(username: string, page = 0, size = 12): Promise<PageMagicCardResponse> {
-  return request<PageMagicCardResponse>(`${BASE_URL}/${encodeURIComponent(username)}/magic?${pageQs(page, size)}`)
+  return request<PageMagicCardResponse>(`${apiUrl(BASE_URL)}/${encodeURIComponent(username)}/magic?${pageQs(page, size)}`)
 }
 
 export function getUserDecks(username: string, page = 0, size = 12): Promise<PageDeckResponse> {
-  return request<PageDeckResponse>(`${BASE_URL}/${encodeURIComponent(username)}/decks?${pageQs(page, size)}`)
+  return request<PageDeckResponse>(`${apiUrl(BASE_URL)}/${encodeURIComponent(username)}/decks?${pageQs(page, size)}`)
 }
 
 export function getUserBoardGames(username: string, page = 0, size = 12): Promise<PageBoardGameResponse> {
-  return request<PageBoardGameResponse>(`${BASE_URL}/${encodeURIComponent(username)}/boardgames?${pageQs(page, size)}`)
+  return request<PageBoardGameResponse>(`${apiUrl(BASE_URL)}/${encodeURIComponent(username)}/boardgames?${pageQs(page, size)}`)
 }
 
 export function getUserMovieShows(username: string, page = 0, size = 12): Promise<PageMovieShowResponse> {
-  return request<PageMovieShowResponse>(`${BASE_URL}/${encodeURIComponent(username)}/movieshows?${pageQs(page, size)}`)
+  return request<PageMovieShowResponse>(`${apiUrl(BASE_URL)}/${encodeURIComponent(username)}/movieshows?${pageQs(page, size)}`)
 }

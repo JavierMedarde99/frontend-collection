@@ -1,6 +1,7 @@
 import type { PageBoardGameResponse, ListBoardGamesParams, BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse, PageBoardGameSearchResult } from '../types'
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
+import { apiUrl } from './apiBase'
 
 const BASE_URL = '/api/v1/boardgames'
 
@@ -31,40 +32,40 @@ export function listBoardGames(params: ListBoardGamesParams = {}): Promise<PageB
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()
-  return request<PageBoardGameResponse>(`${BASE_URL}${qs ? `?${qs}` : ''}`) as Promise<PageBoardGameResponse>
+  return request<PageBoardGameResponse>(`${apiUrl(BASE_URL)}${qs ? `?${qs}` : ''}`) as Promise<PageBoardGameResponse>
 }
 
 export function getBoardGame(id: string): Promise<BoardGame> {
-  return request<BoardGame>(`${BASE_URL}/${id}`) as Promise<BoardGame>
+  return request<BoardGame>(`${apiUrl(BASE_URL)}/${id}`) as Promise<BoardGame>
 }
 
 export function createBoardGame(game: BoardGameFormData): Promise<BoardGame> {
-  return request<BoardGame>(BASE_URL, {
+  return request<BoardGame>(apiUrl(BASE_URL), {
     method: 'POST',
     body: JSON.stringify(game),
   }) as Promise<BoardGame>
 }
 
 export function updateBoardGame(id: string, game: BoardGameFormData): Promise<BoardGame> {
-  return request<BoardGame>(`${BASE_URL}/${id}`, {
+  return request<BoardGame>(`${apiUrl(BASE_URL)}/${id}`, {
     method: 'PUT',
     body: JSON.stringify(game),
   }) as Promise<BoardGame>
 }
 
 export function deleteBoardGame(id: string): Promise<null> {
-  return request<null>(`${BASE_URL}/${id}`, { method: 'DELETE' })
+  return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
 export async function searchBoardGames(name: string): Promise<BoardGameSearchResult[]> {
-  const data = await request<BoardGameSearchResponse>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`)
+  const data = await request<BoardGameSearchResponse>(`${apiUrl(BASE_URL)}/search?name=${encodeURIComponent(name)}`)
   const results = data?.results
   return Array.isArray(results) ? results : (results?.content ?? [])
 }
 
 export async function searchBoardGamesPage(name: string, page = 0, size = 10): Promise<PageBoardGameSearchResult> {
   const qs = new URLSearchParams({ name, page: String(page), size: String(size) })
-  const data = await request<BoardGameSearchResponse>(`${BASE_URL}/search?${qs}`)
+  const data = await request<BoardGameSearchResponse>(`${apiUrl(BASE_URL)}/search?${qs}`)
   const results = data?.results
   if (Array.isArray(results)) {
     return { content: results, totalPages: 1, totalElements: results.length, number: 0, size: results.length, empty: results.length === 0 }

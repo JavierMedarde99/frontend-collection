@@ -1,6 +1,7 @@
 import type { PageBookResponse, ListBooksParams, Book, BookFormData, PageBookSearchResult } from '../types'
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
+import { apiUrl } from './apiBase'
 
 const BASE_URL = '/api/v1/books'
 
@@ -33,32 +34,32 @@ export function listBooks(params: ListBooksParams = {}): Promise<PageBookRespons
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()
-  return request<PageBookResponse>(`${BASE_URL}${qs ? `?${qs}` : ''}`) as Promise<PageBookResponse>
+  return request<PageBookResponse>(`${apiUrl(BASE_URL)}${qs ? `?${qs}` : ''}`) as Promise<PageBookResponse>
 }
 
 export function getBook(id: string): Promise<Book> {
-  return request<Book>(`${BASE_URL}/${id}`) as Promise<Book>
+  return request<Book>(`${apiUrl(BASE_URL)}/${id}`) as Promise<Book>
 }
 
 export function createBook(book: BookFormData): Promise<Book> {
-  return request<Book>(BASE_URL, {
+  return request<Book>(apiUrl(BASE_URL), {
     method: 'POST',
     body: JSON.stringify(book),
   }) as Promise<Book>
 }
 
 export function updateBook(id: string, book: BookFormData): Promise<Book> {
-  return request<Book>(`${BASE_URL}/${id}`, {
+  return request<Book>(`${apiUrl(BASE_URL)}/${id}`, {
     method: 'PUT',
     body: JSON.stringify(book),
   }) as Promise<Book>
 }
 
 export function deleteBook(id: string): Promise<null> {
-  return request<null>(`${BASE_URL}/${id}`, { method: 'DELETE' })
+  return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
 export function searchBooksPage(name: string, page = 0, size = 10): Promise<PageBookSearchResult> {
   const qs = new URLSearchParams({ name, page: String(page), size: String(size) })
-  return request<PageBookSearchResult>(`${BASE_URL}/search?${qs}`) as Promise<PageBookSearchResult>
+  return request<PageBookSearchResult>(`${apiUrl(BASE_URL)}/search?${qs}`) as Promise<PageBookSearchResult>
 }
