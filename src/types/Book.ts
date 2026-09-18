@@ -1,5 +1,6 @@
 import { BookType } from './BookType'
 import { BookState } from './BookState'
+import type { UserOwned } from './Api'
 
 export interface Book {
   id: string
@@ -15,4 +16,5 @@ export interface Book {
   startDate?: string
   endDate?: string
   frontpage?: string
+  userOwned?: UserOwned | null
 }

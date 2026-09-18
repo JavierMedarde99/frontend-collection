@@ -68,6 +68,9 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
           <Link to={`/boardgames/${game.id}`} className="font-display text-heading-sm leading-snug line-clamp-2 text-ink hover:text-brand transition-colors">
             {game.title}
           </Link>
+            {readOnly && game.userOwned?.ownerName && (
+              <p className="text-caption text-graphite">Colección de {game.userOwned.ownerName}</p>
+            )}
           <p className="text-body-sm text-graphite mt-1">
             {[
               game.yearPublished ? `${game.yearPublished}` : null,

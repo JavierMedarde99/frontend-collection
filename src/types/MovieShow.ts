@@ -1,5 +1,6 @@
 import { MediaType } from './MovieType'
 import { MovieShowStatus } from './MovieShowStatus'
+import type { UserOwned } from './Api'
 
 export interface MovieShow {
   id: string
@@ -17,6 +18,7 @@ export interface MovieShow {
   dateAdded?: string
   dateCompleted?: string
   externalSource?: string
+  userOwned?: UserOwned | null
 }
 
 export interface MovieShowFormData {

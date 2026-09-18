@@ -1,3 +1,5 @@
+import type { UserOwned } from './Api'
+
 export type DeckStatus = 'DRAFT' | 'COMPLETE' | 'INVALID'
 
 export interface DeckResponse {
@@ -9,6 +11,7 @@ export interface DeckResponse {
   cards?: DeckCardResponse[]
   createdAt?: string
   updatedAt?: string
+  userOwned?: UserOwned | null
 }
 
 export interface DeckRequest {

@@ -1,7 +1,7 @@
 export { BookType } from './BookType'
 export { BookState } from './BookState'
 export type { Book } from './Book'
-export type { PageBookResponse, ListBooksParams, BookFormData, SearchBookResult, PageBookSearchResult, ApiError } from './Api'
+export type { PageBookResponse, ListBooksParams, BookFormData, SearchBookResult, PageBookSearchResult, UserOwned, ApiError } from './Api'
 export { GamePlatform } from './GamePlatform'
 export { GameStatus } from './GameStatus'
 export type { Game } from './Game'

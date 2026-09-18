@@ -59,6 +59,9 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
           <Link to={`/juegos/${game.id}`} className="font-display text-heading-sm leading-snug line-clamp-2 text-ink hover:text-brand transition-colors">
             {game.title}
           </Link>
+            {readOnly && game.userOwned?.ownerName && (
+              <p className="text-caption text-graphite">Colección de {game.userOwned.ownerName}</p>
+            )}
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <GameStatusBadge status={game.status} />
             <GamePlatformBadge platform={game.platform} />

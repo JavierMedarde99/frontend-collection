@@ -1,5 +1,6 @@
 import { GamePlatform } from './GamePlatform'
 import { GameStatus } from './GameStatus'
+import type { UserOwned } from './Api'
 
 export interface Game {
   id: string
@@ -15,4 +16,5 @@ export interface Game {
   externalSource?: string
   steamAppId?: string
   obtainPlatinum?: boolean
+  userOwned?: UserOwned | null
 }

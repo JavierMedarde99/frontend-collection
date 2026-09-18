@@ -1,3 +1,5 @@
+import type { UserOwned } from './Api'
+
 export enum BoardGameStatus {
   OWNED = 'OWNED',
   WISHLIST = 'WISHLIST',
@@ -23,6 +25,7 @@ export interface BoardGame {
   status: BoardGameStatus
   notes?: string
   dateAdded?: string
+  userOwned?: UserOwned | null
 }
 
 export interface BoardGameFormData {

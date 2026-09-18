@@ -58,6 +58,9 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
           <Link to={`/coleccion/${book.id}`} className="font-display text-heading-sm leading-snug line-clamp-2 text-ink hover:text-brand transition-colors">
             {book.title}
           </Link>
+            {readOnly && book.userOwned?.ownerName && (
+              <p className="text-caption text-graphite">Colección de {book.userOwned.ownerName}</p>
+            )}
           <p className="text-body-sm text-graphite mt-1 line-clamp-1">{book.author}</p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <StatusBadge state={book.state} />

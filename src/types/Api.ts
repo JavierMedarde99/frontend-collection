@@ -64,3 +64,8 @@ export interface PageBookSearchResult {
 export interface ApiError extends Error {
   status?: number
 }
+
+export interface UserOwned {
+  ownerId?: string
+  ownerName?: string
+}
