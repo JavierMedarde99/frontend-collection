@@ -134,19 +134,21 @@ export default function MagicListPage() {
               Limpiar
             </button>
           )}
-          <Link className="btn-primary" to="/magic/nuevo">
-            <svg
-              aria-hidden="true"
-              className="w-4 h-4 mr-1.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Añadir carta Magic
-          </Link>
+          {effectiveTab === 'mine' && (
+            <Link className="btn-primary" to="/magic/nuevo">
+              <svg
+                aria-hidden="true"
+                className="w-4 h-4 mr-1.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Añadir carta Magic
+            </Link>
+          )}
         </div>
       </div>
 
@@ -221,7 +223,7 @@ export default function MagicListPage() {
               <button className="btn-ghost mt-2" onClick={handleClearFilters}>
                 Limpiar filtros
               </button>
-            ) : (
+            ) : effectiveTab === 'other' ? undefined : (
               <Link className="btn-primary mt-2" to="/magic/nuevo">
                 Añadir carta
               </Link>
