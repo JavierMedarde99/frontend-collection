@@ -11,6 +11,7 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import OwnerLine from '../components/OwnerLine'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
 
@@ -147,6 +148,7 @@ export default function MovieShowDetailPage() {
           )}
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-heading-lg mb-2 leading-tight">{movieShow.title}</h1>
+            <OwnerLine owner={movieShow.userOwned} />
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <MovieShowStatusBadge status={movieShow.status} />
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-caption font-medium ${typeColor}`}>

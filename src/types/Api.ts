@@ -68,4 +68,5 @@ export interface ApiError extends Error {
 export interface UserOwned {
   ownerId?: string
   ownerName?: string
+  username?: string
 }

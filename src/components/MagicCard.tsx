@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import CardMenu from './CardMenu'
+import OwnerLine from './OwnerLine'
 import type { MagicCardResponse } from '../types'
 
 interface MagicCardProps {
@@ -49,9 +50,7 @@ export default function MagicCard({ card, index = 0, onDelete, readOnly = false 
           <Link to={`/magic/${card.id}`} className="font-display text-heading-sm leading-snug line-clamp-2 text-ink hover:text-brand transition-colors">
             {card.name}
           </Link>
-            {readOnly && card.userOwned?.ownerName && (
-              <p className="text-caption text-graphite">Colección de {card.userOwned.ownerName}</p>
-            )}
+            {readOnly && <OwnerLine owner={card.userOwned} />}
           <p className="text-body-sm text-graphite mt-1 line-clamp-1">
             {[card.manaCost, card.type].filter(Boolean).join(' · ') || card.setName || 'Magic'}
           </p>

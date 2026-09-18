@@ -5,6 +5,7 @@ import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import { listDecks, deleteDeck } from '../api/deckApi'
 import DeckCommanderImage from '../components/DeckCommanderImage'
 import ManaColorDots from '../components/ManaColorDots'
+import OwnerLine from '../components/OwnerLine'
 import ConfirmDialog from '../components/ConfirmDialog'
 import type { DeckResponse } from '../types'
 import SkeletonGrid from '../components/Skeleton'
@@ -186,9 +187,7 @@ export default function DeckListPage() {
                       </Link>
                       <ManaColorDots colors={deck.commanderColors} />
                     </div>
-                    {effectiveTab === 'other' && deck.userOwned?.ownerName && (
-                  <p className="text-caption text-graphite">Colección de {deck.userOwned.ownerName}</p>
-                )}
+                    {effectiveTab === 'other' && <OwnerLine owner={deck.userOwned} />}
                 {deck.commander && (
                       <p className="text-body-sm text-graphite line-clamp-1" title={deck.commander}>
                         {deck.commander}

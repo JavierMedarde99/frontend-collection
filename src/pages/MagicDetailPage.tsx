@@ -8,6 +8,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import SkeletonGrid from '../components/Skeleton'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import OwnerLine from '../components/OwnerLine'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
 
@@ -132,6 +133,7 @@ export default function MagicDetailPage() {
               )}
             </div>
             <h1 className="font-display text-heading-lg text-ink">{card.name}</h1>
+            <OwnerLine owner={card.userOwned} />
             {card.manaCost && (
               <p className="text-body-lg font-mono text-graphite mt-1">Coste de maná: {card.manaCost}</p>
             )}

@@ -12,6 +12,7 @@ import DeckCommanderImage from '../components/DeckCommanderImage'
 import ManaColorDots from '../components/ManaColorDots'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import OwnerLine from '../components/OwnerLine'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
 
@@ -413,6 +414,7 @@ export default function DeckDetailPage() {
           </div>
           <div className="text-center flex flex-col items-center gap-1.5">
             <h1 className="font-display text-heading text-ink">{deck.name}</h1>
+            <OwnerLine owner={deck.userOwned} />
             <ManaColorDots colors={deck.commanderColors} size="lg" />
             {deck.commander && (
               <p className="text-body-sm text-graphite line-clamp-1" title={deck.commander}>
