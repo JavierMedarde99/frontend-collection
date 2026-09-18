@@ -1,6 +1,7 @@
 import type { DeckResponse, DeckRequest, DeckCardRequest, DeckStatusResponse, PageDeckResponse, ListDecksParams } from '../types'
 import { RequestError, throwRequestError } from './errors'
 import { authFetch } from './authFetch'
+import { apiUrl } from './apiBase'
 
 const BASE_URL = '/api/v1/decks'
 
@@ -30,47 +31,47 @@ export function listDecks(params: ListDecksParams = {}): Promise<PageDeckRespons
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()
-  return request<PageDeckResponse>(`${BASE_URL}${qs ? `?${qs}` : ''}`) as Promise<PageDeckResponse>
+  return request<PageDeckResponse>(`${apiUrl(BASE_URL)}${qs ? `?${qs}` : ''}`) as Promise<PageDeckResponse>
 }
 
 export function getDeck(id: string): Promise<DeckResponse> {
-  return request<DeckResponse>(`${BASE_URL}/${id}`) as Promise<DeckResponse>
+  return request<DeckResponse>(`${apiUrl(BASE_URL)}/${id}`) as Promise<DeckResponse>
 }
 
 export function createDeck(deck: DeckRequest): Promise<DeckResponse> {
-  return request<DeckResponse>(BASE_URL, {
+  return request<DeckResponse>(apiUrl(BASE_URL), {
     method: 'POST',
     body: JSON.stringify(deck),
   }) as Promise<DeckResponse>
 }
 
 export function updateDeck(id: string, deck: DeckRequest): Promise<DeckResponse> {
-  return request<DeckResponse>(`${BASE_URL}/${id}`, {
+  return request<DeckResponse>(`${apiUrl(BASE_URL)}/${id}`, {
     method: 'PUT',
     body: JSON.stringify(deck),
   }) as Promise<DeckResponse>
 }
 
 export function deleteDeck(id: string): Promise<null> {
-  return request<null>(`${BASE_URL}/${id}`, { method: 'DELETE' })
+  return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
 export function addCardToDeck(id: string, card: DeckCardRequest): Promise<DeckResponse> {
-  return request<DeckResponse>(`${BASE_URL}/${id}/cards`, {
+  return request<DeckResponse>(`${apiUrl(BASE_URL)}/${id}/cards`, {
     method: 'POST',
     body: JSON.stringify(card),
   }) as Promise<DeckResponse>
 }
 
 export function removeCardFromDeck(id: string, scryfallId: string): Promise<DeckResponse> {
-  return request<DeckResponse>(`${BASE_URL}/${id}/cards/${encodeURIComponent(scryfallId)}`, {
+  return request<DeckResponse>(`${apiUrl(BASE_URL)}/${id}/cards/${encodeURIComponent(scryfallId)}`, {
     method: 'DELETE',
   }) as Promise<DeckResponse>
 }
 
 export async function getDeckStatus(id: string): Promise<DeckStatusResponse> {
   // El backend devuelve un JSON {status, message}.
-  const data = await request<DeckStatusResponse>(`${BASE_URL}/${id}/status`)
+  const data = await request<DeckStatusResponse>(`${apiUrl(BASE_URL)}/${id}/status`)
   if (!data || !['DRAFT', 'COMPLETE', 'INVALID'].includes(data.status)) {
     throw new RequestError(`Estado de mazo desconocido: ${JSON.stringify(data)}`)
   }

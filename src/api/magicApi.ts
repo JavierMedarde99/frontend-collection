@@ -1,6 +1,7 @@
 import type { PageMagicCardResponse, ListMagicCardsParams, MagicCardResponse, MagicCardRequest, MagicCardSearchResult, MagicCardSearchResponse, PageMagicCardSearchResult } from '../types'
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
+import { apiUrl } from './apiBase'
 
 const BASE_URL = '/api/v1/magic'
 
@@ -33,40 +34,40 @@ export function listMagicCards(params: ListMagicCardsParams = {}): Promise<PageM
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()
-  return request<PageMagicCardResponse>(`${BASE_URL}${qs ? `?${qs}` : ''}`) as Promise<PageMagicCardResponse>
+  return request<PageMagicCardResponse>(`${apiUrl(BASE_URL)}${qs ? `?${qs}` : ''}`) as Promise<PageMagicCardResponse>
 }
 
 export function getMagicCard(id: string): Promise<MagicCardResponse> {
-  return request<MagicCardResponse>(`${BASE_URL}/${id}`) as Promise<MagicCardResponse>
+  return request<MagicCardResponse>(`${apiUrl(BASE_URL)}/${id}`) as Promise<MagicCardResponse>
 }
 
 export function createMagicCard(card: MagicCardRequest): Promise<MagicCardResponse> {
-  return request<MagicCardResponse>(BASE_URL, {
+  return request<MagicCardResponse>(apiUrl(BASE_URL), {
     method: 'POST',
     body: JSON.stringify(card),
   }) as Promise<MagicCardResponse>
 }
 
 export function updateMagicCard(id: string, card: MagicCardRequest): Promise<MagicCardResponse> {
-  return request<MagicCardResponse>(`${BASE_URL}/${id}`, {
+  return request<MagicCardResponse>(`${apiUrl(BASE_URL)}/${id}`, {
     method: 'PUT',
     body: JSON.stringify(card),
   }) as Promise<MagicCardResponse>
 }
 
 export function deleteMagicCard(id: string): Promise<null> {
-  return request<null>(`${BASE_URL}/${id}`, { method: 'DELETE' })
+  return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
 export async function searchMagicCards(name: string): Promise<MagicCardSearchResult[]> {
-  const data = await request<MagicCardSearchResponse>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`)
+  const data = await request<MagicCardSearchResponse>(`${apiUrl(BASE_URL)}/search?name=${encodeURIComponent(name)}`)
   const results = data?.results
   return Array.isArray(results) ? results : (results?.content ?? [])
 }
 
 export async function searchMagicCardsPage(name: string, page = 0, size = 10): Promise<PageMagicCardSearchResult> {
   const qs = new URLSearchParams({ name, page: String(page), size: String(size) })
-  const data = await request<MagicCardSearchResponse>(`${BASE_URL}/search?${qs}`)
+  const data = await request<MagicCardSearchResponse>(`${apiUrl(BASE_URL)}/search?${qs}`)
   const results = data?.results
   if (Array.isArray(results)) {
     return { content: results, totalPages: 1, totalElements: results.length, number: 0, size: results.length, empty: results.length === 0 }
@@ -83,7 +84,7 @@ export async function searchMagicCardsPage(name: string, page = 0, size = 10): P
 
 export function addMagicCardFromScryfall(scryfallId: string, quantity = 1): Promise<MagicCardResponse> {
   const qs = quantity > 1 ? `?quantity=${Math.floor(quantity)}` : ''
-  return request<MagicCardResponse>(`${BASE_URL}/scryfall/${encodeURIComponent(scryfallId)}${qs}`, {
+  return request<MagicCardResponse>(`${apiUrl(BASE_URL)}/scryfall/${encodeURIComponent(scryfallId)}${qs}`, {
     method: 'POST',
   }) as Promise<MagicCardResponse>
 }

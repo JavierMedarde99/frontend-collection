@@ -6,6 +6,7 @@ import type {
 } from '../types'
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
+import { apiUrl } from './apiBase'
 
 const BASE_URL = '/api/v1/preferences'
 
@@ -27,18 +28,18 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
 }
 
 export function getPreferences(userId: string): Promise<UserPreferences> {
-  return request<UserPreferences>(`${BASE_URL}?${qs(userId)}`)
+  return request<UserPreferences>(`${apiUrl(BASE_URL)}?${qs(userId)}`)
 }
 
 export function updatePreferences(userId: string, data: UserPreferencesRequest): Promise<UserPreferences> {
-  return request<UserPreferences>(`${BASE_URL}?${qs(userId)}`, {
+  return request<UserPreferences>(`${apiUrl(BASE_URL)}?${qs(userId)}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   })
 }
 
 export function setActiveCollections(userId: string, collections: ActiveCollectionsRequest['collections']): Promise<UserPreferences> {
-  return request<UserPreferences>(`${BASE_URL}/active-collections?${qs(userId)}`, {
+  return request<UserPreferences>(`${apiUrl(BASE_URL)}/active-collections?${qs(userId)}`, {
     method: 'PATCH',
     body: JSON.stringify({ collections } satisfies ActiveCollectionsRequest),
   })
@@ -48,7 +49,7 @@ export function setCollectionVisibility(
   userId: string,
   visibility: CollectionVisibilityRequest['visibility'],
 ): Promise<UserPreferences> {
-  return request<UserPreferences>(`${BASE_URL}/collection-visibility?${qs(userId)}`, {
+  return request<UserPreferences>(`${apiUrl(BASE_URL)}/collection-visibility?${qs(userId)}`, {
     method: 'PATCH',
     body: JSON.stringify({ visibility } satisfies CollectionVisibilityRequest),
   })
@@ -56,5 +57,5 @@ export function setCollectionVisibility(
 
 /** El backend devuelve códigos en mayúsculas: ["BOOKS", "MAGIC", ...]. */
 export function getActiveCollections(userId: string): Promise<string[]> {
-  return request<string[]>(`${BASE_URL}/active-collections?${qs(userId)}`)
+  return request<string[]>(`${apiUrl(BASE_URL)}/active-collections?${qs(userId)}`)
 }

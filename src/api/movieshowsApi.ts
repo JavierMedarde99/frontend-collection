@@ -2,6 +2,7 @@ import type { PageMovieShowResponse, ListMovieShowsParams, MovieShow, MovieShowF
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
 import { MediaType } from '../types'
+import { apiUrl } from './apiBase'
 
 const BASE_URL = '/api/v1/movieshows'
 
@@ -33,39 +34,39 @@ export function listMovieShows(params: ListMovieShowsParams = {}): Promise<PageM
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()
-  return request<PageMovieShowResponse>(`${BASE_URL}${qs ? `?${qs}` : ''}`) as Promise<PageMovieShowResponse>
+  return request<PageMovieShowResponse>(`${apiUrl(BASE_URL)}${qs ? `?${qs}` : ''}`) as Promise<PageMovieShowResponse>
 }
 
 export function getMovieShow(id: string): Promise<MovieShow> {
-  return request<MovieShow>(`${BASE_URL}/${id}`) as Promise<MovieShow>
+  return request<MovieShow>(`${apiUrl(BASE_URL)}/${id}`) as Promise<MovieShow>
 }
 
 export function createMovieShow(movieShow: MovieShowFormData): Promise<MovieShow> {
-  return request<MovieShow>(BASE_URL, {
+  return request<MovieShow>(apiUrl(BASE_URL), {
     method: 'POST',
     body: JSON.stringify(movieShow),
   }) as Promise<MovieShow>
 }
 
 export function updateMovieShow(id: string, movieShow: MovieShowFormData): Promise<MovieShow> {
-  return request<MovieShow>(`${BASE_URL}/${id}`, {
+  return request<MovieShow>(`${apiUrl(BASE_URL)}/${id}`, {
     method: 'PUT',
     body: JSON.stringify(movieShow),
   }) as Promise<MovieShow>
 }
 
 export function deleteMovieShow(id: string): Promise<null> {
-  return request<null>(`${BASE_URL}/${id}`, { method: 'DELETE' })
+  return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
 export function searchMovieShows(name: string, mediaType?: MediaType): Promise<SearchMovieShowResult[]> {
   const qs = new URLSearchParams({ name })
   if (mediaType) qs.set('mediaType', mediaType)
-  return request<SearchMovieShowResult[]>(`${BASE_URL}/search?${qs}`) as Promise<SearchMovieShowResult[]>
+  return request<SearchMovieShowResult[]>(`${apiUrl(BASE_URL)}/search?${qs}`) as Promise<SearchMovieShowResult[]>
 }
 
 export function searchMovieShowsPage(name: string, page = 0, size = 10, mediaType?: MediaType): Promise<PageMovieSearchResult> {
   const qs = new URLSearchParams({ name, page: String(page), size: String(size) })
   if (mediaType) qs.set('mediaType', mediaType)
-  return request<PageMovieSearchResult>(`${BASE_URL}/search?${qs}`) as Promise<PageMovieSearchResult>
+  return request<PageMovieSearchResult>(`${apiUrl(BASE_URL)}/search?${qs}`) as Promise<PageMovieSearchResult>
 }

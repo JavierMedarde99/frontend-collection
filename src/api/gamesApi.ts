@@ -1,6 +1,7 @@
 import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, PageGameSearchResult, GameAchievementsResponse } from '../types'
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
+import { apiUrl } from './apiBase'
 
 const BASE_URL = '/api/v1/games'
 const STEAM_ID = '76561198809807580'
@@ -33,41 +34,41 @@ export function listGames(params: ListGamesParams = {}): Promise<PageGameRespons
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()
-  return request<PageGameResponse>(`${BASE_URL}${qs ? `?${qs}` : ''}`) as Promise<PageGameResponse>
+  return request<PageGameResponse>(`${apiUrl(BASE_URL)}${qs ? `?${qs}` : ''}`) as Promise<PageGameResponse>
 }
 
 export function getGame(id: string): Promise<Game> {
-  return request<Game>(`${BASE_URL}/${id}`) as Promise<Game>
+  return request<Game>(`${apiUrl(BASE_URL)}/${id}`) as Promise<Game>
 }
 
 export function createGame(game: GameFormData): Promise<Game> {
-  return request<Game>(BASE_URL, {
+  return request<Game>(apiUrl(BASE_URL), {
     method: 'POST',
     body: JSON.stringify(game),
   }) as Promise<Game>
 }
 
 export function updateGame(id: string, game: GameFormData): Promise<Game> {
-  return request<Game>(`${BASE_URL}/${id}`, {
+  return request<Game>(`${apiUrl(BASE_URL)}/${id}`, {
     method: 'PUT',
     body: JSON.stringify(game),
   }) as Promise<Game>
 }
 
 export function deleteGame(id: string): Promise<null> {
-  return request<null>(`${BASE_URL}/${id}`, { method: 'DELETE' })
+  return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
 export function searchGames(name: string): Promise<SearchGameResult[]> {
-  return request<SearchGameResult[]>(`${BASE_URL}/search?name=${encodeURIComponent(name)}`) as Promise<SearchGameResult[]>
+  return request<SearchGameResult[]>(`${apiUrl(BASE_URL)}/search?name=${encodeURIComponent(name)}`) as Promise<SearchGameResult[]>
 }
 
 export function searchGamesPage(name: string, page = 0, size = 10): Promise<PageGameSearchResult> {
   const qs = new URLSearchParams({ name, page: String(page), size: String(size) })
-  return request<PageGameSearchResult>(`${BASE_URL}/search?${qs}`) as Promise<PageGameSearchResult>
+  return request<PageGameSearchResult>(`${apiUrl(BASE_URL)}/search?${qs}`) as Promise<PageGameSearchResult>
 }
 
 export function getGameAchievements(id: string): Promise<GameAchievementsResponse> {
   const qs = new URLSearchParams({ steamId: STEAM_ID })
-  return request<GameAchievementsResponse>(`${BASE_URL}/${id}/achievements?${qs}`) as Promise<GameAchievementsResponse>
+  return request<GameAchievementsResponse>(`${apiUrl(BASE_URL)}/${id}/achievements?${qs}`) as Promise<GameAchievementsResponse>
 }
