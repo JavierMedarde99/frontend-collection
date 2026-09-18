@@ -97,19 +97,21 @@ export default function DeckListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <Link className="btn-primary" to="/magic/mazos/nuevo">
-            <svg
-              aria-hidden="true"
-              className="w-4 h-4 mr-1.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Nuevo mazo
-          </Link>
+          {effectiveTab === 'mine' && (
+            <Link className="btn-primary" to="/magic/mazos/nuevo">
+              <svg
+                aria-hidden="true"
+                className="w-4 h-4 mr-1.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Nuevo mazo
+            </Link>
+          )}
         </div>
       </div>
 
@@ -145,7 +147,7 @@ export default function DeckListPage() {
               <button className="btn-ghost mt-2" onClick={clearFilters}>
                 Limpiar filtros
               </button>
-            ) : (
+            ) : effectiveTab === 'other' ? undefined : (
               <Link className="btn-primary mt-2" to="/magic/mazos/nuevo">
                 Crear mazo
               </Link>
