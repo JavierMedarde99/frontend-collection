@@ -34,6 +34,12 @@ vi.mock('../api/movieshowsApi', () => ({
   listMovieShows: vi.fn(async () => ({ content: [], totalPages: 0, totalElements: 6, number: 0, size: 1, empty: true })),
 }))
 
+vi.mock('../api/statsApi', () => ({
+  getGlobalStats: vi.fn(async () => ({
+    collections: { books: 7, games: 3, magic: 5, decks: 2, boardgames: 4, movieshows: 6 },
+  })),
+}))
+
 import { AuthProvider } from '../context/AuthContext'
 
 function renderHome() {
