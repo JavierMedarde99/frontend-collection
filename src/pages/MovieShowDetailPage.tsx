@@ -12,6 +12,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useAuth } from '../context/AuthContext'
 
 export default function MovieShowDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -20,6 +21,7 @@ export default function MovieShowDetailPage() {
 
   const [movieShow, setMovieShow] = useState<MovieShow | null>(null)
   usePageTitle(movieShow?.title || 'Películas')
+  const { isAuthenticated } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -105,6 +107,7 @@ export default function MovieShowDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
+        {isAuthenticated && (
         <div className="flex items-center gap-2">
           <Link className="btn-ghost !px-4 !py-2" to={`/movieshows/editar/${movieShow.id}`}>
             Editar
@@ -116,6 +119,7 @@ export default function MovieShowDetailPage() {
             Eliminar
           </button>
         </div>
+        )}
       </div>
 
       {deleteError && <ErrorBanner message={deleteError} />}

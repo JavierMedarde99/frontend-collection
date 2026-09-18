@@ -12,6 +12,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useAuth } from '../context/AuthContext'
 
 function formatRange(min?: number, max?: number, suffix = ''): string | null {
   if (min === undefined && max === undefined) return null
@@ -28,6 +29,7 @@ export default function BoardGameDetailPage() {
 
   const [game, setGame] = useState<BoardGame | null>(null)
   usePageTitle(game?.title || 'Juegos de mesa')
+  const { isAuthenticated } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -116,6 +118,7 @@ export default function BoardGameDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
+        {isAuthenticated && (
         <div className="flex items-center gap-2">
           <Link className="btn-ghost !px-4 !py-2" to={`/boardgames/${game.id}/editar`}>
             Editar
@@ -127,6 +130,7 @@ export default function BoardGameDetailPage() {
             Eliminar
           </button>
         </div>
+        )}
       </div>
 
       {deleteError && <ErrorBanner message={deleteError} />}
