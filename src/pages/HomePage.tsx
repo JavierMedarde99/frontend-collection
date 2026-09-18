@@ -1,26 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getGlobalStats } from '../api/statsApi'
 import { listBooks } from '../api/booksApi'
 import { listGames } from '../api/gamesApi'
 import { listMagicCards } from '../api/magicApi'
 import { listDecks } from '../api/deckApi'
 import { listBoardGames } from '../api/boardgamesApi'
 import { listMovieShows } from '../api/movieshowsApi'
-import { BOOK_STATES } from '../constants/books'
-import { BookState } from '../types'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
-
-interface Stats {
-  total: number
-  toRead: number
-  reading: number
-  completed: number
-}
-
-function countOf(result: PromiseSettledResult<{ totalElements?: number } | null>): number {
-  return result.status === 'fulfilled' ? result.value?.totalElements ?? 0 : 0
-}
 
 interface EntityTotals {
   books: number
@@ -40,40 +28,22 @@ const ENTITIES: { key: keyof EntityTotals; label: string; short: string; to: str
   { key: 'movieShows', label: 'Películas y series', short: 'C', to: '/movieshows', chip: 'bg-purple-100 text-purple-700' },
 ]
 
-async function fetchEntityTotals(): Promise<EntityTotals> {
-  // allSettled por entidad: si una API falla, las demás siguen mostrándose.
-  const [books, games, magic, decks, boardGames, movieShows] = await Promise.allSettled([
-    listBooks({ page: 0, size: 1 }),
-    listGames({ page: 0, size: 1 }),
-    listMagicCards({ page: 0, size: 1 }),
-    listDecks({ page: 0, size: 1 }),
-    listBoardGames({ page: 0, size: 1 }),
-    listMovieShows({ page: 0, size: 1 }),
-  ])
-  return {
-    books: countOf(books),
-    games: countOf(games),
-    magic: countOf(magic),
-    decks: countOf(decks),
-    boardGames: countOf(boardGames),
-    movieShows: countOf(movieShows),
-  }
-}
+const ZERO_TOTALS: EntityTotals = { books: 0, games: 0, magic: 0, decks: 0, boardGames: 0, movieShows: 0 }
 
-async function fetchStats(): Promise<Stats> {
-  // Promise.allSettled: un fallo parcial no pone el resto a cero.
-  // (Una sola llamada requeriría GET /api/books/stats en el backend.)
-  const [all, toRead, reading, completed] = await Promise.allSettled([
-    listBooks({ page: 0, size: 1 }),
-    listBooks({ page: 0, size: 1, state: BookState.TO_READ }),
-    listBooks({ page: 0, size: 1, state: BookState.READING }),
-    listBooks({ page: 0, size: 1, state: BookState.COMPLETED }),
-  ])
-  return {
-    total: countOf(all),
-    toRead: countOf(toRead),
-    reading: countOf(reading),
-    completed: countOf(completed),
+async function fetchEntityTotals(): Promise<EntityTotals> {
+  try {
+    const { collections } = await getGlobalStats()
+    const get = (key: string): number => collections?.[key] ?? 0
+    return {
+      books: get('books'),
+      games: get('games'),
+      magic: get('magic'),
+      decks: get('decks'),
+      boardGames: get('boardgames'),
+      movieShows: get('movieshows'),
+    }
+  } catch {
+    return { ...ZERO_TOTALS }
   }
 }
 
@@ -115,33 +85,23 @@ async function fetchRecent(): Promise<RecentItem[]> {
   return items.sort((a, b) => b.time - a.time).slice(0, 5)
 }
 
-const BOOK_ICON = (
-  <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-  </svg>
-)
-
 export default function HomePage() {
   usePageTitle('Inicio')
   const { isAuthenticated, activeCollections } = useAuth()
-  const [stats, setStats] = useState<Stats | null>(null)
   const [entities, setEntities] = useState<EntityTotals | null>(null)
   const [recent, setRecent] = useState<RecentItem[]>([])
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {
     try {
-      const [fetchedStats, fetchedEntities, fetchedRecent] = await Promise.all([
-        fetchStats(),
+      const [fetchedEntities, fetchedRecent] = await Promise.all([
         fetchEntityTotals(),
         fetchRecent(),
       ])
-      setStats(fetchedStats)
       setEntities(fetchedEntities)
       setRecent(fetchedRecent)
     } catch {
-      setStats({ total: 0, toRead: 0, reading: 0, completed: 0 })
-      setEntities({ books: 0, games: 0, magic: 0, decks: 0, boardGames: 0, movieShows: 0 })
+      setEntities({ ...ZERO_TOTALS })
     } finally {
       setLoading(false)
     }
@@ -154,13 +114,6 @@ export default function HomePage() {
   const visibleEntities = !isAuthenticated
     ? ENTITIES
     : ENTITIES.filter((entity) => activeCollections.includes(entity.key.toUpperCase()))
-
-  const statCards = [
-    { key: 'total', label: 'Libros totales', value: stats?.total },
-    { key: 'toRead', label: BOOK_STATES.TO_READ, value: stats?.toRead ?? 0 },
-    { key: 'reading', label: BOOK_STATES.READING, value: stats?.reading ?? 0 },
-    { key: 'completed', label: BOOK_STATES.COMPLETED, value: stats?.completed ?? 0 },
-  ]
 
   return (
     <section className="flex flex-col gap-8 animate-fade-up">
@@ -209,26 +162,6 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((card) => (
-          <div key={card.key} className="card flex items-center gap-4 p-5">
-            <span className="w-11 h-11 shrink-0 rounded-xl bg-brand-soft flex items-center justify-center text-brand">
-              {BOOK_ICON}
-            </span>
-            <div>
-              <p className="font-display text-heading text-ink leading-none">
-                {loading ? (
-                  <span className="skeleton h-7 w-10 inline-block align-middle" />
-                ) : (
-                  card.value
-                )}
-              </p>
-              <p className="text-caption text-slate mt-1">{card.label}</p>
-            </div>
-          </div>
-        ))}
       </div>
 
       <div className="flex flex-col gap-4">
