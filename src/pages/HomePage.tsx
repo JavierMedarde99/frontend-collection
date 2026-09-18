@@ -146,21 +146,6 @@ export default function HomePage() {
               </p>
             )}
           </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              to="/coleccion"
-              className="btn-primary !bg-white !from-white !to-white !text-brand !shadow-none hover:!from-brand-soft hover:!to-brand-soft"
-            >
-              Ver mi colección
-            </Link>
-            <Link
-              to="/nuevo"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-pill bg-white/15 backdrop-blur text-white font-display font-semibold text-sm border border-white/25 transition-all duration-200 hover:bg-white/25 active:scale-[0.98]"
-            >
-              Añadir libro
-            </Link>
-          </div>
         </div>
       </div>
 
