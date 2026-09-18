@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import type { UserResponse } from '../types'
 import { toBackendCollectionKey } from '../constants/collections'
 import ExportButton from './ExportButton'
 import ThemeToggle from './ThemeToggle'
@@ -18,6 +19,24 @@ const magicLinks: { to: string; label: string; end: boolean; collection?: string
   { to: '/magic', label: 'Cartas', end: true, collection: 'magic' },
   { to: '/magic/mazos', label: 'Mazos', end: false, collection: 'decks' },
 ]
+
+function NavAvatar({ user, initial }: { user: UserResponse | null; initial: string }) {
+  if (user?.avatarUrl) {
+    return (
+      <img
+        src={user.avatarUrl}
+        alt=""
+        aria-hidden="true"
+        className="w-8 h-8 rounded-full object-cover shadow-sm shrink-0 bg-paper"
+      />
+    )
+  }
+  return (
+    <span aria-hidden="true" className="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-accent flex items-center justify-center font-display font-bold text-sm text-white shrink-0">
+      {initial}
+    </span>
+  )
+}
 
 export default function Navbar() {
   const location = useLocation()
@@ -107,9 +126,7 @@ export default function Navbar() {
                 className="hidden sm:inline-flex items-center gap-2 px-2 py-1 rounded-full hover:bg-brand-soft transition-colors"
                 aria-label="Mi perfil"
               >
-                <span aria-hidden="true" className="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-accent flex items-center justify-center font-display font-bold text-sm text-white shrink-0">
-                  {initial}
-                </span>
+                <NavAvatar user={user} initial={initial} />
                 <span className="hidden xl:inline text-body-sm font-medium text-graphite max-w-[7rem] truncate">
                   {displayName}
                 </span>
@@ -208,9 +225,7 @@ export default function Navbar() {
                     to="/perfil"
                     className="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-graphite hover:text-brand hover:bg-brand-soft"
                   >
-                    <span aria-hidden="true" className="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-accent flex items-center justify-center font-display font-bold text-sm text-white shrink-0">
-                      {initial}
-                    </span>
+                    <NavAvatar user={user} initial={initial} />
                     <span className="text-body truncate">{displayName}</span>
                   </NavLink>
                 </li>
