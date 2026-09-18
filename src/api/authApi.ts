@@ -1,5 +1,6 @@
-import type { AuthResponse, LoginRequest, RegisterRequest, UserResponse } from '../types'
+import type { AuthResponse, LoginRequest, RegisterRequest, UpdateProfileRequest, UserResponse } from '../types'
 import { throwRequestError } from './errors'
+import { authFetch } from './authFetch'
 
 const BASE_URL = '/api/v1/auth'
 
@@ -41,4 +42,23 @@ export function me(accessToken: string): Promise<UserResponse> {
   return request<UserResponse>(`${BASE_URL}/me`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   })
+}
+
+export async function updateMe(data: UpdateProfileRequest): Promise<UserResponse> {
+  const res = await authFetch(`${BASE_URL}/me`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    await throwRequestError(res)
+  }
+  return res.json() as Promise<UserResponse>
+}
+
+export async function deleteMe(): Promise<void> {
+  const res = await authFetch(`${BASE_URL}/me`, { method: 'DELETE' })
+  if (!res.ok) {
+    await throwRequestError(res)
+  }
 }
