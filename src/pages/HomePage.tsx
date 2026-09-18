@@ -174,15 +174,24 @@ export default function HomePage() {
               <svg aria-hidden="true" className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
-              Tu biblioteca personal
+              Tu biblioteca personal y más
             </span>
             <h1 className="font-display text-heading-lg md:text-display text-white mt-4 mb-3 max-w-2xl leading-[1.08]">
-              Dale vida a tu colección de libros
+              Todas tus colecciones, por fin en orden
             </h1>
             <p className="text-subheading text-white/90 max-w-xl">
-              Organiza lo que lees, busca cualquier libro en Google Books y lleva el control
-              de tu progreso en un solo sitio.
+              Libros, videojuegos, cartas Magic, mazos, juegos de mesa, películas y
+              series: guarda todo lo que coleccionas, encuéntralo al instante y
+              presume de ello.
             </p>
+            {!loading && entities && (
+              <p className="text-body text-white/90">
+                <strong className="font-display text-heading">
+                  {visibleEntities.reduce((sum, e) => sum + entities[e.key], 0)}
+                </strong>{' '}
+                elementos guardados en {visibleEntities.length} colecciones
+              </p>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
