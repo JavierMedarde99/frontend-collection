@@ -68,8 +68,7 @@ describe('RegisterPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('El usuario ya existe')
   })
 
-  it('redirige al home tras registro exitoso', async () => {
-    mockedRegister.mockResolvedValue({
+  it('redirige al home tras registro exitoso', async () => {    mockedRegister.mockResolvedValue({
       accessToken: 'a',
       refreshToken: 'r',
       user: { id: 'u1', username: 'nuevouser', email: 'nuevo@test.com' },
@@ -82,5 +81,31 @@ describe('RegisterPage', () => {
     expect(mockedRegister).toHaveBeenCalledWith(
       expect.objectContaining({ username: 'nuevouser', email: 'nuevo@test.com' }),
     )
+  })
+
+  it('envía el steamId si tiene 17 dígitos', async () => {
+    mockedRegister.mockResolvedValue({
+      accessToken: 'a',
+      refreshToken: 'r',
+      user: { id: 'u1', username: 'nuevouser', email: 'nuevo@test.com' },
+    })
+    renderRegister()
+    await fillValid()
+    await userEvent.type(screen.getByLabelText(/Steam ID/), '76561198000000000')
+    await userEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    expect(mockedRegister).toHaveBeenCalledWith(
+      expect.objectContaining({ steamId: '76561198000000000' }),
+    )
+  })
+
+  it('rechaza un steamId inválido sin llamar al backend', async () => {
+    renderRegister()
+    await fillValid()
+    await userEvent.type(screen.getByLabelText(/Steam ID/), 'abc')
+    await userEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('17 dígitos')
+    expect(mockedRegister).not.toHaveBeenCalled()
   })
 })
