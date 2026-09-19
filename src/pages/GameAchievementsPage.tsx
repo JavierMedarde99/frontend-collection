@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { getGame, getGameAchievements } from '../api/gamesApi'
 import type { Game, GameAchievementsResponse } from '../types'
 import Spinner from '../components/Spinner'
@@ -9,6 +10,8 @@ import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function GameAchievementsPage() {
   const { id } = useParams<{ id: string }>()
+  const { user } = useAuth()
+  const steamId = user?.steamId
   const [game, setGame] = useState<Game | null>(null)
   usePageTitle((game?.title ? `Logros de ${game.title}` : 'Logros'))
   const [data, setData] = useState<GameAchievementsResponse | null>(null)
@@ -21,15 +24,16 @@ export default function GameAchievementsPage() {
     setError(null)
     try {
       const game = await getGame(id)
-      const data = await getGameAchievements(id)
       setGame(game)
+      if (!steamId) return
+      const data = await getGameAchievements(id, steamId)
       setData(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudieron cargar los logros.')
     } finally {
       setLoading(false)
     }
-  }, [id])
+  }, [id, steamId])
 
   useEffect(() => {
     load()
@@ -69,6 +73,16 @@ export default function GameAchievementsPage() {
 
       {loading ? (
         <Spinner label="Cargando logros…" />
+      ) : !error && !steamId ? (
+        <EmptyState
+          title="Falta tu Steam ID"
+          message="Añade tu Steam ID en tu perfil para ver los logros de tus juegos."
+          action={
+            <Link className="btn-primary mt-2" to="/perfil">
+              Ir a mi perfil
+            </Link>
+          }
+        />
       ) : !error && achievements.length === 0 ? (
         <EmptyState
           title="Sin logros"

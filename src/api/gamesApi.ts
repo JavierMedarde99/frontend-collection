@@ -4,7 +4,6 @@ import { authFetch } from './authFetch'
 import { apiUrl } from './apiBase'
 
 const BASE_URL = '/api/v1/games'
-const STEAM_ID = '76561198809807580'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T | null> {
   const res = await authFetch(url, {
@@ -68,7 +67,7 @@ export function searchGamesPage(name: string, page = 0, size = 10): Promise<Page
   return request<PageGameSearchResult>(`${apiUrl(BASE_URL)}/search?${qs}`) as Promise<PageGameSearchResult>
 }
 
-export function getGameAchievements(id: string): Promise<GameAchievementsResponse> {
-  const qs = new URLSearchParams({ steamId: STEAM_ID })
+export function getGameAchievements(id: string, steamId: string): Promise<GameAchievementsResponse> {
+  const qs = new URLSearchParams({ steamId })
   return request<GameAchievementsResponse>(`${apiUrl(BASE_URL)}/${id}/achievements?${qs}`) as Promise<GameAchievementsResponse>
 }
