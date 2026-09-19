@@ -84,11 +84,11 @@ export default function GameListPage() {
     <section className="flex flex-col gap-24">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <h1 className="font-display text-heading-lg mb-2">Mis videojuegos</h1>
+          <h1 className="font-display text-heading-lg mb-2">Colección de videojuegos</h1>
           <p className="text-body text-slate">
             {loading
               ? 'Cargando videojuegos…'
-              : `${totalElements} videojuego${totalElements === 1 ? '' : 's'} en tu colección`}
+              : `${totalElements} videojuego${totalElements === 1 ? '' : 's'} en ${effectiveTab === 'other' ? 'varias colecciones' : 'tu colección'}`}
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
