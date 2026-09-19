@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { getGlobalStats } from '../api/statsApi'
 import { listBooks } from '../api/booksApi'
@@ -19,13 +19,60 @@ interface EntityTotals {
   movieShows: number
 }
 
-const ENTITIES: { key: keyof EntityTotals; label: string; short: string; to: string; chip: string }[] = [
-  { key: 'books', label: 'Libros', short: 'L', to: '/coleccion', chip: 'bg-indigo-100 text-indigo-700' },
-  { key: 'games', label: 'Videojuegos', short: 'V', to: '/juegos', chip: 'bg-sky-100 text-sky-700' },
-  { key: 'magic', label: 'Cartas Magic', short: 'M', to: '/magic', chip: 'bg-rose-100 text-rose-700' },
-  { key: 'decks', label: 'Mazos', short: 'Z', to: '/magic/mazos', chip: 'bg-amber-100 text-amber-800' },
-  { key: 'boardGames', label: 'Juegos de mesa', short: 'J', to: '/boardgames', chip: 'bg-emerald-100 text-emerald-700' },
-  { key: 'movieShows', label: 'Películas y series', short: 'C', to: '/movieshows', chip: 'bg-purple-100 text-purple-700' },
+const ENTITIES: { key: keyof EntityTotals; label: string; icon: ReactNode; to: string; chip: string }[] = [
+  {
+    key: 'books',
+    label: 'Libros',
+    icon: <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />,
+    to: '/coleccion',
+    chip: 'bg-indigo-100 text-indigo-700',
+  },
+  {
+    key: 'games',
+    label: 'Videojuegos',
+    icon: (
+      <>
+        <rect x="2.5" y="7.5" width="19" height="10" rx="5" />
+        <path d="M8 10.5v4M6 12.5h4" />
+        <path d="M15.5 11.5h.01M17.5 13.5h.01" />
+      </>
+    ),
+    to: '/juegos',
+    chip: 'bg-sky-100 text-sky-700',
+  },
+  {
+    key: 'magic',
+    label: 'Cartas Magic',
+    icon: <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />,
+    to: '/magic',
+    chip: 'bg-rose-100 text-rose-700',
+  },
+  {
+    key: 'decks',
+    label: 'Mazos',
+    icon: <path d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-.98.626-1.813 1.5-2.122" />,
+    to: '/magic/mazos',
+    chip: 'bg-amber-100 text-amber-800',
+  },
+  {
+    key: 'boardGames',
+    label: 'Juegos de mesa',
+    icon: <path d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />,
+    to: '/boardgames',
+    chip: 'bg-emerald-100 text-emerald-700',
+  },
+  {
+    key: 'movieShows',
+    label: 'Películas y series',
+    icon: (
+      <>
+        <rect x="3" y="8.5" width="18" height="12" rx="2" />
+        <path d="M3.5 8.5L5.5 4.5h13L16.5 8.5M8.5 4.5l2.5 4M14 4.5l2.5 4M7.5 12.5h.01M11 12.5h.01M14.5 16h5" />
+      </>
+    ),
+    to: '/movieshows',
+    chip: 'bg-purple-100 text-purple-700',
+  },
 ]
 
 const ZERO_TOTALS: EntityTotals = { books: 0, games: 0, magic: 0, decks: 0, boardGames: 0, movieShows: 0 }
@@ -154,8 +201,10 @@ export default function HomePage() {
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {visibleEntities.map((entity) => (
             <Link key={entity.key} to={entity.to} className="card card-hover flex items-center gap-4 p-5">
-              <span className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center font-display font-bold text-heading-sm ${entity.chip}`} aria-hidden="true">
-                {entity.short}
+              <span className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center ${entity.chip}`} aria-hidden="true">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                  {entity.icon}
+                </svg>
               </span>
               <div className="min-w-0">
                 <p className="font-display text-heading text-ink leading-none">
