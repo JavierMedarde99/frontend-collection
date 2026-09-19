@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { searchGamesPage, createGame } from '../api/gamesApi'
 import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
 import { GamePlatform, GameStatus } from '../types'
@@ -23,6 +24,8 @@ function mapResultToGame(result: SearchGameResult): Omit<GameFormData, 'platform
 
 export default function GameSearch() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const canPlatinum = !!user?.steamId
   const [query, setQuery] = useState('')
   const [submitted, setSubmitted] = useState<string | null>(null)
   const [searching, setSearching] = useState<string | null>(null)
@@ -94,7 +97,7 @@ export default function GameSearch() {
         userRating: showRating && modalUserRating ? modalUserRating : undefined,
         comment: showComment ? modalComment?.trim() || undefined : undefined,
         obtainPlatinum:
-          modalPlatform === GamePlatform.PC && modalObtainPlatinum ? true : undefined,
+          modalPlatform === GamePlatform.PC && canPlatinum && modalObtainPlatinum ? true : undefined,
       })
       setSelected(null)
       navigate('/juegos')
@@ -216,7 +219,7 @@ export default function GameSearch() {
                 </select>
               </div>
 
-              {modalPlatform === GamePlatform.PC && (
+              {modalPlatform === GamePlatform.PC && canPlatinum && (
                 <div>
                   <label className="label">Objetivo</label>
                   <label className="flex items-center gap-2.5 text-body cursor-pointer">
