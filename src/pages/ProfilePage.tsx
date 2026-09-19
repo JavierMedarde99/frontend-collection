@@ -15,6 +15,7 @@ export default function ProfilePage() {
   const [displayName, setDisplayName] = useState('')
   const [bio, setBio] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [steamId, setSteamId] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [version, setVersion] = useState(0)
@@ -38,6 +39,7 @@ export default function ProfilePage() {
     setDisplayName(user.displayName || '')
     setBio(user.bio || '')
     setAvatarUrl(user.avatarUrl || '')
+    setSteamId(user.steamId || '')
     setSaveError(null)
     setEditing(true)
   }
@@ -45,12 +47,18 @@ export default function ProfilePage() {
   async function handleSave(e: FormEvent) {
     e.preventDefault()
     setSaveError(null)
+    const sid = steamId.trim()
+    if (sid && !/^\d{17}$/.test(sid)) {
+      setSaveError('El Steam ID debe tener 17 dígitos.')
+      return
+    }
     setSaving(true)
     try {
       await updateProfile({
         displayName: displayName.trim() || undefined,
         bio: bio.trim() || undefined,
         avatarUrl: avatarUrl.trim() || undefined,
+        steamId: sid || undefined,
       })
       setEditing(false)
       setVersion((v) => v + 1)
@@ -155,6 +163,20 @@ export default function ProfilePage() {
                 value={avatarUrl}
                 onChange={setAvatarUrl}
               />
+              <div className="flex flex-col gap-1.5">
+                <label className="label" htmlFor="profile-steam">
+                  Steam ID
+                </label>
+                <input
+                  id="profile-steam"
+                  className="input"
+                  value={steamId}
+                  onChange={(e) => setSteamId(e.target.value)}
+                  placeholder="17 dígitos, opcional"
+                  inputMode="numeric"
+                  maxLength={17}
+                />
+              </div>
               {saveError && <ErrorBanner message={saveError} />}
               <div className="flex justify-end gap-3 border-t border-silver/60 pt-4">
                 <button

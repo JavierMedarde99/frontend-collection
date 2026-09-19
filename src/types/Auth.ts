@@ -3,6 +3,7 @@ export interface RegisterRequest {
   email: string
   password: string
   displayName?: string
+  steamId?: string
 }
 
 export interface LoginRequest {
@@ -18,6 +19,7 @@ export interface UpdateProfileRequest {
   displayName?: string
   avatarUrl?: string
   bio?: string
+  steamId?: string
 }
 
 export interface UserResponse {
@@ -27,6 +29,7 @@ export interface UserResponse {
   displayName?: string
   avatarUrl?: string
   bio?: string
+  steamId?: string
   createdAt?: string
   updatedAt?: string
 }

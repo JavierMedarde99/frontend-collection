@@ -6,6 +6,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import { usePageTitle } from '../hooks/usePageTitle'
 
 const USERNAME_RE = /^[a-zA-Z0-9_]+$/
+const STEAM_ID_RE = /^\d{17}$/
 
 export default function RegisterPage() {
   usePageTitle('Crear cuenta')
@@ -16,6 +17,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
+  const [steamId, setSteamId] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -27,6 +29,7 @@ export default function RegisterPage() {
     if (!USERNAME_RE.test(name)) return 'El usuario solo admite letras, números y guion bajo.'
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return 'El email no tiene un formato válido.'
     if (password.length < 8) return 'La contraseña debe tener al menos 8 caracteres.'
+    if (steamId.trim() && !STEAM_ID_RE.test(steamId.trim())) return 'El Steam ID debe tener 17 dígitos.'
     return null
   }
 
@@ -42,6 +45,7 @@ export default function RegisterPage() {
         email: email.trim(),
         password,
         ...(displayName.trim() ? { displayName: displayName.trim() } : {}),
+        ...(steamId.trim() ? { steamId: steamId.trim() } : {}),
       })
       navigate('/', { replace: true })
     } catch (err) {
@@ -115,6 +119,20 @@ export default function RegisterPage() {
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Opcional"
               autoComplete="nickname"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="label" htmlFor="register-steam">
+              Steam ID
+            </label>
+            <input
+              id="register-steam"
+              className="input"
+              value={steamId}
+              onChange={(e) => setSteamId(e.target.value)}
+              placeholder="17 dígitos, opcional"
+              inputMode="numeric"
+              maxLength={17}
             />
           </div>
           {error && <ErrorBanner message={error} />}

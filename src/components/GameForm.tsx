@@ -2,6 +2,7 @@ import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'reac
 import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
 import { GamePlatform, GameStatus } from '../types'
 import type { GameFormData } from '../types'
+import { useAuth } from '../context/AuthContext'
 import StarRating from './StarRating'
 import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
@@ -90,6 +91,7 @@ interface GameFormProps {
 }
 
 export default function GameForm({ initial = {}, submitLabel, onSubmit, error, isCreate = false }: GameFormProps) {
+  const { user } = useAuth()
   const [form, setForm] = useState<GameFormData>({
     title: '',
     platform: GamePlatform.PC,
@@ -109,6 +111,10 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
   const [dirty, setDirty] = useState(false)
   const guard = useUnsavedGuard(dirty)
   const [localError, setLocalError] = useState<string | null>(null)
+
+  // Platinar necesita Steam: al crear se oculta sin steamId; al editar se conserva.
+  const canPlatinum =
+    form.platform === GamePlatform.PC && (!isCreate || !!user?.steamId)
 
   const showStartDate =
     form.status === GameStatus.PLAYING ||
@@ -141,9 +147,9 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
       dateAdded: form.dateAdded || undefined,
       dateCompleted: form.dateCompleted || undefined,
       obtainPlatinum:
-        form.platform === GamePlatform.PC && form.obtainPlatinum ? true : undefined,
+        canPlatinum && form.obtainPlatinum ? true : undefined,
       steamAppId:
-        form.platform === GamePlatform.PC && form.obtainPlatinum === true && form.steamAppId?.trim()
+        canPlatinum && form.obtainPlatinum === true && form.steamAppId?.trim()
           ? form.steamAppId.trim()
           : undefined,
       // Datos externos: se conservan sin mostrarse en el formulario.
@@ -190,7 +196,7 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
               ))}
             </select>
           </Field>
-          {form.platform === GamePlatform.PC && (
+          {canPlatinum && (
             <Field label="Objetivo">
               <label className="flex items-center gap-2.5 text-body cursor-pointer">
                 <input
@@ -203,7 +209,7 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
               </label>
             </Field>
           )}
-          {form.platform === GamePlatform.PC && form.obtainPlatinum === true && (
+          {canPlatinum && form.obtainPlatinum === true && (
             <Field label="Steam App ID" icon="steam">
               <input
                 className="input"
