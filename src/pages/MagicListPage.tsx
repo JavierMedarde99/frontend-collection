@@ -101,7 +101,7 @@ export default function MagicListPage() {
           <p className="text-body text-slate">
             {loading
               ? 'Cargando cartas…'
-              : `${totalElements} carta${totalElements === 1 ? '' : 's'} en tu colección`}
+              : `${totalElements} carta${totalElements === 1 ? '' : 's'} en ${effectiveTab === 'other' ? 'varias colecciones' : 'tu colección'}`}
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
