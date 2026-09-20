@@ -63,3 +63,8 @@ export function searchBooksPage(name: string, page = 0, size = 10): Promise<Page
   const qs = new URLSearchParams({ name, page: String(page), size: String(size) })
   return request<PageBookSearchResult>(`${apiUrl(BASE_URL)}/search?${qs}`) as Promise<PageBookSearchResult>
 }
+
+export function searchBooksByIsbn(isbn: string, page = 0, size = 10): Promise<PageBookSearchResult> {
+  const qs = new URLSearchParams({ isbn, page: String(page), size: String(size) })
+  return request<PageBookSearchResult>(`${apiUrl(BASE_URL)}/search?${qs}`) as Promise<PageBookSearchResult>
+}
