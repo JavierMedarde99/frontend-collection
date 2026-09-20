@@ -36,6 +36,7 @@ export interface BookFormData {
   endDate?: string
   frontpage?: string
   externalId?: string
+  isbn?: string
 }
 
 export interface SearchBookResult {
