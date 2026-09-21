@@ -1,13 +1,11 @@
 import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
 import { BookType, BookState } from '../types'
-import type { BookFormData, SearchBookResult } from '../types'
-import { searchBooksByIsbn } from '../api/booksApi'
+import type { BookFormData } from '../types'
 import StarRating from './StarRating'
 import FormSection from './FormSection'
 import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
-import BookBarcodeScanner from './BookBarcodeScanner'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 
 type IconName = 'title' | 'author' | 'pages' | 'cover' | 'externalId' | 'date' | 'synopsis' | 'comment'
@@ -108,13 +106,8 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
     endDate: '',
     frontpage: '',
     externalId: '',
-    isbn: '',
     ...initial,
   })
-  const [scannerOpen, setScannerOpen] = useState(false)
-  const [isbnSearching, setIsbnSearching] = useState(false)
-  const [isbnResults, setIsbnResults] = useState<SearchBookResult[]>([])
-  const [isbnError, setIsbnError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
@@ -132,41 +125,6 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
   const setNumber = (key: keyof BookFormData) => (e: ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value
     setForm((f) => ({ ...f, [key]: v === '' ? '' : Number(v) }))
-  }
-
-  async function handleBarcodeDetected(isbn: string) {
-    setScannerOpen(false)
-    setDirty(true)
-    setForm((f) => ({ ...f, isbn }))
-    setIsbnResults([])
-    setIsbnError(null)
-    if (!isbn) return
-    setIsbnSearching(true)
-    try {
-      const page = await searchBooksByIsbn(isbn, 0, 5)
-      setIsbnResults(page.content ?? [])
-      if ((page.content ?? []).length === 0) {
-        setIsbnError('Sin resultados para este ISBN. Puedes rellenar los datos a mano.')
-      }
-    } catch {
-      setIsbnError('No se pudo buscar por ISBN. Puedes rellenar los datos a mano.')
-    } finally {
-      setIsbnSearching(false)
-    }
-  }
-
-  function applyIsbnResult(result: SearchBookResult) {
-    setDirty(true)
-    setForm((f) => ({
-      ...f,
-      title: result.title || f.title,
-      author: (result.authors && result.authors[0]) || f.author,
-      descripcion: result.description || f.descripcion,
-      pages: result.pageCount ?? f.pages,
-      frontpage: result.coverImage || f.frontpage,
-      externalId: result.id || f.externalId,
-    }))
-    setIsbnResults([])
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -190,7 +148,6 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
       ...(showStartDate ? { startDate: form.startDate || undefined } : {}),
       ...(showEndDate ? { endDate: form.endDate || undefined } : {}),
       frontpage: form.frontpage?.trim() || undefined,
-      isbn: form.isbn?.trim() || undefined,
       // ID venido de Google Books: se conserva sin mostrarse en el formulario.
       ...(initial.externalId?.trim() ? { externalId: initial.externalId.trim() } : {}),
     }
@@ -248,58 +205,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
               placeholder="120"
             />
           </Field>
-
-          <Field label="ISBN">
-            <div className="flex gap-2">
-              <input
-                className="input flex-1"
-                value={form.isbn}
-                onChange={set('isbn')}
-                placeholder="978…"
-                inputMode="numeric"
-              />
-              {isCreate && (
-                <button
-                  type="button"
-                  className="btn-ghost !px-4 shrink-0"
-                  onClick={() => setScannerOpen(true)}
-                  aria-label="Escanear ISBN"
-                  title="Escanear ISBN"
-                >
-                  📷
-                </button>
-              )}
-            </div>
-          </Field>
         </div>
-
-        {isbnSearching && <p className="text-body-sm text-slate mt-4">Buscando por ISBN…</p>}
-        {isbnError && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mt-4" role="alert">
-            {isbnError}
-          </div>
-        )}
-        {isbnResults.length > 0 && (
-          <ul className="flex flex-col gap-2 mt-4">
-            {isbnResults.map((result) => (
-              <li key={result.id} className="flex items-center gap-3 rounded-lg border border-silver/60 px-3 py-2">
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-ink line-clamp-1">{result.title}</p>
-                  <p className="text-caption text-slate line-clamp-1">
-                    {[(result.authors || []).join(', '), result.publisher].filter(Boolean).join(' · ')}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className="btn-ghost !px-3 !py-1.5 shrink-0"
-                  onClick={() => applyIsbnResult(result)}
-                >
-                  Usar
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
       </FormSection>
 
       <FormSection title="Portada">
@@ -380,13 +286,6 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
         onConfirm={guard.confirmNavigation}
         onCancel={guard.cancelNavigation}
       />
-      {isCreate && (
-        <BookBarcodeScanner
-          open={scannerOpen}
-          onClose={() => setScannerOpen(false)}
-          onBarcodeDetected={handleBarcodeDetected}
-        />
-      )}
     </form>
   )
 }
