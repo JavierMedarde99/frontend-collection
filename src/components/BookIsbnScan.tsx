@@ -8,6 +8,7 @@ import BookBarcodeScanner from './BookBarcodeScanner'
 import ErrorBanner from './ErrorBanner'
 import Spinner from './Spinner'
 import EmptyState from './EmptyState'
+import StarRating from './StarRating'
 import { useToast } from './Toast'
 
 function mapResultToBook(result: SearchBookResult) {
@@ -35,6 +36,10 @@ export default function BookIsbnScan() {
   const [selected, setSelected] = useState<SearchBookResult | null>(null)
   const [modalType, setModalType] = useState<BookType>(BookType.NOVEL)
   const [modalState, setModalState] = useState<BookState>(BookState.TO_READ)
+  const [modalStartDate, setModalStartDate] = useState('')
+  const [modalEndDate, setModalEndDate] = useState('')
+  const [modalStart, setModalStart] = useState(0)
+  const [modalComment, setModalComment] = useState('')
   const [adding, setAdding] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
 
@@ -66,6 +71,11 @@ export default function BookIsbnScan() {
     void searchByIsbn(isbnInput)
   }
 
+  const showStartDate = modalState !== BookState.TO_READ
+  const showEndDate = modalState === BookState.COMPLETED
+  const showRating = modalState === BookState.COMPLETED
+  const showComment = modalState === BookState.COMPLETED
+
   async function handleConfirm() {
     if (!selected) return
     setAddError(null)
@@ -76,6 +86,10 @@ export default function BookIsbnScan() {
         isbn: isbn || undefined,
         type: modalType,
         state: modalState,
+        ...(showStartDate ? { startDate: modalStartDate || undefined } : {}),
+        ...(showEndDate ? { endDate: modalEndDate || undefined } : {}),
+        ...(showRating ? { start: modalStart || undefined } : {}),
+        ...(showComment ? { comment: modalComment?.trim() || undefined } : {}),
       })
       notify('Libro guardado.')
       navigate('/coleccion')
@@ -142,7 +156,16 @@ export default function BookIsbnScan() {
                 <p className="text-caption text-slate mt-1">
                   {[(result.authors || []).join(', '), result.publisher].filter(Boolean).join(' · ')}
                 </p>
-                <button className="btn-primary !px-4 !py-2 mt-4" onClick={() => { setSelected(result); setAddError(null) }}>
+                <button className="btn-primary !px-4 !py-2 mt-4" onClick={() => {
+                  setSelected(result)
+                  setAddError(null)
+                  setModalType(BookType.NOVEL)
+                  setModalState(BookState.TO_READ)
+                  setModalStartDate('')
+                  setModalEndDate('')
+                  setModalStart(0)
+                  setModalComment('')
+                }}>
                   Añadir a mi colección
                 </button>
               </div>
@@ -181,6 +204,37 @@ export default function BookIsbnScan() {
                   ))}
                 </select>
               </div>
+              {showStartDate && (
+                <div>
+                  <label className="label">Fecha de inicio</label>
+                  <input className="input" type="date" value={modalStartDate} onChange={(e) => setModalStartDate(e.target.value)} />
+                </div>
+              )}
+              {showEndDate && (
+                <div>
+                  <label className="label">Fecha de fin</label>
+                  <input className="input" type="date" value={modalEndDate} onChange={(e) => setModalEndDate(e.target.value)} />
+                </div>
+              )}
+              {showRating && (
+                <div>
+                  <label className="label">Valoración</label>
+                  <div className="pt-2">
+                    <StarRating value={modalStart} onChange={setModalStart} />
+                  </div>
+                </div>
+              )}
+              {showComment && (
+                <div>
+                  <label className="label">Comentario</label>
+                  <textarea
+                    className="input !h-auto !min-h-[80px] !py-3"
+                    value={modalComment}
+                    onChange={(e) => setModalComment(e.target.value)}
+                    placeholder="Notas personales…"
+                  />
+                </div>
+              )}
             </div>
             {addError && <ErrorBanner message={addError} />}
             <div className="flex justify-end gap-3 mt-6 border-t border-silver/60 pt-5">

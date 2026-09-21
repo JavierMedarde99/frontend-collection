@@ -80,6 +80,26 @@ describe('BookIsbnScan', () => {
     expect(screen.queryByRole('dialog', { name: 'Escanear ISBN' })).not.toBeInTheDocument()
   })
 
+  it('muestra inputs según el estado como el buscador', async () => {
+    mockedIsbnSearch.mockResolvedValue({ content: [duneResult], totalPages: 1 } as never)
+    renderScan()
+    await userEvent.type(screen.getByLabelText('ISBN'), '9788498382671')
+    await userEvent.click(screen.getByRole('button', { name: 'Buscar' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Añadir a mi colección' }))
+
+    expect(screen.queryByText('Fecha de inicio')).not.toBeInTheDocument()
+    expect(screen.queryByText('Valoración')).not.toBeInTheDocument()
+
+    await userEvent.selectOptions(screen.getByDisplayValue('Por leer'), 'READING')
+    expect(screen.getByText('Fecha de inicio')).toBeInTheDocument()
+    expect(screen.queryByText('Valoración')).not.toBeInTheDocument()
+
+    await userEvent.selectOptions(screen.getByDisplayValue('Leyendo'), 'COMPLETED')
+    expect(screen.getByText('Fecha de fin')).toBeInTheDocument()
+    expect(screen.getByText('Valoración')).toBeInTheDocument()
+    expect(screen.getByText('Comentario')).toBeInTheDocument()
+  })
+
   it('añade el libro con el isbn en el payload', async () => {
     mockedIsbnSearch.mockResolvedValue({ content: [duneResult], totalPages: 1 } as never)
     mockedCreate.mockResolvedValue({} as never)
