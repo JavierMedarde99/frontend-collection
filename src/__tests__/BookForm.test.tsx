@@ -37,14 +37,29 @@ describe('BookForm', () => {
 
     await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
     await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
+    await user.type(screen.getByPlaceholderText('120'), '412')
     await user.click(screen.getByRole('button', { name: 'Guardar' }))
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     const payload = onSubmit.mock.calls[0]![0] as BookFormData
     expect(payload.title).toBe('Dune')
     expect(payload.author).toBe('Frank Herbert')
+    expect(payload.pages).toBe(412)
     expect(payload.type).toBe(BookType.NOVEL)
     expect(payload.state).toBe(BookState.TO_READ)
+  })
+
+  it('rechaza el envío sin páginas', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+
+    await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
+    await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    expect(screen.getByRole('alert')).toHaveTextContent('nº de páginas es obligatorio')
+    expect(onSubmit).not.toHaveBeenCalled()
   })
 
   it('muestra los campos de estado completado al seleccionarlo', async () => {

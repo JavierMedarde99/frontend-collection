@@ -51,6 +51,7 @@ export default function BookSearch() {
   const [modalEndDate, setModalEndDate] = useState('')
   const [modalStart, setModalStart] = useState(0)
   const [modalComment, setModalComment] = useState('')
+  const [modalPages, setModalPages] = useState('')
 
   const showStartDate = modalState !== BookState.TO_READ
   const showEndDate = modalState === BookState.COMPLETED
@@ -69,15 +70,24 @@ export default function BookSearch() {
     setSubmitError(null)
     setModalType(BookType.NOVEL)
     setModalState(BookState.TO_READ)
+    setModalPages('')
   }
+
+  const needsPages = !selected?.pageCount
 
   async function handleConfirm() {
     if (!selected) return
     setSubmitError(null)
+    const pages = modalPages !== '' ? Number(modalPages) : (selected.pageCount || 0)
+    if (!pages || pages <= 0) {
+      setSubmitError('El nº de páginas es obligatorio.')
+      return
+    }
     setSearching(selected.id)
     try {
       await createBook({
         ...mapResultToBook(selected),
+        pages,
         type: modalType,
         state: modalState,
         ...(showStartDate ? { startDate: modalStartDate || undefined } : {}),
@@ -199,6 +209,21 @@ export default function BookSearch() {
                 </select>
               </div>
 
+              {needsPages && (
+                <div>
+                  <label className="label">
+                    Nº de páginas <span className="text-brand">*</span>
+                  </label>
+                  <input
+                    className="input"
+                    type="number"
+                    min="1"
+                    value={modalPages}
+                    onChange={(e) => setModalPages(e.target.value)}
+                    placeholder="Ej. 320"
+                  />
+                </div>
+              )}
               {showStartDate && (
                 <div>
                   <label className="label">Fecha de inicio</label>

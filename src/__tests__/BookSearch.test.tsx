@@ -47,6 +47,7 @@ class MockIntersectionObserver {
 
 beforeEach(() => {
   trigger = null
+  vi.clearAllMocks()
   vi.stubGlobal('IntersectionObserver', MockIntersectionObserver)
 })
 
@@ -108,6 +109,7 @@ describe('BookSearch', () => {
 
     await userEvent.selectOptions(screen.getByDisplayValue('Novela'), BookType.MANGA)
     await userEvent.selectOptions(screen.getByDisplayValue('Por leer'), BookState.COMPLETED)
+    await userEvent.type(screen.getByPlaceholderText('Ej. 320'), '412')
     await userEvent.click(screen.getByRole('button', { name: 'Añadir' }))
 
     await waitFor(() => expect(mockedCreate).toHaveBeenCalledTimes(1))
@@ -116,7 +118,24 @@ describe('BookSearch', () => {
       author: 'Frank Herbert',
       type: BookType.MANGA,
       state: BookState.COMPLETED,
+      pages: 412,
     })
+  })
+
+  it('pide las páginas si el resultado trae 0', async () => {
+    mockedSearch.mockResolvedValue(bookPage(results))
+    render(<BookSearch />)
+
+    const input = screen.getByRole('textbox', { name: 'Búsqueda' })
+    await userEvent.type(input, 'dune')
+    await userEvent.click(screen.getByRole('button', { name: 'Buscar' }))
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Añadir a mi colección' }))
+    expect(screen.getByPlaceholderText('Ej. 320')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Añadir' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('nº de páginas es obligatorio')
+    expect(mockedCreate).not.toHaveBeenCalled()
   })
 
   it('mantiene el modal abierto si falla al añadir', async () => {
@@ -131,6 +150,7 @@ describe('BookSearch', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Buscar' }))
 
     await userEvent.click(await screen.findByRole('button', { name: 'Añadir a mi colección' }))
+    await userEvent.type(screen.getByPlaceholderText('Ej. 320'), '412')
     await userEvent.click(screen.getByRole('button', { name: 'Añadir' }))
 
     expect(await screen.findByRole('button', { name: 'Añadir' })).toBeInTheDocument()

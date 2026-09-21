@@ -40,6 +40,7 @@ export default function BookIsbnScan() {
   const [modalEndDate, setModalEndDate] = useState('')
   const [modalStart, setModalStart] = useState(0)
   const [modalComment, setModalComment] = useState('')
+  const [modalPages, setModalPages] = useState('')
   const [adding, setAdding] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
 
@@ -75,14 +76,21 @@ export default function BookIsbnScan() {
   const showEndDate = modalState === BookState.COMPLETED
   const showRating = modalState === BookState.COMPLETED
   const showComment = modalState === BookState.COMPLETED
+  const needsPages = !selected?.pageCount
 
   async function handleConfirm() {
     if (!selected) return
     setAddError(null)
+    const pages = modalPages !== '' ? Number(modalPages) : (selected.pageCount || 0)
+    if (!pages || pages <= 0) {
+      setAddError('El nº de páginas es obligatorio.')
+      return
+    }
     setAdding(true)
     try {
       await createBook({
         ...mapResultToBook(selected),
+        pages,
         isbn: isbn || undefined,
         type: modalType,
         state: modalState,
@@ -165,6 +173,7 @@ export default function BookIsbnScan() {
                   setModalEndDate('')
                   setModalStart(0)
                   setModalComment('')
+                  setModalPages('')
                 }}>
                   Añadir a mi colección
                 </button>
@@ -232,6 +241,21 @@ export default function BookIsbnScan() {
                     value={modalComment}
                     onChange={(e) => setModalComment(e.target.value)}
                     placeholder="Notas personales…"
+                  />
+                </div>
+              )}
+              {needsPages && (
+                <div>
+                  <label className="label">
+                    Nº de páginas <span className="text-brand">*</span>
+                  </label>
+                  <input
+                    className="input"
+                    type="number"
+                    min="1"
+                    value={modalPages}
+                    onChange={(e) => setModalPages(e.target.value)}
+                    placeholder="Ej. 320"
                   />
                 </div>
               )}
