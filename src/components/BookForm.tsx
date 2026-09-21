@@ -135,6 +135,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
     if (!form.author.trim()) return setLocalError('El autor es obligatorio.')
     if (!form.type) return setLocalError('El tipo es obligatorio.')
     if (!form.state) return setLocalError('El estado es obligatorio.')
+    if (form.pages === '' || Number(form.pages) <= 0) return setLocalError('El nº de páginas es obligatorio.')
 
     const payload: BookFormData = {
       title: form.title.trim(),
@@ -142,7 +143,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
       type: form.type,
       state: form.state,
       descripcion: form.descripcion?.trim() || undefined,
-      pages: form.pages === '' ? undefined : form.pages,
+      pages: Number(form.pages),
       ...(showComment ? { comment: form.comment?.trim() || undefined } : {}),
       ...(showRating ? { start: form.start || undefined } : {}),
       ...(showStartDate ? { startDate: form.startDate || undefined } : {}),
@@ -195,7 +196,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
             </select>
           </Field>
 
-          <Field label="Nº de páginas" icon="pages">
+          <Field label="Nº de páginas" required icon="pages">
             <input
               className="input"
               type="number"
