@@ -4,15 +4,17 @@ import { createBook } from '../api/booksApi'
 import type { BookFormData } from '../types'
 import BookForm from '../components/BookForm'
 import BookSearch from '../components/BookSearch'
+import BookIsbnScan from '../components/BookIsbnScan'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 
-type Mode = 'search' | 'manual'
+type Mode = 'search' | 'manual' | 'barcode'
 
 const MODES: { key: Mode; label: string }[] = [
   { key: 'search', label: 'Buscar libro' },
   { key: 'manual', label: 'Alta manual' },
+  { key: 'barcode', label: 'Código de barras' },
 ]
 
 export default function BookCreatePage() {
@@ -33,7 +35,7 @@ export default function BookCreatePage() {
       <div>
         <h1 className="font-display text-heading-lg mb-2">Añadir libro</h1>
         <p className="text-body text-slate">
-          Añade un libro a tu colección buscándolo o introduciendo sus datos manualmente.
+          Añade un libro a tu colección buscándolo, escaneando su código de barras o introduciendo sus datos manualmente.
         </p>
       </div>
 
@@ -57,6 +59,8 @@ export default function BookCreatePage() {
 
       {mode === 'search' ? (
         <BookSearch />
+      ) : mode === 'barcode' ? (
+        <BookIsbnScan />
       ) : (
         <BookForm isCreate submitLabel="Guardar libro" onSubmit={handleSubmit} />
       )}
