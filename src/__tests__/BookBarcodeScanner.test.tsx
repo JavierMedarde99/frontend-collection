@@ -7,26 +7,42 @@ const store = vi.hoisted(() => ({ instances: [] as MockScanner[], failNext: null
 
 interface MockScanner {
   onSuccess: ((decoded: string) => void) | null
+  running: boolean
   start: ReturnType<typeof vi.fn>
   stop: ReturnType<typeof vi.fn>
   clear: ReturnType<typeof vi.fn>
+  getState: ReturnType<typeof vi.fn>
 }
 
 vi.mock('html5-qrcode', () => {
+  const NOT_STARTED = 0
+  const SCANNING = 1
   class InnerMock {
     onSuccess: ((decoded: string) => void) | null = null
+    running = true
     start = vi.fn((_config: unknown, _opts: unknown, ok: (d: string) => void, _fail: (e: unknown) => void) => {
       this.onSuccess = ok
-      if (store.failNext) return Promise.reject(store.failNext)
+      if (store.failNext) {
+        this.running = false
+        return Promise.reject(store.failNext)
+      }
       return Promise.resolve()
     })
-    stop = vi.fn(() => Promise.resolve())
-    clear = vi.fn(() => Promise.resolve())
+    stop = vi.fn(() => {
+      if (!this.running) return Promise.reject(new Error('Cannot stop, scanner is not running or paused.'))
+      this.running = false
+      return Promise.resolve()
+    })
+    clear = vi.fn(() => undefined)
+    getState = vi.fn(() => (this.running ? SCANNING : NOT_STARTED))
     constructor() {
       store.instances.push(this as unknown as MockScanner)
     }
   }
-  return { Html5Qrcode: InnerMock }
+  return {
+    Html5Qrcode: InnerMock,
+    Html5QrcodeScannerState: { NOT_STARTED, SCANNING, PAUSED: 2 },
+  }
 })
 
 beforeEach(() => {
@@ -89,6 +105,17 @@ describe('BookBarcodeScanner', () => {
     const scanner = store.instances[0]!
     unmount()
     expect(scanner.stop).toHaveBeenCalled()
+  })
+
+  it('no llama a stop si el scanner no está corriendo', async () => {
+    const { unmount } = renderScanner()
+    await waitFor(() => expect(store.instances).toHaveLength(1))
+    const scanner = store.instances[0]!
+    scanner.running = false
+    scanner.stop.mockClear()
+    unmount()
+    await waitFor(() => expect(scanner.clear).toHaveBeenCalled())
+    expect(scanner.stop).not.toHaveBeenCalled()
   })
 
   it('con open=false no renderiza nada', () => {

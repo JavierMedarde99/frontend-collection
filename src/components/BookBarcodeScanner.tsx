@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Html5Qrcode } from 'html5-qrcode'
+import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode'
 
 interface BookBarcodeScannerProps {
   open: boolean
@@ -9,6 +9,32 @@ interface BookBarcodeScannerProps {
 
 function normalizeIsbn(raw: string): string {
   return raw.replace(/[^0-9Xx]/g, '').toUpperCase()
+}
+
+function isRunning(scanner: Html5Qrcode): boolean {
+  try {
+    const state = scanner.getState()
+    return state === Html5QrcodeScannerState.SCANNING || state === Html5QrcodeScannerState.PAUSED
+  } catch {
+    return false
+  }
+}
+
+async function safeStop(scanner: Html5Qrcode): Promise<void> {
+  if (!isRunning(scanner)) return
+  try {
+    await scanner.stop()
+  } catch {
+    // Ya detenido por otro camino (detección + cierre a la vez).
+  }
+}
+
+function safeClear(scanner: Html5Qrcode): void {
+  try {
+    scanner.clear()
+  } catch {
+    // Nada que limpiar.
+  }
 }
 
 /** Modal que escanea EAN-13/ISBN con la cámara trasera y devuelve el ISBN detectado. */
@@ -34,13 +60,13 @@ export default function BookBarcodeScanner({ open, onClose, onBarcodeDetected }:
           if (doneRef.current) return
           doneRef.current = true
           const isbn = normalizeIsbn(decoded)
-          scanner
-            .stop()
-            .catch(() => {})
-            .finally(() => onBarcodeDetected(isbn))
+          void safeStop(scanner).finally(() => onBarcodeDetected(isbn))
         },
         () => {},
       )
+      .then(() => {
+        if (cancelled) void safeStop(scanner)
+      })
       .catch((err: unknown) => {
         if (cancelled) return
         if (err instanceof Error && err.name === 'NotAllowedError') {
@@ -52,10 +78,7 @@ export default function BookBarcodeScanner({ open, onClose, onBarcodeDetected }:
 
     return () => {
       cancelled = true
-      scanner
-        .stop()
-        .catch(() => {})
-        .finally(() => scanner.clear().catch(() => {}))
+      void safeStop(scanner).finally(() => safeClear(scanner))
       scannerRef.current = null
     }
   }, [open, elementId, onBarcodeDetected])
