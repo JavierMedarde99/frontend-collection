@@ -61,4 +61,15 @@ describe('BookCard', () => {
     renderCard({ ...book, frontpage: undefined })
     expect(screen.getByText('Sin portada')).toBeInTheDocument()
   })
+
+  it('muestra mini barra de progreso en READING', () => {
+    renderCard({ ...book, state: BookState.READING, pagesRead: 206 })
+    expect(screen.getByText('50%')).toBeInTheDocument()
+    expect(screen.getByRole('progressbar')).toBeInTheDocument()
+  })
+
+  it('no muestra progreso fuera de READING', () => {
+    renderCard({ ...book, state: BookState.TO_READ, pagesRead: undefined })
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
+  })
 })

@@ -23,15 +23,15 @@ export default function ReadingProgressBar({
 }: ReadingProgressBarProps) {
   const { percent, pagesLeft, isVisible, read, total } = useReadingProgress(pages, pagesRead, state)
 
+  if (state === BookState.READING && !total) {
+    return <p className={`text-caption text-slate ${className}`}>Sin información de páginas</p>
+  }
+
   if (!isVisible) {
     if (state === BookState.COMPLETED) {
       return <p className={`text-caption text-slate ${className}`}>Finalizado</p>
     }
     return null
-  }
-
-  if (!total) {
-    return <p className={`text-caption text-slate ${className}`}>Sin información de páginas</p>
   }
 
   const finished = read >= total

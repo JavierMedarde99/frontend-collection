@@ -93,6 +93,79 @@ describe('BookForm', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('No se pudo guardar.')
   })
 
+  it('en TO_READ no muestra páginas leídas', () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+    expect(screen.queryByPlaceholderText('0')).not.toBeInTheDocument()
+  })
+
+  it('en READING muestra el campo y lo envía en el payload', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+
+    await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.READING)
+    await user.type(screen.getByPlaceholderText('0'), '50')
+    await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
+    await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
+    await user.type(screen.getByPlaceholderText('120'), '412')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]![0]).toMatchObject({ pagesRead: 50 })
+  })
+
+  it('avisa cuando las páginas leídas exceden el total', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+
+    await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.READING)
+    await user.type(screen.getByPlaceholderText('120'), '100')
+    await user.type(screen.getByPlaceholderText('0'), '150')
+    expect(screen.getByText(/No puede exceder el total de páginas/)).toBeInTheDocument()
+  })
+
+  it('al pasar a Por leer resetea las páginas leídas', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+
+    await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.READING)
+    await user.type(screen.getByPlaceholderText('0'), '50')
+    await user.selectOptions(screen.getByDisplayValue('Leyendo'), BookState.TO_READ)
+    expect(screen.queryByPlaceholderText('0')).not.toBeInTheDocument()
+
+    await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
+    await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
+    await user.type(screen.getByPlaceholderText('120'), '412')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]![0]).not.toHaveProperty('pagesRead')
+  })
+
+  it('en COMPLETED conserva las páginas leídas en el payload', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(
+      <BookForm
+        submitLabel="Guardar"
+        onSubmit={onSubmit}
+        initial={{ state: BookState.COMPLETED, pagesRead: 60 }}
+      />,
+    )
+    expect(screen.queryByPlaceholderText('0')).not.toBeInTheDocument()
+
+    await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
+    await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
+    await user.type(screen.getByPlaceholderText('120'), '412')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]![0]).toMatchObject({ pagesRead: 60 })
+  })
+
   it('en creación no muestra páginas leídas aunque el estado sea leyendo', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
