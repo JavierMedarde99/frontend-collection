@@ -30,6 +30,7 @@ export interface BookFormData {
   state: BookState
   descripcion?: string
   pages?: number | ''
+  pagesRead?: number | ''
   comment?: string
   start?: number
   startDate?: string

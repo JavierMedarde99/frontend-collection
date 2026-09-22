@@ -9,6 +9,7 @@ export interface Book {
   author: string
   descripcion?: string
   pages?: number
+  pagesRead?: number
   type: BookType
   state: BookState
   comment?: string
