@@ -92,4 +92,21 @@ describe('BookForm', () => {
     render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} error="No se pudo guardar." />)
     expect(screen.getByRole('alert')).toHaveTextContent('No se pudo guardar.')
   })
+
+  it('en creación no muestra páginas leídas aunque el estado sea leyendo', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+
+    await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.READING)
+    expect(screen.queryByPlaceholderText('0')).not.toBeInTheDocument()
+
+    await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
+    await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
+    await user.type(screen.getByPlaceholderText('120'), '412')
+    await user.click(screen.getByRole('button', { name: 'Guardar libro' }))
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]![0]).not.toHaveProperty('pagesRead')
+  })
 })
