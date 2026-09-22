@@ -68,3 +68,11 @@ export function searchBooksByIsbn(isbn: string, page = 0, size = 10): Promise<Pa
   const qs = new URLSearchParams({ isbn, page: String(page), size: String(size) })
   return request<PageBookSearchResult>(`${apiUrl(BASE_URL)}/search?${qs}`) as Promise<PageBookSearchResult>
 }
+
+// Actualiza solo las páginas leídas sin tocar el resto del libro.
+export function updateReadingProgress(id: string, pagesRead: number): Promise<Book> {
+  return request<Book>(`${apiUrl(BASE_URL)}/${id}/progress`, {
+    method: 'PATCH',
+    body: JSON.stringify({ pagesRead }),
+  }) as Promise<Book>
+}
