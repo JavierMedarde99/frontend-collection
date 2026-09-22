@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
-import { getBook, deleteBook } from '../api/booksApi'
+import { getBook, deleteBook, updateReadingProgress } from '../api/booksApi'
 import type { Book } from '../types'
+import { BookState } from '../types'
 import { TYPE_LABELS, TYPE_BADGE_COLORS } from '../constants/books'
 import StatusBadge from '../components/StatusBadge'
 import StarRating from '../components/StarRating'
@@ -12,6 +13,8 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import OwnerLine from '../components/OwnerLine'
+import ReadingProgressBar from '../components/ReadingProgressBar'
+import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
 
@@ -29,6 +32,10 @@ export default function BookDetailPage() {
   const [deleting, setDeleting] = useState(false)
   const [deleteBusy, setDeleteBusy] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  const notify = useToast()
+  const [savingProgress, setSavingProgress] = useState(false)
+  const [progressError, setProgressError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     if (!id) return
@@ -61,6 +68,22 @@ export default function BookDetailPage() {
       setDeleteError(message)
     } finally {
       setDeleteBusy(false)
+    }
+  }
+
+  async function handleProgressChange(pagesRead: number) {
+    if (!book || !id) return
+    setProgressError(null)
+    setSavingProgress(true)
+    try {
+      const updated = await updateReadingProgress(id, pagesRead)
+      setBook(updated)
+      notify('Progreso actualizado.')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudo actualizar el progreso.'
+      setProgressError(message)
+    } finally {
+      setSavingProgress(false)
     }
   }
 
@@ -165,6 +188,19 @@ export default function BookDetailPage() {
           <div className="border-t border-silver/60 pt-6">
             <h2 className="text-caption text-stone uppercase tracking-wide mb-1.5">Comentario</h2>
             <p className="text-body text-slate whitespace-pre-line">{book.comment}</p>
+          </div>
+        )}
+
+        {(book.state === BookState.READING || book.state === BookState.COMPLETED) && (
+          <div className="border-t border-silver/60 pt-6">
+            <ReadingProgressBar
+              pages={book.pages}
+              pagesRead={book.pagesRead}
+              state={book.state}
+              showInput={book.state === BookState.READING && !savingProgress}
+              onChange={handleProgressChange}
+            />
+            {progressError && <ErrorBanner message={progressError} />}
           </div>
         )}
       </article>
