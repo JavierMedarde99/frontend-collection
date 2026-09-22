@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
 import CardMenu from './CardMenu'
 import OwnerLine from './OwnerLine'
+import ReadingProgressBar from './ReadingProgressBar'
 import StatusBadge from './StatusBadge'
 import StarRating from './StarRating'
 import { TYPE_LABELS, TYPE_BADGE_COLORS } from '../constants/books'
@@ -67,6 +68,7 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
               {TYPE_LABELS[book.type] || book.type}
             </span>
           </div>
+          <ReadingProgressBar pages={book.pages} pagesRead={book.pagesRead} state={book.state} compact className="mt-2" />
         </div>
       </div>
 
