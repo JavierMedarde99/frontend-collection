@@ -100,6 +100,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
     state: BookState.TO_READ,
     descripcion: '',
     pages: '',
+    pagesRead: '',
     comment: '',
     start: 0,
     startDate: '',
@@ -117,6 +118,11 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
   const showEndDate = form.state === BookState.COMPLETED
   const showRating = form.state === BookState.COMPLETED
   const showComment = form.state === BookState.COMPLETED
+  const showReadingProgress = !isCreate && form.state === BookState.READING
+  const pagesReadExceeds = showReadingProgress
+    && form.pagesRead !== '' && form.pagesRead !== undefined
+    && form.pages !== '' && form.pages !== undefined
+    && Number(form.pagesRead) > Number(form.pages)
 
   const set = (key: keyof BookFormData) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const value = e.target.value
@@ -144,6 +150,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
       state: form.state,
       descripcion: form.descripcion?.trim() || undefined,
       pages: Number(form.pages),
+      ...(form.pagesRead !== undefined && form.pagesRead !== '' ? { pagesRead: Number(form.pagesRead) } : {}),
       ...(showComment ? { comment: form.comment?.trim() || undefined } : {}),
       ...(showRating ? { start: form.start || undefined } : {}),
       ...(showStartDate ? { startDate: form.startDate || undefined } : {}),
@@ -187,7 +194,14 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
             </select>
           </Field>
           <Field label="Estado" required>
-            <select className="input" value={form.state} onChange={set('state')}>
+            <select
+              className="input"
+              value={form.state}
+              onChange={(e) => {
+                const next = e.target.value as BookState
+                setForm((f) => ({ ...f, state: next, ...(next === BookState.TO_READ ? { pagesRead: '' as const } : {}) }))
+              }}
+            >
               {Object.entries(BOOK_STATES).map(([key, label]) => (
                 <option key={key} value={key}>
                   {label}
@@ -206,6 +220,24 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
               placeholder="120"
             />
           </Field>
+          {showReadingProgress && (
+            <Field label="Páginas leídas" icon="pages">
+              <input
+                className="input"
+                type="number"
+                min="0"
+                max={form.pages || undefined}
+                value={form.pagesRead ?? ''}
+                onChange={setNumber('pagesRead')}
+                placeholder="0"
+              />
+              {pagesReadExceeds && (
+                <p className="text-caption text-red-600 mt-1">
+                  No puede exceder el total de páginas ({form.pages})
+                </p>
+              )}
+            </Field>
+          )}
         </div>
       </FormSection>
 
