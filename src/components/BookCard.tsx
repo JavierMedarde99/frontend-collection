@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
 import CardMenu from './CardMenu'
 import OwnerLine from './OwnerLine'
 import ReadingProgressBar from './ReadingProgressBar'
+import { updateReadingProgress } from '../api/booksApi'
 import StatusBadge from './StatusBadge'
 import StarRating from './StarRating'
 import { TYPE_LABELS, TYPE_BADGE_COLORS } from '../constants/books'
@@ -17,6 +19,22 @@ interface BookCardProps {
 
 export default function BookCard({ book, index = 0, onDelete, readOnly = false }: BookCardProps) {
   const typeColor = TYPE_BADGE_COLORS[book.type] || TYPE_BADGE_COLORS.NOVEL
+  const [pagesRead, setPagesRead] = useState(book.pagesRead)
+  const [progressError, setProgressError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setPagesRead(book.pagesRead)
+  }, [book.pagesRead])
+
+  async function handleProgressChange(value: number) {
+    setProgressError(null)
+    try {
+      const updated = await updateReadingProgress(book.id, value)
+      setPagesRead(updated.pagesRead ?? value)
+    } catch {
+      setProgressError('No se pudo actualizar el progreso.')
+    }
+  }
   return (
     <article
       className="card card-hover animate-fade-up relative flex flex-col gap-5 group"
@@ -68,7 +86,16 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
               {TYPE_LABELS[book.type] || book.type}
             </span>
           </div>
-          <ReadingProgressBar pages={book.pages} pagesRead={book.pagesRead} state={book.state} compact className="mt-2" />
+          <ReadingProgressBar
+            pages={book.pages}
+            pagesRead={pagesRead}
+            state={book.state}
+            compact
+            showInput={!readOnly}
+            onChange={!readOnly ? handleProgressChange : undefined}
+            className="mt-2"
+          />
+          {progressError && <p className="text-caption text-red-600" role="alert">{progressError}</p>}
         </div>
       </div>
 

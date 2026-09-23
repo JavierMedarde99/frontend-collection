@@ -1,10 +1,22 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import BookCard from '../components/BookCard'
+import { updateReadingProgress } from '../api/booksApi'
 import { BookState } from '../types/BookState'
 import { BookType } from '../types/BookType'
 import type { Book } from '../types/Book'
+
+vi.mock('../api/booksApi', () => ({
+  updateReadingProgress: vi.fn(),
+}))
+
+const mockedProgress = vi.mocked(updateReadingProgress)
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
 
 const book: Book = {
   id: '1',
@@ -71,5 +83,34 @@ describe('BookCard', () => {
   it('no muestra progreso fuera de READING', () => {
     renderCard({ ...book, state: BookState.TO_READ, pagesRead: undefined })
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
+  })
+
+  it('clic en la mini barra abre el modal y guarda el progreso', async () => {
+    const user = userEvent.setup()
+    mockedProgress.mockResolvedValue({ ...book, state: BookState.READING, pagesRead: 300 })
+    renderCard({ ...book, state: BookState.READING, pagesRead: 206 })
+
+    await user.click(screen.getByRole('button', { name: 'Actualizar páginas leídas' }))
+    const input = screen.getByLabelText('Nº de páginas leídas')
+    await user.clear(input)
+    await user.type(input, '300')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    await waitFor(() => expect(mockedProgress).toHaveBeenCalledWith('1', 300))
+    expect(await screen.findByText('73%')).toBeInTheDocument()
+  })
+
+  it('error al guardar muestra alerta en la tarjeta', async () => {
+    const user = userEvent.setup()
+    mockedProgress.mockRejectedValue(new Error('Fallo de red'))
+    renderCard({ ...book, state: BookState.READING, pagesRead: 206 })
+
+    await user.click(screen.getByRole('button', { name: 'Actualizar páginas leídas' }))
+    const input = screen.getByLabelText('Nº de páginas leídas')
+    await user.clear(input)
+    await user.type(input, '300')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo actualizar el progreso.')
   })
 })

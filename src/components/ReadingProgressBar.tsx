@@ -43,7 +43,7 @@ export default function ReadingProgressBar({
   const barHeight = compact ? 'h-1.5' : 'h-2.5'
   const barColor = finished ? 'bg-green-600' : 'bg-action-blue'
 
-  const editable = showInput && !compact && state === BookState.READING && onChange !== undefined
+  const editable = showInput && state === BookState.READING && onChange !== undefined
   const draftValue = draft === '' ? NaN : Number(draft)
   const draftExceeds = draft !== '' && draftValue > total
 
