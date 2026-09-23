@@ -3,15 +3,18 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import BookCard from '../components/BookCard'
-import { updateReadingProgress } from '../api/booksApi'
+import { updateBook, updateReadingProgress } from '../api/booksApi'
 import { BookState } from '../types/BookState'
 import { BookType } from '../types/BookType'
 import type { Book } from '../types/Book'
 
-vi.mock('../api/booksApi', () => ({
+vi.mock('../api/booksApi', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../api/booksApi')>()),
+  updateBook: vi.fn(),
   updateReadingProgress: vi.fn(),
 }))
 
+const mockedUpdate = vi.mocked(updateBook)
 const mockedProgress = vi.mocked(updateReadingProgress)
 
 beforeEach(() => {
@@ -112,5 +115,25 @@ describe('BookCard', () => {
     await user.click(screen.getByRole('button', { name: 'Guardar' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo actualizar el progreso.')
+  })
+
+  it('al llegar al total pide valoración y pasa a completado', async () => {
+    const user = userEvent.setup()
+    mockedUpdate.mockResolvedValue({ ...book, state: BookState.COMPLETED, pagesRead: 412 })
+    renderCard({ ...book, state: BookState.READING, pages: 412, pagesRead: 206 })
+
+    await user.click(screen.getByRole('button', { name: 'Actualizar páginas leídas' }))
+    const input = screen.getByLabelText('Nº de páginas leídas')
+    await user.clear(input)
+    await user.type(input, '412')
+    await user.click(screen.getByRole('radio', { name: '4 estrellas' }))
+    await user.type(screen.getByLabelText('Comentario'), 'Muy bueno')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    await waitFor(() => expect(mockedUpdate).toHaveBeenCalledWith(
+      '1',
+      expect.objectContaining({ state: BookState.COMPLETED, pagesRead: 412 }),
+    ))
+    expect(await screen.findByText('Completado')).toBeInTheDocument()
   })
 })

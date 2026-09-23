@@ -1,13 +1,19 @@
 import { useState } from 'react'
 import { BookState } from '../types'
 import { useReadingProgress } from '../hooks/useReadingProgress'
+import StarRating from './StarRating'
+
+export interface ProgressExtras {
+  start?: number
+  comment?: string
+}
 
 export interface ReadingProgressBarProps {
   pages: number | undefined
   pagesRead: number | undefined
   state: BookState
   showInput?: boolean
-  onChange?: (pagesRead: number) => void
+  onChange?: (pagesRead: number, extras?: ProgressExtras) => void
   className?: string
   compact?: boolean
 }
@@ -25,6 +31,8 @@ export default function ReadingProgressBar({
   const { percent, pagesLeft, isVisible, read, total } = useReadingProgress(pages, pagesRead, state)
   const [modalOpen, setModalOpen] = useState(false)
   const [draft, setDraft] = useState('')
+  const [finishStart, setFinishStart] = useState(0)
+  const [finishComment, setFinishComment] = useState('')
 
   if (state === BookState.READING && !total) {
     return <p className={`text-caption text-slate ${className}`}>Sin información de páginas</p>
@@ -46,16 +54,19 @@ export default function ReadingProgressBar({
   const editable = showInput && state === BookState.READING && onChange !== undefined
   const draftValue = draft === '' ? NaN : Number(draft)
   const draftExceeds = draft !== '' && draftValue > total
+  const draftFinishes = draft !== '' && total > 0 && draftValue === total
 
   function openModal() {
     setDraft(String(read))
+    setFinishStart(0)
+    setFinishComment('')
     setModalOpen(true)
   }
 
   function handleSave() {
     if (draft === '' || Number.isNaN(draftValue) || draftExceeds || !onChange) return
     setModalOpen(false)
-    onChange(draftValue)
+    onChange(draftValue, draftFinishes ? { start: finishStart || undefined, comment: finishComment.trim() || undefined } : undefined)
   }
 
   const bar = (
@@ -122,6 +133,22 @@ export default function ReadingProgressBar({
             />
             {draftExceeds && (
               <p className="text-caption text-red-600 mt-1">No puede exceder el total de páginas</p>
+            )}
+            {draftFinishes && (
+              <div className="mt-4 border-t border-silver/60 pt-4">
+                <p className="text-body font-medium mb-2">¡Última página! Valora el libro</p>
+                <StarRating value={finishStart} onChange={setFinishStart} />
+                <label className="label mt-4" htmlFor="reading-finish-comment">
+                  Comentario
+                </label>
+                <textarea
+                  id="reading-finish-comment"
+                  className="input !h-auto !min-h-[80px] !py-3"
+                  value={finishComment}
+                  onChange={(e) => setFinishComment(e.target.value)}
+                  placeholder="Notas personales…"
+                />
+              </div>
             )}
             <div className="flex justify-end gap-3 mt-6 border-t border-silver/60 pt-5">
               <button type="button" className="btn-ghost" onClick={() => setModalOpen(false)}>

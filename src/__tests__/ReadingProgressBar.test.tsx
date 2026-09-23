@@ -64,7 +64,7 @@ describe('ReadingProgressBar', () => {
     await user.clear(input)
     await user.type(input, '80')
     await user.click(screen.getByRole('button', { name: 'Guardar' }))
-    expect(onChange).toHaveBeenCalledWith(80)
+    expect(onChange).toHaveBeenCalledWith(80, undefined)
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
@@ -94,6 +94,21 @@ describe('ReadingProgressBar', () => {
   it('sin onChange la barra no es clicable', () => {
     render(<ReadingProgressBar pages={100} pagesRead={50} state={BookState.READING} showInput />)
     expect(screen.queryByRole('button', { name: 'Actualizar páginas leídas' })).not.toBeInTheDocument()
+  })
+
+  it('al llegar al total pide valoración y comentario', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(<ReadingProgressBar pages={100} pagesRead={50} state={BookState.READING} showInput onChange={onChange} />)
+    await user.click(screen.getByRole('button', { name: 'Actualizar páginas leídas' }))
+    const input = screen.getByLabelText('Nº de páginas leídas')
+    await user.clear(input)
+    await user.type(input, '100')
+    expect(screen.getByText('¡Última página! Valora el libro')).toBeInTheDocument()
+    await user.click(screen.getByRole('radio', { name: '4 estrellas' }))
+    await user.type(screen.getByLabelText('Comentario'), 'Tremendo final')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+    expect(onChange).toHaveBeenCalledWith(100, { start: 4, comment: 'Tremendo final' })
   })
 
   it('aplica className al contenedor', () => {
