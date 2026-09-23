@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
 import CardMenu from './CardMenu'
 import OwnerLine from './OwnerLine'
-import ReadingProgressBar from './ReadingProgressBar'
-import { updateReadingProgress } from '../api/booksApi'
+import ReadingProgressBar, { type ProgressExtras } from './ReadingProgressBar'
+import { updateBook, updateReadingProgress, bookToFormData } from '../api/booksApi'
+import { BookState } from '../types'
 import StatusBadge from './StatusBadge'
 import StarRating from './StarRating'
 import { TYPE_LABELS, TYPE_BADGE_COLORS } from '../constants/books'
@@ -19,18 +20,31 @@ interface BookCardProps {
 
 export default function BookCard({ book, index = 0, onDelete, readOnly = false }: BookCardProps) {
   const typeColor = TYPE_BADGE_COLORS[book.type] || TYPE_BADGE_COLORS.NOVEL
-  const [pagesRead, setPagesRead] = useState(book.pagesRead)
   const [progressError, setProgressError] = useState<string | null>(null)
+  const [override, setOverride] = useState<Partial<Book>>({})
+
+  const shown = { ...book, ...override }
 
   useEffect(() => {
-    setPagesRead(book.pagesRead)
-  }, [book.pagesRead])
+    setOverride({})
+  }, [book.id, book.pagesRead])
 
-  async function handleProgressChange(value: number) {
+  async function handleProgressChange(value: number, extras?: ProgressExtras) {
     setProgressError(null)
     try {
-      const updated = await updateReadingProgress(book.id, value)
-      setPagesRead(updated.pagesRead ?? value)
+      if (extras) {
+        const updated = await updateBook(book.id, {
+          ...bookToFormData(book),
+          state: BookState.COMPLETED,
+          pagesRead: value,
+          start: extras.start,
+          comment: extras.comment,
+        })
+        setOverride({ state: updated.state, pagesRead: updated.pagesRead, start: updated.start, comment: updated.comment })
+      } else {
+        const updated = await updateReadingProgress(book.id, value)
+        setOverride((o) => ({ ...o, pagesRead: updated.pagesRead ?? value }))
+      }
     } catch {
       setProgressError('No se pudo actualizar el progreso.')
     }
@@ -81,15 +95,15 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
             {readOnly && <OwnerLine owner={book.userOwned} />}
           <p className="text-body-sm text-graphite mt-1 line-clamp-1">{book.author}</p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <StatusBadge state={book.state} />
+            <StatusBadge state={shown.state} />
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-caption font-medium ${typeColor}`}>
               {TYPE_LABELS[book.type] || book.type}
             </span>
           </div>
           <ReadingProgressBar
             pages={book.pages}
-            pagesRead={pagesRead}
-            state={book.state}
+            pagesRead={shown.pagesRead}
+            state={shown.state}
             compact
             showInput={!readOnly}
             onChange={!readOnly ? handleProgressChange : undefined}
@@ -99,12 +113,12 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
         </div>
       </div>
 
-      {book.comment && (
-        <p className="text-body text-slate line-clamp-2">{book.comment}</p>
+      {shown.comment && (
+        <p className="text-body text-slate line-clamp-2">{shown.comment}</p>
       )}
 
       <div className="mt-auto flex items-center justify-between pt-4 border-t border-silver/60">
-        <StarRating value={book.start} readOnly />
+        <StarRating value={shown.start} readOnly />
 {!readOnly && (
         <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/editar/${book.id}`} label={`Editar ${book.title}`}>
           Editar

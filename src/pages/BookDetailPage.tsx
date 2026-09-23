@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
-import { getBook, deleteBook, updateReadingProgress } from '../api/booksApi'
+import { getBook, deleteBook, updateBook, updateReadingProgress, bookToFormData } from '../api/booksApi'
 import type { Book } from '../types'
 import { BookState } from '../types'
 import { TYPE_LABELS, TYPE_BADGE_COLORS } from '../constants/books'
@@ -13,7 +13,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import OwnerLine from '../components/OwnerLine'
-import ReadingProgressBar from '../components/ReadingProgressBar'
+import ReadingProgressBar, { type ProgressExtras } from '../components/ReadingProgressBar'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
@@ -71,14 +71,26 @@ export default function BookDetailPage() {
     }
   }
 
-  async function handleProgressChange(pagesRead: number) {
+  async function handleProgressChange(pagesRead: number, extras?: ProgressExtras) {
     if (!book || !id) return
     setProgressError(null)
     setSavingProgress(true)
     try {
-      const updated = await updateReadingProgress(id, pagesRead)
-      setBook(updated)
-      notify('Progreso actualizado.')
+      if (extras) {
+        const updated = await updateBook(id, {
+          ...bookToFormData(book),
+          state: BookState.COMPLETED,
+          pagesRead,
+          start: extras.start,
+          comment: extras.comment,
+        })
+        setBook(updated)
+        notify('¡Libro completado!')
+      } else {
+        const updated = await updateReadingProgress(id, pagesRead)
+        setBook(updated)
+        notify('Progreso actualizado.')
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo actualizar el progreso.'
       setProgressError(message)

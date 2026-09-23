@@ -59,6 +59,25 @@ export function deleteBook(id: string): Promise<null> {
   return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
+// Construye el payload de crear/editar a partir de un libro de la API.
+export function bookToFormData(book: Book): BookFormData {
+  return {
+    title: book.title,
+    author: book.author,
+    type: book.type,
+    state: book.state,
+    descripcion: book.descripcion,
+    pages: book.pages,
+    pagesRead: book.pagesRead,
+    comment: book.comment,
+    start: book.start,
+    startDate: book.startDate,
+    endDate: book.endDate,
+    frontpage: book.frontpage,
+    externalId: book.externalId,
+  }
+}
+
 export function searchBooksPage(name: string, page = 0, size = 10): Promise<PageBookSearchResult> {
   const qs = new URLSearchParams({ name, page: String(page), size: String(size) })
   return request<PageBookSearchResult>(`${apiUrl(BASE_URL)}/search?${qs}`) as Promise<PageBookSearchResult>

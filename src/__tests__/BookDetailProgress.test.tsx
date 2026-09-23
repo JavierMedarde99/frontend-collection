@@ -3,13 +3,15 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import BookDetailPage from '../pages/BookDetailPage'
-import { deleteBook, getBook, updateReadingProgress } from '../api/booksApi'
+import { deleteBook, getBook, updateBook, updateReadingProgress } from '../api/booksApi'
 import { BookState } from '../types/BookState'
 import { BookType } from '../types/BookType'
 import type { Book } from '../types/Book'
 
-vi.mock('../api/booksApi', () => ({
+vi.mock('../api/booksApi', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../api/booksApi')>()),
   getBook: vi.fn(),
+  updateBook: vi.fn(),
   updateReadingProgress: vi.fn(),
   deleteBook: vi.fn(),
 }))
@@ -19,6 +21,7 @@ vi.mock('../context/AuthContext', () => ({
 }))
 
 const mockedGet = vi.mocked(getBook)
+const mockedUpdate = vi.mocked(updateBook)
 const mockedProgress = vi.mocked(updateReadingProgress)
 
 const readingBook: Book = {
@@ -77,5 +80,24 @@ describe('BookDetailPage progreso', () => {
     await user.type(input, '150')
     await user.click(screen.getByRole('button', { name: 'Guardar' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('Fallo de red')
+  })
+
+  it('al llegar al total guarda valoración y pasa a completado', async () => {
+    const user = userEvent.setup()
+    mockedUpdate.mockResolvedValue({ ...readingBook, state: BookState.COMPLETED, pagesRead: 412 })
+    renderDetail()
+    await user.click(await screen.findByRole('button', { name: 'Actualizar páginas leídas' }))
+    const input = screen.getByLabelText('Nº de páginas leídas')
+    await user.clear(input)
+    await user.type(input, '412')
+    await user.click(screen.getByRole('radio', { name: '5 estrellas' }))
+    await user.type(screen.getByLabelText('Comentario'), 'Obra maestra')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+    await waitFor(() => expect(mockedUpdate).toHaveBeenCalledWith(
+      '1',
+      expect.objectContaining({ state: BookState.COMPLETED, pagesRead: 412, start: 5, comment: 'Obra maestra' }),
+    ))
+    expect(mockedProgress).not.toHaveBeenCalled()
+    expect(await screen.findByText('Finalizado')).toBeInTheDocument()
   })
 })
