@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import ReadingProgressBar from '../components/ReadingProgressBar'
 import { BookState } from '../types/BookState'
@@ -52,17 +53,47 @@ describe('ReadingProgressBar', () => {
     expect(screen.queryByText(/restantes/)).not.toBeInTheDocument()
   })
 
-  it('showInput llama a onChange al editar', () => {
+  it('clic en la barra abre el modal y guardar llama a onChange', async () => {
+    const user = userEvent.setup()
     const onChange = vi.fn()
     render(<ReadingProgressBar pages={100} pagesRead={50} state={BookState.READING} showInput onChange={onChange} />)
-    fireEvent.change(screen.getByLabelText('Páginas leídas'), { target: { value: '80' } })
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Actualizar páginas leídas' }))
+    expect(screen.getByRole('dialog', { name: 'Actualizar páginas leídas' })).toBeInTheDocument()
+    const input = screen.getByLabelText('Nº de páginas leídas')
+    await user.clear(input)
+    await user.type(input, '80')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
     expect(onChange).toHaveBeenCalledWith(80)
-    expect(screen.queryByText('No puede exceder el total de páginas')).not.toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('showInput avisa si el valor excede el total', () => {
-    render(<ReadingProgressBar pages={100} pagesRead={150} state={BookState.READING} showInput onChange={() => {}} />)
+  it('cancelar cierra el modal sin llamar a onChange', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(<ReadingProgressBar pages={100} pagesRead={50} state={BookState.READING} showInput onChange={onChange} />)
+    await user.click(screen.getByRole('button', { name: 'Actualizar páginas leídas' }))
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }))
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('el modal avisa y bloquea si el valor excede el total', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(<ReadingProgressBar pages={100} pagesRead={50} state={BookState.READING} showInput onChange={onChange} />)
+    await user.click(screen.getByRole('button', { name: 'Actualizar páginas leídas' }))
+    const input = screen.getByLabelText('Nº de páginas leídas')
+    await user.clear(input)
+    await user.type(input, '150')
     expect(screen.getByText('No puede exceder el total de páginas')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Guardar' })).toBeDisabled()
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('sin onChange la barra no es clicable', () => {
+    render(<ReadingProgressBar pages={100} pagesRead={50} state={BookState.READING} showInput />)
+    expect(screen.queryByRole('button', { name: 'Actualizar páginas leídas' })).not.toBeInTheDocument()
   })
 
   it('aplica className al contenedor', () => {
