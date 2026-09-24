@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { searchMovieShowsPage, createMovieShow } from '../api/movieshowsApi'
+import { searchMovieShowsPage, createMovieShow, refreshMovieShowProviders } from '../api/movieshowsApi'
 import { MEDIA_TYPES, MOVIE_SHOW_STATES } from '../constants/movieshows'
 import { MediaType, MovieShowStatus } from '../types'
 import type { MovieShowFormData, SearchMovieShowResult } from '../types'
@@ -88,7 +88,7 @@ export default function MovieShowSearch() {
     setSubmitError(null)
     setSaving(selected.externalId)
     try {
-      await createMovieShow({
+      const created = await createMovieShow({
         ...mapResultToMovieShow(selected),
         mediaType: modalMediaType,
         status: modalStatus,
@@ -97,6 +97,12 @@ export default function MovieShowSearch() {
         userRating: showRating && modalUserRating ? modalUserRating : undefined,
         comment: showComment ? modalComment?.trim() || undefined : undefined,
       })
+      try {
+        // Los proveedores son opcionales: si falla el refresco, el alta sigue válida.
+        await refreshMovieShowProviders(created.id)
+      } catch {
+        /* sin proveedores automáticos; se pueden refrescar desde el detalle */
+      }
       setSelected(null)
       navigate('/movieshows')
     } catch (err) {
