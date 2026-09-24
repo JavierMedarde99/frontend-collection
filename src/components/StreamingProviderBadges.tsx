@@ -54,7 +54,8 @@ export default function StreamingProviderBadges({ providers, className = '', com
 
   const groups = new Map<string, StreamingProvider[]>()
   for (const p of providers) {
-    const key = p.type || 'other'
+    // El backend serializa el enum en mayúsculas (FLATRATE); normalizar por si acaso.
+    const key = (p.type || 'other').toLowerCase()
     const list = groups.get(key)
     if (list) list.push(p)
     else groups.set(key, [p])
