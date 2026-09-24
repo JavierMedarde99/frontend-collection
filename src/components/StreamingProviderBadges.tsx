@@ -14,7 +14,14 @@ const TYPE_LABELS: Record<string, string> = {
 
 function ProviderLogo({ provider, size }: { provider: StreamingProvider; size: string }) {
   const label = provider.providerName || 'Plataforma'
-  const logo = provider.logoUrl ? (
+  if (!provider.logoUrl) {
+    return (
+      <span className="text-caption text-graphite border border-silver/60 rounded-md px-2 py-1" title={label}>
+        {label}
+      </span>
+    )
+  }
+  return (
     <img
       src={provider.logoUrl}
       alt={label}
@@ -25,17 +32,7 @@ function ProviderLogo({ provider, size }: { provider: StreamingProvider; size: s
         e.currentTarget.style.display = 'none'
       }}
     />
-  ) : (
-    <span className="text-caption text-graphite border border-silver/60 rounded-md px-2 py-1">{label}</span>
   )
-  if (provider.deepLinkUrl) {
-    return (
-      <a href={provider.deepLinkUrl} target="_blank" rel="noopener noreferrer" title={label}>
-        {logo}
-      </a>
-    )
-  }
-  return <span title={label}>{logo}</span>
 }
 
 /** Logos de plataformas de streaming, agrupados por tipo de acceso. */

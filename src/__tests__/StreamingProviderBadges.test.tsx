@@ -15,10 +15,10 @@ describe('StreamingProviderBadges', () => {
     expect(screen.queryByText('Otras')).not.toBeInTheDocument()
   })
 
-  it('enlaza cada logo con su propia url', () => {
+  it('los logos no son clicables', () => {
     render(<StreamingProviderBadges providers={providers} />)
-    expect(screen.getByRole('link', { name: 'Netflix' })).toHaveAttribute('href', 'https://www.netflix.com/search?q=Dune')
-    expect(screen.queryByRole('link', { name: 'Amazon Video' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    expect(screen.getByAltText('Netflix')).toBeInTheDocument()
   })
 
   it('lista vacía no renderiza nada', () => {
