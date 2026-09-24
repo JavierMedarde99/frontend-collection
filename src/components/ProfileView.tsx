@@ -9,6 +9,8 @@ import SkeletonGrid from '../components/Skeleton'
 import SkeletonInline from '../components/SkeletonInline'
 import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
+import StreamingProviderBadges from '../components/StreamingProviderBadges'
+import type { StreamingProvider } from '../types'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import { usePageTitle } from '../hooks/usePageTitle'
@@ -22,6 +24,7 @@ interface PublicItem {
   subtitle?: string
   imageUrl?: string
   to: string
+  providers?: StreamingProvider[]
 }
 
 function toPublicItem(collection: string, item: any): PublicItem {
@@ -37,7 +40,7 @@ function toPublicItem(collection: string, item: any): PublicItem {
     case 'boardgames':
       return { key: item.id, title: item.title, subtitle: item.publisher, imageUrl: item.imageUrl || item.thumbnailUrl, to: `/boardgames/${item.id}` }
     default:
-      return { key: item.id, title: item.title, subtitle: item.releaseDate?.slice(0, 4), imageUrl: item.posterUrl, to: `/movieshows/${item.id}` }
+      return { key: item.id, title: item.title, subtitle: item.releaseDate?.slice(0, 4), imageUrl: item.posterUrl, to: `/movieshows/${item.id}`, providers: item.streamingProviders }
   }
 }
 
@@ -208,6 +211,7 @@ export default function ProfileView({ username }: ProfileViewProps) {
                           {item.subtitle && (
                             <p className="text-caption text-graphite mt-1 line-clamp-1">{item.subtitle}</p>
                           )}
+                          <StreamingProviderBadges providers={item.providers} compact className="mt-2" />
                         </div>
                       </article>
                     ))}
