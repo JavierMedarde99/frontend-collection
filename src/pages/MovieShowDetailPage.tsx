@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
-import { getMovieShow, deleteMovieShow } from '../api/movieshowsApi'
+import { getMovieShow, deleteMovieShow, refreshMovieShowProviders } from '../api/movieshowsApi'
 import type { MovieShow } from '../types'
 import { MEDIA_TYPE_LABELS, MEDIA_TYPE_BADGE_COLORS } from '../constants/movieshows'
 import MovieShowStatusBadge from '../components/MovieShowStatusBadge'
@@ -12,6 +12,8 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import OwnerLine from '../components/OwnerLine'
+import StreamingProviderBadges from '../components/StreamingProviderBadges'
+import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
 
@@ -29,6 +31,10 @@ export default function MovieShowDetailPage() {
   const [deleting, setDeleting] = useState(false)
   const [deleteBusy, setDeleteBusy] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  const notify = useToast()
+  const [refreshing, setRefreshing] = useState(false)
+  const [refreshError, setRefreshError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     if (!id) return
@@ -49,6 +55,21 @@ export default function MovieShowDetailPage() {
     load()
   }, [load])
 
+  async function handleRefreshProviders() {
+    if (!id) return
+    setRefreshError(null)
+    setRefreshing(true)
+    try {
+      const updated = await refreshMovieShowProviders(id)
+      setMovieShow(updated)
+      notify('Disponibilidad actualizada.')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudo actualizar la disponibilidad.'
+      setRefreshError(message)
+    } finally {
+      setRefreshing(false)
+    }
+  }
   async function confirmDelete() {
     if (!id) return
     setDeleteError(null)
@@ -90,6 +111,8 @@ export default function MovieShowDetailPage() {
 
   const typeColor = MEDIA_TYPE_BADGE_COLORS[movieShow.mediaType]
   const year = movieShow.releaseDate ? movieShow.releaseDate.slice(0, 4) : null
+  const canEdit = isAuthenticated && (!movieShow.userOwned?.username || movieShow.userOwned.username === user?.username)
+  const hasProviders = !!movieShow.streamingProviders && movieShow.streamingProviders.length > 0
 
   const details: { label: string; value: string }[] = [
     ...(year ? [{ label: 'Año', value: year }] : []),
@@ -108,8 +131,7 @@ export default function MovieShowDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
-        {isAuthenticated && (!movieShow.userOwned?.username || movieShow.userOwned.username === user?.username) && (
-        <div className="flex items-center gap-2">
+        {canEdit && (        <div className="flex items-center gap-2">
           <Link className="btn-ghost !px-4 !py-2" to={`/movieshows/editar/${movieShow.id}`}>
             Editar
           </Link>
@@ -177,6 +199,30 @@ export default function MovieShowDetailPage() {
           <div className="border-t border-silver/60 pt-6">
             <h2 className="text-caption text-stone uppercase tracking-wide mb-1.5">Comentario</h2>
             <p className="text-body text-slate whitespace-pre-line">{movieShow.comment}</p>
+          </div>
+        )}
+
+        {(hasProviders || canEdit) && (
+          <div className="border-t border-silver/60 pt-6">
+            <div className="flex items-center justify-between gap-4 mb-3">
+              <h2 className="text-caption text-stone uppercase tracking-wide">Disponible en</h2>
+              {canEdit && (
+                <button
+                  type="button"
+                  className="btn-ghost !px-3 !py-1.5"
+                  onClick={handleRefreshProviders}
+                  disabled={refreshing}
+                >
+                  {refreshing ? 'Actualizando…' : 'Actualizar disponibilidad'}
+                </button>
+              )}
+            </div>
+            {hasProviders ? (
+              <StreamingProviderBadges providers={movieShow.streamingProviders} />
+            ) : (
+              <p className="text-caption text-slate">No hay información de plataformas disponibles</p>
+            )}
+            {refreshError && <ErrorBanner message={refreshError} />}
           </div>
         )}
       </article>
