@@ -2,6 +2,17 @@ import { MediaType } from './MovieType'
 import { MovieShowStatus } from './MovieShowStatus'
 import type { UserOwned } from './Api'
 
+export interface StreamingProvider {
+  providerId?: number
+  providerName?: string
+  logoUrl?: string
+  type?: string
+  deepLinkUrl?: string
+}
+
+export type StreamingProviderRequest = StreamingProvider
+export type StreamingProviderResponse = StreamingProvider
+
 export interface MovieShow {
   id: string
   externalId?: string
@@ -18,6 +29,8 @@ export interface MovieShow {
   dateAdded?: string
   dateCompleted?: string
   externalSource?: string
+  streamingProviders?: StreamingProvider[]
+  watchCountry?: string
   userOwned?: UserOwned | null
 }
 
@@ -36,6 +49,8 @@ export interface MovieShowFormData {
   dateAdded?: string
   dateCompleted?: string
   externalSource?: string
+  streamingProviders?: StreamingProvider[]
+  watchCountry?: string
 }
 
 export interface SearchMovieShowResult {

@@ -59,6 +59,13 @@ export function deleteMovieShow(id: string): Promise<null> {
   return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
+// Re-consulta los proveedores de streaming en TMDB para un título existente.
+export function refreshMovieShowProviders(id: string): Promise<MovieShow> {
+  return request<MovieShow>(`${apiUrl(BASE_URL)}/${id}/refresh-providers`, {
+    method: 'POST',
+  }) as Promise<MovieShow>
+}
+
 export function searchMovieShows(name: string, mediaType?: MediaType): Promise<SearchMovieShowResult[]> {
   const qs = new URLSearchParams({ name })
   if (mediaType) qs.set('mediaType', mediaType)
