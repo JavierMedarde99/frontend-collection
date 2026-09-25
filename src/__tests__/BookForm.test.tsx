@@ -182,4 +182,25 @@ describe('BookForm', () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit.mock.calls[0]![0]).not.toHaveProperty('pagesRead')
   })
+
+  it('envía los géneros seleccionados en el payload', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+
+    await user.click(screen.getByRole('button', { name: 'Fantasía' }))
+    await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
+    await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
+    await user.type(screen.getByPlaceholderText('120'), '412')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]![0]).toMatchObject({ genres: ['Fantasía'] })
+  })
+
+  it('precarga los géneros al editar', () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} initial={{ genres: ['Terror'] }} />)
+    expect(screen.getByRole('button', { name: 'Terror' })).toHaveAttribute('aria-pressed', 'true')
+  })
 })

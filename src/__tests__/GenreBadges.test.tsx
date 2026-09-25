@@ -1,0 +1,21 @@
+import { render, screen } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
+import GenreBadges from '../components/GenreBadges'
+
+describe('GenreBadges', () => {
+  it('muestra un tag por género', () => {
+    render(<GenreBadges genres={['Fantasía', 'Terror']} />)
+    expect(screen.getByText('Fantasía')).toBeInTheDocument()
+    expect(screen.getByText('Terror')).toBeInTheDocument()
+  })
+
+  it('sin géneros no renderiza nada', () => {
+    const { container } = render(<GenreBadges genres={[]} />)
+    expect(container).toBeEmptyDOMElement()
+  })
+
+  it('sin prop no renderiza nada', () => {
+    const { container } = render(<GenreBadges genres={undefined} />)
+    expect(container).toBeEmptyDOMElement()
+  })
+})
