@@ -17,6 +17,7 @@ export interface ListBooksParams {
   sort?: string
   state?: BookState | ''
   type?: BookType | ''
+  genre?: string
   name?: string
   author?: string
   owner?: 'mine' | 'other' | ''
@@ -31,6 +32,7 @@ export interface BookFormData {
   descripcion?: string
   pages?: number | ''
   pagesRead?: number | ''
+  genres?: string[]
   comment?: string
   start?: number
   startDate?: string

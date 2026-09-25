@@ -24,13 +24,14 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T | n
 
 export function listMovieShows(params: ListMovieShowsParams = {}): Promise<PageMovieShowResponse> {
   const search = new URLSearchParams()
-  const { page, size, sort, name, status, mediaType , owner, viewerId } = params
+  const { page, size, sort, name, status, mediaType , genre, owner, viewerId } = params
   if (page !== undefined && page !== null) search.set('page', String(page))
   if (size !== undefined && size !== null) search.set('size', String(size))
   if (sort) search.set('sort', sort)
   if (name) search.set('name', name)
   if (status) search.set('status', status)
   if (mediaType) search.set('mediaType', mediaType)
+  if (genre) search.set('genre', genre)
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()

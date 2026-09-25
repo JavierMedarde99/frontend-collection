@@ -10,6 +10,7 @@ export interface Book {
   descripcion?: string
   pages?: number
   pagesRead?: number
+  genres?: string[]
   type: BookType
   state: BookState
   comment?: string

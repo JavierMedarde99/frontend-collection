@@ -18,6 +18,7 @@ export interface ListGamesParams {
   name?: string
   platform?: GamePlatform | ''
   status?: GameStatus | ''
+  genre?: string
   owner?: 'mine' | 'other' | ''
   viewerId?: string
 }
@@ -35,6 +36,7 @@ export interface GameFormData {
   externalId?: string
   obtainPlatinum?: boolean
   steamAppId?: string
+  genres?: string[]
 }
 
 export interface SearchGameResult {
