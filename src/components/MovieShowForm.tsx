@@ -9,6 +9,7 @@ import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import FormSection from './FormSection'
 import GenreSelect from './GenreSelect'
 import { MOVIESHOW_GENRES } from '../constants/genres'
+import { listMovieShowGenres } from '../api/movieshowsApi'
 
 interface FieldProps {
   label: string
@@ -147,6 +148,7 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
               options={MOVIESHOW_GENRES}
               value={form.genres ?? []}
               onChange={(genres) => setForm((f) => ({ ...f, genres }))}
+              fetchSuggestions={listMovieShowGenres}
             />
           </Field>
         </div>

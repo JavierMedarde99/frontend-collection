@@ -1,14 +1,31 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface GenreSelectProps {
   options: string[]
   value: string[]
   onChange: (next: string[]) => void
+  fetchSuggestions?: () => Promise<string[]>
 }
 
-/** Multiselect de géneros: chips de la lista cerrada + alta de personalizados. */
-export default function GenreSelect({ options, value, onChange }: GenreSelectProps) {
+/** Multiselect de géneros: lista cerrada + en uso (backend) + personalizados. */
+export default function GenreSelect({ options, value, onChange, fetchSuggestions }: GenreSelectProps) {
   const [custom, setCustom] = useState('')
+  const [suggestions, setSuggestions] = useState<string[]>([])
+
+  useEffect(() => {
+    if (!fetchSuggestions) return
+    let cancelled = false
+    fetchSuggestions()
+      .then((list) => {
+        if (!cancelled && Array.isArray(list)) setSuggestions(list)
+      })
+      .catch(() => {
+        // Sin sugerencias: el selector sigue con la lista cerrada.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [fetchSuggestions])
 
   function toggle(genre: string) {
     onChange(value.includes(genre) ? value.filter((g) => g !== genre) : [...value, genre])
@@ -23,12 +40,17 @@ export default function GenreSelect({ options, value, onChange }: GenreSelectPro
     setCustom('')
   }
 
-  const customOptions = value.filter((g) => !options.includes(g))
+  const seen = new Set(options)
+  const extra = [...suggestions, ...value].filter((g) => {
+    if (seen.has(g)) return false
+    seen.add(g)
+    return true
+  })
 
   return (
     <div>
       <div className="flex flex-wrap gap-2">
-        {[...options, ...customOptions].map((genre) => {
+        {[...options, ...extra].map((genre) => {
           const active = value.includes(genre)
           return (
             <button

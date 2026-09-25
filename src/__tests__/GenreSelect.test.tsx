@@ -45,4 +45,19 @@ describe('GenreSelect', () => {
     render(<GenreSelect options={OPTIONS} value={['Space opera']} onChange={() => {}} />)
     expect(screen.getByRole('button', { name: 'Space opera' })).toHaveAttribute('aria-pressed', 'true')
   })
+
+  it('muestra sugerencias del backend junto a la lista cerrada', async () => {
+    render(
+      <GenreSelect options={OPTIONS} value={[]} onChange={() => {}} fetchSuggestions={() => Promise.resolve(['Space opera', 'Fantasía'])} />,
+    )
+    expect(await screen.findByRole('button', { name: 'Space opera' })).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Fantasía' })).toHaveLength(1)
+  })
+
+  it('si fallan las sugerencias sigue la lista cerrada', async () => {
+    render(
+      <GenreSelect options={OPTIONS} value={[]} onChange={() => {}} fetchSuggestions={() => Promise.reject(new Error('caído'))} />,
+    )
+    expect(screen.getByRole('button', { name: 'Fantasía' })).toBeInTheDocument()
+  })
 })
