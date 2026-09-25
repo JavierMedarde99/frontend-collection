@@ -46,6 +46,13 @@ describe('GenreSelect', () => {
     expect(screen.getByRole('button', { name: 'Space opera' })).toHaveAttribute('aria-pressed', 'true')
   })
 
+  it('con allowCustom={false} no muestra el input de añadir', () => {
+    render(<GenreSelect options={OPTIONS} value={[]} onChange={() => {}} allowCustom={false} />)
+    expect(screen.queryByLabelText('Añadir género personalizado')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Añadir' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Fantasía' })).toBeInTheDocument()
+  })
+
   it('muestra sugerencias del backend junto a la lista cerrada', async () => {
     render(
       <GenreSelect options={OPTIONS} value={[]} onChange={() => {}} fetchSuggestions={() => Promise.resolve(['Space opera', 'Fantasía'])} />,

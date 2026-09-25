@@ -5,10 +5,11 @@ interface GenreSelectProps {
   value: string[]
   onChange: (next: string[]) => void
   fetchSuggestions?: () => Promise<string[]>
+  allowCustom?: boolean
 }
 
 /** Multiselect de géneros: lista cerrada + en uso (backend) + personalizados. */
-export default function GenreSelect({ options, value, onChange, fetchSuggestions }: GenreSelectProps) {
+export default function GenreSelect({ options, value, onChange, fetchSuggestions, allowCustom = true }: GenreSelectProps) {
   const [custom, setCustom] = useState('')
   const [suggestions, setSuggestions] = useState<string[]>([])
 
@@ -69,24 +70,26 @@ export default function GenreSelect({ options, value, onChange, fetchSuggestions
           )
         })}
       </div>
-      <div className="flex gap-2 mt-3">
-        <input
-          className="input"
-          value={custom}
-          onChange={(e) => setCustom(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              addCustom()
-            }
-          }}
-          placeholder="Otro género…"
-          aria-label="Añadir género personalizado"
-        />
-        <button type="button" className="btn-ghost !px-4 shrink-0" onClick={addCustom}>
-          Añadir
-        </button>
-      </div>
+      {allowCustom && (
+        <div className="flex gap-2 mt-3">
+          <input
+            className="input"
+            value={custom}
+            onChange={(e) => setCustom(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                addCustom()
+              }
+            }}
+            placeholder="Otro género…"
+            aria-label="Añadir género personalizado"
+          />
+          <button type="button" className="btn-ghost !px-4 shrink-0" onClick={addCustom}>
+            Añadir
+          </button>
+        </div>
+      )}
     </div>
   )
 }
