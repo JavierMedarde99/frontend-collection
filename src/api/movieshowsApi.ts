@@ -60,6 +60,11 @@ export function deleteMovieShow(id: string): Promise<null> {
   return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
+// Catálogo de géneros en uso en la colección (para autocompletar el selector).
+export function listMovieShowGenres(): Promise<string[]> {
+  return request<string[]>(`${apiUrl(BASE_URL)}/genres`) as Promise<string[]>
+}
+
 // Re-consulta los proveedores de streaming en TMDB para un título existente.
 export function refreshMovieShowProviders(id: string): Promise<MovieShow> {
   return request<MovieShow>(`${apiUrl(BASE_URL)}/${id}/refresh-providers`, {

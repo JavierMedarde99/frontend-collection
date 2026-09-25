@@ -58,6 +58,11 @@ export function deleteBoardGame(id: string): Promise<null> {
   return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
+// Catálogo de géneros en uso en la colección (para autocompletar el selector).
+export function listBoardGameGenres(): Promise<string[]> {
+  return request<string[]>(`${apiUrl(BASE_URL)}/genres`) as Promise<string[]>
+}
+
 export async function searchBoardGames(name: string): Promise<BoardGameSearchResult[]> {
   const data = await request<BoardGameSearchResponse>(`${apiUrl(BASE_URL)}/search?name=${encodeURIComponent(name)}`)
   const results = data?.results
