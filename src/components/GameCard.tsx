@@ -4,6 +4,7 @@ import CardMenu from './CardMenu'
 import OwnerLine from './OwnerLine'
 import GameStatusBadge from './GameStatusBadge'
 import GamePlatformBadge from './GamePlatformBadge'
+import GenreBadges from './GenreBadges'
 import GamePlatinumBadge from './GamePlatinumBadge'
 import StarRating from './StarRating'
 import { GamePlatform } from '../types'
@@ -66,6 +67,7 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
             <GamePlatformBadge platform={game.platform} />
             <GamePlatinumBadge game={game} />
           </div>
+          <GenreBadges genres={game.genres} className="mt-2" />
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listGames, deleteGame } from '../api/gamesApi'
 import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
+import { GAME_GENRES } from '../constants/genres'
 import { GamePlatform, GameStatus, type Game } from '../types'
 import GameCard from '../components/GameCard'
 import SkeletonGrid from '../components/Skeleton'
@@ -31,10 +32,11 @@ export default function GameListPage() {
   const [query, setQuery] = useListQuery({
     status: '' as GameStatus | '',
     platform: '' as GamePlatform | '',
+    genre: '',
     name: '',
     sort: 'title,asc',
   })
-  const { status, platform: platformFilter, name: nameFilter, sort } = query
+  const { status, platform: platformFilter, genre: genreFilter, name: nameFilter, sort } = query
 
   const { isAuthenticated, user } = useAuth()
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
@@ -57,12 +59,13 @@ export default function GameListPage() {
         size,
         status: status || undefined,
         platform: platformFilter || undefined,
+        genre: genreFilter || undefined,
         name: nameFilter || undefined,
         owner: effectiveTab,
         viewerId: user?.id || undefined,
         sort,
       }),
-    deps: [status, platformFilter, nameFilter, sort, effectiveTab, user?.id],
+    deps: [status, platformFilter, genreFilter, nameFilter, sort, effectiveTab, user?.id],
   })
 
 
@@ -73,12 +76,12 @@ export default function GameListPage() {
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ status: '', platform: '', name: '' })
+    setQuery({ status: '', platform: '', genre: '', name: '' })
   }
 
-  const hasActiveFilters = Boolean(status || platformFilter || nameFilter)
+  const hasActiveFilters = Boolean(status || platformFilter || genreFilter || nameFilter)
 
-  const activeFilterCount = [platformFilter, nameFilter].filter(Boolean).length
+  const activeFilterCount = [platformFilter, genreFilter, nameFilter].filter(Boolean).length
 
   return (
     <section className="flex flex-col gap-24">
@@ -156,6 +159,20 @@ export default function GameListPage() {
               {Object.entries(GAME_PLATFORMS).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
               ))}
+            </select>
+            <select
+              className="input md:w-48"
+              value={genreFilter}
+              onChange={(e) => { setQuery({ genre: e.target.value }) }}
+              aria-label="Filtrar por género"
+            >
+              <option value="">Todos los géneros</option>
+              {GAME_GENRES.map((genre) => (
+                <option key={genre} value={genre}>{genre}</option>
+              ))}
+              {genreFilter && !GAME_GENRES.includes(genreFilter) && (
+                <option value={genreFilter}>{genreFilter}</option>
+              )}
             </select>
           </div>
         </div>
