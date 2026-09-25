@@ -53,6 +53,30 @@ describe('GenreSelect', () => {
     expect(screen.getByRole('button', { name: 'Fantasía' })).toBeInTheDocument()
   })
 
+  it('dropdown: cerrado muestra resumen y abre con checkboxes', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(<GenreSelect options={OPTIONS} value={[]} onChange={onChange} dropdown allowCustom={false} />)
+    expect(screen.getByRole('button', { name: 'Todos los géneros' })).toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Elegir géneros' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Todos los géneros' }))
+    const box = screen.getByRole('checkbox', { name: 'Fantasía' })
+    expect(box).not.toBeChecked()
+    await user.click(box)
+    expect(onChange).toHaveBeenCalledWith(['Fantasía'])
+  })
+
+  it('dropdown: muestra el conteo de elegidos y limpia', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(<GenreSelect options={OPTIONS} value={['Fantasía', 'Terror']} onChange={onChange} dropdown allowCustom={false} />)
+    expect(screen.getByRole('button', { name: '2 géneros' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '2 géneros' }))
+    await user.click(screen.getByRole('button', { name: 'Limpiar' }))
+    expect(onChange).toHaveBeenCalledWith([])
+  })
+
   it('muestra sugerencias del backend junto a la lista cerrada', async () => {
     render(
       <GenreSelect options={OPTIONS} value={[]} onChange={() => {}} fetchSuggestions={() => Promise.resolve(['Space opera', 'Fantasía'])} />,
