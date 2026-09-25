@@ -3,6 +3,8 @@ import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
 import { BookType, BookState } from '../types'
 import type { BookFormData } from '../types'
 import StarRating from './StarRating'
+import GenreSelect from './GenreSelect'
+import { BOOK_GENRES } from '../constants/genres'
 import FormSection from './FormSection'
 import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
@@ -101,6 +103,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
     descripcion: '',
     pages: '',
     pagesRead: '',
+    genres: [],
     comment: '',
     start: 0,
     startDate: '',
@@ -150,6 +153,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
       state: form.state,
       descripcion: form.descripcion?.trim() || undefined,
       pages: Number(form.pages),
+      genres: form.genres ?? [],
       ...(form.pagesRead !== undefined && form.pagesRead !== '' ? { pagesRead: Number(form.pagesRead) } : {}),
       ...(showComment ? { comment: form.comment?.trim() || undefined } : {}),
       ...(showRating ? { start: form.start || undefined } : {}),
@@ -238,6 +242,15 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
               )}
             </Field>
           )}
+        </div>
+        <div className="mt-6">
+          <Field label="Géneros">
+            <GenreSelect
+              options={BOOK_GENRES}
+              value={form.genres ?? []}
+              onChange={(genres) => setForm((f) => ({ ...f, genres }))}
+            />
+          </Field>
         </div>
       </FormSection>
 

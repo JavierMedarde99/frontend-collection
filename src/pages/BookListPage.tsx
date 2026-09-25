@@ -8,6 +8,7 @@ import BookCard from '../components/BookCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
+import { BOOK_GENRES } from '../constants/genres'
 import SkeletonInline from '../components/SkeletonInline'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
@@ -32,11 +33,12 @@ export default function BookListPage() {
   const [query, setQuery] = useListQuery({
     status: '' as BookState | '',
     type: '' as BookType | '',
+    genre: '',
     name: '',
     author: '',
     sort: 'title,asc',
   })
-  const { status, type: typeFilter, name: nameFilter, author: authorFilter, sort } = query
+  const { status, type: typeFilter, genre: genreFilter, name: nameFilter, author: authorFilter, sort } = query
 
   const { isAuthenticated, user } = useAuth()
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
@@ -60,13 +62,14 @@ export default function BookListPage() {
         size,
         state: status || undefined,
         type: typeFilter || undefined,
+        genre: genreFilter || undefined,
         name: nameFilter || undefined,
         author: authorFilter || undefined,
         owner: effectiveTab,
         viewerId: user?.id || undefined,
         sort,
       }),
-    deps: [status, typeFilter, nameFilter, authorFilter, sort, effectiveTab, user?.id],
+    deps: [status, typeFilter, genreFilter, nameFilter, authorFilter, sort, effectiveTab, user?.id],
   })
 
   function handleNameSearch(e: FormEvent) {
@@ -82,13 +85,13 @@ export default function BookListPage() {
   function clearFilters() {
     setNameInput('')
     setAuthorInput('')
-    setQuery({ status: '', type: '', name: '', author: '' })
+    setQuery({ status: '', type: '', genre: '', name: '', author: '' })
   }
 
-  const hasActiveFilters = Boolean(status || typeFilter || nameFilter || authorFilter)
+  const hasActiveFilters = Boolean(status || typeFilter || genreFilter || nameFilter || authorFilter)
 
   const activeFilterCount =
-    [typeFilter, nameFilter, authorFilter].filter(Boolean).length
+    [typeFilter, genreFilter, nameFilter, authorFilter].filter(Boolean).length
 
   return (
     <section className="flex flex-col gap-24">
@@ -174,6 +177,20 @@ export default function BookListPage() {
             {Object.entries(BOOK_TYPES).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
             ))}
+          </select>
+          <select
+            className="input md:w-48"
+            value={genreFilter}
+            onChange={(e) => setQuery({ genre: e.target.value })}
+            aria-label="Filtrar por género"
+          >
+            <option value="">Todos los géneros</option>
+            {BOOK_GENRES.map((genre) => (
+              <option key={genre} value={genre}>{genre}</option>
+            ))}
+            {genreFilter && !BOOK_GENRES.includes(genreFilter) && (
+              <option value={genreFilter}>{genreFilter}</option>
+            )}
           </select>
         </div>
         </div>
