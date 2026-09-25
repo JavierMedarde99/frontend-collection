@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { listGames, deleteGame } from '../api/gamesApi'
 import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
 import { GAME_GENRES } from '../constants/genres'
+import { useGenreOptions } from '../hooks/useGenreOptions'
+import { listGameGenres } from '../api/gamesApi'
 import { GamePlatform, GameStatus, type Game } from '../types'
 import GameCard from '../components/GameCard'
 import SkeletonGrid from '../components/Skeleton'
@@ -37,6 +39,7 @@ export default function GameListPage() {
     sort: 'title,asc',
   })
   const { status, platform: platformFilter, genre: genreFilter, name: nameFilter, sort } = query
+  const genreOptions = useGenreOptions(GAME_GENRES, listGameGenres)
 
   const { isAuthenticated, user } = useAuth()
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
@@ -167,10 +170,10 @@ export default function GameListPage() {
               aria-label="Filtrar por género"
             >
               <option value="">Todos los géneros</option>
-              {GAME_GENRES.map((genre) => (
+              {genreOptions.map((genre) => (
                 <option key={genre} value={genre}>{genre}</option>
               ))}
-              {genreFilter && !GAME_GENRES.includes(genreFilter) && (
+              {genreFilter && !genreOptions.includes(genreFilter) && (
                 <option value={genreFilter}>{genreFilter}</option>
               )}
             </select>

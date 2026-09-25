@@ -9,6 +9,8 @@ import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
 import { BOOK_GENRES } from '../constants/genres'
+import { useGenreOptions } from '../hooks/useGenreOptions'
+import { listBookGenres } from '../api/booksApi'
 import SkeletonInline from '../components/SkeletonInline'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
@@ -39,6 +41,7 @@ export default function BookListPage() {
     sort: 'title,asc',
   })
   const { status, type: typeFilter, genre: genreFilter, name: nameFilter, author: authorFilter, sort } = query
+  const genreOptions = useGenreOptions(BOOK_GENRES, listBookGenres)
 
   const { isAuthenticated, user } = useAuth()
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
@@ -185,10 +188,10 @@ export default function BookListPage() {
             aria-label="Filtrar por género"
           >
             <option value="">Todos los géneros</option>
-            {BOOK_GENRES.map((genre) => (
+            {genreOptions.map((genre) => (
               <option key={genre} value={genre}>{genre}</option>
             ))}
-            {genreFilter && !BOOK_GENRES.includes(genreFilter) && (
+            {genreFilter && !genreOptions.includes(genreFilter) && (
               <option value={genreFilter}>{genreFilter}</option>
             )}
           </select>

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { listBoardGames, deleteBoardGame } from '../api/boardgamesApi'
 import { BOARD_GAME_STATES } from '../constants/boardGames'
 import { BOARDGAME_GENRES } from '../constants/genres'
+import { useGenreOptions } from '../hooks/useGenreOptions'
+import { listBoardGameGenres } from '../api/boardgamesApi'
 import { BoardGameStatus, type BoardGame } from '../types'
 import BoardGameCard from '../components/BoardGameCard'
 import SkeletonGrid from '../components/Skeleton'
@@ -36,6 +38,7 @@ export default function BoardGameListPage() {
     sort: 'title,asc',
   })
   const { status, genre: genreFilter, name: nameFilter, sort } = query
+  const genreOptions = useGenreOptions(BOARDGAME_GENRES, listBoardGameGenres)
 
   const { isAuthenticated, user } = useAuth()
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
@@ -154,10 +157,10 @@ export default function BoardGameListPage() {
               aria-label="Filtrar por género"
             >
               <option value="">Todos los géneros</option>
-              {BOARDGAME_GENRES.map((genre) => (
+              {genreOptions.map((genre) => (
                 <option key={genre} value={genre}>{genre}</option>
               ))}
-              {genreFilter && !BOARDGAME_GENRES.includes(genreFilter) && (
+              {genreFilter && !genreOptions.includes(genreFilter) && (
                 <option value={genreFilter}>{genreFilter}</option>
               )}
             </select>
