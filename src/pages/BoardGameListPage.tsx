@@ -158,6 +158,7 @@ export default function BoardGameListPage() {
                 options={genreOptions}
                 value={genreFilter}
                 onChange={(genres) => setQuery({ genre: genres })}
+                allowCustom={false}
               />
             </div>
           </div>
