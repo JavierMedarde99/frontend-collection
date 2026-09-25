@@ -8,7 +8,6 @@ import BookCard from '../components/BookCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
-import { BOOK_GENRES } from '../constants/genres'
 import { useGenreOptions } from '../hooks/useGenreOptions'
 import { listBookGenres } from '../api/booksApi'
 import SkeletonInline from '../components/SkeletonInline'
@@ -41,7 +40,7 @@ export default function BookListPage() {
     sort: 'title,asc',
   })
   const { status, type: typeFilter, genre: genreFilter, name: nameFilter, author: authorFilter, sort } = query
-  const genreOptions = useGenreOptions(BOOK_GENRES, listBookGenres)
+  const genreOptions = useGenreOptions(listBookGenres)
 
   const { isAuthenticated, user } = useAuth()
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')

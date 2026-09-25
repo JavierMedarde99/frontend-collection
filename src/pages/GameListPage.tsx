@@ -2,7 +2,6 @@ import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listGames, deleteGame } from '../api/gamesApi'
 import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
-import { GAME_GENRES } from '../constants/genres'
 import { useGenreOptions } from '../hooks/useGenreOptions'
 import { listGameGenres } from '../api/gamesApi'
 import { GamePlatform, GameStatus, type Game } from '../types'
@@ -39,7 +38,7 @@ export default function GameListPage() {
     sort: 'title,asc',
   })
   const { status, platform: platformFilter, genre: genreFilter, name: nameFilter, sort } = query
-  const genreOptions = useGenreOptions(GAME_GENRES, listGameGenres)
+  const genreOptions = useGenreOptions(listGameGenres)
 
   const { isAuthenticated, user } = useAuth()
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')

@@ -2,7 +2,6 @@ import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listMovieShows, deleteMovieShow } from '../api/movieshowsApi'
 import { MEDIA_TYPES, MOVIE_SHOW_STATES } from '../constants/movieshows'
-import { MOVIESHOW_GENRES } from '../constants/genres'
 import { useGenreOptions } from '../hooks/useGenreOptions'
 import { listMovieShowGenres } from '../api/movieshowsApi'
 import { MediaType, MovieShowStatus, type MovieShow } from '../types'
@@ -39,7 +38,7 @@ export default function MovieShowListPage() {
     sort: 'title,asc',
   })
   const { status, mediaType: mediaTypeFilter, genre: genreFilter, name: nameFilter, sort } = query
-  const genreOptions = useGenreOptions(MOVIESHOW_GENRES, listMovieShowGenres)
+  const genreOptions = useGenreOptions(listMovieShowGenres)
 
   const { isAuthenticated, user } = useAuth()
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
