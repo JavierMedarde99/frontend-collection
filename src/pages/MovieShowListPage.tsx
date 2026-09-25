@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { listMovieShows, deleteMovieShow } from '../api/movieshowsApi'
 import { MEDIA_TYPES, MOVIE_SHOW_STATES } from '../constants/movieshows'
 import { MOVIESHOW_GENRES } from '../constants/genres'
+import { useGenreOptions } from '../hooks/useGenreOptions'
+import { listMovieShowGenres } from '../api/movieshowsApi'
 import { MediaType, MovieShowStatus, type MovieShow } from '../types'
 import MovieShowCard from '../components/MovieShowCard'
 import SkeletonGrid from '../components/Skeleton'
@@ -37,6 +39,7 @@ export default function MovieShowListPage() {
     sort: 'title,asc',
   })
   const { status, mediaType: mediaTypeFilter, genre: genreFilter, name: nameFilter, sort } = query
+  const genreOptions = useGenreOptions(MOVIESHOW_GENRES, listMovieShowGenres)
 
   const { isAuthenticated, user } = useAuth()
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
@@ -167,10 +170,10 @@ export default function MovieShowListPage() {
               aria-label="Filtrar por género"
             >
               <option value="">Todos los géneros</option>
-              {MOVIESHOW_GENRES.map((genre) => (
+              {genreOptions.map((genre) => (
                 <option key={genre} value={genre}>{genre}</option>
               ))}
-              {genreFilter && !MOVIESHOW_GENRES.includes(genreFilter) && (
+              {genreFilter && !genreOptions.includes(genreFilter) && (
                 <option value={genreFilter}>{genreFilter}</option>
               )}
             </select>
