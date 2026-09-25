@@ -5,6 +5,7 @@ import type { BookFormData } from '../types'
 import StarRating from './StarRating'
 import GenreSelect from './GenreSelect'
 import { BOOK_GENRES } from '../constants/genres'
+import { listBookGenres } from '../api/booksApi'
 import FormSection from './FormSection'
 import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
@@ -249,6 +250,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
               options={BOOK_GENRES}
               value={form.genres ?? []}
               onChange={(genres) => setForm((f) => ({ ...f, genres }))}
+              fetchSuggestions={listBookGenres}
             />
           </Field>
         </div>

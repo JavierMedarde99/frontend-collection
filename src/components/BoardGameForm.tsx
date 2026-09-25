@@ -5,6 +5,7 @@ import type { BoardGameFormData } from '../types'
 import FormSection from './FormSection'
 import GenreSelect from './GenreSelect'
 import { BOARDGAME_GENRES } from '../constants/genres'
+import { listBoardGameGenres } from '../api/boardgamesApi'
 import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
@@ -179,7 +180,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
         </div>
         <div className="mt-6">
           <Field label="Géneros">
-            <GenreSelect options={BOARDGAME_GENRES} value={genres} onChange={setGenres} />
+            <GenreSelect options={BOARDGAME_GENRES} value={genres} onChange={setGenres} fetchSuggestions={listBoardGameGenres} />
           </Field>
         </div>
       </FormSection>

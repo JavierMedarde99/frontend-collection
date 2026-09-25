@@ -10,6 +10,7 @@ import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import FormSection from './FormSection'
 import GenreSelect from './GenreSelect'
 import { GAME_GENRES } from '../constants/genres'
+import { listGameGenres } from '../api/gamesApi'
 
 type IconName = 'title' | 'thumbnail' | 'externalId' | 'date' | 'comment' | 'source' | 'steam'
 
@@ -230,6 +231,7 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
               options={GAME_GENRES}
               value={form.genres ?? []}
               onChange={(genres) => setForm((f) => ({ ...f, genres }))}
+              fetchSuggestions={listGameGenres}
             />
           </Field>
         </div>
