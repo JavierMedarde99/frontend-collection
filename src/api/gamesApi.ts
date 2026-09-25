@@ -60,6 +60,11 @@ export function deleteGame(id: string): Promise<null> {
   return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
+// Catálogo de géneros en uso en la colección (para autocompletar el selector).
+export function listGameGenres(): Promise<string[]> {
+  return request<string[]>(`${apiUrl(BASE_URL)}/genres`) as Promise<string[]>
+}
+
 export function searchGames(name: string): Promise<SearchGameResult[]> {
   return request<SearchGameResult[]>(`${apiUrl(BASE_URL)}/search?name=${encodeURIComponent(name)}`) as Promise<SearchGameResult[]>
 }

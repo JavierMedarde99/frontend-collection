@@ -60,6 +60,11 @@ export function deleteBook(id: string): Promise<null> {
   return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
+// Catálogo de géneros en uso en la colección (para autocompletar el selector).
+export function listBookGenres(): Promise<string[]> {
+  return request<string[]>(`${apiUrl(BASE_URL)}/genres`) as Promise<string[]>
+}
+
 // Construye el payload de crear/editar a partir de un libro de la API.
 export function bookToFormData(book: Book): BookFormData {
   return {
