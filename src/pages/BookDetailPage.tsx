@@ -13,6 +13,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import OwnerLine from '../components/OwnerLine'
+import GenreBadges from '../components/GenreBadges'
 import ReadingProgressBar, { type ProgressExtras } from '../components/ReadingProgressBar'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
@@ -178,6 +179,7 @@ export default function BookDetailPage() {
                 {TYPE_LABELS[book.type] || book.type}
               </span>
             </div>
+            <GenreBadges genres={book.genres} className="mb-4" />
             <StarRating value={book.start} readOnly />
             {book.descripcion && (
               <p className="text-body text-slate whitespace-pre-line mt-4">{book.descripcion}</p>

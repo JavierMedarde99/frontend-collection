@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
 import CardMenu from './CardMenu'
 import OwnerLine from './OwnerLine'
+import GenreBadges from './GenreBadges'
 import ReadingProgressBar, { type ProgressExtras } from './ReadingProgressBar'
 import { updateBook, updateReadingProgress, bookToFormData } from '../api/booksApi'
 import { BookState } from '../types'
@@ -109,6 +110,7 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
             onChange={!readOnly ? handleProgressChange : undefined}
             className="mt-2"
           />
+          <GenreBadges genres={book.genres} className="mt-2" />
           {progressError && <p className="text-caption text-red-600" role="alert">{progressError}</p>}
         </div>
       </div>
