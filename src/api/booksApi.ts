@@ -31,7 +31,7 @@ export function listBooks(params: ListBooksParams = {}): Promise<PageBookRespons
   if (name) search.set('name', name)
   if (author) search.set('author', author)
   if (type) search.set('type', type)
-  if (genre) search.set('genre', genre)
+  if (genre) for (const g of genre) search.append('genre', g)
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()

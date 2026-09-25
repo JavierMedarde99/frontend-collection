@@ -2,7 +2,7 @@ import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listMovieShows, deleteMovieShow } from '../api/movieshowsApi'
 import { MEDIA_TYPES, MOVIE_SHOW_STATES } from '../constants/movieshows'
-import { useGenreOptions } from '../hooks/useGenreOptions'
+import GenreSelect from '../components/GenreSelect'
 import { listMovieShowGenres } from '../api/movieshowsApi'
 import { MediaType, MovieShowStatus, type MovieShow } from '../types'
 import MovieShowCard from '../components/MovieShowCard'
@@ -33,7 +33,7 @@ export default function MovieShowListPage() {
   const [query, setQuery] = useListQuery({
     status: '' as MovieShowStatus | '',
     mediaType: '' as MediaType | '',
-    genre: '',
+    genre: [] as string[],
     name: '',
     sort: 'title,asc',
   })
@@ -78,12 +78,12 @@ export default function MovieShowListPage() {
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ status: '', mediaType: '', genre: '', name: '' })
+    setQuery({ status: '', mediaType: '', genre: [], name: '' })
   }
 
-  const hasActiveFilters = Boolean(status || mediaTypeFilter || genreFilter || nameFilter)
+  const hasActiveFilters = Boolean(status || mediaTypeFilter || genreFilter.length > 0 || nameFilter)
 
-  const activeFilterCount = [mediaTypeFilter, genreFilter, nameFilter].filter(Boolean).length
+  const activeFilterCount = [mediaTypeFilter, nameFilter].filter(Boolean).length + genreFilter.length
 
   return (
     <section className="flex flex-col gap-24">
@@ -162,20 +162,16 @@ export default function MovieShowListPage() {
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
-            <select
-              className="input md:w-48"
-              value={genreFilter}
-              onChange={(e) => { setQuery({ genre: e.target.value }) }}
-              aria-label="Filtrar por género"
-            >
-              <option value="">Todos los géneros</option>
-              {genreOptions.map((genre) => (
-                <option key={genre} value={genre}>{genre}</option>
-              ))}
-              {genreFilter && !genreOptions.includes(genreFilter) && (
-                <option value={genreFilter}>{genreFilter}</option>
-              )}
-            </select>
+          </div>
+          <div>
+            <span className="label" id="filtro-genero-label">Géneros</span>
+            <div role="group" aria-labelledby="filtro-genero-label">
+              <GenreSelect
+                options={genreOptions}
+                value={genreFilter}
+                onChange={(genres) => setQuery({ genre: genres })}
+              />
+            </div>
           </div>
         </div>
       )}

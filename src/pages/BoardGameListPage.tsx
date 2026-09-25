@@ -2,7 +2,7 @@ import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listBoardGames, deleteBoardGame } from '../api/boardgamesApi'
 import { BOARD_GAME_STATES } from '../constants/boardGames'
-import { useGenreOptions } from '../hooks/useGenreOptions'
+import GenreSelect from '../components/GenreSelect'
 import { listBoardGameGenres } from '../api/boardgamesApi'
 import { BoardGameStatus, type BoardGame } from '../types'
 import BoardGameCard from '../components/BoardGameCard'
@@ -32,7 +32,7 @@ export default function BoardGameListPage() {
 
   const [query, setQuery] = useListQuery({
     status: '' as BoardGameStatus | '',
-    genre: '',
+    genre: [] as string[],
     name: '',
     sort: 'title,asc',
   })
@@ -76,12 +76,12 @@ export default function BoardGameListPage() {
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ status: '', genre: '', name: '' })
+    setQuery({ status: '', genre: [], name: '' })
   }
 
-  const hasActiveFilters = Boolean(status || genreFilter || nameFilter)
+  const hasActiveFilters = Boolean(status || genreFilter.length > 0 || nameFilter)
 
-  const activeFilterCount = [genreFilter, nameFilter].filter(Boolean).length
+  const activeFilterCount = [nameFilter].filter(Boolean).length + genreFilter.length
 
   return (
     <section className="flex flex-col gap-24">
@@ -149,20 +149,16 @@ export default function BoardGameListPage() {
             inputRef={searchRef}
             shortcutHint
           />
-            <select
-              className="input md:w-48"
-              value={genreFilter}
-              onChange={(e) => setQuery({ genre: e.target.value })}
-              aria-label="Filtrar por género"
-            >
-              <option value="">Todos los géneros</option>
-              {genreOptions.map((genre) => (
-                <option key={genre} value={genre}>{genre}</option>
-              ))}
-              {genreFilter && !genreOptions.includes(genreFilter) && (
-                <option value={genreFilter}>{genreFilter}</option>
-              )}
-            </select>
+          </div>
+          <div>
+            <span className="label" id="filtro-genero-label">Géneros</span>
+            <div role="group" aria-labelledby="filtro-genero-label">
+              <GenreSelect
+                options={genreOptions}
+                value={genreFilter}
+                onChange={(genres) => setQuery({ genre: genres })}
+              />
+            </div>
           </div>
         </div>
       )}

@@ -31,7 +31,7 @@ export function listMovieShows(params: ListMovieShowsParams = {}): Promise<PageM
   if (name) search.set('name', name)
   if (status) search.set('status', status)
   if (mediaType) search.set('mediaType', mediaType)
-  if (genre) search.set('genre', genre)
+  if (genre) for (const g of genre) search.append('genre', g)
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()

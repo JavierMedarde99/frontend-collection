@@ -100,7 +100,7 @@ export interface ListBoardGamesParams {
   sort?: string
   name?: string
   status?: BoardGameStatus | ''
-  genre?: string
+  genre?: string[]
   owner?: 'mine' | 'other' | ''
   viewerId?: string
 }

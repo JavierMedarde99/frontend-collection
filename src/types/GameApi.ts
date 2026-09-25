@@ -18,7 +18,7 @@ export interface ListGamesParams {
   name?: string
   platform?: GamePlatform | ''
   status?: GameStatus | ''
-  genre?: string
+  genre?: string[]
   owner?: 'mine' | 'other' | ''
   viewerId?: string
 }
