@@ -12,6 +12,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import OwnerLine from '../components/OwnerLine'
+import GenreBadges from '../components/GenreBadges'
 import StreamingProviderBadges from '../components/StreamingProviderBadges'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
@@ -177,6 +178,7 @@ export default function MovieShowDetailPage() {
                 {MEDIA_TYPE_LABELS[movieShow.mediaType] || movieShow.mediaType}
               </span>
             </div>
+            <GenreBadges genres={movieShow.genres} className="mb-4" />
             <StarRating value={movieShow.userRating} readOnly />
             {movieShow.overview && (
               <p className="text-body text-slate whitespace-pre-line mt-4">{movieShow.overview}</p>
