@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
 import CardMenu from './CardMenu'
 import OwnerLine from './OwnerLine'
+import GenreBadges from './GenreBadges'
 import StreamingProviderBadges from './StreamingProviderBadges'
 import MovieShowStatusBadge from './MovieShowStatusBadge'
 import StarRating from './StarRating'
@@ -70,6 +71,7 @@ export default function MovieShowCard({ movieShow, index = 0, onDelete, readOnly
               {MEDIA_TYPE_LABELS[movieShow.mediaType] || movieShow.mediaType}
             </span>
           </div>
+          <GenreBadges genres={movieShow.genres} className="mt-2" />
           <StreamingProviderBadges providers={movieShow.streamingProviders} compact className="mt-2" />
         </div>
       </div>

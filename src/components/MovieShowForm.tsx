@@ -7,6 +7,8 @@ import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import FormSection from './FormSection'
+import GenreSelect from './GenreSelect'
+import { MOVIESHOW_GENRES } from '../constants/genres'
 
 interface FieldProps {
   label: string
@@ -47,6 +49,7 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
     dateAdded: '',
     dateCompleted: '',
     userRating: 0,
+    genres: [],
     ...initial,
   })
   const [submitting, setSubmitting] = useState(false)
@@ -78,6 +81,7 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
       title: form.title.trim(),
       mediaType: form.mediaType,
       status: form.status,
+      genres: form.genres ?? [],
       // El backend exige externalId: si viene de TMDB se conserva, si es
       // alta manual se genera uno para no pedirlo en el formulario.
       externalId: initial.externalId?.trim() || `manual-${Date.now()}`,
@@ -135,6 +139,15 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
           </Field>
           <Field label="Fecha de estreno">
             <input className="input" type="date" value={form.releaseDate} onChange={set('releaseDate')} />
+          </Field>
+        </div>
+        <div className="mt-6">
+          <Field label="Géneros">
+            <GenreSelect
+              options={MOVIESHOW_GENRES}
+              value={form.genres ?? []}
+              onChange={(genres) => setForm((f) => ({ ...f, genres }))}
+            />
           </Field>
         </div>
       </FormSection>

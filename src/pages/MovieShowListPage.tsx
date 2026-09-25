@@ -2,6 +2,7 @@ import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listMovieShows, deleteMovieShow } from '../api/movieshowsApi'
 import { MEDIA_TYPES, MOVIE_SHOW_STATES } from '../constants/movieshows'
+import { MOVIESHOW_GENRES } from '../constants/genres'
 import { MediaType, MovieShowStatus, type MovieShow } from '../types'
 import MovieShowCard from '../components/MovieShowCard'
 import SkeletonGrid from '../components/Skeleton'
@@ -31,10 +32,11 @@ export default function MovieShowListPage() {
   const [query, setQuery] = useListQuery({
     status: '' as MovieShowStatus | '',
     mediaType: '' as MediaType | '',
+    genre: '',
     name: '',
     sort: 'title,asc',
   })
-  const { status, mediaType: mediaTypeFilter, name: nameFilter, sort } = query
+  const { status, mediaType: mediaTypeFilter, genre: genreFilter, name: nameFilter, sort } = query
 
   const { isAuthenticated, user } = useAuth()
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
@@ -57,12 +59,13 @@ export default function MovieShowListPage() {
         size,
         status: status || undefined,
         mediaType: mediaTypeFilter || undefined,
+        genre: genreFilter || undefined,
         name: nameFilter || undefined,
         owner: effectiveTab,
         viewerId: user?.id || undefined,
         sort,
       }),
-    deps: [status, mediaTypeFilter, nameFilter, sort, effectiveTab, user?.id],
+    deps: [status, mediaTypeFilter, genreFilter, nameFilter, sort, effectiveTab, user?.id],
   })
 
 
@@ -73,12 +76,12 @@ export default function MovieShowListPage() {
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ status: '', mediaType: '', name: '' })
+    setQuery({ status: '', mediaType: '', genre: '', name: '' })
   }
 
-  const hasActiveFilters = Boolean(status || mediaTypeFilter || nameFilter)
+  const hasActiveFilters = Boolean(status || mediaTypeFilter || genreFilter || nameFilter)
 
-  const activeFilterCount = [mediaTypeFilter, nameFilter].filter(Boolean).length
+  const activeFilterCount = [mediaTypeFilter, genreFilter, nameFilter].filter(Boolean).length
 
   return (
     <section className="flex flex-col gap-24">
@@ -156,6 +159,20 @@ export default function MovieShowListPage() {
               {Object.entries(MEDIA_TYPES).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
               ))}
+            </select>
+            <select
+              className="input md:w-48"
+              value={genreFilter}
+              onChange={(e) => { setQuery({ genre: e.target.value }) }}
+              aria-label="Filtrar por género"
+            >
+              <option value="">Todos los géneros</option>
+              {MOVIESHOW_GENRES.map((genre) => (
+                <option key={genre} value={genre}>{genre}</option>
+              ))}
+              {genreFilter && !MOVIESHOW_GENRES.includes(genreFilter) && (
+                <option value={genreFilter}>{genreFilter}</option>
+              )}
             </select>
           </div>
         </div>
