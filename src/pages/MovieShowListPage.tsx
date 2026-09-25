@@ -171,6 +171,7 @@ export default function MovieShowListPage() {
                 options={genreOptions}
                 value={genreFilter}
                 onChange={(genres) => setQuery({ genre: genres })}
+                dropdown
                 allowCustom={false}
               />
             </div>
