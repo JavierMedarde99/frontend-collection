@@ -31,6 +31,7 @@ export interface MovieShow {
   externalSource?: string
   streamingProviders?: StreamingProvider[]
   watchCountry?: string
+  genres?: string[]
   userOwned?: UserOwned | null
 }
 
@@ -51,6 +52,7 @@ export interface MovieShowFormData {
   externalSource?: string
   streamingProviders?: StreamingProvider[]
   watchCountry?: string
+  genres?: string[]
 }
 
 export interface SearchMovieShowResult {
@@ -90,6 +92,7 @@ export interface ListMovieShowsParams {
   name?: string
   status?: MovieShowStatus | ''
   mediaType?: MediaType | ''
+  genre?: string
   owner?: 'mine' | 'other' | ''
   viewerId?: string
 }

@@ -25,6 +25,7 @@ export interface BoardGame {
   status: BoardGameStatus
   notes?: string
   dateAdded?: string
+  genres?: string[]
   userOwned?: UserOwned | null
 }
 
@@ -47,6 +48,7 @@ export interface BoardGameFormData {
   status: BoardGameStatus
   notes?: string
   dateAdded?: string
+  genres?: string[]
 }
 
 export interface BoardGameSearchResult {
@@ -98,6 +100,7 @@ export interface ListBoardGamesParams {
   sort?: string
   name?: string
   status?: BoardGameStatus | ''
+  genre?: string
   owner?: 'mine' | 'other' | ''
   viewerId?: string
 }

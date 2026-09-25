@@ -16,5 +16,6 @@ export interface Game {
   externalSource?: string
   steamAppId?: string
   obtainPlatinum?: boolean
+  genres?: string[]
   userOwned?: UserOwned | null
 }

@@ -23,7 +23,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T | n
 
 export function listBooks(params: ListBooksParams = {}): Promise<PageBookResponse> {
   const search = new URLSearchParams()
-  const { page, size, sort, state, name, author, type , owner, viewerId } = params
+  const { page, size, sort, state, name, author, type , genre, owner, viewerId } = params
   if (page !== undefined && page !== null) search.set('page', String(page))
   if (size !== undefined && size !== null) search.set('size', String(size))
   if (sort) search.set('sort', sort)
@@ -31,6 +31,7 @@ export function listBooks(params: ListBooksParams = {}): Promise<PageBookRespons
   if (name) search.set('name', name)
   if (author) search.set('author', author)
   if (type) search.set('type', type)
+  if (genre) search.set('genre', genre)
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()
