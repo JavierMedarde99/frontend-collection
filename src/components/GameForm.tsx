@@ -8,6 +8,8 @@ import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import FormSection from './FormSection'
+import GenreSelect from './GenreSelect'
+import { GAME_GENRES } from '../constants/genres'
 
 type IconName = 'title' | 'thumbnail' | 'externalId' | 'date' | 'comment' | 'source' | 'steam'
 
@@ -105,6 +107,7 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
     externalId: '',
     obtainPlatinum: false,
     steamAppId: '',
+    genres: [],
     ...initial,
   })
   const [submitting, setSubmitting] = useState(false)
@@ -141,6 +144,7 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
       title: form.title.trim(),
       platform: form.platform,
       status: form.status,
+      genres: form.genres ?? [],
       thumbnailUrl: form.thumbnailUrl?.trim() || undefined,
       userRating: showRating && form.userRating ? form.userRating : undefined,
       comment: form.comment?.trim() || undefined,
@@ -219,6 +223,15 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
               />
             </Field>
           )}
+        </div>
+        <div className="mt-6">
+          <Field label="Géneros">
+            <GenreSelect
+              options={GAME_GENRES}
+              value={form.genres ?? []}
+              onChange={(genres) => setForm((f) => ({ ...f, genres }))}
+            />
+          </Field>
         </div>
       </FormSection>
 
