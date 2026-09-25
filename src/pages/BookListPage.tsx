@@ -2,14 +2,15 @@ import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import { listBooks, deleteBook } from '../api/booksApi'
+import { listBookGenres } from '../api/booksApi'
+import { useGenreOptions } from '../hooks/useGenreOptions'
 import { BOOK_TYPES, BOOK_STATES } from '../constants/books'
 import { BookType, BookState, type Book } from '../types'
 import BookCard from '../components/BookCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
-import { useGenreOptions } from '../hooks/useGenreOptions'
-import { listBookGenres } from '../api/booksApi'
+import GenreSelect from '../components/GenreSelect'
 import SkeletonInline from '../components/SkeletonInline'
 import SearchField from '../components/SearchField'
 import { useSearchShortcut } from '../hooks/useSearchShortcut'
@@ -34,7 +35,7 @@ export default function BookListPage() {
   const [query, setQuery] = useListQuery({
     status: '' as BookState | '',
     type: '' as BookType | '',
-    genre: '',
+    genre: [] as string[],
     name: '',
     author: '',
     sort: 'title,asc',
@@ -87,13 +88,13 @@ export default function BookListPage() {
   function clearFilters() {
     setNameInput('')
     setAuthorInput('')
-    setQuery({ status: '', type: '', genre: '', name: '', author: '' })
+    setQuery({ status: '', type: '', genre: [], name: '', author: '' })
   }
 
-  const hasActiveFilters = Boolean(status || typeFilter || genreFilter || nameFilter || authorFilter)
+  const hasActiveFilters = Boolean(status || typeFilter || genreFilter.length > 0 || nameFilter || authorFilter)
 
   const activeFilterCount =
-    [typeFilter, genreFilter, nameFilter, authorFilter].filter(Boolean).length
+    [typeFilter, nameFilter, authorFilter].filter(Boolean).length + genreFilter.length
 
   return (
     <section className="flex flex-col gap-24">
@@ -180,20 +181,16 @@ export default function BookListPage() {
               <option key={key} value={key}>{label}</option>
             ))}
           </select>
-          <select
-            className="input md:w-48"
-            value={genreFilter}
-            onChange={(e) => setQuery({ genre: e.target.value })}
-            aria-label="Filtrar por género"
-          >
-            <option value="">Todos los géneros</option>
-            {genreOptions.map((genre) => (
-              <option key={genre} value={genre}>{genre}</option>
-            ))}
-            {genreFilter && !genreOptions.includes(genreFilter) && (
-              <option value={genreFilter}>{genreFilter}</option>
-            )}
-          </select>
+        </div>
+        <div>
+          <span className="label" id="filtro-genero-label">Géneros</span>
+          <div role="group" aria-labelledby="filtro-genero-label">
+            <GenreSelect
+              options={genreOptions}
+              value={genreFilter}
+              onChange={(genres) => setQuery({ genre: genres })}
+            />
+          </div>
         </div>
         </div>
       )}

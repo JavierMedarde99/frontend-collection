@@ -92,7 +92,7 @@ export interface ListMovieShowsParams {
   name?: string
   status?: MovieShowStatus | ''
   mediaType?: MediaType | ''
-  genre?: string
+  genre?: string[]
   owner?: 'mine' | 'other' | ''
   viewerId?: string
 }

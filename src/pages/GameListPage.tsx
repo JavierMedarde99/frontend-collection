@@ -2,8 +2,9 @@ import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listGames, deleteGame } from '../api/gamesApi'
 import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
-import { useGenreOptions } from '../hooks/useGenreOptions'
+import GenreSelect from '../components/GenreSelect'
 import { listGameGenres } from '../api/gamesApi'
+import { useGenreOptions } from '../hooks/useGenreOptions'
 import { GamePlatform, GameStatus, type Game } from '../types'
 import GameCard from '../components/GameCard'
 import SkeletonGrid from '../components/Skeleton'
@@ -33,7 +34,7 @@ export default function GameListPage() {
   const [query, setQuery] = useListQuery({
     status: '' as GameStatus | '',
     platform: '' as GamePlatform | '',
-    genre: '',
+    genre: [] as string[],
     name: '',
     sort: 'title,asc',
   })
@@ -78,12 +79,12 @@ export default function GameListPage() {
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ status: '', platform: '', genre: '', name: '' })
+    setQuery({ status: '', platform: '', genre: [], name: '' })
   }
 
-  const hasActiveFilters = Boolean(status || platformFilter || genreFilter || nameFilter)
+  const hasActiveFilters = Boolean(status || platformFilter || genreFilter.length > 0 || nameFilter)
 
-  const activeFilterCount = [platformFilter, genreFilter, nameFilter].filter(Boolean).length
+  const activeFilterCount = [platformFilter, nameFilter].filter(Boolean).length + genreFilter.length
 
   return (
     <section className="flex flex-col gap-24">
@@ -162,20 +163,16 @@ export default function GameListPage() {
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
-            <select
-              className="input md:w-48"
-              value={genreFilter}
-              onChange={(e) => { setQuery({ genre: e.target.value }) }}
-              aria-label="Filtrar por género"
-            >
-              <option value="">Todos los géneros</option>
-              {genreOptions.map((genre) => (
-                <option key={genre} value={genre}>{genre}</option>
-              ))}
-              {genreFilter && !genreOptions.includes(genreFilter) && (
-                <option value={genreFilter}>{genreFilter}</option>
-              )}
-            </select>
+          </div>
+          <div>
+            <span className="label" id="filtro-genero-label">Géneros</span>
+            <div role="group" aria-labelledby="filtro-genero-label">
+              <GenreSelect
+                options={genreOptions}
+                value={genreFilter}
+                onChange={(genres) => setQuery({ genre: genres })}
+              />
+            </div>
           </div>
         </div>
       )}

@@ -29,7 +29,7 @@ export function listBoardGames(params: ListBoardGamesParams = {}): Promise<PageB
   if (sort) search.set('sort', sort)
   if (name) search.set('name', name)
   if (status) search.set('status', status)
-  if (genre) search.set('genre', genre)
+  if (genre) for (const g of genre) search.append('genre', g)
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()

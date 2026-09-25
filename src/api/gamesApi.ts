@@ -31,7 +31,7 @@ export function listGames(params: ListGamesParams = {}): Promise<PageGameRespons
   if (name) search.set('name', name)
   if (platform) search.set('platform', platform)
   if (status) search.set('status', status)
-  if (genre) search.set('genre', genre)
+  if (genre) for (const g of genre) search.append('genre', g)
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   const qs = search.toString()

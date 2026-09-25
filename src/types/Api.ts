@@ -17,7 +17,7 @@ export interface ListBooksParams {
   sort?: string
   state?: BookState | ''
   type?: BookType | ''
-  genre?: string
+  genre?: string[]
   name?: string
   author?: string
   owner?: 'mine' | 'other' | ''
