@@ -3,6 +3,7 @@ import ActionLink from './ActionLink'
 import CardMenu from './CardMenu'
 import OwnerLine from './OwnerLine'
 import BoardGameStatusBadge from './BoardGameStatusBadge'
+import GenreBadges from './GenreBadges'
 import StarRating from './StarRating'
 import { bggRatingToStars } from '../constants/boardGames'
 import type { BoardGame } from '../types'
@@ -85,6 +86,7 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
               <StarRating value={bggRatingToStars(game.bggRating)} readOnly />
             )}
           </div>
+          <GenreBadges genres={game.genres} className="mt-2" />
         </div>
       </div>
 

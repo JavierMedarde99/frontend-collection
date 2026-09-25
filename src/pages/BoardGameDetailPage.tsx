@@ -4,6 +4,7 @@ import { useBackFallback } from '../hooks/useBackFallback'
 import { getBoardGame, deleteBoardGame } from '../api/boardgamesApi'
 import type { BoardGame } from '../types'
 import BoardGameStatusBadge from '../components/BoardGameStatusBadge'
+import GenreBadges from '../components/GenreBadges'
 import StarRating from '../components/StarRating'
 import { bggRatingToStars } from '../constants/boardGames'
 import Spinner from '../components/Spinner'
@@ -155,6 +156,7 @@ export default function BoardGameDetailPage() {
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <BoardGameStatusBadge status={game.status} />
             </div>
+            <GenreBadges genres={game.genres} className="mb-4" />
             {game.description && (
               <p className="text-body text-slate whitespace-pre-line">{game.description}</p>
             )}
