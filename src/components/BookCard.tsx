@@ -110,7 +110,7 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
             onChange={!readOnly ? handleProgressChange : undefined}
             className="mt-2"
           />
-          <GenreBadges genres={book.genres} className="mt-2" />
+          <GenreBadges genres={book.genres} max={1} className="mt-2" />
           {progressError && <p className="text-caption text-red-600" role="alert">{progressError}</p>}
         </div>
       </div>

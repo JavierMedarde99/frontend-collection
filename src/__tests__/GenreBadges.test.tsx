@@ -18,4 +18,11 @@ describe('GenreBadges', () => {
     const { container } = render(<GenreBadges genres={undefined} />)
     expect(container).toBeEmptyDOMElement()
   })
+
+  it('con max solo muestra los primeros', () => {
+    render(<GenreBadges genres={['Fantasía', 'Terror', 'Misterio']} max={1} />)
+    expect(screen.getByText('Fantasía')).toBeInTheDocument()
+    expect(screen.queryByText('Terror')).not.toBeInTheDocument()
+    expect(screen.queryByText('Misterio')).not.toBeInTheDocument()
+  })
 })

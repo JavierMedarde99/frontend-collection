@@ -86,7 +86,7 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
               <StarRating value={bggRatingToStars(game.bggRating)} readOnly />
             )}
           </div>
-          <GenreBadges genres={game.genres} className="mt-2" />
+          <GenreBadges genres={game.genres} max={1} className="mt-2" />
         </div>
       </div>
 
