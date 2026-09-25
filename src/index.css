@@ -149,6 +149,10 @@
   background-color: #2a2118;
 }
 
+.dark .hover\:bg-paper:hover {
+  background-color: #2a2118;
+}
+
 .dark .bg-cream {
   background-color: #1c150e;
 }
