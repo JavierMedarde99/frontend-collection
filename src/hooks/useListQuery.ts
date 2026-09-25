@@ -1,6 +1,9 @@
 import { useCallback, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+/** Array vacío compartido: nunca se muta, solo se lee. */
+const EMPTY_ARRAY: string[] = []
+
 /**
  * Filtros/página/orden sincronizados con la query de la URL en un
  * único setParams por actualización. (Varios setParams seguidos se
@@ -13,12 +16,22 @@ export function useListQuery<T extends Record<string, string | number | string[]
   const [params, setParams] = useSearchParams()
   const initialRef = useRef(initial)
   initialRef.current = initial
+  // Referencias estables para arrays: evita refetch infinito cuando el
+  // valor va en deps de efectos (getAll crea un array nuevo cada vez).
+  const prevArrays = useRef<Record<string, string[]>>({})
 
   const values = { ...initial } as T
   for (const key of Object.keys(initial)) {
     if (Array.isArray(initial[key])) {
       const all = params.getAll(key)
-      if (all.length > 0) (values as Record<string, string | number | string[]>)[key] = all
+      const prev = prevArrays.current[key]
+      if (prev !== undefined && prev.length === all.length && prev.every((v, i) => v === all[i])) {
+        ;(values as Record<string, string | number | string[]>)[key] = prev
+      } else {
+        const stable = all.length > 0 ? all : EMPTY_ARRAY
+        prevArrays.current[key] = stable
+        ;(values as Record<string, string | number | string[]>)[key] = stable
+      }
       continue
     }
     const raw = params.get(key)
