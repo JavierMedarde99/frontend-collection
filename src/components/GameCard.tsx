@@ -67,7 +67,7 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
             <GamePlatformBadge platform={game.platform} />
             <GamePlatinumBadge game={game} />
           </div>
-          <GenreBadges genres={game.genres} className="mt-2" />
+          <GenreBadges genres={game.genres} max={1} className="mt-2" />
         </div>
       </div>
 
