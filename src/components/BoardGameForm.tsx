@@ -3,6 +3,8 @@ import { BOARD_GAME_STATES } from '../constants/boardGames'
 import { BoardGameStatus } from '../types'
 import type { BoardGameFormData } from '../types'
 import FormSection from './FormSection'
+import GenreSelect from './GenreSelect'
+import { BOARDGAME_GENRES } from '../constants/genres'
 import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
@@ -66,6 +68,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
   const [status, setStatus] = useState<BoardGameStatus>(initial.status || BoardGameStatus.OWNED)
   const [notes, setNotes] = useState(initial.notes || '')
   const [dateAdded, setDateAdded] = useState(initial.dateAdded || '')
+  const [genres, setGenres] = useState<string[]>(initial.genres ?? [])
   const [submitting, setSubmitting] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
@@ -99,6 +102,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
       mechanics: fromCSV(mechanics),
       imageUrl: imageUrl.trim() || undefined,
       notes: notes.trim() || undefined,
+      genres,
       dateAdded: status === BoardGameStatus.OWNED ? dateAdded || undefined : undefined,
       // Datos venidos de BGG: se conservan sin mostrarse en el formulario manual.
       ...(initial.thumbnailUrl ? { thumbnailUrl: initial.thumbnailUrl } : {}),
@@ -172,6 +176,11 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
               <input className="input" type="date" value={dateAdded} onChange={set(setDateAdded)} />
             </Field>
           )}
+        </div>
+        <div className="mt-6">
+          <Field label="Géneros">
+            <GenreSelect options={BOARDGAME_GENRES} value={genres} onChange={setGenres} />
+          </Field>
         </div>
       </FormSection>
 

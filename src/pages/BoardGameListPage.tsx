@@ -2,6 +2,7 @@ import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listBoardGames, deleteBoardGame } from '../api/boardgamesApi'
 import { BOARD_GAME_STATES } from '../constants/boardGames'
+import { BOARDGAME_GENRES } from '../constants/genres'
 import { BoardGameStatus, type BoardGame } from '../types'
 import BoardGameCard from '../components/BoardGameCard'
 import SkeletonGrid from '../components/Skeleton'
@@ -30,10 +31,11 @@ export default function BoardGameListPage() {
 
   const [query, setQuery] = useListQuery({
     status: '' as BoardGameStatus | '',
+    genre: '',
     name: '',
     sort: 'title,asc',
   })
-  const { status, name: nameFilter, sort } = query
+  const { status, genre: genreFilter, name: nameFilter, sort } = query
 
   const { isAuthenticated, user } = useAuth()
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
@@ -55,12 +57,13 @@ export default function BoardGameListPage() {
         page,
         size,
         status: status || undefined,
+        genre: genreFilter || undefined,
         name: nameFilter || undefined,
         owner: effectiveTab,
         viewerId: user?.id || undefined,
         sort,
       }),
-    deps: [status, nameFilter, sort, effectiveTab, user?.id],
+    deps: [status, genreFilter, nameFilter, sort, effectiveTab, user?.id],
   })
 
 
@@ -71,12 +74,12 @@ export default function BoardGameListPage() {
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ status: '', name: '' })
+    setQuery({ status: '', genre: '', name: '' })
   }
 
-  const hasActiveFilters = Boolean(status || nameFilter)
+  const hasActiveFilters = Boolean(status || genreFilter || nameFilter)
 
-  const activeFilterCount = [nameFilter].filter(Boolean).length
+  const activeFilterCount = [genreFilter, nameFilter].filter(Boolean).length
 
   return (
     <section className="flex flex-col gap-24">
@@ -144,6 +147,20 @@ export default function BoardGameListPage() {
             inputRef={searchRef}
             shortcutHint
           />
+            <select
+              className="input md:w-48"
+              value={genreFilter}
+              onChange={(e) => setQuery({ genre: e.target.value })}
+              aria-label="Filtrar por género"
+            >
+              <option value="">Todos los géneros</option>
+              {BOARDGAME_GENRES.map((genre) => (
+                <option key={genre} value={genre}>{genre}</option>
+              ))}
+              {genreFilter && !BOARDGAME_GENRES.includes(genreFilter) && (
+                <option value={genreFilter}>{genreFilter}</option>
+              )}
+            </select>
           </div>
         </div>
       )}
