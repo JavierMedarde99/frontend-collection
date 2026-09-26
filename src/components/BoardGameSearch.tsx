@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { searchBoardGamesPage, createBoardGame } from '../api/boardgamesApi'
-import { BOARD_GAME_STATES } from '../constants/boardGames'
-import { BoardGameStatus } from '../types'
+import { BOARD_GAME_DIFFICULTY_LABELS, BOARD_GAME_STATES } from '../constants/boardGames'
+import { BoardGameDifficulty, BoardGameStatus } from '../types'
 import type { BoardGameFormData, BoardGameSearchResult } from '../types'
 import Spinner from './Spinner'
 import EmptyState from './EmptyState'
@@ -59,6 +59,9 @@ export default function BoardGameSearch() {
   const [modalStatus, setModalStatus] = useState<BoardGameStatus>(BoardGameStatus.OWNED)
   const [modalNotes, setModalNotes] = useState('')
   const [modalDateAdded, setModalDateAdded] = useState('')
+  const [modalPersonalRating, setModalPersonalRating] = useState(0)
+  const [modalLastPlayedDate, setModalLastPlayedDate] = useState('')
+  const [modalDifficulty, setModalDifficulty] = useState<BoardGameDifficulty | ''>('')
 
   function handleSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -73,6 +76,9 @@ export default function BoardGameSearch() {
     setModalStatus(BoardGameStatus.OWNED)
     setModalNotes('')
     setModalDateAdded('')
+    setModalPersonalRating(0)
+    setModalLastPlayedDate('')
+    setModalDifficulty('')
   }
 
   async function handleConfirm() {
@@ -85,6 +91,9 @@ export default function BoardGameSearch() {
         status: modalStatus,
         notes: modalNotes.trim() || undefined,
         dateAdded: modalStatus === BoardGameStatus.OWNED ? modalDateAdded || undefined : undefined,
+        personalRating: modalStatus === BoardGameStatus.OWNED ? modalPersonalRating || undefined : undefined,
+        lastPlayedDate: modalStatus === BoardGameStatus.OWNED ? modalLastPlayedDate || undefined : undefined,
+        difficulty: modalStatus === BoardGameStatus.OWNED ? modalDifficulty || undefined : undefined,
       })
       setSelected(null)
       navigate('/boardgames')
@@ -202,26 +211,61 @@ export default function BoardGameSearch() {
               </div>
 
               {modalStatus === BoardGameStatus.OWNED && (
-                <div>
-                  <label className="label">Fecha de adición</label>
-                  <input
-                    className="input"
-                    type="date"
-                    value={modalDateAdded}
-                    onChange={(e) => setModalDateAdded(e.target.value)}
-                  />
-                </div>
-              )}
+                <>
+                  <div>
+                    <label className="label">Fecha de adición</label>
+                    <input
+                      className="input"
+                      type="date"
+                      value={modalDateAdded}
+                      onChange={(e) => setModalDateAdded(e.target.value)}
+                    />
+                  </div>
 
-              <div>
-                <label className="label">Notas personales</label>
-                <textarea
-                  className="input !h-auto !min-h-[80px] !py-3"
-                  value={modalNotes}
-                  onChange={(e) => setModalNotes(e.target.value)}
-                  placeholder="Notas personales…"
-                />
-              </div>
+                  <div>
+                    <label className="label">Valoración personal</label>
+                    <div className="pt-1">
+                      <StarRating value={modalPersonalRating} onChange={setModalPersonalRating} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="label">Comentario</label>
+                    <textarea
+                      className="input !h-auto !min-h-[80px] !py-3"
+                      value={modalNotes}
+                      onChange={(e) => setModalNotes(e.target.value)}
+                      placeholder="Comentario personal…"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label">Última jugada</label>
+                    <input
+                      className="input"
+                      type="date"
+                      value={modalLastPlayedDate}
+                      onChange={(e) => setModalLastPlayedDate(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label">Dificultad percibida</label>
+                    <select
+                      className="input"
+                      value={modalDifficulty}
+                      onChange={(e) => setModalDifficulty(e.target.value as BoardGameDifficulty | '')}
+                    >
+                      <option value="">Sin especificar</option>
+                      {Object.entries(BOARD_GAME_DIFFICULTY_LABELS).map(([key, label]) => (
+                        <option key={key} value={key}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
             </div>
 
             {submitError && <ErrorBanner message={submitError} />}
