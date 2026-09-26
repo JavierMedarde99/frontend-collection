@@ -202,7 +202,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
         />
       </FormSection>
 
-      <FormSection title="Descripción y notas">
+      <FormSection title="Descripción">
         <Field label="Descripción">
           <textarea
             className="input !h-auto !min-h-[100px] !py-3"
@@ -211,48 +211,50 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
             placeholder="Descripción del juego…"
           />
         </Field>
-
-        <Field label="Notas personales">
-          <textarea
-            className="input !h-auto !min-h-[80px] !py-3"
-            value={notes}
-            onChange={set(setNotes)}
-            placeholder="Notas personales…"
-          />
-        </Field>
       </FormSection>
 
-      <FormSection title="Valoración y estadísticas">
-        <Field label="Valoración personal">
-          <div className="pt-2">
-            <StarRating value={personalRating} onChange={(n) => { setDirty(true); setPersonalRating(n) }} />
+      {status === BoardGameStatus.OWNED && (
+        <FormSection title="Valoración y estadísticas">
+          <Field label="Valoración personal">
+            <div className="pt-2">
+              <StarRating value={personalRating} onChange={(n) => { setDirty(true); setPersonalRating(n) }} />
+            </div>
+          </Field>
+
+          <Field label="Comentario">
+            <textarea
+              className="input !h-auto !min-h-[80px] !py-3"
+              value={notes}
+              onChange={set(setNotes)}
+              placeholder="Comentario personal…"
+            />
+          </Field>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Field label="Número de jugadas">
+              <input className="input" type="number" min="0" value={playCount} onChange={set(setPlayCount)} placeholder="Ej: 12" />
+            </Field>
+            <Field label="Última jugada">
+              <input className="input" type="date" value={lastPlayedDate} onChange={set(setLastPlayedDate)} />
+            </Field>
           </div>
-        </Field>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Field label="Número de jugadas">
-            <input className="input" type="number" min="0" value={playCount} onChange={set(setPlayCount)} placeholder="Ej: 12" />
+          <Field label="Dificultad percibida">
+            <select
+              className="input"
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value as BoardGameDifficulty | '')}
+            >
+              <option value="">Sin especificar</option>
+              {Object.entries(BOARD_GAME_DIFFICULTY_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </Field>
-          <Field label="Última jugada">
-            <input className="input" type="date" value={lastPlayedDate} onChange={set(setLastPlayedDate)} />
-          </Field>
-        </div>
-
-        <Field label="Dificultad percibida">
-          <select
-            className="input"
-            value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value as BoardGameDifficulty | '')}
-          >
-            <option value="">Sin especificar</option>
-            {Object.entries(BOARD_GAME_DIFFICULTY_LABELS).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </FormSection>
+        </FormSection>
+      )}
 
       {(error || localError) && (
         <div
