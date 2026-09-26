@@ -23,11 +23,11 @@ export const BOARD_GAME_STATUS_OPTIONS: { value: BoardGameStatus; label: string 
   )
 
 export const BOARD_GAME_DIFFICULTY_LABELS: Record<BoardGameDifficulty, string> = {
-  [BoardGameDifficulty.MUY_FACIL]: 'Muy fácil',
-  [BoardGameDifficulty.FACIL]: 'Fácil',
-  [BoardGameDifficulty.MEDIO]: 'Medio',
-  [BoardGameDifficulty.DIFICIL]: 'Difícil',
-  [BoardGameDifficulty.MUY_DIFICIL]: 'Muy difícil',
+  [BoardGameDifficulty.VERY_EASY]: 'Muy fácil',
+  [BoardGameDifficulty.EASY]: 'Fácil',
+  [BoardGameDifficulty.MEDIUM]: 'Medio',
+  [BoardGameDifficulty.HARD]: 'Difícil',
+  [BoardGameDifficulty.VERY_HARD]: 'Muy difícil',
 }
 
 export const BOARD_GAME_DIFFICULTY_OPTIONS: { value: BoardGameDifficulty; label: string }[] =

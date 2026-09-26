@@ -6,11 +6,11 @@ export enum BoardGameStatus {
 }
 
 export enum BoardGameDifficulty {
-  MUY_FACIL = 'MUY_FACIL',
-  FACIL = 'FACIL',
-  MEDIO = 'MEDIO',
-  DIFICIL = 'DIFICIL',
-  MUY_DIFICIL = 'MUY_DIFICIL',
+  VERY_EASY = 'VERY_EASY',
+  EASY = 'EASY',
+  MEDIUM = 'MEDIUM',
+  HARD = 'HARD',
+  VERY_HARD = 'VERY_HARD',
 }
 
 export interface BoardGame {
