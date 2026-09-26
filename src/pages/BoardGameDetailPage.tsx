@@ -6,7 +6,7 @@ import type { BoardGame } from '../types'
 import BoardGameStatusBadge from '../components/BoardGameStatusBadge'
 import GenreBadges from '../components/GenreBadges'
 import StarRating from '../components/StarRating'
-import { bggRatingToStars } from '../constants/boardGames'
+import { BOARD_GAME_DIFFICULTY_LABELS, bggRatingToStars } from '../constants/boardGames'
 import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
@@ -22,6 +22,12 @@ function formatRange(min?: number, max?: number, suffix = ''): string | null {
     ? (min === max ? `${min}` : `${min}–${max}`)
     : `${min ?? max}`
   return suffix ? `${range} ${suffix}` : range
+}
+
+function formatDateEs(dateStr: string): string {
+  const date = new Date(`${dateStr}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return dateStr
+  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export default function BoardGameDetailPage() {
@@ -109,9 +115,15 @@ export default function BoardGameDetailPage() {
     ...(game.categories?.length ? [{ label: 'Categorías', value: game.categories.join(', ') }] : []),
     ...(game.mechanics?.length ? [{ label: 'Mecánicas', value: game.mechanics.join(', ') }] : []),
     ...(game.dateAdded ? [{ label: 'En la colección desde', value: game.dateAdded }] : []),
+    ...(game.difficulty ? [{ label: 'Dificultad', value: BOARD_GAME_DIFFICULTY_LABELS[game.difficulty] }] : []),
+    ...(game.playCount !== undefined && game.playCount !== null
+      ? [{ label: 'Jugadas', value: `${game.playCount} jugada${game.playCount === 1 ? '' : 's'}` }]
+      : []),
+    ...(game.lastPlayedDate ? [{ label: 'Última jugada', value: formatDateEs(game.lastPlayedDate) }] : []),
   ]
 
   const hasRating = game.bggRating !== undefined && game.bggRating !== null
+  const hasPersonalRating = (game.personalRating ?? 0) > 0
 
   return (
     <section className="max-w-3xl flex flex-col gap-24">
@@ -163,7 +175,7 @@ export default function BoardGameDetailPage() {
           </div>
         </div>
 
-        {(details.length > 0 || hasRating) && (
+        {(details.length > 0 || hasRating || hasPersonalRating) && (
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 border-t border-silver/60 pt-6">
             {details.map((d) => (
               <div key={d.label}>
@@ -176,6 +188,14 @@ export default function BoardGameDetailPage() {
                 <dt className="text-caption text-stone uppercase tracking-wide">Rating BGG</dt>
                 <dd className="mt-1.5">
                   <StarRating value={bggRatingToStars(game.bggRating as number)} readOnly />
+                </dd>
+              </div>
+            )}
+            {hasPersonalRating && (
+              <div>
+                <dt className="text-caption text-stone uppercase tracking-wide">Valoración personal</dt>
+                <dd className="mt-1.5">
+                  <StarRating value={game.personalRating} readOnly />
                 </dd>
               </div>
             )}
