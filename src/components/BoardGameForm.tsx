@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
-import { BOARD_GAME_STATES } from '../constants/boardGames'
-import { BoardGameStatus } from '../types'
+import { BOARD_GAME_DIFFICULTY_LABELS, BOARD_GAME_STATES } from '../constants/boardGames'
+import { BoardGameDifficulty, BoardGameStatus } from '../types'
 import type { BoardGameFormData } from '../types'
 import FormSection from './FormSection'
 import GenreSelect from './GenreSelect'
@@ -8,6 +8,7 @@ import { BOARDGAME_GENRES } from '../constants/genres'
 import { listBoardGameGenres } from '../api/boardgamesApi'
 import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
+import StarRating from './StarRating'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 
 interface FieldProps {
@@ -70,6 +71,10 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
   const [notes, setNotes] = useState(initial.notes || '')
   const [dateAdded, setDateAdded] = useState(initial.dateAdded || '')
   const [genres, setGenres] = useState<string[]>(initial.genres ?? [])
+  const [personalRating, setPersonalRating] = useState(initial.personalRating || 0)
+  const [playCount, setPlayCount] = useState(toNumberInput(initial.playCount))
+  const [lastPlayedDate, setLastPlayedDate] = useState(initial.lastPlayedDate || '')
+  const [difficulty, setDifficulty] = useState<BoardGameDifficulty | ''>(initial.difficulty || '')
   const [submitting, setSubmitting] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
@@ -105,6 +110,10 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
       notes: notes.trim() || undefined,
       genres,
       dateAdded: status === BoardGameStatus.OWNED ? dateAdded || undefined : undefined,
+      personalRating: personalRating || undefined,
+      playCount: fromNumberInput(playCount),
+      lastPlayedDate: lastPlayedDate || undefined,
+      difficulty: difficulty || undefined,
       // Datos venidos de BGG: se conservan sin mostrarse en el formulario manual.
       ...(initial.thumbnailUrl ? { thumbnailUrl: initial.thumbnailUrl } : {}),
       ...(initial.bggId ? { bggId: initial.bggId } : {}),
@@ -210,6 +219,38 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
             onChange={set(setNotes)}
             placeholder="Notas personales…"
           />
+        </Field>
+      </FormSection>
+
+      <FormSection title="Valoración y estadísticas">
+        <Field label="Valoración personal">
+          <div className="pt-2">
+            <StarRating value={personalRating} onChange={(n) => { setDirty(true); setPersonalRating(n) }} />
+          </div>
+        </Field>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Field label="Número de jugadas">
+            <input className="input" type="number" min="0" value={playCount} onChange={set(setPlayCount)} placeholder="Ej: 12" />
+          </Field>
+          <Field label="Última jugada">
+            <input className="input" type="date" value={lastPlayedDate} onChange={set(setLastPlayedDate)} />
+          </Field>
+        </div>
+
+        <Field label="Dificultad percibida">
+          <select
+            className="input"
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value as BoardGameDifficulty | '')}
+          >
+            <option value="">Sin especificar</option>
+            {Object.entries(BOARD_GAME_DIFFICULTY_LABELS).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </select>
         </Field>
       </FormSection>
 

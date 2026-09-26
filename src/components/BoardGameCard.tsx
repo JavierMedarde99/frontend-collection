@@ -23,9 +23,23 @@ function formatRange(min?: number, max?: number): string | null {
   return `${min ?? max}`
 }
 
+function formatPlayCount(playCount?: number): string | null {
+  if (playCount === undefined || playCount === null) return null
+  return `${playCount} jugada${playCount === 1 ? '' : 's'}`
+}
+
+function formatLastPlayed(lastPlayedDate?: string): string | null {
+  if (!lastPlayedDate) return null
+  const date = new Date(`${lastPlayedDate}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return null
+  return `Última jugada: ${date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}`
+}
+
 export default function BoardGameCard({ game, index = 0, onDelete, readOnly = false }: BoardGameCardProps) {
   const players = formatRange(game.minPlayers, game.maxPlayers)
   const duration = formatRange(game.minPlaytime, game.maxPlaytime)
+  const plays = formatPlayCount(game.playCount)
+  const lastPlayed = formatLastPlayed(game.lastPlayedDate)
 
   return (
     <article
@@ -85,7 +99,18 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
             {game.bggRating !== undefined && game.bggRating !== null && (
               <StarRating value={bggRatingToStars(game.bggRating)} readOnly />
             )}
+            {game.personalRating !== undefined && game.personalRating !== null && game.personalRating > 0 && (
+              <span className="flex items-center gap-1.5" title="Valoración personal">
+                <span className="text-caption text-graphite">Tu valoración:</span>
+                <StarRating value={game.personalRating} readOnly />
+              </span>
+            )}
           </div>
+          {(plays || lastPlayed) && (
+            <p className="mt-2 text-caption text-graphite">
+              {[plays, lastPlayed].filter(Boolean).join(' · ')}
+            </p>
+          )}
           <GenreBadges genres={game.genres} max={1} className="mt-2" />
         </div>
       </div>
