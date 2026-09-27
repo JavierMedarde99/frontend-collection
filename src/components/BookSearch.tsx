@@ -11,6 +11,13 @@ import ErrorBanner from './ErrorBanner'
 import SearchField from './SearchField'
 import SkeletonInline from './SkeletonInline'
 
+/** Google Books devuelve la fecha como "1995" o "1995-03-01": extrae el año. */
+function yearFromPublishedDate(publishedDate?: string): number | undefined {
+  if (!publishedDate) return undefined
+  const year = Number(publishedDate.slice(0, 4))
+  return Number.isInteger(year) && year > 0 ? year : undefined
+}
+
 function mapResultToBook(result: SearchBookResult): Omit<BookFormData, 'type' | 'state'> {
   return {
     title: result.title || 'Sin título',
@@ -19,6 +26,9 @@ function mapResultToBook(result: SearchBookResult): Omit<BookFormData, 'type' | 
     pages: result.pageCount,
     frontpage: result.coverImage,
     externalId: result.id,
+    isbn: result.isbn,
+    publisher: result.publisher,
+    publicationYear: result.publicationYear ?? yearFromPublishedDate(result.publishedDate),
   }
 }
 
@@ -52,11 +62,15 @@ export default function BookSearch() {
   const [modalStart, setModalStart] = useState(0)
   const [modalComment, setModalComment] = useState('')
   const [modalPages, setModalPages] = useState('')
+  const [modalAcquisitionDate, setModalAcquisitionDate] = useState('')
+  const [modalAcquisitionPrice, setModalAcquisitionPrice] = useState('')
 
-  const showStartDate = modalState !== BookState.TO_READ
+  const isWishlist = modalState === BookState.WISHLIST
+  const showStartDate = modalState !== BookState.TO_READ && !isWishlist
   const showEndDate = modalState === BookState.COMPLETED
   const showRating = modalState === BookState.COMPLETED
   const showComment = modalState === BookState.COMPLETED
+  const showAcquisition = !isWishlist
 
   function handleSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -71,15 +85,18 @@ export default function BookSearch() {
     setModalType(BookType.NOVEL)
     setModalState(BookState.TO_READ)
     setModalPages('')
+    setModalAcquisitionDate('')
+    setModalAcquisitionPrice('')
   }
 
-  const needsPages = !selected?.pageCount
+  const needsPages = !isWishlist && !selected?.pageCount
 
   async function handleConfirm() {
     if (!selected) return
     setSubmitError(null)
     const pages = modalPages !== '' ? Number(modalPages) : (selected.pageCount || 0)
-    if (!pages || pages <= 0) {
+    // En la lista de deseos el total aún no se conoce: no se exige.
+    if (!isWishlist && (!pages || pages <= 0)) {
       setSubmitError('El nº de páginas es obligatorio.')
       return
     }
@@ -87,13 +104,17 @@ export default function BookSearch() {
     try {
       await createBook({
         ...mapResultToBook(selected),
-        pages,
+        ...(pages ? { pages } : {}),
         type: modalType,
         state: modalState,
         ...(showStartDate ? { startDate: modalStartDate || undefined } : {}),
         ...(showEndDate ? { endDate: modalEndDate || undefined } : {}),
         ...(showRating ? { start: modalStart || undefined } : {}),
         ...(showComment ? { comment: modalComment || undefined } : {}),
+        ...(showAcquisition && modalAcquisitionDate ? { acquisitionDate: modalAcquisitionDate } : {}),
+        ...(showAcquisition && modalAcquisitionPrice !== ''
+          ? { acquisitionPrice: Number(modalAcquisitionPrice) }
+          : {}),
       })
       setSelected(null)
       navigate('/coleccion')
@@ -243,6 +264,31 @@ export default function BookSearch() {
                     <StarRating value={modalStart} onChange={setModalStart} />
                   </div>
                 </div>
+              )}
+              {showAcquisition && (
+                <>
+                  <div>
+                    <label className="label">Fecha de obtención</label>
+                    <input
+                      className="input"
+                      type="date"
+                      value={modalAcquisitionDate}
+                      onChange={(e) => setModalAcquisitionDate(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Precio de adquisición</label>
+                    <input
+                      className="input"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={modalAcquisitionPrice}
+                      onChange={(e) => setModalAcquisitionPrice(e.target.value)}
+                      placeholder="12.50"
+                    />
+                  </div>
+                </>
               )}
               {showComment && (
                 <div>

@@ -40,6 +40,11 @@ export interface BookFormData {
   frontpage?: string
   externalId?: string
   isbn?: string
+  publisher?: string
+  publicationYear?: number | ''
+  /** No se envía en WISHLIST: solo tiene sentido cuando el libro está en posesión. */
+  acquisitionDate?: string
+  acquisitionPrice?: number | ''
 }
 
 export interface SearchBookResult {
@@ -52,6 +57,7 @@ export interface SearchBookResult {
   pageCount?: number
   publisher?: string
   publishedDate?: string
+  publicationYear?: number
   language?: string
   categories?: string[]
 }

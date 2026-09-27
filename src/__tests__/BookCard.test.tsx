@@ -165,4 +165,44 @@ describe('BookCard', () => {
     renderCard({ ...book, state: BookState.READING, pagesRead: 206 })
     expect(screen.queryByRole('button', { name: 'Empezar Dune' })).not.toBeInTheDocument()
   })
+
+  it('un libro en lista de deseos muestra el badge y el botón En posesión', () => {
+    renderCard({ ...book, state: BookState.WISHLIST })
+    expect(screen.getByText('En lista de deseos')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Marcar Dune como en posesión' })).toBeInTheDocument()
+  })
+
+  it('un libro en lista de deseos no muestra el botón Empezar', () => {
+    renderCard({ ...book, state: BookState.WISHLIST })
+    expect(screen.queryByRole('button', { name: 'Empezar Dune' })).not.toBeInTheDocument()
+  })
+
+  it('En posesión guarda la fecha de obtención y pasa a Por leer', async () => {
+    const user = userEvent.setup()
+    mockedUpdate.mockResolvedValue({
+      ...book,
+      state: BookState.TO_READ,
+      acquisitionDate: '2025-06-01',
+    })
+    renderCard({ ...book, state: BookState.WISHLIST })
+
+    await user.click(screen.getByRole('button', { name: 'Marcar Dune como en posesión' }))
+    const input = screen.getByLabelText('Fecha de obtención')
+    await user.clear(input)
+    await user.type(input, '2025-06-01')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    await waitFor(() => expect(mockedUpdate).toHaveBeenCalledWith(
+      '1',
+      expect.objectContaining({ state: BookState.TO_READ, acquisitionDate: '2025-06-01' }),
+    ))
+    expect(mockedProgress).not.toHaveBeenCalled()
+    expect(await screen.findByText('Por leer')).toBeInTheDocument()
+    expect(screen.getByText('Obtenido el 2025-06-01')).toBeInTheDocument()
+  })
+
+  it('muestra la fecha de obtención si el libro la tiene', () => {
+    renderCard({ ...book, acquisitionDate: '2024-03-15' })
+    expect(screen.getByText('Obtenido el 2024-03-15')).toBeInTheDocument()
+  })
 })

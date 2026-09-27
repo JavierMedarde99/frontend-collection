@@ -5,6 +5,7 @@ const DOT_COLORS: Record<BookState, string> = {
   [BookState.TO_READ]: 'bg-accent',
   [BookState.READING]: 'bg-indigo-500',
   [BookState.COMPLETED]: 'bg-emerald-500',
+  [BookState.WISHLIST]: 'bg-rose-500',
 }
 
 interface StatusBadgeProps {
