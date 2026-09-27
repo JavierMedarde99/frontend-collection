@@ -6,6 +6,7 @@ import OwnerLine from './OwnerLine'
 import GenreBadges from './GenreBadges'
 import ReadingProgressBar, { type ProgressExtras } from './ReadingProgressBar'
 import StartReadingDialog from './StartReadingDialog'
+import MarkAsOwnedDialog from './MarkAsOwnedDialog'
 import { updateBook, updateReadingProgress, bookToFormData } from '../api/booksApi'
 import { BookState } from '../types'
 import StatusBadge from './StatusBadge'
@@ -25,6 +26,7 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
   const [progressError, setProgressError] = useState<string | null>(null)
   const [override, setOverride] = useState<Partial<Book>>({})
   const [starting, setStarting] = useState(false)
+  const [markingOwned, setMarkingOwned] = useState(false)
 
   const shown = { ...book, ...override }
 
@@ -70,6 +72,22 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
     } catch {
       setStarting(false)
       setProgressError('No se pudo actualizar el progreso.')
+    }
+  }
+
+  async function handleMarkAsOwned(acquisitionDate: string | undefined) {
+    setProgressError(null)
+    try {
+      const updated = await updateBook(book.id, {
+        ...bookToFormData(book),
+        state: BookState.TO_READ,
+        acquisitionDate,
+      })
+      setMarkingOwned(false)
+      setOverride((o) => ({ ...o, state: updated.state, acquisitionDate: updated.acquisitionDate }))
+    } catch {
+      setMarkingOwned(false)
+      setProgressError('No se pudo actualizar el libro.')
     }
   }
   return (
@@ -141,10 +159,24 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
         <p className="text-body text-slate line-clamp-2">{shown.comment}</p>
       )}
 
+      {shown.acquisitionDate && (
+        <p className="text-caption text-stone -mt-2">Obtenido el {shown.acquisitionDate}</p>
+      )}
+
       <div className="mt-auto flex items-center justify-between pt-4 border-t border-silver/60">
         <StarRating value={shown.start} readOnly />
 {!readOnly && (
         <div className="flex items-center gap-2">
+          {shown.state === BookState.WISHLIST && (
+            <button
+              type="button"
+              className="btn-ghost !px-3 !py-1.5"
+              aria-label={`Marcar ${book.title} como en posesión`}
+              onClick={() => setMarkingOwned(true)}
+            >
+              En posesión
+            </button>
+          )}
           {shown.state === BookState.TO_READ && (
             <button
               type="button"
@@ -167,6 +199,14 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
           pages={book.pages}
           onSave={handleStart}
           onClose={() => setStarting(false)}
+        />
+      )}
+
+      {markingOwned && (
+        <MarkAsOwnedDialog
+          acquisitionDate={book.acquisitionDate}
+          onSave={handleMarkAsOwned}
+          onClose={() => setMarkingOwned(false)}
         />
       )}
     </article>

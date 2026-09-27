@@ -16,6 +16,7 @@ import OwnerLine from '../components/OwnerLine'
 import GenreBadges from '../components/GenreBadges'
 import ReadingProgressBar, { type ProgressExtras } from '../components/ReadingProgressBar'
 import StartReadingDialog from '../components/StartReadingDialog'
+import MarkAsOwnedDialog from '../components/MarkAsOwnedDialog'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
@@ -39,6 +40,7 @@ export default function BookDetailPage() {
   const [savingProgress, setSavingProgress] = useState(false)
   const [progressError, setProgressError] = useState<string | null>(null)
   const [starting, setStarting] = useState(false)
+  const [markingOwned, setMarkingOwned] = useState(false)
 
   const load = useCallback(async () => {
     if (!id) return
@@ -124,6 +126,28 @@ export default function BookDetailPage() {
     }
   }
 
+  async function handleMarkAsOwned(acquisitionDate: string | undefined) {
+    if (!book || !id) return
+    setProgressError(null)
+    setSavingProgress(true)
+    try {
+      const updated = await updateBook(id, {
+        ...bookToFormData(book),
+        state: BookState.TO_READ,
+        acquisitionDate,
+      })
+      setMarkingOwned(false)
+      setBook(updated)
+      notify('¡Añadido a tu colección!')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudo actualizar el libro.'
+      setMarkingOwned(false)
+      setProgressError(message)
+    } finally {
+      setSavingProgress(false)
+    }
+  }
+
   if (loading) {
     return (
       <section className="max-w-3xl flex flex-col gap-24">
@@ -152,6 +176,13 @@ export default function BookDetailPage() {
 
   const details: { label: string; value: string }[] = [
     ...(book.pages !== undefined ? [{ label: 'Páginas', value: `${book.pages}` }] : []),
+    ...(book.publisher ? [{ label: 'Editorial', value: book.publisher }] : []),
+    ...(book.publicationYear !== undefined ? [{ label: 'Año', value: `${book.publicationYear}` }] : []),
+    ...(book.isbn ? [{ label: 'ISBN', value: book.isbn }] : []),
+    ...(book.acquisitionDate ? [{ label: 'Fecha de obtención', value: book.acquisitionDate }] : []),
+    ...(book.acquisitionPrice !== undefined
+      ? [{ label: 'Precio de adquisición', value: `${book.acquisitionPrice} €` }]
+      : []),
     ...(book.startDate ? [{ label: 'Fecha de inicio', value: book.startDate }] : []),
     ...(book.endDate ? [{ label: 'Fecha de fin', value: book.endDate }] : []),
   ]
@@ -250,6 +281,15 @@ export default function BookDetailPage() {
             {progressError && <ErrorBanner message={progressError} />}
           </div>
         )}
+
+        {book.state === BookState.WISHLIST && (
+          <div className="border-t border-silver/60 pt-6 flex flex-wrap items-center gap-3">
+            <button type="button" className="btn-primary" onClick={() => setMarkingOwned(true)}>
+              Ya está en mi posesión
+            </button>
+            {progressError && <ErrorBanner message={progressError} />}
+          </div>
+        )}
       </article>
 
       {starting && (
@@ -258,6 +298,15 @@ export default function BookDetailPage() {
           busy={savingProgress}
           onSave={handleStart}
           onClose={() => setStarting(false)}
+        />
+      )}
+
+      {markingOwned && (
+        <MarkAsOwnedDialog
+          acquisitionDate={book.acquisitionDate}
+          busy={savingProgress}
+          onSave={handleMarkAsOwned}
+          onClose={() => setMarkingOwned(false)}
         />
       )}
 

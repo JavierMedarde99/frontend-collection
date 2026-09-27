@@ -118,11 +118,16 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
   const [dirty, setDirty] = useState(false)
   const guard = useUnsavedGuard(dirty)
 
-  const showStartDate = form.state !== BookState.TO_READ
+  // En la lista de deseos el libro aún no está en casa: no se sabe el total de
+  // páginas ni hay fechas de lectura o de adquisición que rellenar.
+  const isWishlist = form.state === BookState.WISHLIST
+  const showStartDate = form.state !== BookState.TO_READ && !isWishlist
   const showEndDate = form.state === BookState.COMPLETED
   const showRating = form.state === BookState.COMPLETED
   const showComment = form.state === BookState.COMPLETED
   const showReadingProgress = !isCreate && form.state === BookState.READING
+  const pagesRequired = !isWishlist
+  const showAcquisition = !isWishlist
   const pagesReadExceeds = showReadingProgress
     && form.pagesRead !== '' && form.pagesRead !== undefined
     && form.pages !== '' && form.pages !== undefined
@@ -145,7 +150,9 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
     if (!form.author.trim()) return setLocalError('El autor es obligatorio.')
     if (!form.type) return setLocalError('El tipo es obligatorio.')
     if (!form.state) return setLocalError('El estado es obligatorio.')
-    if (form.pages === '' || Number(form.pages) <= 0) return setLocalError('El nº de páginas es obligatorio.')
+    if (pagesRequired && (form.pages === '' || Number(form.pages) <= 0)) {
+      return setLocalError('El nº de páginas es obligatorio.')
+    }
 
     const payload: BookFormData = {
       title: form.title.trim(),
@@ -153,7 +160,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
       type: form.type,
       state: form.state,
       descripcion: form.descripcion?.trim() || undefined,
-      pages: Number(form.pages),
+      ...(form.pages !== '' && form.pages !== undefined ? { pages: Number(form.pages) } : {}),
       genres: form.genres ?? [],
       ...(form.pagesRead !== undefined && form.pagesRead !== '' ? { pagesRead: Number(form.pagesRead) } : {}),
       ...(showComment ? { comment: form.comment?.trim() || undefined } : {}),
@@ -161,6 +168,15 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
       ...(showStartDate ? { startDate: form.startDate || undefined } : {}),
       ...(showEndDate ? { endDate: form.endDate || undefined } : {}),
       frontpage: form.frontpage?.trim() || undefined,
+      ...(form.publisher?.trim() ? { publisher: form.publisher.trim() } : {}),
+      ...(form.publicationYear !== '' && form.publicationYear !== undefined
+        ? { publicationYear: Number(form.publicationYear) }
+        : {}),
+      ...(form.isbn?.trim() ? { isbn: form.isbn.trim() } : {}),
+      ...(showAcquisition && form.acquisitionDate ? { acquisitionDate: form.acquisitionDate } : {}),
+      ...(showAcquisition && form.acquisitionPrice !== '' && form.acquisitionPrice !== undefined
+        ? { acquisitionPrice: Number(form.acquisitionPrice) }
+        : {}),
       // ID venido de Google Books: se conserva sin mostrarse en el formulario.
       ...(initial.externalId?.trim() ? { externalId: initial.externalId.trim() } : {}),
     }
@@ -215,7 +231,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
             </select>
           </Field>
 
-          <Field label="Nº de páginas" required icon="pages">
+          <Field label="Nº de páginas" required={pagesRequired} icon="pages">
             <input
               className="input"
               type="number"
@@ -254,7 +270,57 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
             />
           </Field>
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+          <Field label="Editorial">
+            <input
+              className="input"
+              value={form.publisher || ''}
+              onChange={set('publisher')}
+              placeholder="Ej: Alfaguara"
+            />
+          </Field>
+          <Field label="Año de publicación">
+            <input
+              className="input"
+              type="number"
+              min="1"
+              max="9999"
+              value={form.publicationYear ?? ''}
+              onChange={setNumber('publicationYear')}
+              placeholder="Ej: 1995"
+            />
+          </Field>
+          <Field label="ISBN">
+            <input className="input" value={form.isbn || ''} onChange={set('isbn')} placeholder="9788437604947" />
+          </Field>
+        </div>
       </FormSection>
+
+      {showAcquisition && (
+        <FormSection title="Adquisición">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Field label="Fecha de obtención">
+              <input
+                className="input"
+                type="date"
+                value={form.acquisitionDate || ''}
+                onChange={set('acquisitionDate')}
+              />
+            </Field>
+            <Field label="Precio de adquisición">
+              <input
+                className="input"
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.acquisitionPrice ?? ''}
+                onChange={setNumber('acquisitionPrice')}
+                placeholder="12.50"
+              />
+            </Field>
+          </div>
+        </FormSection>
+      )}
 
       <FormSection title="Portada">
         <ImageUpload

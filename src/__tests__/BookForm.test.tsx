@@ -203,4 +203,86 @@ describe('BookForm', () => {
     render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} initial={{ genres: ['Terror'] }} />)
     expect(screen.getByRole('button', { name: 'Terror' })).toHaveAttribute('aria-pressed', 'true')
   })
+
+  it('en WISHLIST no exige el nº de páginas', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+
+    await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.WISHLIST)
+    await user.type(screen.getByPlaceholderText('Título del libro'), 'Neuromante')
+    await user.type(screen.getByPlaceholderText('Autor'), 'William Gibson')
+    await user.click(screen.getByRole('button', { name: 'Guardar libro' }))
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]![0]).toMatchObject({ state: BookState.WISHLIST })
+    expect(onSubmit.mock.calls[0]![0]).not.toHaveProperty('pages')
+  })
+
+  it('en WISHLIST no muestra los campos de adquisición ni fechas de lectura', () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    const { container } = render(
+      <BookForm submitLabel="Guardar" onSubmit={onSubmit} initial={{ state: BookState.WISHLIST }} />,
+    )
+    expect(screen.queryByPlaceholderText('12.50')).not.toBeInTheDocument()
+    expect(container.querySelector('input[type="date"]')).toBeNull()
+  })
+
+  it('en WISHLIST no envía la fecha de obtención aunque exista', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(
+      <BookForm
+        isCreate
+        submitLabel="Guardar libro"
+        onSubmit={onSubmit}
+        initial={{ state: BookState.WISHLIST, acquisitionDate: '2024-01-01', acquisitionPrice: 10 }}
+      />,
+    )
+
+    await user.type(screen.getByPlaceholderText('Título del libro'), 'Neuromante')
+    await user.type(screen.getByPlaceholderText('Autor'), 'William Gibson')
+    await user.click(screen.getByRole('button', { name: 'Guardar libro' }))
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]![0]).not.toHaveProperty('acquisitionDate')
+    expect(onSubmit.mock.calls[0]![0]).not.toHaveProperty('acquisitionPrice')
+  })
+
+  it('envía editorial, año, ISBN y adquisición en el payload', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+
+    await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
+    await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
+    await user.type(screen.getByPlaceholderText('120'), '412')
+    await user.type(screen.getByPlaceholderText('Ej: Alfaguara'), 'Alfaguara')
+    await user.type(screen.getByPlaceholderText('Ej: 1995'), '1965')
+    await user.type(screen.getByPlaceholderText('9788437604947'), '9788437604947')
+    await user.type(screen.getByPlaceholderText('12.50'), '12.5')
+    await user.click(screen.getByRole('button', { name: 'Guardar libro' }))
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]![0]).toMatchObject({
+      publisher: 'Alfaguara',
+      publicationYear: 1965,
+      isbn: '9788437604947',
+      acquisitionPrice: 12.5,
+    })
+  })
+
+  it('un libro en posesión precarga los datos de adquisición', () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    const { container } = render(
+      <BookForm
+        submitLabel="Guardar"
+        onSubmit={onSubmit}
+        initial={{ acquisitionDate: '2024-03-15', acquisitionPrice: 12.5 }}
+      />,
+    )
+    const dateInput = container.querySelector('input[type="date"]') as HTMLInputElement
+    expect(dateInput).toHaveValue('2024-03-15')
+    expect(screen.getByPlaceholderText('12.50')).toHaveValue(12.5)
+  })
 })
