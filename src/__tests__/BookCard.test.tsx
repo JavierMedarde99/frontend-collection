@@ -136,4 +136,33 @@ describe('BookCard', () => {
     ))
     expect(await screen.findByText('Completado')).toBeInTheDocument()
   })
+
+  it('un libro por leer muestra el botón Empezar', () => {
+    renderCard({ ...book, state: BookState.TO_READ, comment: undefined, start: 0 })
+    expect(screen.getByRole('button', { name: 'Empezar Dune' })).toBeInTheDocument()
+  })
+
+  it('Empezar guarda las páginas y mueve el libro a leyendo', async () => {
+    const user = userEvent.setup()
+    mockedUpdate.mockResolvedValue({ ...book, state: BookState.READING, pagesRead: 40 })
+    renderCard({ ...book, state: BookState.TO_READ, comment: undefined, start: 0 })
+
+    await user.click(screen.getByRole('button', { name: 'Empezar Dune' }))
+    const input = screen.getByLabelText('Nº de páginas leídas')
+    await user.clear(input)
+    await user.type(input, '40')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    await waitFor(() => expect(mockedUpdate).toHaveBeenCalledWith(
+      '1',
+      expect.objectContaining({ state: BookState.READING, pagesRead: 40 }),
+    ))
+    expect(mockedProgress).not.toHaveBeenCalled()
+    expect(await screen.findByText('Leyendo')).toBeInTheDocument()
+  })
+
+  it('un libro ya leyendo no muestra el botón Empezar', () => {
+    renderCard({ ...book, state: BookState.READING, pagesRead: 206 })
+    expect(screen.queryByRole('button', { name: 'Empezar Dune' })).not.toBeInTheDocument()
+  })
 })

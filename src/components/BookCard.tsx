@@ -5,6 +5,7 @@ import CardMenu from './CardMenu'
 import OwnerLine from './OwnerLine'
 import GenreBadges from './GenreBadges'
 import ReadingProgressBar, { type ProgressExtras } from './ReadingProgressBar'
+import StartReadingDialog from './StartReadingDialog'
 import { updateBook, updateReadingProgress, bookToFormData } from '../api/booksApi'
 import { BookState } from '../types'
 import StatusBadge from './StatusBadge'
@@ -23,6 +24,7 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
   const typeColor = TYPE_BADGE_COLORS[book.type] || TYPE_BADGE_COLORS.NOVEL
   const [progressError, setProgressError] = useState<string | null>(null)
   const [override, setOverride] = useState<Partial<Book>>({})
+  const [starting, setStarting] = useState(false)
 
   const shown = { ...book, ...override }
 
@@ -47,6 +49,26 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
         setOverride((o) => ({ ...o, pagesRead: updated.pagesRead ?? value }))
       }
     } catch {
+      setProgressError('No se pudo actualizar el progreso.')
+    }
+  }
+
+  async function handleStart(pagesRead: number) {
+    setProgressError(null)
+    try {
+      const updated = await updateBook(book.id, {
+        ...bookToFormData(book),
+        state: BookState.READING,
+        pagesRead,
+      })
+      setStarting(false)
+      setOverride((o) => ({
+        ...o,
+        state: updated.state,
+        pagesRead: updated.pagesRead ?? pagesRead,
+      }))
+    } catch {
+      setStarting(false)
       setProgressError('No se pudo actualizar el progreso.')
     }
   }
@@ -122,11 +144,31 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
       <div className="mt-auto flex items-center justify-between pt-4 border-t border-silver/60">
         <StarRating value={shown.start} readOnly />
 {!readOnly && (
-        <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/editar/${book.id}`} label={`Editar ${book.title}`}>
-          Editar
-        </ActionLink>
+        <div className="flex items-center gap-2">
+          {shown.state === BookState.TO_READ && (
+            <button
+              type="button"
+              className="btn-ghost !px-3 !py-1.5"
+              aria-label={`Empezar ${book.title}`}
+              onClick={() => setStarting(true)}
+            >
+              Empezar
+            </button>
+          )}
+          <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/editar/${book.id}`} label={`Editar ${book.title}`}>
+            Editar
+          </ActionLink>
+        </div>
         )}
       </div>
+
+      {starting && (
+        <StartReadingDialog
+          pages={book.pages}
+          onSave={handleStart}
+          onClose={() => setStarting(false)}
+        />
+      )}
     </article>
   )
 }
