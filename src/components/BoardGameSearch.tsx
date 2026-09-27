@@ -60,6 +60,7 @@ export default function BoardGameSearch() {
   const [modalNotes, setModalNotes] = useState('')
   const [modalDateAdded, setModalDateAdded] = useState('')
   const [modalPersonalRating, setModalPersonalRating] = useState(0)
+  const [modalPlayCount, setModalPlayCount] = useState('')
   const [modalLastPlayedDate, setModalLastPlayedDate] = useState('')
   const [modalDifficulty, setModalDifficulty] = useState<BoardGameDifficulty | ''>('')
 
@@ -77,6 +78,7 @@ export default function BoardGameSearch() {
     setModalNotes('')
     setModalDateAdded('')
     setModalPersonalRating(0)
+    setModalPlayCount('')
     setModalLastPlayedDate('')
     setModalDifficulty('')
   }
@@ -92,6 +94,7 @@ export default function BoardGameSearch() {
         notes: modalNotes.trim() || undefined,
         dateAdded: modalStatus === BoardGameStatus.OWNED ? modalDateAdded || undefined : undefined,
         personalRating: modalStatus === BoardGameStatus.OWNED ? modalPersonalRating || undefined : undefined,
+        playCount: modalStatus === BoardGameStatus.OWNED && modalPlayCount.trim() !== '' ? Number(modalPlayCount) : undefined,
         lastPlayedDate: modalStatus === BoardGameStatus.OWNED ? modalLastPlayedDate || undefined : undefined,
         difficulty: modalStatus === BoardGameStatus.OWNED ? modalDifficulty || undefined : undefined,
       })
@@ -236,6 +239,18 @@ export default function BoardGameSearch() {
                       value={modalNotes}
                       onChange={(e) => setModalNotes(e.target.value)}
                       placeholder="Comentario personal…"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label">Número de jugadas</label>
+                    <input
+                      className="input"
+                      type="number"
+                      min="0"
+                      value={modalPlayCount}
+                      onChange={(e) => setModalPlayCount(e.target.value)}
+                      placeholder="Ej: 12"
                     />
                   </div>
 
