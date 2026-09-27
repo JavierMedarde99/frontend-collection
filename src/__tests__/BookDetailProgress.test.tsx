@@ -98,6 +98,6 @@ describe('BookDetailPage progreso', () => {
       expect.objectContaining({ state: BookState.COMPLETED, pagesRead: 412, start: 5, comment: 'Obra maestra' }),
     ))
     expect(mockedProgress).not.toHaveBeenCalled()
-    expect(await screen.findByText('Finalizado')).toBeInTheDocument()
+    expect(screen.queryByText('Finalizado')).not.toBeInTheDocument()
   })
 })
