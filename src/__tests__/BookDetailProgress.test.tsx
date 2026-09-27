@@ -100,4 +100,36 @@ describe('BookDetailPage progreso', () => {
     expect(mockedProgress).not.toHaveBeenCalled()
     expect(await screen.findByText('Finalizado')).toBeInTheDocument()
   })
+
+  it('un libro por leer muestra el botón Empezar a leer', async () => {
+    mockedGet.mockResolvedValue({ ...readingBook, state: BookState.TO_READ, pagesRead: undefined })
+    renderDetail()
+    expect(await screen.findByRole('button', { name: 'Empezar a leer' })).toBeInTheDocument()
+  })
+
+  it('Empezar a leer guarda páginas y pasa a leyendo', async () => {
+    const user = userEvent.setup()
+    mockedGet.mockResolvedValue({ ...readingBook, state: BookState.TO_READ, pagesRead: undefined })
+    mockedUpdate.mockResolvedValue({ ...readingBook, state: BookState.READING, pagesRead: 40 })
+    renderDetail()
+
+    await user.click(await screen.findByRole('button', { name: 'Empezar a leer' }))
+    const input = screen.getByLabelText('Nº de páginas leídas')
+    await user.clear(input)
+    await user.type(input, '40')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    await waitFor(() => expect(mockedUpdate).toHaveBeenCalledWith(
+      '1',
+      expect.objectContaining({ state: BookState.READING, pagesRead: 40 }),
+    ))
+    expect(mockedProgress).not.toHaveBeenCalled()
+    expect(await screen.findByText(/40 \/ 412 páginas/)).toBeInTheDocument()
+  })
+
+  it('un libro ya leyendo no muestra el botón Empezar a leer', async () => {
+    renderDetail()
+    await screen.findByText(/100 \/ 412 páginas/)
+    expect(screen.queryByRole('button', { name: 'Empezar a leer' })).not.toBeInTheDocument()
+  })
 })

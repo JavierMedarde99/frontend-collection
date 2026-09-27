@@ -15,6 +15,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import OwnerLine from '../components/OwnerLine'
 import GenreBadges from '../components/GenreBadges'
 import ReadingProgressBar, { type ProgressExtras } from '../components/ReadingProgressBar'
+import StartReadingDialog from '../components/StartReadingDialog'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
@@ -37,6 +38,7 @@ export default function BookDetailPage() {
   const notify = useToast()
   const [savingProgress, setSavingProgress] = useState(false)
   const [progressError, setProgressError] = useState<string | null>(null)
+  const [starting, setStarting] = useState(false)
 
   const load = useCallback(async () => {
     if (!id) return
@@ -94,6 +96,28 @@ export default function BookDetailPage() {
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo actualizar el progreso.'
+      setProgressError(message)
+    } finally {
+      setSavingProgress(false)
+    }
+  }
+
+  async function handleStart(pagesRead: number) {
+    if (!book || !id) return
+    setProgressError(null)
+    setSavingProgress(true)
+    try {
+      const updated = await updateBook(id, {
+        ...bookToFormData(book),
+        state: BookState.READING,
+        pagesRead,
+      })
+      setStarting(false)
+      setBook(updated)
+      notify('¡Empezando a leer!')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudo actualizar el progreso.'
+      setStarting(false)
       setProgressError(message)
     } finally {
       setSavingProgress(false)
@@ -217,7 +241,25 @@ export default function BookDetailPage() {
             {progressError && <ErrorBanner message={progressError} />}
           </div>
         )}
+
+        {book.state === BookState.TO_READ && (
+          <div className="border-t border-silver/60 pt-6 flex flex-wrap items-center gap-3">
+            <button type="button" className="btn-primary" onClick={() => setStarting(true)}>
+              Empezar a leer
+            </button>
+            {progressError && <ErrorBanner message={progressError} />}
+          </div>
+        )}
       </article>
+
+      {starting && (
+        <StartReadingDialog
+          pages={book.pages}
+          busy={savingProgress}
+          onSave={handleStart}
+          onClose={() => setStarting(false)}
+        />
+      )}
 
       <ConfirmDialog
         open={deleting}
