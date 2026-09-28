@@ -62,4 +62,36 @@ describe('GameSearch platinar', () => {
     await openAddModal()
     expect(screen.getByLabelText(/Platinar/)).toBeInTheDocument()
   })
+
+  it('propone hoy como fecha de inicio al elegir PLAYING', async () => {
+    renderSearch('76561198000000000')
+    await openAddModal()
+
+    await userEvent.selectOptions(screen.getByDisplayValue('Lista de deseos'), 'PLAYING')
+    expect(screen.getByLabelText(/Fecha de inicio/)).toHaveValue(
+      new Date().toISOString().slice(0, 10),
+    )
+  })
+
+  it('no deja añadir PLAYING sin fecha de inicio', async () => {
+    renderSearch('76561198000000000')
+    await openAddModal()
+
+    await userEvent.selectOptions(screen.getByDisplayValue('Lista de deseos'), 'PLAYING')
+    await userEvent.clear(screen.getByLabelText(/Fecha de inicio/))
+    await userEvent.click(screen.getByRole('button', { name: 'Añadir' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('La fecha de inicio es obligatoria.')
+  })
+
+  it('no deja añadir COMPLETED sin fecha de fin', async () => {
+    renderSearch('76561198000000000')
+    await openAddModal()
+
+    await userEvent.selectOptions(screen.getByDisplayValue('Lista de deseos'), 'COMPLETED')
+    await userEvent.clear(screen.getByLabelText(/Fecha de fin/))
+    await userEvent.click(screen.getByRole('button', { name: 'Añadir' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('La fecha de fin es obligatoria.')
+  })
 })

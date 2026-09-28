@@ -187,7 +187,7 @@ describe('BookCard', () => {
     renderCard({ ...book, state: BookState.WISHLIST })
 
     await user.click(screen.getByRole('button', { name: 'Marcar Dune como en posesión' }))
-    const input = screen.getByLabelText('Fecha de obtención')
+    const input = screen.getByLabelText(/Fecha de obtención/)
     await user.clear(input)
     await user.type(input, '2025-06-01')
     await user.click(screen.getByRole('button', { name: 'Guardar' }))

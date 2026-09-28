@@ -10,6 +10,7 @@ import FormSection from './FormSection'
 import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
+import { missingRequiredDate, todayIso } from '../utils/dates'
 
 type IconName = 'title' | 'author' | 'pages' | 'cover' | 'externalId' | 'date' | 'synopsis' | 'comment'
 
@@ -112,6 +113,10 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
     frontpage: '',
     externalId: '',
     ...initial,
+    // Las fechas de seguimiento son obligatorias. Al crear se proponen las de
+    // hoy, que es lo más probable. Al editar NO se inventan: si el libro no la
+    // tenía, se deja vacía y el usuario tiene que rellenarla.
+    ...(isCreate ? { acquisitionDate: todayIso(), startDate: todayIso(), endDate: todayIso() } : {}),
   })
   const [submitting, setSubmitting] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
@@ -153,6 +158,12 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
     if (pagesRequired && (form.pages === '' || Number(form.pages) <= 0)) {
       return setLocalError('El nº de páginas es obligatorio.')
     }
+    // Fechas de seguimiento obligatorias: solo se exige las que el estado deja ver.
+    const dateError =
+      (showAcquisition && missingRequiredDate(form.acquisitionDate, 'La fecha de obtención')) ||
+      (showStartDate && missingRequiredDate(form.startDate, 'La fecha de inicio')) ||
+      (showEndDate && missingRequiredDate(form.endDate, 'La fecha de fin'))
+    if (dateError) return setLocalError(dateError)
 
     const payload: BookFormData = {
       title: form.title.trim(),
@@ -299,11 +310,11 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
       {showAcquisition && (
         <FormSection title="Adquisición">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Field label="Fecha de obtención">
+            <Field label="Fecha de obtención" required>
               <input
                 className="input"
                 type="date"
-                value={form.acquisitionDate || ''}
+                value={form.acquisitionDate ?? ''}
                 onChange={set('acquisitionDate')}
               />
             </Field>
@@ -335,13 +346,13 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
         <FormSection title="Fechas">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {showStartDate && (
-              <Field label="Fecha de inicio" icon="date">
-                <input className="input" type="date" value={form.startDate} onChange={set('startDate')} />
+              <Field label="Fecha de inicio" required icon="date">
+                <input className="input" type="date" value={form.startDate ?? ''} onChange={set('startDate')} />
               </Field>
             )}
             {showEndDate && (
-              <Field label="Fecha de fin" icon="date">
-                <input className="input" type="date" value={form.endDate} onChange={set('endDate')} />
+              <Field label="Fecha de fin" required icon="date">
+                <input className="input" type="date" value={form.endDate ?? ''} onChange={set('endDate')} />
               </Field>
             )}
           </div>
