@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import BoardGameSearch from '../components/BoardGameSearch'
@@ -81,7 +81,7 @@ describe('BoardGameSearch fechas obligatorias', () => {
 
     await user.click(screen.getByRole('button', { name: 'Añadir' }))
 
-    await waitFor(() => expect(mockedCreate).toHaveBeenCalledTimes(1))
+    expect(mockedCreate).toHaveBeenCalledTimes(1)
     const payload = mockedCreate.mock.calls[0]![0]
     expect(payload.lastPlayedDate).toBeUndefined()
     expect(payload.dateAdded).toBe(new Date().toISOString().slice(0, 10))

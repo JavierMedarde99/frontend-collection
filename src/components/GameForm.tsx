@@ -125,7 +125,6 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
 
   const showStartDate =
     form.status === GameStatus.PLAYING ||
-    form.status === GameStatus.ABANDONED ||
     form.status === GameStatus.COMPLETED
   const showEndDate = form.status === GameStatus.COMPLETED
   const showRating = form.status === GameStatus.COMPLETED
@@ -157,8 +156,8 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
       thumbnailUrl: form.thumbnailUrl?.trim() || undefined,
       userRating: showRating && form.userRating ? form.userRating : undefined,
       comment: form.comment?.trim() || undefined,
-      dateAdded: form.dateAdded || undefined,
-      dateCompleted: form.dateCompleted || undefined,
+      dateAdded: showStartDate ? form.dateAdded : undefined,
+      dateCompleted: showEndDate ? form.dateCompleted : undefined,
       obtainPlatinum:
         canPlatinum && form.obtainPlatinum ? true : undefined,
       steamAppId:

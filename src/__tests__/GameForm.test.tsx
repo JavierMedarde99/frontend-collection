@@ -87,4 +87,20 @@ describe('GameForm platinar', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('La fecha de fin es obligatoria.')
     expect(onSubmit).not.toHaveBeenCalled()
   })
+
+  it('en En posesión (OWNED) no muestra fechas ni las envía', async () => {
+    mockUser('76561198000000000')
+    const { onSubmit, container } = renderForm({ isCreate: true })
+
+    await userEvent.selectOptions(screen.getByDisplayValue('Lista de deseos'), GameStatus.OWNED)
+    expect(container.querySelectorAll('input[type="date"]')).toHaveLength(0)
+
+    await userEvent.type(screen.getByPlaceholderText('Título del videojuego'), 'Hollow Knight')
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar videojuego' }))
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    const payload = onSubmit.mock.calls[0]![0] as Record<string, unknown>
+    expect(payload.dateAdded).toBeUndefined()
+    expect(payload.dateCompleted).toBeUndefined()
+  })
 })
