@@ -58,7 +58,6 @@ export default function GameSearch() {
 
   const showStartDate =
     modalStatus === GameStatus.PLAYING ||
-    modalStatus === GameStatus.ABANDONED ||
     modalStatus === GameStatus.COMPLETED
   const showEndDate = modalStatus === GameStatus.COMPLETED
   const showRating = modalStatus === GameStatus.COMPLETED
