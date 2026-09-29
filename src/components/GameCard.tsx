@@ -9,6 +9,7 @@ import GenreBadges from './GenreBadges'
 import GamePlatinumBadge from './GamePlatinumBadge'
 import StarRating from './StarRating'
 import GameStateDialog from './GameStateDialog'
+import CompleteGameDialog from './CompleteGameDialog'
 import { updateGame } from '../api/gamesApi'
 import { GamePlatform, GameStatus } from '../types'
 import type { Game, GameFormData } from '../types'
@@ -58,6 +59,8 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
         status: updated.status,
         dateAdded: updated.dateAdded,
         dateCompleted: updated.dateCompleted,
+        userRating: updated.userRating,
+        comment: updated.comment,
       }))
       setPlayingDialog(false)
       setCompletingDialog(false)
@@ -76,8 +79,13 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
     return applyStatus({ status: GameStatus.PLAYING, dateAdded: date })
   }
 
-  function markComplete(date: string) {
-    return applyStatus({ status: GameStatus.COMPLETED, dateCompleted: date })
+  function markComplete(date: string, rating: number, comment: string) {
+    return applyStatus({
+      status: GameStatus.COMPLETED,
+      dateCompleted: date,
+      userRating: rating > 0 ? rating : undefined,
+      comment: comment.trim() || undefined,
+    })
   }
 
   return (
@@ -215,11 +223,10 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
       )}
 
       {completingDialog && (
-        <GameStateDialog
-          title="Lo has terminado"
-          description="El videojuego pasará a «Completado»."
-          dateLabel="Fecha de fin"
+        <CompleteGameDialog
           dateValue={shown.dateCompleted}
+          ratingValue={shown.userRating}
+          commentValue={shown.comment}
           onSave={markComplete}
           onClose={() => setCompletingDialog(false)}
           busy={saving}
