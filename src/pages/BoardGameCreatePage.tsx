@@ -58,7 +58,7 @@ export default function BoardGameCreatePage() {
       {mode === 'search' ? (
         <BoardGameSearch />
       ) : (
-        <BoardGameForm submitLabel="Guardar juego" onSubmit={handleSubmit} />
+        <BoardGameForm isCreate submitLabel="Guardar juego" onSubmit={handleSubmit} />
       )}
     </section>
   )

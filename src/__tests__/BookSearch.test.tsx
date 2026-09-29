@@ -138,6 +138,52 @@ describe('BookSearch', () => {
     expect(mockedCreate).not.toHaveBeenCalled()
   })
 
+  it('propone hoy como fecha de obtención al abrir el modal', async () => {
+    mockedSearch.mockResolvedValue(bookPage(results))
+    render(<BookSearch />)
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'Búsqueda' }), 'dune')
+    await userEvent.click(screen.getByRole('button', { name: 'Buscar' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Añadir a mi colección' }))
+
+    expect(screen.getByLabelText(/Fecha de obtención/)).toHaveValue(
+      new Date().toISOString().slice(0, 10),
+    )
+  })
+
+  it('no deja añadir sin fecha de obtención', async () => {
+    mockedSearch.mockResolvedValue(bookPage(results))
+    render(<BookSearch />)
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'Búsqueda' }), 'dune')
+    await userEvent.click(screen.getByRole('button', { name: 'Buscar' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Añadir a mi colección' }))
+
+    await userEvent.clear(screen.getByLabelText(/Fecha de obtención/))
+    await userEvent.type(screen.getByPlaceholderText('Ej. 320'), '412')
+    await userEvent.click(screen.getByRole('button', { name: 'Añadir' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('La fecha de obtención es obligatoria.')
+    expect(mockedCreate).not.toHaveBeenCalled()
+  })
+
+  it('no deja añadir COMPLETED sin fecha de fin', async () => {
+    mockedSearch.mockResolvedValue(bookPage(results))
+    render(<BookSearch />)
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'Búsqueda' }), 'dune')
+    await userEvent.click(screen.getByRole('button', { name: 'Buscar' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Añadir a mi colección' }))
+
+    await userEvent.selectOptions(screen.getByDisplayValue('Por leer'), BookState.COMPLETED)
+    await userEvent.clear(screen.getByLabelText(/Fecha de fin/))
+    await userEvent.type(screen.getByPlaceholderText('Ej. 320'), '412')
+    await userEvent.click(screen.getByRole('button', { name: 'Añadir' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('La fecha de fin es obligatoria.')
+    expect(mockedCreate).not.toHaveBeenCalled()
+  })
+
   it('mantiene el modal abierto si falla al añadir', async () => {
     vi.spyOn(window, 'alert').mockImplementation(() => {})
     mockedSearch.mockResolvedValue(bookPage(results))

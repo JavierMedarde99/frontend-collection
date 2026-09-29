@@ -11,6 +11,7 @@ import ErrorBanner from './ErrorBanner'
 import SearchField from './SearchField'
 import SkeletonInline from './SkeletonInline'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
+import { missingRequiredDate, todayIso } from '../utils/dates'
 
 function mapResultToMovieShow(result: SearchMovieShowResult): Omit<MovieShowFormData, 'mediaType' | 'status'> {
   return {
@@ -77,8 +78,9 @@ export default function MovieShowSearch() {
     const mediaType = Object.values(MediaType).find((t) => t === result.mediaType)
     setModalMediaType(mediaType || MediaType.MOVIE)
     setModalStatus(MovieShowStatus.PLAN_TO_WATCH)
-    setModalDateAdded('')
-    setModalDateCompleted('')
+    // Fechas de seguimiento obligatorias: se propone hoy al añadir.
+    setModalDateAdded(todayIso())
+    setModalDateCompleted(todayIso())
     setModalUserRating(0)
     setModalComment('')
   }
@@ -86,14 +88,22 @@ export default function MovieShowSearch() {
   async function handleConfirm() {
     if (!selected) return
     setSubmitError(null)
+    // Fechas de seguimiento obligatorias: solo se exige las que el estado deja ver.
+    const dateError =
+      (showStartDate && missingRequiredDate(modalDateAdded, 'La fecha de inicio')) ||
+      (showEndDate && missingRequiredDate(modalDateCompleted, 'La fecha de fin'))
+    if (dateError) {
+      setSubmitError(dateError)
+      return
+    }
     setSaving(selected.externalId)
     try {
       const created = await createMovieShow({
         ...mapResultToMovieShow(selected),
         mediaType: modalMediaType,
         status: modalStatus,
-        dateAdded: (showStartDate && modalDateAdded) || undefined,
-        dateCompleted: (showEndDate && modalDateCompleted) || undefined,
+        dateAdded: showStartDate ? modalDateAdded : undefined,
+        dateCompleted: showEndDate ? modalDateCompleted : undefined,
         userRating: showRating && modalUserRating ? modalUserRating : undefined,
         comment: showComment ? modalComment?.trim() || undefined : undefined,
       })
@@ -249,9 +259,9 @@ export default function MovieShowSearch() {
 
               {showStartDate && (
                 <div>
-                  <label className="label">Fecha de inicio</label>
+                  <label className="label" htmlFor="ms-start">Fecha de inicio <span className="text-brand">*</span></label>
                   <input
-                    className="input"
+ id="ms-start"                    className="input"
                     type="date"
                     value={modalDateAdded}
                     onChange={(e) => setModalDateAdded(e.target.value)}
@@ -260,9 +270,9 @@ export default function MovieShowSearch() {
               )}
               {showEndDate && (
                 <div>
-                  <label className="label">Fecha de fin</label>
+                  <label className="label" htmlFor="ms-end">Fecha de fin <span className="text-brand">*</span></label>
                   <input
-                    className="input"
+ id="ms-end"                    className="input"
                     type="date"
                     value={modalDateCompleted}
                     onChange={(e) => setModalDateCompleted(e.target.value)}

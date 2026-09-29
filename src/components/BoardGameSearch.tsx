@@ -12,6 +12,7 @@ import { bggRatingToStars } from '../constants/boardGames'
 import SearchField from './SearchField'
 import SkeletonInline from './SkeletonInline'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
+import { missingRequiredDate, todayIso } from '../utils/dates'
 
 function mapResultToGame(result: BoardGameSearchResult): Omit<BoardGameFormData, 'status'> {
   return {
@@ -76,7 +77,8 @@ export default function BoardGameSearch() {
     setSubmitError(null)
     setModalStatus(BoardGameStatus.OWNED)
     setModalNotes('')
-    setModalDateAdded('')
+    // La fecha de adición es obligatoria: se propone hoy al añadir.
+    setModalDateAdded(todayIso())
     setModalPersonalRating(0)
     setModalPlayCount('')
     setModalLastPlayedDate('')
@@ -86,13 +88,25 @@ export default function BoardGameSearch() {
   async function handleConfirm() {
     if (!selected) return
     setSubmitError(null)
+    // Fechas de seguimiento obligatorias: adición siempre; última jugada solo
+    // si se ha jugado al menos una vez.
+    const rawPlayCount = modalPlayCount.trim() !== '' ? Number(modalPlayCount) : undefined
+    const dateError =
+      (modalStatus === BoardGameStatus.OWNED && missingRequiredDate(modalDateAdded, 'La fecha de adición')) ||
+      (modalStatus === BoardGameStatus.OWNED && rawPlayCount !== undefined && rawPlayCount > 0
+        ? missingRequiredDate(modalLastPlayedDate, 'La fecha de la última jugada')
+        : null)
+    if (dateError) {
+      setSubmitError(dateError)
+      return
+    }
     setSaving(selected.bggId || selected.title)
     try {
       await createBoardGame({
         ...mapResultToGame(selected),
         status: modalStatus,
         notes: modalNotes.trim() || undefined,
-        dateAdded: modalStatus === BoardGameStatus.OWNED ? modalDateAdded || undefined : undefined,
+        dateAdded: modalStatus === BoardGameStatus.OWNED ? modalDateAdded : undefined,
         personalRating: modalStatus === BoardGameStatus.OWNED ? modalPersonalRating || undefined : undefined,
         playCount: modalStatus === BoardGameStatus.OWNED && modalPlayCount.trim() !== '' ? Number(modalPlayCount) : undefined,
         lastPlayedDate: modalStatus === BoardGameStatus.OWNED ? modalLastPlayedDate || undefined : undefined,
@@ -216,8 +230,9 @@ export default function BoardGameSearch() {
               {modalStatus === BoardGameStatus.OWNED && (
                 <>
                   <div>
-                    <label className="label">Fecha de adición</label>
+                    <label className="label" htmlFor="bg-added-date">Fecha de adición <span className="text-brand">*</span></label>
                     <input
+                      id="bg-added-date"
                       className="input"
                       type="date"
                       value={modalDateAdded}
@@ -255,8 +270,9 @@ export default function BoardGameSearch() {
                   </div>
 
                   <div>
-                    <label className="label">Última jugada</label>
+                    <label className="label" htmlFor="bg-last-played-date">Última jugada {modalPlayCount.trim() !== '' && Number(modalPlayCount) > 0 ? <span className="text-brand">*</span> : null}</label>
                     <input
+                      id="bg-last-played-date"
                       className="input"
                       type="date"
                       value={modalLastPlayedDate}

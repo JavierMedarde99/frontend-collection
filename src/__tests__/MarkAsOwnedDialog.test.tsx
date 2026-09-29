@@ -14,19 +14,19 @@ function renderDialog(acquisitionDate?: string, onSave = vi.fn(), onClose = vi.f
 describe('MarkAsOwnedDialog', () => {
   it('prellena la fecha de obtención con hoy', () => {
     renderDialog()
-    expect(screen.getByLabelText('Fecha de obtención')).toHaveValue(new Date().toISOString().slice(0, 10))
+    expect(screen.getByLabelText(/Fecha de obtención/)).toHaveValue(new Date().toISOString().slice(0, 10))
   })
 
   it('usa la fecha de obtención que ya tenía el libro', () => {
     renderDialog('2024-03-15')
-    expect(screen.getByLabelText('Fecha de obtención')).toHaveValue('2024-03-15')
+    expect(screen.getByLabelText(/Fecha de obtención/)).toHaveValue('2024-03-15')
   })
 
   it('devuelve la fecha elegida', async () => {
     const user = userEvent.setup()
     const { onSave } = renderDialog('2024-03-15')
 
-    const input = screen.getByLabelText('Fecha de obtención')
+    const input = screen.getByLabelText(/Fecha de obtención/)
     await user.clear(input)
     await user.type(input, '2025-06-01')
     await user.click(screen.getByRole('button', { name: 'Guardar' }))
@@ -34,14 +34,28 @@ describe('MarkAsOwnedDialog', () => {
     expect(onSave).toHaveBeenCalledWith('2025-06-01')
   })
 
-  it('una fecha vacía se guarda como undefined', async () => {
+  it('una fecha vacía no guarda y avisa de que es obligatoria', async () => {
     const user = userEvent.setup()
     const { onSave } = renderDialog()
 
-    await user.clear(screen.getByLabelText('Fecha de obtención'))
+    await user.clear(screen.getByLabelText(/Fecha de obtención/))
     await user.click(screen.getByRole('button', { name: 'Guardar' }))
 
-    expect(onSave).toHaveBeenCalledWith(undefined)
+    expect(onSave).not.toHaveBeenCalled()
+    expect(screen.getByRole('alert')).toHaveTextContent('La fecha de obtención es obligatoria.')
+  })
+
+  it('rellenar la fecha tras el error vuelve a permitir guardar', async () => {
+    const user = userEvent.setup()
+    const { onSave } = renderDialog()
+
+    await user.clear(screen.getByLabelText(/Fecha de obtención/))
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+    await user.type(screen.getByLabelText(/Fecha de obtención/), '2025-06-01')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    expect(onSave).toHaveBeenCalledWith('2025-06-01')
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('Cancelar no guarda y cierra', async () => {

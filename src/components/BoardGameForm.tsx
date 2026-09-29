@@ -10,6 +10,7 @@ import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
 import StarRating from './StarRating'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
+import { missingRequiredDate, todayIso } from '../utils/dates'
 
 interface FieldProps {
   label: string
@@ -52,9 +53,10 @@ interface BoardGameFormProps {
   submitLabel: string
   onSubmit: (payload: BoardGameFormData) => Promise<void>
   error?: string | null
+  isCreate?: boolean
 }
 
-export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, error }: BoardGameFormProps) {
+export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, error, isCreate = false }: BoardGameFormProps) {
   const [title, setTitle] = useState(initial.title || '')
   const [description, setDescription] = useState(initial.description || '')
   const [yearPublished, setYearPublished] = useState(toNumberInput(initial.yearPublished))
@@ -69,11 +71,15 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
   const [imageUrl, setImageUrl] = useState(initial.imageUrl || '')
   const [status, setStatus] = useState<BoardGameStatus>(initial.status || BoardGameStatus.OWNED)
   const [notes, setNotes] = useState(initial.notes || '')
-  const [dateAdded, setDateAdded] = useState(initial.dateAdded || '')
+  // La fecha de adición es obligatoria y al crear se propone hoy.
+  // Al editar NO se inventa: si el juego no la tenía, se pide al usuario.
+  const [dateAdded, setDateAdded] = useState(initial.dateAdded || (isCreate ? todayIso() : ''))
   const [genres, setGenres] = useState<string[]>(initial.genres ?? [])
   const [personalRating, setPersonalRating] = useState(initial.personalRating || 0)
   const [playCount, setPlayCount] = useState(toNumberInput(initial.playCount))
   const [lastPlayedDate, setLastPlayedDate] = useState(initial.lastPlayedDate || '')
+  // La "última jugada" solo se exige si ya se ha jugado al menos una vez.
+  const lastPlayedRequired = (fromNumberInput(playCount) ?? 0) > 0
   const [difficulty, setDifficulty] = useState<BoardGameDifficulty | ''>(initial.difficulty || '')
   const [submitting, setSubmitting] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
@@ -92,6 +98,16 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
 
     if (!title.trim()) return setLocalError('El título es obligatorio.')
     if (!status) return setLocalError('El estado es obligatorio.')
+    // Fecha de adición obligatoria en Propiedad.
+    if (status === BoardGameStatus.OWNED) {
+      const dateError = missingRequiredDate(dateAdded, 'La fecha de adición')
+      if (dateError) return setLocalError(dateError)
+    }
+    // Última jugada obligatoria solo si ya se ha jugado (playCount > 0).
+    if (lastPlayedRequired) {
+      const lastError = missingRequiredDate(lastPlayedDate, 'La fecha de la última jugada')
+      if (lastError) return setLocalError(lastError)
+    }
 
     const payload: BoardGameFormData = {
       title: title.trim(),
@@ -109,7 +125,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
       imageUrl: imageUrl.trim() || undefined,
       notes: notes.trim() || undefined,
       genres,
-      dateAdded: status === BoardGameStatus.OWNED ? dateAdded || undefined : undefined,
+      dateAdded: status === BoardGameStatus.OWNED ? dateAdded : undefined,
       personalRating: personalRating || undefined,
       playCount: fromNumberInput(playCount),
       lastPlayedDate: lastPlayedDate || undefined,
@@ -182,7 +198,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
           </Field>
 
           {status === BoardGameStatus.OWNED && (
-            <Field label="Fecha de adición">
+            <Field label="Fecha de adición" required>
               <input className="input" type="date" value={dateAdded} onChange={set(setDateAdded)} />
             </Field>
           )}
@@ -234,7 +250,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
             <Field label="Número de jugadas">
               <input className="input" type="number" min="0" value={playCount} onChange={set(setPlayCount)} placeholder="Ej: 12" />
             </Field>
-            <Field label="Última jugada">
+            <Field label="Última jugada" required={lastPlayedRequired}>
               <input className="input" type="date" value={lastPlayedDate} onChange={set(setLastPlayedDate)} />
             </Field>
           </div>

@@ -152,7 +152,7 @@ describe('BookDetailPage progreso', () => {
     renderDetail()
 
     await user.click(await screen.findByRole('button', { name: 'Ya está en mi posesión' }))
-    const input = screen.getByLabelText('Fecha de obtención')
+    const input = screen.getByLabelText(/Fecha de obtención/)
     await user.clear(input)
     await user.type(input, '2025-06-01')
     await user.click(screen.getByRole('button', { name: 'Guardar' }))

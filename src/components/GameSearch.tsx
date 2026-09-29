@@ -10,6 +10,7 @@ import Spinner from './Spinner'
 import EmptyState from './EmptyState'
 import StarRating from './StarRating'
 import ErrorBanner from './ErrorBanner'
+import { missingRequiredDate, todayIso } from '../utils/dates'
 import SearchField from './SearchField'
 import SkeletonInline from './SkeletonInline'
 
@@ -76,8 +77,9 @@ export default function GameSearch() {
     const platform = Object.values(GamePlatform).find((p) => p === result.platform)
     setModalPlatform(platform || GamePlatform.PC)
     setModalStatus(GameStatus.WISHLIST)
-    setModalDateAdded('')
-    setModalDateCompleted('')
+    // Fechas de seguimiento obligatorias: se propone hoy al añadir.
+    setModalDateAdded(todayIso())
+    setModalDateCompleted(todayIso())
     setModalUserRating(0)
     setModalComment('')
     setModalObtainPlatinum(false)
@@ -86,14 +88,22 @@ export default function GameSearch() {
   async function handleConfirm() {
     if (!selected) return
     setSubmitError(null)
+    // Fechas de seguimiento obligatorias: solo se exige las que el estado deja ver.
+    const dateError =
+      (showStartDate && missingRequiredDate(modalDateAdded, 'La fecha de inicio')) ||
+      (showEndDate && missingRequiredDate(modalDateCompleted, 'La fecha de fin'))
+    if (dateError) {
+      setSubmitError(dateError)
+      return
+    }
     setSearching(selected.id)
     try {
       await createGame({
         ...mapResultToGame(selected),
         platform: modalPlatform,
         status: modalStatus,
-        dateAdded: (showStartDate && modalDateAdded) || undefined,
-        dateCompleted: (showEndDate && modalDateCompleted) || undefined,
+        dateAdded: showStartDate ? modalDateAdded : undefined,
+        dateCompleted: showEndDate ? modalDateCompleted : undefined,
         userRating: showRating && modalUserRating ? modalUserRating : undefined,
         comment: showComment ? modalComment?.trim() || undefined : undefined,
         obtainPlatinum:
@@ -236,9 +246,9 @@ export default function GameSearch() {
 
               {showStartDate && (
                 <div>
-                  <label className="label">Fecha de inicio</label>
+                  <label className="label" htmlFor="game-start-date">Fecha de inicio <span className="text-brand">*</span></label>
                   <input
-                    className="input"
+ id="game-start-date"                    className="input"
                     type="date"
                     value={modalDateAdded}
                     onChange={(e) => setModalDateAdded(e.target.value)}
@@ -247,9 +257,9 @@ export default function GameSearch() {
               )}
               {showEndDate && (
                 <div>
-                  <label className="label">Fecha de fin</label>
+                  <label className="label" htmlFor="game-end-date">Fecha de fin <span className="text-brand">*</span></label>
                   <input
-                    className="input"
+ id="game-end-date"                    className="input"
                     type="date"
                     value={modalDateCompleted}
                     onChange={(e) => setModalDateCompleted(e.target.value)}

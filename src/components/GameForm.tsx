@@ -8,6 +8,7 @@ import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import FormSection from './FormSection'
+import { missingRequiredDate, todayIso } from '../utils/dates'
 import GenreSelect from './GenreSelect'
 import { GAME_GENRES } from '../constants/genres'
 import { listGameGenres } from '../api/gamesApi'
@@ -110,6 +111,8 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
     steamAppId: '',
     genres: [],
     ...initial,
+    // Fechas de seguimiento obligatorias: al crear se propone hoy.
+    ...(isCreate ? { dateAdded: todayIso(), dateCompleted: todayIso() } : {}),
   })
   const [submitting, setSubmitting] = useState(false)
   const [dirty, setDirty] = useState(false)
@@ -140,6 +143,11 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
     if (!form.title.trim()) return setLocalError('El título es obligatorio.')
     if (!form.platform) return setLocalError('La plataforma es obligatoria.')
     if (!form.status) return setLocalError('El estado es obligatorio.')
+    // Fechas de seguimiento obligatorias, solo las que el estado deja ver.
+    const dateError =
+      (showStartDate && missingRequiredDate(form.dateAdded, 'La fecha de inicio')) ||
+      (showEndDate && missingRequiredDate(form.dateCompleted, 'La fecha de fin'))
+    if (dateError) return setLocalError(dateError)
 
     const payload: GameFormData = {
       title: form.title.trim(),
@@ -250,13 +258,13 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
         <FormSection title="Fechas">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {showStartDate && (
-              <Field label="Fecha de inicio" icon="date">
-                <input className="input" type="date" value={form.dateAdded} onChange={set('dateAdded')} />
+              <Field label="Fecha de inicio" required icon="date">
+                <input className="input" type="date" value={form.dateAdded ?? ''} onChange={set('dateAdded')} />
               </Field>
             )}
             {showEndDate && (
-              <Field label="Fecha de fin" icon="date">
-                <input className="input" type="date" value={form.dateCompleted} onChange={set('dateCompleted')} />
+              <Field label="Fecha de fin" required icon="date">
+                <input className="input" type="date" value={form.dateCompleted ?? ''} onChange={set('dateCompleted')} />
               </Field>
             )}
           </div>

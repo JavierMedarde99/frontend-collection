@@ -58,7 +58,7 @@ export default function MovieShowCreatePage() {
       {mode === 'search' ? (
         <MovieShowSearch />
       ) : (
-        <MovieShowForm submitLabel="Guardar película/serie" onSubmit={handleSubmit} />
+        <MovieShowForm isCreate submitLabel="Guardar película/serie" onSubmit={handleSubmit} />
       )}
     </section>
   )
