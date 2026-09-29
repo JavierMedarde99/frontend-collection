@@ -92,6 +92,10 @@ export default function GameDetailPage() {
   const details: { label: string; value: string }[] = [
     ...(game.dateAdded ? [{ label: 'Fecha de inicio', value: game.dateAdded }] : []),
     ...(game.dateCompleted ? [{ label: 'Fecha de fin', value: game.dateCompleted }] : []),
+    ...(game.acquisitionDate ? [{ label: 'Fecha de obtención', value: game.acquisitionDate }] : []),
+    ...(game.acquisitionPrice !== undefined
+      ? [{ label: 'Precio de adquisición', value: `${game.acquisitionPrice} €` }]
+      : []),
     ...(game.externalSource ? [{ label: 'Fuente externa', value: game.externalSource }] : []),
   ]
 
