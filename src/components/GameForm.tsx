@@ -111,8 +111,10 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
     steamAppId: '',
     genres: [],
     ...initial,
-    // Fechas de seguimiento obligatorias: al crear se propone hoy.
-    ...(isCreate ? { dateAdded: todayIso(), dateCompleted: todayIso() } : {}),
+    // Fechas de seguimiento y adquisición obligatorias: al crear se propone hoy.
+    ...(isCreate
+      ? { acquisitionDate: todayIso(), dateAdded: todayIso(), dateCompleted: todayIso() }
+      : {}),
   })
   const [submitting, setSubmitting] = useState(false)
   const [dirty, setDirty] = useState(false)
@@ -129,10 +131,16 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
   const showEndDate = form.status === GameStatus.COMPLETED
   const showRating = form.status === GameStatus.COMPLETED
   const showComment = form.status === GameStatus.COMPLETED
+  // La adquisición (fecha y precio) solo tiene sentido fuera de la lista de deseos.
+  const showAcquisition = form.status !== GameStatus.WISHLIST
 
   const set = (key: keyof GameFormData) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const value = e.target.value
     setForm((f) => ({ ...f, [key]: value }))
+  }
+  const setNumber = (key: keyof GameFormData) => (e: ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value
+    setForm((f) => ({ ...f, [key]: v === '' ? '' : Number(v) }))
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -142,11 +150,15 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
     if (!form.title.trim()) return setLocalError('El título es obligatorio.')
     if (!form.platform) return setLocalError('La plataforma es obligatoria.')
     if (!form.status) return setLocalError('El estado es obligatorio.')
-    // Fechas de seguimiento obligatorias, solo las que el estado deja ver.
+    // Fechas de seguimiento y adquisición obligatorias, solo las que el estado deja ver.
     const dateError =
+      (showAcquisition && missingRequiredDate(form.acquisitionDate, 'La fecha de obtención')) ||
       (showStartDate && missingRequiredDate(form.dateAdded, 'La fecha de inicio')) ||
       (showEndDate && missingRequiredDate(form.dateCompleted, 'La fecha de fin'))
     if (dateError) return setLocalError(dateError)
+    if (showAcquisition && (form.acquisitionPrice === '' || form.acquisitionPrice === undefined)) {
+      return setLocalError('El precio de adquisición es obligatorio.')
+    }
 
     const payload: GameFormData = {
       title: form.title.trim(),
@@ -167,9 +179,11 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
       // Datos externos: se conservan sin mostrarse en el formulario.
       ...(initial.externalSource?.trim() ? { externalSource: initial.externalSource.trim() } : {}),
       ...(initial.externalId?.trim() ? { externalId: initial.externalId.trim() } : {}),
-      // Adquisición: se conserva al editar (entra por el diálogo «En posesión»).
-      ...(initial.acquisitionDate ? { acquisitionDate: initial.acquisitionDate } : {}),
-      ...(initial.acquisitionPrice !== undefined ? { acquisitionPrice: initial.acquisitionPrice } : {}),
+      // Adquisición: obligatoria fuera de la lista de deseos; en ella se limpia.
+      ...(showAcquisition && form.acquisitionDate ? { acquisitionDate: form.acquisitionDate } : {}),
+      ...(showAcquisition && form.acquisitionPrice !== '' && form.acquisitionPrice !== undefined
+        ? { acquisitionPrice: Number(form.acquisitionPrice) }
+        : {}),
     }
 
     setSubmitting(true)
@@ -255,6 +269,32 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
           onTouched={() => setDirty(true)}
         />
       </FormSection>
+
+      {showAcquisition && (
+        <FormSection title="Adquisición">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Field label="Fecha de obtención" required icon="date">
+              <input
+                className="input"
+                type="date"
+                value={form.acquisitionDate ?? ''}
+                onChange={set('acquisitionDate')}
+              />
+            </Field>
+            <Field label="Precio de adquisición" required>
+              <input
+                className="input"
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.acquisitionPrice ?? ''}
+                onChange={setNumber('acquisitionPrice')}
+                placeholder="12.50"
+              />
+            </Field>
+          </div>
+        </FormSection>
+      )}
 
       {(showStartDate || showEndDate) && (
         <FormSection title="Fechas">
