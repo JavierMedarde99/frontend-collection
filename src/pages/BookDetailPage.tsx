@@ -180,7 +180,7 @@ export default function BookDetailPage() {
     ...(book.publicationYear !== undefined ? [{ label: 'Año', value: `${book.publicationYear}` }] : []),
     ...(book.isbn ? [{ label: 'ISBN', value: book.isbn }] : []),
     ...(book.acquisitionDate ? [{ label: 'Fecha de obtención', value: book.acquisitionDate }] : []),
-    ...(book.acquisitionPrice !== undefined
+    ...(book.acquisitionPrice !== undefined && book.state !== BookState.WISHLIST
       ? [{ label: 'Precio de adquisición', value: `${book.acquisitionPrice} €` }]
       : []),
     ...(book.startDate ? [{ label: 'Fecha de inicio', value: book.startDate }] : []),
