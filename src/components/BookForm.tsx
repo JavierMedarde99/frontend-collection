@@ -130,7 +130,8 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
   const showEndDate = form.state === BookState.COMPLETED
   const showRating = form.state === BookState.COMPLETED
   const showComment = form.state === BookState.COMPLETED
-  const showReadingProgress = !isCreate && form.state === BookState.READING
+  const showReadingProgress = form.state === BookState.READING
+  const readingProgressRequired = isCreate && showReadingProgress
   const pagesRequired = !isWishlist
   const showAcquisition = !isWishlist
   const pagesReadExceeds = showReadingProgress
@@ -157,6 +158,9 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
     if (!form.state) return setLocalError('El estado es obligatorio.')
     if (pagesRequired && (form.pages === '' || Number(form.pages) <= 0)) {
       return setLocalError('El nº de páginas es obligatorio.')
+    }
+    if (readingProgressRequired && (form.pagesRead === '' || form.pagesRead === undefined)) {
+      return setLocalError('El nº de páginas leídas es obligatorio.')
     }
     // Fechas de seguimiento obligatorias: solo se exige las que el estado deja ver.
     const dateError =
@@ -253,7 +257,7 @@ export default function BookForm({ initial = {}, submitLabel, onSubmit, error, i
             />
           </Field>
           {showReadingProgress && (
-            <Field label="Páginas leídas" icon="pages">
+            <Field label="Páginas leídas" icon="pages" required={readingProgressRequired}>
               <input
                 className="input"
                 type="number"
