@@ -38,7 +38,7 @@ export interface GameFormData {
   steamAppId?: string
   genres?: string[]
   acquisitionDate?: string
-  acquisitionPrice?: number
+  acquisitionPrice?: number | ''
 }
 
 export interface SearchGameResult {
