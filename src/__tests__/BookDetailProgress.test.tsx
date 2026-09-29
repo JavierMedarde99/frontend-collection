@@ -148,6 +148,7 @@ describe('BookDetailPage progreso', () => {
       state: BookState.TO_READ,
       pagesRead: undefined,
       acquisitionDate: '2025-06-01',
+      acquisitionPrice: 12.5,
     })
     renderDetail()
 
@@ -155,11 +156,16 @@ describe('BookDetailPage progreso', () => {
     const input = screen.getByLabelText(/Fecha de obtención/)
     await user.clear(input)
     await user.type(input, '2025-06-01')
+    await user.type(screen.getByLabelText(/Precio de adquisición/), '12.50')
     await user.click(screen.getByRole('button', { name: 'Guardar' }))
 
     await waitFor(() => expect(mockedUpdate).toHaveBeenCalledWith(
       '1',
-      expect.objectContaining({ state: BookState.TO_READ, acquisitionDate: '2025-06-01' }),
+      expect.objectContaining({
+        state: BookState.TO_READ,
+        acquisitionDate: '2025-06-01',
+        acquisitionPrice: 12.5,
+      }),
     ))
     expect(mockedProgress).not.toHaveBeenCalled()
     expect(await screen.findByRole('button', { name: 'Empezar a leer' })).toBeInTheDocument()
