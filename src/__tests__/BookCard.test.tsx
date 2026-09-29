@@ -44,7 +44,8 @@ function renderCard(data: Book = book) {
 describe('BookCard', () => {
   it('muestra el título y el autor', () => {
     renderCard()
-    expect(screen.getByRole('heading', { name: 'Dune' })).toBeInTheDocument()
+    // El título es un enlace (hacia el detalle), como ocurre en el resto de tarjetas.
+    expect(screen.getByRole('link', { name: 'Dune' })).toBeInTheDocument()
     expect(screen.getByText('Frank Herbert')).toBeInTheDocument()
   })
 

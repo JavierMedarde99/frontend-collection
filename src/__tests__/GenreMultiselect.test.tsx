@@ -59,9 +59,12 @@ describe('BookListPage multiselect de género', () => {
     )
     await screen.findByText('Dune')
 
+    // El filtro de género es un desplegable de checkboxes (no chips).
     await user.click(screen.getByRole('button', { name: /filtros/i }))
-    await user.click(await screen.findByRole('button', { name: 'Fantasía' }))
-    await user.click(screen.getByRole('button', { name: 'Terror' }))
+    await user.click(screen.getByRole('button', { name: 'Todos los géneros' }))
+    await user.click(await screen.findByRole('checkbox', { name: 'Fantasía' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Terror' }))
+    await user.click(screen.getByRole('button', { name: 'Ver resultados' }))
 
     await waitFor(() =>
       expect(mockedList).toHaveBeenCalledWith(expect.objectContaining({ genre: ['Fantasía', 'Terror'] })),
