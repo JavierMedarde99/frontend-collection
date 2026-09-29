@@ -75,16 +75,22 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
     }
   }
 
-  async function handleMarkAsOwned(acquisitionDate: string | undefined) {
+  async function handleMarkAsOwned(acquisitionDate: string | undefined, acquisitionPrice: number | undefined) {
     setProgressError(null)
     try {
       const updated = await updateBook(book.id, {
         ...bookToFormData(book),
         state: BookState.TO_READ,
         acquisitionDate,
+        acquisitionPrice,
       })
       setMarkingOwned(false)
-      setOverride((o) => ({ ...o, state: updated.state, acquisitionDate: updated.acquisitionDate }))
+      setOverride((o) => ({
+        ...o,
+        state: updated.state,
+        acquisitionDate: updated.acquisitionDate,
+        acquisitionPrice: updated.acquisitionPrice,
+      }))
     } catch {
       setMarkingOwned(false)
       setProgressError('No se pudo actualizar el libro.')
@@ -205,6 +211,7 @@ export default function BookCard({ book, index = 0, onDelete, readOnly = false }
       {markingOwned && (
         <MarkAsOwnedDialog
           acquisitionDate={book.acquisitionDate}
+          acquisitionPrice={book.acquisitionPrice}
           onSave={handleMarkAsOwned}
           onClose={() => setMarkingOwned(false)}
         />

@@ -126,7 +126,7 @@ export default function BookDetailPage() {
     }
   }
 
-  async function handleMarkAsOwned(acquisitionDate: string | undefined) {
+  async function handleMarkAsOwned(acquisitionDate: string | undefined, acquisitionPrice: number | undefined) {
     if (!book || !id) return
     setProgressError(null)
     setSavingProgress(true)
@@ -135,6 +135,7 @@ export default function BookDetailPage() {
         ...bookToFormData(book),
         state: BookState.TO_READ,
         acquisitionDate,
+        acquisitionPrice,
       })
       setMarkingOwned(false)
       setBook(updated)
@@ -304,6 +305,7 @@ export default function BookDetailPage() {
       {markingOwned && (
         <MarkAsOwnedDialog
           acquisitionDate={book.acquisitionDate}
+          acquisitionPrice={book.acquisitionPrice}
           busy={savingProgress}
           onSave={handleMarkAsOwned}
           onClose={() => setMarkingOwned(false)}
