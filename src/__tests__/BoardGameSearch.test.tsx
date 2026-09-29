@@ -79,11 +79,13 @@ describe('BoardGameSearch fechas obligatorias', () => {
     const user = userEvent.setup()
     await openAddModal()
 
+    await user.type(screen.getByPlaceholderText('24.99'), '19.99')
     await user.click(screen.getByRole('button', { name: 'Añadir' }))
 
     expect(mockedCreate).toHaveBeenCalledTimes(1)
     const payload = mockedCreate.mock.calls[0]![0]
     expect(payload.lastPlayedDate).toBeUndefined()
     expect(payload.dateAdded).toBe(new Date().toISOString().slice(0, 10))
+    expect(payload.acquisitionPrice).toBe(19.99)
   })
 })

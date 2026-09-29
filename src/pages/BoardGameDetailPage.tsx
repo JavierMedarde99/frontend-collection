@@ -115,6 +115,7 @@ export default function BoardGameDetailPage() {
     ...(game.categories?.length ? [{ label: 'Categorías', value: game.categories.join(', ') }] : []),
     ...(game.mechanics?.length ? [{ label: 'Mecánicas', value: game.mechanics.join(', ') }] : []),
     ...(game.dateAdded ? [{ label: 'En la colección desde', value: game.dateAdded }] : []),
+    ...(game.acquisitionPrice !== undefined ? [{ label: 'Precio de adquisición', value: `${game.acquisitionPrice} €` }] : []),
     ...(game.difficulty ? [{ label: 'Dificultad', value: BOARD_GAME_DIFFICULTY_LABELS[game.difficulty] }] : []),
     ...(game.playCount !== undefined && game.playCount !== null
       ? [{ label: 'Jugadas', value: `${game.playCount} jugada${game.playCount === 1 ? '' : 's'}` }]

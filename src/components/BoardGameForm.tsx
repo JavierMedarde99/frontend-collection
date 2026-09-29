@@ -78,6 +78,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
   const [personalRating, setPersonalRating] = useState(initial.personalRating || 0)
   const [playCount, setPlayCount] = useState(toNumberInput(initial.playCount))
   const [lastPlayedDate, setLastPlayedDate] = useState(initial.lastPlayedDate || '')
+  const [acquisitionPrice, setAcquisitionPrice] = useState(initial.acquisitionPrice !== undefined ? String(initial.acquisitionPrice) : '')
   // La "última jugada" solo se exige si ya se ha jugado al menos una vez.
   const lastPlayedRequired = (fromNumberInput(playCount) ?? 0) > 0
   const [difficulty, setDifficulty] = useState<BoardGameDifficulty | ''>(initial.difficulty || '')
@@ -102,6 +103,10 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
     if (status === BoardGameStatus.OWNED) {
       const dateError = missingRequiredDate(dateAdded, 'La fecha de adición')
       if (dateError) return setLocalError(dateError)
+    }
+    // Precio de adquisición obligatorio en Propiedad.
+    if (status === BoardGameStatus.OWNED && acquisitionPrice === '') {
+      return setLocalError('El precio de adquisición es obligatorio.')
     }
     // Última jugada obligatoria solo si ya se ha jugado (playCount > 0).
     if (lastPlayedRequired) {
@@ -130,6 +135,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
       playCount: fromNumberInput(playCount),
       lastPlayedDate: lastPlayedDate || undefined,
       difficulty: difficulty || undefined,
+      acquisitionPrice: status === BoardGameStatus.OWNED && acquisitionPrice !== '' ? Number(acquisitionPrice) : undefined,
       // Datos venidos de BGG: se conservan sin mostrarse en el formulario manual.
       ...(initial.thumbnailUrl ? { thumbnailUrl: initial.thumbnailUrl } : {}),
       ...(initial.bggId ? { bggId: initial.bggId } : {}),
@@ -230,8 +236,14 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
       </FormSection>
 
       {status === BoardGameStatus.OWNED && (
-        <FormSection title="Valoración y estadísticas">
-          <Field label="Valoración personal">
+        <>
+          <FormSection title="Adquisición">
+            <Field label="Precio de adquisición" required>
+              <input className="input" type="number" min="0" step="0.01" value={acquisitionPrice} onChange={set(setAcquisitionPrice)} placeholder="24.99" />
+            </Field>
+          </FormSection>
+          <FormSection title="Valoración y estadísticas">
+            <Field label="Valoración personal">
             <div className="pt-2">
               <StarRating value={personalRating} onChange={(n) => { setDirty(true); setPersonalRating(n) }} />
             </div>
@@ -270,6 +282,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
             </select>
           </Field>
         </FormSection>
+        </>
       )}
 
       {(error || localError) && (

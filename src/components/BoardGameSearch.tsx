@@ -64,6 +64,7 @@ export default function BoardGameSearch() {
   const [modalPlayCount, setModalPlayCount] = useState('')
   const [modalLastPlayedDate, setModalLastPlayedDate] = useState('')
   const [modalDifficulty, setModalDifficulty] = useState<BoardGameDifficulty | ''>('')
+  const [modalAcquisitionPrice, setModalAcquisitionPrice] = useState('')
 
   function handleSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -83,6 +84,8 @@ export default function BoardGameSearch() {
     setModalPlayCount('')
     setModalLastPlayedDate('')
     setModalDifficulty('')
+    // Precio de adquisición obligatorio en Propiedad.
+    setModalAcquisitionPrice('')
   }
 
   async function handleConfirm() {
@@ -100,6 +103,11 @@ export default function BoardGameSearch() {
       setSubmitError(dateError)
       return
     }
+    // Precio de adquisición obligatorio en Propiedad.
+    if (modalStatus === BoardGameStatus.OWNED && modalAcquisitionPrice === '') {
+      setSubmitError('El precio de adquisición es obligatorio.')
+      return
+    }
     setSaving(selected.bggId || selected.title)
     try {
       await createBoardGame({
@@ -111,6 +119,7 @@ export default function BoardGameSearch() {
         playCount: modalStatus === BoardGameStatus.OWNED && modalPlayCount.trim() !== '' ? Number(modalPlayCount) : undefined,
         lastPlayedDate: modalStatus === BoardGameStatus.OWNED ? modalLastPlayedDate || undefined : undefined,
         difficulty: modalStatus === BoardGameStatus.OWNED ? modalDifficulty || undefined : undefined,
+        acquisitionPrice: modalStatus === BoardGameStatus.OWNED ? Number(modalAcquisitionPrice) : undefined,
       })
       setSelected(null)
       navigate('/boardgames')
@@ -237,6 +246,20 @@ export default function BoardGameSearch() {
                       type="date"
                       value={modalDateAdded}
                       onChange={(e) => setModalDateAdded(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label" htmlFor="bg-acq-price">Precio de adquisición <span className="text-brand">*</span></label>
+                    <input
+                      id="bg-acq-price"
+                      className="input"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={modalAcquisitionPrice}
+                      onChange={(e) => setModalAcquisitionPrice(e.target.value)}
+                      placeholder="24.99"
                     />
                   </div>
 

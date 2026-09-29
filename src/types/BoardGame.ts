@@ -39,6 +39,7 @@ export interface BoardGame {
   lastPlayedDate?: string
   difficulty?: BoardGameDifficulty
   userOwned?: UserOwned | null
+  acquisitionPrice?: number
 }
 
 export interface BoardGameFormData {
@@ -65,6 +66,7 @@ export interface BoardGameFormData {
   playCount?: number
   lastPlayedDate?: string
   difficulty?: BoardGameDifficulty
+  acquisitionPrice?: number
 }
 
 export interface BoardGameSearchResult {
