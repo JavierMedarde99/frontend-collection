@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
 import CardMenu from './CardMenu'
@@ -7,8 +8,10 @@ import GamePlatformBadge from './GamePlatformBadge'
 import GenreBadges from './GenreBadges'
 import GamePlatinumBadge from './GamePlatinumBadge'
 import StarRating from './StarRating'
-import { GamePlatform } from '../types'
-import type { Game } from '../types'
+import GameStateDialog from './GameStateDialog'
+import { updateGame } from '../api/gamesApi'
+import { GamePlatform, GameStatus } from '../types'
+import type { Game, GameFormData } from '../types'
 
 interface GameCardProps {
   game: Game
@@ -17,7 +20,66 @@ interface GameCardProps {
   readOnly?: boolean
 }
 
+// Payload del PUT conservando el resto del juego: solo cambian estado y fechas.
+function gameToPayload(game: Game, patch: Partial<GameFormData>): GameFormData {
+  return {
+    title: game.title,
+    platform: game.platform,
+    status: game.status,
+    thumbnailUrl: game.thumbnailUrl,
+    userRating: game.userRating,
+    comment: game.comment,
+    dateAdded: game.dateAdded,
+    dateCompleted: game.dateCompleted,
+    externalSource: game.externalSource,
+    externalId: game.externalId,
+    obtainPlatinum: game.obtainPlatinum,
+    steamAppId: game.steamAppId,
+    genres: game.genres ?? [],
+    ...patch,
+  }
+}
+
 export default function GameCard({ game, index = 0, onDelete, readOnly = false }: GameCardProps) {
+  const [override, setOverride] = useState<Partial<Game>>({})
+  const [playingDialog, setPlayingDialog] = useState(false)
+  const [completingDialog, setCompletingDialog] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const shown = { ...game, ...override }
+
+  async function applyStatus(patch: Partial<GameFormData>) {
+    setActionError(null)
+    setSaving(true)
+    try {
+      const updated = await updateGame(game.id, gameToPayload(game, patch))
+      setOverride((o) => ({
+        ...o,
+        status: updated.status,
+        dateAdded: updated.dateAdded,
+        dateCompleted: updated.dateCompleted,
+      }))
+      setPlayingDialog(false)
+      setCompletingDialog(false)
+    } catch {
+      setActionError('No se pudo actualizar el videojuego.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function markAsOwned() {
+    return applyStatus({ status: GameStatus.OWNED, dateAdded: undefined, dateCompleted: undefined })
+  }
+
+  function startPlaying(date: string) {
+    return applyStatus({ status: GameStatus.PLAYING, dateAdded: date })
+  }
+
+  function markComplete(date: string) {
+    return applyStatus({ status: GameStatus.COMPLETED, dateCompleted: date })
+  }
+
   return (
     <article
       className="card card-hover animate-fade-up relative flex flex-col gap-5 group"
@@ -63,7 +125,7 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
           </Link>
             {readOnly && <OwnerLine owner={game.userOwned} />}
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <GameStatusBadge status={game.status} />
+            <GameStatusBadge status={shown.status} />
             <GamePlatformBadge platform={game.platform} />
             <GamePlatinumBadge game={game} />
           </div>
@@ -71,8 +133,12 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
         </div>
       </div>
 
-      {game.comment && (
-        <p className="text-body text-slate line-clamp-2">{game.comment}</p>
+      {shown.comment && (
+        <p className="text-body text-slate line-clamp-2">{shown.comment}</p>
+      )}
+
+      {actionError && (
+        <p className="text-caption text-red-600 -mt-2" role="alert">{actionError}</p>
       )}
 
       <div className="mt-auto flex items-center justify-between pt-4 border-t border-silver/60">
@@ -94,12 +160,71 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
             </Link>
           )}
 {!readOnly && (
+          <>
+          {shown.status === GameStatus.WISHLIST && (
+            <button
+              type="button"
+              className="btn-ghost !px-3 !py-1.5"
+              aria-label={`Marcar ${game.title} como en posesión`}
+              onClick={markAsOwned}
+              disabled={saving}
+            >
+              En posesión
+            </button>
+          )}
+          {shown.status === GameStatus.OWNED && (
+            <button
+              type="button"
+              className="btn-ghost !px-3 !py-1.5"
+              aria-label={`Empezar a jugar a ${game.title}`}
+              onClick={() => setPlayingDialog(true)}
+              disabled={saving}
+            >
+              Jugando
+            </button>
+          )}
+          {shown.status === GameStatus.PLAYING && (
+            <button
+              type="button"
+              className="btn-ghost !px-3 !py-1.5"
+              aria-label={`Marcar ${game.title} como completado`}
+              onClick={() => setCompletingDialog(true)}
+              disabled={saving}
+            >
+              Completado
+            </button>
+          )}
           <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/juegos/editar/${game.id}`} label={`Editar ${game.title}`}>
             Editar
           </ActionLink>
+          </>
         )}
         </div>
       </div>
+
+      {playingDialog && (
+        <GameStateDialog
+          title="¡A jugar!"
+          description="El videojuego pasará a «Jugando»."
+          dateLabel="Fecha de inicio"
+          dateValue={shown.dateAdded}
+          onSave={startPlaying}
+          onClose={() => setPlayingDialog(false)}
+          busy={saving}
+        />
+      )}
+
+      {completingDialog && (
+        <GameStateDialog
+          title="Lo has terminado"
+          description="El videojuego pasará a «Completado»."
+          dateLabel="Fecha de fin"
+          dateValue={shown.dateCompleted}
+          onSave={markComplete}
+          onClose={() => setCompletingDialog(false)}
+          busy={saving}
+        />
+      )}
     </article>
   )
 }
