@@ -184,21 +184,44 @@ describe('BookForm', () => {
     expect(onSubmit.mock.calls[0]![0]).toMatchObject({ pagesRead: 60 })
   })
 
-  it('en creación no muestra páginas leídas aunque el estado sea leyendo', async () => {
+  it('en creación con Reading muestra el campo de páginas leídas', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
     render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
 
     await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.READING)
-    expect(screen.queryByPlaceholderText('0')).not.toBeInTheDocument()
+    expect(screen.getByPlaceholderText('0')).toBeInTheDocument()
+  })
 
+  it('en creación con Reading exige las páginas leídas', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+
+    await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.READING)
+    await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
+    await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
+    await user.type(screen.getByPlaceholderText('120'), '412')
+    await user.click(screen.getByRole('button', { name: 'Guardar libro' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('El nº de páginas leídas es obligatorio.')
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('en creación con Reading envía las páginas leídas', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+
+    await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.READING)
+    await user.type(screen.getByPlaceholderText('0'), '50')
     await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
     await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
     await user.type(screen.getByPlaceholderText('120'), '412')
     await user.click(screen.getByRole('button', { name: 'Guardar libro' }))
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
-    expect(onSubmit.mock.calls[0]![0]).not.toHaveProperty('pagesRead')
+    expect(onSubmit.mock.calls[0]![0]).toMatchObject({ pagesRead: 50 })
   })
 
   it('envía los géneros seleccionados en el payload', async () => {
