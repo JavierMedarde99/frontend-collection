@@ -88,15 +88,23 @@ describe('GameCard', () => {
     expect(await screen.findByText('Jugando')).toBeInTheDocument()
   })
 
-  it('en PLAYING muestra Completado y con el diálogo lo pasa a COMPLETED con fecha de fin', async () => {
+  it('en PLAYING muestra Completado y lo completa con fecha, valoración y comentario', async () => {
     const user = userEvent.setup()
-    mockedUpdate.mockResolvedValue({ ...game, status: GameStatus.COMPLETED, dateCompleted: '2025-06-01' })
+    mockedUpdate.mockResolvedValue({
+      ...game,
+      status: GameStatus.COMPLETED,
+      dateCompleted: '2025-06-01',
+      userRating: 4,
+      comment: 'Joya del metroidvania',
+    })
     renderCard({ ...game, status: GameStatus.PLAYING, dateAdded: '2025-05-01' })
 
     await user.click(screen.getByRole('button', { name: 'Marcar Hollow Knight como completado' }))
     const dateInput = screen.getByLabelText(/Fecha de fin/)
     await user.clear(dateInput)
     await user.type(dateInput, '2025-06-01')
+    await user.click(screen.getByRole('radio', { name: '4 estrellas' }))
+    await user.type(screen.getByLabelText('Comentario'), 'Joya del metroidvania')
     await user.click(screen.getByRole('button', { name: 'Guardar' }))
 
     await waitFor(() =>
@@ -105,6 +113,8 @@ describe('GameCard', () => {
         expect.objectContaining({
           status: GameStatus.COMPLETED,
           dateCompleted: '2025-06-01',
+          userRating: 4,
+          comment: 'Joya del metroidvania',
         }),
       ),
     )
