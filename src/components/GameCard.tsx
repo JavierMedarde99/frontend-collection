@@ -9,6 +9,7 @@ import GenreBadges from './GenreBadges'
 import GamePlatinumBadge from './GamePlatinumBadge'
 import StarRating from './StarRating'
 import GameStateDialog from './GameStateDialog'
+import AcquisitionGameDialog from './AcquisitionGameDialog'
 import CompleteGameDialog from './CompleteGameDialog'
 import { updateGame } from '../api/gamesApi'
 import { GamePlatform, GameStatus } from '../types'
@@ -37,6 +38,8 @@ function gameToPayload(game: Game, patch: Partial<GameFormData>): GameFormData {
     obtainPlatinum: game.obtainPlatinum,
     steamAppId: game.steamAppId,
     genres: game.genres ?? [],
+    acquisitionDate: game.acquisitionDate,
+    acquisitionPrice: game.acquisitionPrice,
     ...patch,
   }
 }
@@ -45,6 +48,7 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
   const [override, setOverride] = useState<Partial<Game>>({})
   const [playingDialog, setPlayingDialog] = useState(false)
   const [completingDialog, setCompletingDialog] = useState(false)
+  const [acquiringDialog, setAcquiringDialog] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const shown = { ...game, ...override }
@@ -59,11 +63,14 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
         status: updated.status,
         dateAdded: updated.dateAdded,
         dateCompleted: updated.dateCompleted,
+acquisitionDate: updated.acquisitionDate,
+        acquisitionPrice: updated.acquisitionPrice,
         userRating: updated.userRating,
         comment: updated.comment,
       }))
       setPlayingDialog(false)
       setCompletingDialog(false)
+      setAcquiringDialog(false)
     } catch {
       setActionError('No se pudo actualizar el videojuego.')
     } finally {
@@ -71,8 +78,14 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
     }
   }
 
-  function markAsOwned() {
-    return applyStatus({ status: GameStatus.OWNED, dateAdded: undefined, dateCompleted: undefined })
+  function markAsOwned(acquisitionDate: string, acquisitionPrice: number) {
+    return applyStatus({
+      status: GameStatus.OWNED,
+      acquisitionDate,
+      acquisitionPrice,
+      dateAdded: undefined,
+      dateCompleted: undefined,
+    })
   }
 
   function startPlaying(date: string) {
@@ -174,7 +187,7 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
               type="button"
               className="btn-ghost !px-3 !py-1.5"
               aria-label={`Marcar ${game.title} como en posesión`}
-              onClick={markAsOwned}
+              onClick={() => setAcquiringDialog(true)}
               disabled={saving}
             >
               En posesión
@@ -218,6 +231,16 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
           dateValue={shown.dateAdded}
           onSave={startPlaying}
           onClose={() => setPlayingDialog(false)}
+          busy={saving}
+        />
+      )}
+
+      {acquiringDialog && (
+        <AcquisitionGameDialog
+          acquisitionDate={shown.acquisitionDate}
+          acquisitionPrice={shown.acquisitionPrice}
+          onSave={markAsOwned}
+          onClose={() => setAcquiringDialog(false)}
           busy={saving}
         />
       )}

@@ -103,4 +103,30 @@ describe('GameForm platinar', () => {
     expect(payload.dateAdded).toBeUndefined()
     expect(payload.dateCompleted).toBeUndefined()
   })
+
+  it('al editar conserva la fecha y el precio de adquisición', async () => {
+    mockUser('76561198000000000')
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(
+      <MemoryRouter>
+        <GameForm
+          submitLabel="Guardar videojuego"
+          onSubmit={onSubmit}
+          initial={{
+            status: GameStatus.OWNED,
+            acquisitionDate: '2024-03-15',
+            acquisitionPrice: 24.99,
+          }}
+        />
+      </MemoryRouter>,
+    )
+
+    await userEvent.type(screen.getByPlaceholderText('Título del videojuego'), 'Hollow Knight')
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar videojuego' }))
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    const payload = onSubmit.mock.calls[0]![0] as Record<string, unknown>
+    expect(payload.acquisitionDate).toBe('2024-03-15')
+    expect(payload.acquisitionPrice).toBe(24.99)
+  })
 })

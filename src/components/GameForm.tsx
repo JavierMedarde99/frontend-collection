@@ -167,6 +167,9 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
       // Datos externos: se conservan sin mostrarse en el formulario.
       ...(initial.externalSource?.trim() ? { externalSource: initial.externalSource.trim() } : {}),
       ...(initial.externalId?.trim() ? { externalId: initial.externalId.trim() } : {}),
+      // Adquisición: se conserva al editar (entra por el diálogo «En posesión»).
+      ...(initial.acquisitionDate ? { acquisitionDate: initial.acquisitionDate } : {}),
+      ...(initial.acquisitionPrice !== undefined ? { acquisitionPrice: initial.acquisitionPrice } : {}),
     }
 
     setSubmitting(true)

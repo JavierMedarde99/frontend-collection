@@ -35,17 +35,32 @@ function renderCard(data: Game = game, readOnly = false) {
 }
 
 describe('GameCard', () => {
-  it('en WISHLIST muestra el botón En posesión y lo cambia a OWNED', async () => {
+  it('en WISHLIST muestra el botón En posesión y con el diálogo lo pasa a OWNED', async () => {
     const user = userEvent.setup()
-    mockedUpdate.mockResolvedValue({ ...game, status: GameStatus.OWNED })
+    mockedUpdate.mockResolvedValue({
+      ...game,
+      status: GameStatus.OWNED,
+      acquisitionDate: '2025-06-01',
+      acquisitionPrice: 24.99,
+    })
     renderCard()
 
     await user.click(screen.getByRole('button', { name: 'Marcar Hollow Knight como en posesión' }))
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+
+    await user.clear(screen.getByLabelText(/Fecha de obtención/))
+    await user.type(screen.getByLabelText(/Fecha de obtención/), '2025-06-01')
+    await user.type(screen.getByLabelText(/Precio de adquisición/), '24.99')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
 
     await waitFor(() =>
       expect(mockedUpdate).toHaveBeenCalledWith(
         '1',
-        expect.objectContaining({ status: GameStatus.OWNED }),
+        expect.objectContaining({
+          status: GameStatus.OWNED,
+          acquisitionDate: '2025-06-01',
+          acquisitionPrice: 24.99,
+        }),
       ),
     )
     expect(await screen.findByText('En posesión')).toBeInTheDocument()
@@ -118,6 +133,8 @@ describe('GameCard', () => {
     renderCard()
 
     await user.click(screen.getByRole('button', { name: 'Marcar Hollow Knight como en posesión' }))
+    await user.type(screen.getByLabelText(/Precio de adquisición/), '24.99')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo actualizar el videojuego.')
     expect(screen.getByRole('button', { name: 'Marcar Hollow Knight como en posesión' })).toBeInTheDocument()
