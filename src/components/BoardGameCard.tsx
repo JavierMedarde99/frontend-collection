@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
 import CardMenu from './CardMenu'
@@ -6,7 +7,10 @@ import BoardGameStatusBadge from './BoardGameStatusBadge'
 import GenreBadges from './GenreBadges'
 import StarRating from './StarRating'
 import { bggRatingToStars } from '../constants/boardGames'
-import type { BoardGame } from '../types'
+import AcquireBoardGameDialog from './AcquireBoardGameDialog'
+import { updateBoardGame } from '../api/boardgamesApi'
+import type { BoardGame, BoardGameFormData } from '../types'
+import { BoardGameStatus } from '../types'
 
 interface BoardGameCardProps {
   game: BoardGame
@@ -23,9 +27,100 @@ function formatRange(min?: number, max?: number): string | null {
   return `${min ?? max}`
 }
 
+function formatPlayCount(playCount?: number): string | null {
+  if (playCount === undefined || playCount === null) return null
+  return `${playCount} jugada${playCount === 1 ? '' : 's'}`
+}
+
+function formatLastPlayed(lastPlayedDate?: string): string | null {
+  if (!lastPlayedDate) return null
+  const date = new Date(`${lastPlayedDate}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return null
+  return `Última jugada: ${date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}`
+}
+
+// Payload del PUT conservando el resto del juego: solo cambian estado y campos de adquisición.
+function boardGameToPayload(game: BoardGame, patch: Partial<BoardGameFormData>): BoardGameFormData {
+  return {
+    title: game.title,
+    description: game.description,
+    yearPublished: game.yearPublished,
+    minPlayers: game.minPlayers,
+    maxPlayers: game.maxPlayers,
+    minPlaytime: game.minPlaytime,
+    maxPlaytime: game.maxPlaytime,
+    publisher: game.publisher,
+    designers: game.designers,
+    categories: game.categories,
+    mechanics: game.mechanics,
+    imageUrl: game.imageUrl,
+    thumbnailUrl: game.thumbnailUrl,
+    bggRating: game.bggRating,
+    bggId: game.bggId,
+    status: game.status,
+    notes: game.notes,
+    dateAdded: game.dateAdded,
+    genres: game.genres ?? [],
+    personalRating: game.personalRating,
+    playCount: game.playCount,
+    lastPlayedDate: game.lastPlayedDate,
+    difficulty: game.difficulty,
+    acquisitionPrice: game.acquisitionPrice,
+    ...patch,
+  }
+}
+
 export default function BoardGameCard({ game, index = 0, onDelete, readOnly = false }: BoardGameCardProps) {
-  const players = formatRange(game.minPlayers, game.maxPlayers)
-  const duration = formatRange(game.minPlaytime, game.maxPlaytime)
+  const [override, setOverride] = useState<Partial<BoardGame>>({})
+  const [acquiringDialog, setAcquiringDialog] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const shown = { ...game, ...override }
+
+  const players = formatRange(shown.minPlayers, shown.maxPlayers)
+  const duration = formatRange(shown.minPlaytime, shown.maxPlaytime)
+  const plays = formatPlayCount(shown.playCount)
+  const lastPlayed = formatLastPlayed(shown.lastPlayedDate)
+
+  async function applyStatus(patch: Partial<BoardGameFormData>) {
+    setActionError(null)
+    setSaving(true)
+    try {
+      const updated = await updateBoardGame(game.id, boardGameToPayload(game, patch))
+      setOverride((o) => ({
+        ...o,
+        status: updated.status,
+        dateAdded: updated.dateAdded,
+        acquisitionPrice: updated.acquisitionPrice,
+      }))
+      setAcquiringDialog(false)
+    } catch {
+      setActionError('No se pudo actualizar el juego de mesa.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function markAsOwned(payload: {
+    dateAdded: string
+    acquisitionPrice: number
+    difficulty?: import('../types').BoardGameDifficulty
+    personalRating?: number
+    notes?: string
+    playCount?: number
+    lastPlayedDate?: string
+  }) {
+    return applyStatus({
+      status: BoardGameStatus.OWNED,
+      dateAdded: payload.dateAdded,
+      acquisitionPrice: payload.acquisitionPrice,
+      difficulty: payload.difficulty,
+      personalRating: payload.personalRating,
+      notes: payload.notes,
+      playCount: payload.playCount,
+      lastPlayedDate: payload.lastPlayedDate,
+    })
+  }
 
   return (
     <article
@@ -85,7 +180,18 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
             {game.bggRating !== undefined && game.bggRating !== null && (
               <StarRating value={bggRatingToStars(game.bggRating)} readOnly />
             )}
+            {game.personalRating !== undefined && game.personalRating !== null && game.personalRating > 0 && (
+              <span className="flex items-center gap-1.5" title="Valoración personal">
+                <span className="text-caption text-graphite">Tu valoración:</span>
+                <StarRating value={game.personalRating} readOnly />
+              </span>
+            )}
           </div>
+          {(plays || lastPlayed) && (
+            <p className="mt-2 text-caption text-graphite">
+              {[plays, lastPlayed].filter(Boolean).join(' · ')}
+            </p>
+          )}
           <GenreBadges genres={game.genres} max={1} className="mt-2" />
         </div>
       </div>
@@ -94,13 +200,45 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
         <p className="text-body text-slate line-clamp-2">{game.notes}</p>
       )}
 
+      {actionError && (
+        <p className="text-caption text-red-600 -mt-2" role="alert">{actionError}</p>
+      )}
+
       <div className="mt-auto flex items-center justify-end gap-2 pt-4 border-t border-silver/60">
-{!readOnly && (
-        <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/boardgames/${game.id}/editar`} label={`Editar ${game.title}`}>
-          Editar
-        </ActionLink>
+        {!readOnly && (
+          <>
+          {shown.status === BoardGameStatus.WISHLIST && (
+            <button
+              type="button"
+              className="btn-ghost !px-3 !py-1.5"
+              aria-label={`Marcar ${game.title} como en propiedad`}
+              onClick={() => setAcquiringDialog(true)}
+              disabled={saving}
+            >
+              En propiedad
+            </button>
+          )}
+          <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/boardgames/${game.id}/editar`} label={`Editar ${game.title}`}>
+            Editar
+          </ActionLink>
+          </>
         )}
       </div>
+
+      {acquiringDialog && (
+        <AcquireBoardGameDialog
+          dateAdded={shown.dateAdded}
+          acquisitionPrice={shown.acquisitionPrice}
+          difficulty={shown.difficulty}
+          personalRating={shown.personalRating}
+          notes={shown.notes}
+          playCount={shown.playCount}
+          lastPlayedDate={shown.lastPlayedDate}
+          onSave={markAsOwned}
+          onClose={() => setAcquiringDialog(false)}
+          busy={saving}
+        />
+      )}
     </article>
   )
 }

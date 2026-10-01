@@ -81,6 +81,11 @@ export function bookToFormData(book: Book): BookFormData {
     endDate: book.endDate,
     frontpage: book.frontpage,
     externalId: book.externalId,
+    isbn: book.isbn,
+    publisher: book.publisher,
+    publicationYear: book.publicationYear,
+    acquisitionDate: book.acquisitionDate,
+    acquisitionPrice: book.acquisitionPrice,
   }
 }
 

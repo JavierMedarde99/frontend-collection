@@ -1,4 +1,4 @@
-import { BoardGameStatus } from '../types'
+import { BoardGameDifficulty, BoardGameStatus } from '../types'
 
 export const BOARD_GAME_STATES: Record<BoardGameStatus, string> = {
   [BoardGameStatus.OWNED]: 'En propiedad',
@@ -19,6 +19,19 @@ export const BOARD_GAME_DOT_COLORS: Record<BoardGameStatus, string> = {
 
 export const BOARD_GAME_STATUS_OPTIONS: { value: BoardGameStatus; label: string }[] =
   (Object.entries(BOARD_GAME_STATUS_LABELS) as [BoardGameStatus, string][]).map(
+    ([value, label]) => ({ value, label }),
+  )
+
+export const BOARD_GAME_DIFFICULTY_LABELS: Record<BoardGameDifficulty, string> = {
+  [BoardGameDifficulty.VERY_EASY]: 'Muy fácil',
+  [BoardGameDifficulty.EASY]: 'Fácil',
+  [BoardGameDifficulty.MEDIUM]: 'Medio',
+  [BoardGameDifficulty.HARD]: 'Difícil',
+  [BoardGameDifficulty.VERY_HARD]: 'Muy difícil',
+}
+
+export const BOARD_GAME_DIFFICULTY_OPTIONS: { value: BoardGameDifficulty; label: string }[] =
+  (Object.entries(BOARD_GAME_DIFFICULTY_LABELS) as [BoardGameDifficulty, string][]).map(
     ([value, label]) => ({ value, label }),
   )
 

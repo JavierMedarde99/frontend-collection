@@ -10,6 +10,7 @@ import Spinner from './Spinner'
 import EmptyState from './EmptyState'
 import StarRating from './StarRating'
 import { useToast } from './Toast'
+import { missingRequiredDate, todayIso } from '../utils/dates'
 
 function mapResultToBook(result: SearchBookResult) {
   return {
@@ -19,7 +20,16 @@ function mapResultToBook(result: SearchBookResult) {
     pages: result.pageCount,
     frontpage: result.coverImage,
     externalId: result.id,
+    publisher: result.publisher,
+    publicationYear: result.publicationYear ?? yearFromPublishedDate(result.publishedDate),
   }
+}
+
+/** Google Books devuelve la fecha como "1995" o "1995-03-01": extrae el año. */
+function yearFromPublishedDate(publishedDate?: string): number | undefined {
+  if (!publishedDate) return undefined
+  const year = Number(publishedDate.slice(0, 4))
+  return Number.isInteger(year) && year > 0 ? year : undefined
 }
 
 /** Pestaña de alta por código de barras: escanea ISBN, busca y añade el libro. */
@@ -41,6 +51,8 @@ export default function BookIsbnScan() {
   const [modalStart, setModalStart] = useState(0)
   const [modalComment, setModalComment] = useState('')
   const [modalPages, setModalPages] = useState('')
+  const [modalAcquisitionDate, setModalAcquisitionDate] = useState('')
+  const [modalAcquisitionPrice, setModalAcquisitionPrice] = useState('')
   const [adding, setAdding] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
 
@@ -72,32 +84,48 @@ export default function BookIsbnScan() {
     void searchByIsbn(isbnInput)
   }
 
-  const showStartDate = modalState !== BookState.TO_READ
+  const isWishlist = modalState === BookState.WISHLIST
+  const showStartDate = modalState !== BookState.TO_READ && !isWishlist
   const showEndDate = modalState === BookState.COMPLETED
   const showRating = modalState === BookState.COMPLETED
   const showComment = modalState === BookState.COMPLETED
-  const needsPages = !selected?.pageCount
+  const showAcquisition = !isWishlist
+  const needsPages = !isWishlist && !selected?.pageCount
 
   async function handleConfirm() {
     if (!selected) return
     setAddError(null)
     const pages = modalPages !== '' ? Number(modalPages) : (selected.pageCount || 0)
-    if (!pages || pages <= 0) {
+    // En la lista de deseos el total aún no se conoce: no se exige.
+    if (!isWishlist && (!pages || pages <= 0)) {
       setAddError('El nº de páginas es obligatorio.')
+      return
+    }
+    // Fechas de seguimiento obligatorias, solo las que el estado deja ver.
+    const dateError =
+      (showAcquisition && missingRequiredDate(modalAcquisitionDate, 'La fecha de obtención')) ||
+      (showStartDate && missingRequiredDate(modalStartDate, 'La fecha de inicio')) ||
+      (showEndDate && missingRequiredDate(modalEndDate, 'La fecha de fin'))
+    if (dateError) {
+      setAddError(dateError)
       return
     }
     setAdding(true)
     try {
       await createBook({
         ...mapResultToBook(selected),
-        pages,
+        ...(pages ? { pages } : {}),
         isbn: isbn || undefined,
         type: modalType,
         state: modalState,
-        ...(showStartDate ? { startDate: modalStartDate || undefined } : {}),
-        ...(showEndDate ? { endDate: modalEndDate || undefined } : {}),
+        ...(showStartDate ? { startDate: modalStartDate } : {}),
+        ...(showEndDate ? { endDate: modalEndDate } : {}),
         ...(showRating ? { start: modalStart || undefined } : {}),
         ...(showComment ? { comment: modalComment?.trim() || undefined } : {}),
+        ...(showAcquisition ? { acquisitionDate: modalAcquisitionDate } : {}),
+        ...(showAcquisition && modalAcquisitionPrice !== ''
+          ? { acquisitionPrice: Number(modalAcquisitionPrice) }
+          : {}),
       })
       notify('Libro guardado.')
       navigate('/coleccion')
@@ -174,6 +202,11 @@ export default function BookIsbnScan() {
                   setModalStart(0)
                   setModalComment('')
                   setModalPages('')
+                  // Fechas de seguimiento obligatorias: se propone hoy al añadir.
+                  setModalAcquisitionDate(todayIso())
+                  setModalAcquisitionPrice('')
+                  setModalStartDate(todayIso())
+                  setModalEndDate(todayIso())
                 }}>
                   Añadir a mi colección
                 </button>
@@ -215,14 +248,14 @@ export default function BookIsbnScan() {
               </div>
               {showStartDate && (
                 <div>
-                  <label className="label">Fecha de inicio</label>
-                  <input className="input" type="date" value={modalStartDate} onChange={(e) => setModalStartDate(e.target.value)} />
+                  <label className="label" htmlFor="book-start-date">Fecha de inicio <span className="text-brand">*</span></label>
+                  <input  id="book-start-date"className="input" type="date" value={modalStartDate} onChange={(e) => setModalStartDate(e.target.value)} />
                 </div>
               )}
               {showEndDate && (
                 <div>
-                  <label className="label">Fecha de fin</label>
-                  <input className="input" type="date" value={modalEndDate} onChange={(e) => setModalEndDate(e.target.value)} />
+                  <label className="label" htmlFor="book-end-date">Fecha de fin <span className="text-brand">*</span></label>
+                  <input  id="book-end-date"className="input" type="date" value={modalEndDate} onChange={(e) => setModalEndDate(e.target.value)} />
                 </div>
               )}
               {showRating && (
@@ -258,6 +291,31 @@ export default function BookIsbnScan() {
                     placeholder="Ej. 320"
                   />
                 </div>
+              )}
+              {showAcquisition && (
+                <>
+                  <div>
+                    <label className="label" htmlFor="book-acq-date">Fecha de obtención <span className="text-brand">*</span></label>
+                    <input
+ id="book-acq-date"                      className="input"
+                      type="date"
+                      value={modalAcquisitionDate}
+                      onChange={(e) => setModalAcquisitionDate(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Precio de adquisición</label>
+                    <input
+                      className="input"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={modalAcquisitionPrice}
+                      onChange={(e) => setModalAcquisitionPrice(e.target.value)}
+                      placeholder="12.50"
+                    />
+                  </div>
+                </>
               )}
             </div>
             {addError && <ErrorBanner message={addError} />}

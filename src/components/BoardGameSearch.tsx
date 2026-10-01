@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { searchBoardGamesPage, createBoardGame } from '../api/boardgamesApi'
-import { BOARD_GAME_STATES } from '../constants/boardGames'
-import { BoardGameStatus } from '../types'
+import { BOARD_GAME_DIFFICULTY_LABELS, BOARD_GAME_STATES } from '../constants/boardGames'
+import { BoardGameDifficulty, BoardGameStatus } from '../types'
 import type { BoardGameFormData, BoardGameSearchResult } from '../types'
 import Spinner from './Spinner'
 import EmptyState from './EmptyState'
@@ -12,6 +12,7 @@ import { bggRatingToStars } from '../constants/boardGames'
 import SearchField from './SearchField'
 import SkeletonInline from './SkeletonInline'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
+import { missingRequiredDate, todayIso } from '../utils/dates'
 
 function mapResultToGame(result: BoardGameSearchResult): Omit<BoardGameFormData, 'status'> {
   return {
@@ -59,6 +60,11 @@ export default function BoardGameSearch() {
   const [modalStatus, setModalStatus] = useState<BoardGameStatus>(BoardGameStatus.OWNED)
   const [modalNotes, setModalNotes] = useState('')
   const [modalDateAdded, setModalDateAdded] = useState('')
+  const [modalPersonalRating, setModalPersonalRating] = useState(0)
+  const [modalPlayCount, setModalPlayCount] = useState('')
+  const [modalLastPlayedDate, setModalLastPlayedDate] = useState('')
+  const [modalDifficulty, setModalDifficulty] = useState<BoardGameDifficulty | ''>('')
+  const [modalAcquisitionPrice, setModalAcquisitionPrice] = useState('')
 
   function handleSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -72,19 +78,48 @@ export default function BoardGameSearch() {
     setSubmitError(null)
     setModalStatus(BoardGameStatus.OWNED)
     setModalNotes('')
-    setModalDateAdded('')
+    // La fecha de adición es obligatoria: se propone hoy al añadir.
+    setModalDateAdded(todayIso())
+    setModalPersonalRating(0)
+    setModalPlayCount('')
+    setModalLastPlayedDate('')
+    setModalDifficulty('')
+    // Precio de adquisición obligatorio en Propiedad.
+    setModalAcquisitionPrice('')
   }
 
   async function handleConfirm() {
     if (!selected) return
     setSubmitError(null)
+    // Fechas de seguimiento obligatorias: adición siempre; última jugada solo
+    // si se ha jugado al menos una vez.
+    const rawPlayCount = modalPlayCount.trim() !== '' ? Number(modalPlayCount) : undefined
+    const dateError =
+      (modalStatus === BoardGameStatus.OWNED && missingRequiredDate(modalDateAdded, 'La fecha de adición')) ||
+      (modalStatus === BoardGameStatus.OWNED && rawPlayCount !== undefined && rawPlayCount > 0
+        ? missingRequiredDate(modalLastPlayedDate, 'La fecha de la última jugada')
+        : null)
+    if (dateError) {
+      setSubmitError(dateError)
+      return
+    }
+    // Precio de adquisición obligatorio en Propiedad.
+    if (modalStatus === BoardGameStatus.OWNED && modalAcquisitionPrice === '') {
+      setSubmitError('El precio de adquisición es obligatorio.')
+      return
+    }
     setSaving(selected.bggId || selected.title)
     try {
       await createBoardGame({
         ...mapResultToGame(selected),
         status: modalStatus,
         notes: modalNotes.trim() || undefined,
-        dateAdded: modalStatus === BoardGameStatus.OWNED ? modalDateAdded || undefined : undefined,
+        dateAdded: modalStatus === BoardGameStatus.OWNED ? modalDateAdded : undefined,
+        personalRating: modalStatus === BoardGameStatus.OWNED ? modalPersonalRating || undefined : undefined,
+        playCount: modalStatus === BoardGameStatus.OWNED && modalPlayCount.trim() !== '' ? Number(modalPlayCount) : undefined,
+        lastPlayedDate: modalStatus === BoardGameStatus.OWNED ? modalLastPlayedDate || undefined : undefined,
+        difficulty: modalStatus === BoardGameStatus.OWNED ? modalDifficulty || undefined : undefined,
+        acquisitionPrice: modalStatus === BoardGameStatus.OWNED ? Number(modalAcquisitionPrice) : undefined,
       })
       setSelected(null)
       navigate('/boardgames')
@@ -202,26 +237,89 @@ export default function BoardGameSearch() {
               </div>
 
               {modalStatus === BoardGameStatus.OWNED && (
-                <div>
-                  <label className="label">Fecha de adición</label>
-                  <input
-                    className="input"
-                    type="date"
-                    value={modalDateAdded}
-                    onChange={(e) => setModalDateAdded(e.target.value)}
-                  />
-                </div>
-              )}
+                <>
+                  <div>
+                    <label className="label" htmlFor="bg-added-date">Fecha de adición <span className="text-brand">*</span></label>
+                    <input
+                      id="bg-added-date"
+                      className="input"
+                      type="date"
+                      value={modalDateAdded}
+                      onChange={(e) => setModalDateAdded(e.target.value)}
+                    />
+                  </div>
 
-              <div>
-                <label className="label">Notas personales</label>
-                <textarea
-                  className="input !h-auto !min-h-[80px] !py-3"
-                  value={modalNotes}
-                  onChange={(e) => setModalNotes(e.target.value)}
-                  placeholder="Notas personales…"
-                />
-              </div>
+                  <div>
+                    <label className="label" htmlFor="bg-acq-price">Precio de adquisición <span className="text-brand">*</span></label>
+                    <input
+                      id="bg-acq-price"
+                      className="input"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={modalAcquisitionPrice}
+                      onChange={(e) => setModalAcquisitionPrice(e.target.value)}
+                      placeholder="24.99"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label">Valoración personal</label>
+                    <div className="pt-1">
+                      <StarRating value={modalPersonalRating} onChange={setModalPersonalRating} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="label">Comentario</label>
+                    <textarea
+                      className="input !h-auto !min-h-[80px] !py-3"
+                      value={modalNotes}
+                      onChange={(e) => setModalNotes(e.target.value)}
+                      placeholder="Comentario personal…"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label">Número de jugadas</label>
+                    <input
+                      className="input"
+                      type="number"
+                      min="0"
+                      value={modalPlayCount}
+                      onChange={(e) => setModalPlayCount(e.target.value)}
+                      placeholder="Ej: 12"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label" htmlFor="bg-last-played-date">Última jugada {modalPlayCount.trim() !== '' && Number(modalPlayCount) > 0 ? <span className="text-brand">*</span> : null}</label>
+                    <input
+                      id="bg-last-played-date"
+                      className="input"
+                      type="date"
+                      value={modalLastPlayedDate}
+                      onChange={(e) => setModalLastPlayedDate(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label">Dificultad percibida</label>
+                    <select
+                      className="input"
+                      value={modalDifficulty}
+                      onChange={(e) => setModalDifficulty(e.target.value as BoardGameDifficulty | '')}
+                    >
+                      <option value="">Sin especificar</option>
+                      {Object.entries(BOARD_GAME_DIFFICULTY_LABELS).map(([key, label]) => (
+                        <option key={key} value={key}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
             </div>
 
             {submitError && <ErrorBanner message={submitError} />}

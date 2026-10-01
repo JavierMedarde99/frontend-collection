@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
 import CardMenu from './CardMenu'
@@ -6,8 +7,36 @@ import GenreBadges from './GenreBadges'
 import StreamingProviderBadges from './StreamingProviderBadges'
 import MovieShowStatusBadge from './MovieShowStatusBadge'
 import StarRating from './StarRating'
+import StartWatchingDialog from './StartWatchingDialog'
+import CompleteWatchingDialog from './CompleteWatchingDialog'
+import { updateMovieShow } from '../api/movieshowsApi'
 import { MEDIA_TYPE_LABELS, MEDIA_TYPE_BADGE_COLORS } from '../constants/movieshows'
-import type { MovieShow } from '../types'
+import type { MovieShow, MovieShowFormData } from '../types'
+import { MovieShowStatus } from '../types'
+
+// Payload del PUT conservando el resto: solo cambian estado y fechas.
+function movieShowToPayload(movieShow: MovieShow, patch: Partial<MovieShowFormData>): MovieShowFormData {
+  return {
+    title: movieShow.title,
+    overview: movieShow.overview,
+    releaseDate: movieShow.releaseDate,
+    posterUrl: movieShow.posterUrl,
+    backdropUrl: movieShow.backdropUrl,
+    voteAverage: movieShow.voteAverage,
+    mediaType: movieShow.mediaType,
+    status: movieShow.status,
+    userRating: movieShow.userRating,
+    comment: movieShow.comment,
+    dateAdded: movieShow.dateAdded,
+    dateCompleted: movieShow.dateCompleted,
+    externalSource: movieShow.externalSource,
+    externalId: movieShow.externalId,
+    streamingProviders: movieShow.streamingProviders,
+    watchCountry: movieShow.watchCountry,
+    genres: movieShow.genres ?? [],
+    ...patch,
+  }
+}
 
 interface MovieShowCardProps {
   movieShow: MovieShow
@@ -17,8 +46,50 @@ interface MovieShowCardProps {
 }
 
 export default function MovieShowCard({ movieShow, index = 0, onDelete, readOnly = false }: MovieShowCardProps) {
-  const typeColor = MEDIA_TYPE_BADGE_COLORS[movieShow.mediaType]
-  const year = movieShow.releaseDate ? movieShow.releaseDate.slice(0, 4) : null
+  const [override, setOverride] = useState<Partial<MovieShow>>({})
+  const [watchingDialog, setWatchingDialog] = useState(false)
+  const [completingDialog, setCompletingDialog] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const shown = { ...movieShow, ...override }
+
+  const typeColor = MEDIA_TYPE_BADGE_COLORS[shown.mediaType]
+  const year = shown.releaseDate ? shown.releaseDate.slice(0, 4) : null
+
+  async function applyStatus(patch: Partial<MovieShowFormData>) {
+    setActionError(null)
+    setSaving(true)
+    try {
+      const updated = await updateMovieShow(movieShow.id, movieShowToPayload(movieShow, patch))
+      setOverride((o) => ({
+        ...o,
+        status: updated.status,
+        dateAdded: updated.dateAdded,
+        dateCompleted: updated.dateCompleted,
+        userRating: updated.userRating,
+        comment: updated.comment,
+      }))
+      setWatchingDialog(false)
+      setCompletingDialog(false)
+    } catch {
+      setActionError('No se pudo actualizar la película/serie.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function startWatching(date: string) {
+    return applyStatus({ status: MovieShowStatus.WATCHING, dateAdded: date })
+  }
+
+  function markWatched(date: string, rating: number, comment: string) {
+    return applyStatus({
+      status: MovieShowStatus.WATCHED,
+      dateCompleted: date,
+      userRating: rating,
+      comment: comment.trim() || undefined,
+    })
+  }
 
   return (
     <article
@@ -80,14 +151,62 @@ export default function MovieShowCard({ movieShow, index = 0, onDelete, readOnly
         <p className="text-body text-slate line-clamp-2">{movieShow.overview}</p>
       )}
 
+      {actionError && (
+        <p className="text-caption text-red-600 -mt-2" role="alert">{actionError}</p>
+      )}
+
       <div className="mt-auto flex items-center justify-between pt-4 border-t border-silver/60">
-        <StarRating value={movieShow.userRating} readOnly />
-{!readOnly && (
-        <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/movieshows/editar/${movieShow.id}`} label={`Editar ${movieShow.title}`}>
-          Editar
-        </ActionLink>
+        <StarRating value={shown.userRating} readOnly />
+        {!readOnly && (
+          <>
+          {shown.status === MovieShowStatus.PLAN_TO_WATCH && (
+            <button
+              type="button"
+              className="btn-ghost !px-3 !py-1.5"
+              aria-label={`Empezar a ver ${movieShow.title}`}
+              onClick={() => setWatchingDialog(true)}
+              disabled={saving}
+            >
+              Viendo
+            </button>
+          )}
+          {shown.status === MovieShowStatus.WATCHING && (
+            <button
+              type="button"
+              className="btn-ghost !px-3 !py-1.5"
+              aria-label={`Marcar ${movieShow.title} como visto`}
+              onClick={() => setCompletingDialog(true)}
+              disabled={saving}
+            >
+              Visto
+            </button>
+          )}
+          <ActionLink className="btn-ghost !px-3 !py-1.5" to={`/movieshows/editar/${movieShow.id}`} label={`Editar ${movieShow.title}`}>
+            Editar
+          </ActionLink>
+          </>
         )}
       </div>
+
+      {watchingDialog && (
+        <StartWatchingDialog
+          dateValue={shown.dateAdded}
+          onSave={startWatching}
+          onClose={() => setWatchingDialog(false)}
+          busy={saving}
+        />
+      )}
+
+      {completingDialog && (
+        <CompleteWatchingDialog
+          dateValue={shown.dateCompleted}
+          ratingValue={shown.userRating}
+          commentValue={shown.comment}
+          onSave={markWatched}
+          onClose={() => setCompletingDialog(false)}
+          busy={saving}
+        />
+      )}
     </article>
   )
 }

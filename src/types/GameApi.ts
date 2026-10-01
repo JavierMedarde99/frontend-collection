@@ -43,6 +43,8 @@ export interface GameFormData {
   obtainPlatinum?: boolean
   steamAppId?: string
   genres?: string[]
+  acquisitionDate?: string
+  acquisitionPrice?: number | ''
 }
 
 export interface SearchGameResult {

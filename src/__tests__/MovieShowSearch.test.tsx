@@ -72,6 +72,49 @@ describe('MovieShowSearch proveedores', () => {
     expect(await screen.findByText('Listado')).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
+
+  it('propone hoy como fecha de inicio al elegir WATCHING', async () => {
+    const user = userEvent.setup()
+    renderSearch()
+    await user.type(screen.getByPlaceholderText('Buscar por título…'), 'Dune')
+    await user.click(screen.getByRole('button', { name: 'Buscar' }))
+    await user.click(await screen.findByRole('button', { name: 'Añadir a mi colección' }))
+
+    await user.selectOptions(screen.getByDisplayValue('Plan para ver'), 'WATCHING')
+    expect(screen.getByLabelText(/Fecha de inicio/)).toHaveValue(
+      new Date().toISOString().slice(0, 10),
+    )
+  })
+
+  it('no deja añadir WATCHING sin fecha de inicio', async () => {
+    const user = userEvent.setup()
+    renderSearch()
+    await user.type(screen.getByPlaceholderText('Buscar por título…'), 'Dune')
+    await user.click(screen.getByRole('button', { name: 'Buscar' }))
+    await user.click(await screen.findByRole('button', { name: 'Añadir a mi colección' }))
+
+    await user.selectOptions(screen.getByDisplayValue('Plan para ver'), 'WATCHING')
+    await user.clear(screen.getByLabelText(/Fecha de inicio/))
+    await user.click(screen.getByRole('button', { name: 'Añadir' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('La fecha de inicio es obligatoria.')
+    expect(mockedCreate).not.toHaveBeenCalled()
+  })
+
+  it('no deja añadir WATCHED sin fecha de fin', async () => {
+    const user = userEvent.setup()
+    renderSearch()
+    await user.type(screen.getByPlaceholderText('Buscar por título…'), 'Dune')
+    await user.click(screen.getByRole('button', { name: 'Buscar' }))
+    await user.click(await screen.findByRole('button', { name: 'Añadir a mi colección' }))
+
+    await user.selectOptions(screen.getByDisplayValue('Plan para ver'), 'WATCHED')
+    await user.clear(screen.getByLabelText(/Fecha de fin/))
+    await user.click(screen.getByRole('button', { name: 'Añadir' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('La fecha de fin es obligatoria.')
+    expect(mockedCreate).not.toHaveBeenCalled()
+  })
 })
 
 afterEach(() => {

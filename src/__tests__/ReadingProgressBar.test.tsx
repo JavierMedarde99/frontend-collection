@@ -10,10 +10,10 @@ describe('ReadingProgressBar', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('en COMPLETED muestra Finalizado sin barra', () => {
-    render(<ReadingProgressBar pages={100} pagesRead={100} state={BookState.COMPLETED} />)
-    expect(screen.getByText('Finalizado')).toBeInTheDocument()
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
+  it('en COMPLETED no renderiza nada (el badge ya indica completado)', () => {
+    const { container } = render(<ReadingProgressBar pages={100} pagesRead={100} state={BookState.COMPLETED} />)
+    expect(container).toBeEmptyDOMElement()
+    expect(screen.queryByText('Finalizado')).not.toBeInTheDocument()
   })
 
   it('sin páginas muestra aviso', () => {

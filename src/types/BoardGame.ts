@@ -5,6 +5,14 @@ export enum BoardGameStatus {
   WISHLIST = 'WISHLIST',
 }
 
+export enum BoardGameDifficulty {
+  VERY_EASY = 'VERY_EASY',
+  EASY = 'EASY',
+  MEDIUM = 'MEDIUM',
+  HARD = 'HARD',
+  VERY_HARD = 'VERY_HARD',
+}
+
 export interface BoardGame {
   id: string
   title: string
@@ -26,7 +34,12 @@ export interface BoardGame {
   notes?: string
   dateAdded?: string
   genres?: string[]
+  personalRating?: number
+  playCount?: number
+  lastPlayedDate?: string
+  difficulty?: BoardGameDifficulty
   userOwned?: UserOwned | null
+  acquisitionPrice?: number
 }
 
 export interface BoardGameFormData {
@@ -49,6 +62,11 @@ export interface BoardGameFormData {
   notes?: string
   dateAdded?: string
   genres?: string[]
+  personalRating?: number
+  playCount?: number
+  lastPlayedDate?: string
+  difficulty?: BoardGameDifficulty
+  acquisitionPrice?: number
 }
 
 export interface BoardGameSearchResult {

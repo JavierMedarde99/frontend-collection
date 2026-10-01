@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
-import { BOARD_GAME_STATES } from '../constants/boardGames'
-import { BoardGameStatus } from '../types'
+import { BOARD_GAME_DIFFICULTY_LABELS, BOARD_GAME_STATES } from '../constants/boardGames'
+import { BoardGameDifficulty, BoardGameStatus } from '../types'
 import type { BoardGameFormData } from '../types'
 import FormSection from './FormSection'
 import GenreSelect from './GenreSelect'
@@ -8,7 +8,9 @@ import { BOARDGAME_GENRES } from '../constants/genres'
 import { listBoardGameGenres } from '../api/boardgamesApi'
 import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
+import StarRating from './StarRating'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
+import { missingRequiredDate, todayIso } from '../utils/dates'
 
 interface FieldProps {
   label: string
@@ -51,9 +53,10 @@ interface BoardGameFormProps {
   submitLabel: string
   onSubmit: (payload: BoardGameFormData) => Promise<void>
   error?: string | null
+  isCreate?: boolean
 }
 
-export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, error }: BoardGameFormProps) {
+export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, error, isCreate = false }: BoardGameFormProps) {
   const [title, setTitle] = useState(initial.title || '')
   const [description, setDescription] = useState(initial.description || '')
   const [yearPublished, setYearPublished] = useState(toNumberInput(initial.yearPublished))
@@ -68,8 +71,17 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
   const [imageUrl, setImageUrl] = useState(initial.imageUrl || '')
   const [status, setStatus] = useState<BoardGameStatus>(initial.status || BoardGameStatus.OWNED)
   const [notes, setNotes] = useState(initial.notes || '')
-  const [dateAdded, setDateAdded] = useState(initial.dateAdded || '')
+  // La fecha de adición es obligatoria y al crear se propone hoy.
+  // Al editar NO se inventa: si el juego no la tenía, se pide al usuario.
+  const [dateAdded, setDateAdded] = useState(initial.dateAdded || (isCreate ? todayIso() : ''))
   const [genres, setGenres] = useState<string[]>(initial.genres ?? [])
+  const [personalRating, setPersonalRating] = useState(initial.personalRating || 0)
+  const [playCount, setPlayCount] = useState(toNumberInput(initial.playCount))
+  const [lastPlayedDate, setLastPlayedDate] = useState(initial.lastPlayedDate || '')
+  const [acquisitionPrice, setAcquisitionPrice] = useState(initial.acquisitionPrice !== undefined ? String(initial.acquisitionPrice) : '')
+  // La "última jugada" solo se exige si ya se ha jugado al menos una vez.
+  const lastPlayedRequired = (fromNumberInput(playCount) ?? 0) > 0
+  const [difficulty, setDifficulty] = useState<BoardGameDifficulty | ''>(initial.difficulty || '')
   const [submitting, setSubmitting] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
@@ -87,6 +99,20 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
 
     if (!title.trim()) return setLocalError('El título es obligatorio.')
     if (!status) return setLocalError('El estado es obligatorio.')
+    // Fecha de adición obligatoria en Propiedad.
+    if (status === BoardGameStatus.OWNED) {
+      const dateError = missingRequiredDate(dateAdded, 'La fecha de adición')
+      if (dateError) return setLocalError(dateError)
+    }
+    // Precio de adquisición obligatorio en Propiedad.
+    if (status === BoardGameStatus.OWNED && acquisitionPrice === '') {
+      return setLocalError('El precio de adquisición es obligatorio.')
+    }
+    // Última jugada obligatoria solo si ya se ha jugado (playCount > 0).
+    if (lastPlayedRequired) {
+      const lastError = missingRequiredDate(lastPlayedDate, 'La fecha de la última jugada')
+      if (lastError) return setLocalError(lastError)
+    }
 
     const payload: BoardGameFormData = {
       title: title.trim(),
@@ -104,7 +130,12 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
       imageUrl: imageUrl.trim() || undefined,
       notes: notes.trim() || undefined,
       genres,
-      dateAdded: status === BoardGameStatus.OWNED ? dateAdded || undefined : undefined,
+      dateAdded: status === BoardGameStatus.OWNED ? dateAdded : undefined,
+      personalRating: personalRating || undefined,
+      playCount: fromNumberInput(playCount),
+      lastPlayedDate: lastPlayedDate || undefined,
+      difficulty: difficulty || undefined,
+      acquisitionPrice: status === BoardGameStatus.OWNED && acquisitionPrice !== '' ? Number(acquisitionPrice) : undefined,
       // Datos venidos de BGG: se conservan sin mostrarse en el formulario manual.
       ...(initial.thumbnailUrl ? { thumbnailUrl: initial.thumbnailUrl } : {}),
       ...(initial.bggId ? { bggId: initial.bggId } : {}),
@@ -173,7 +204,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
           </Field>
 
           {status === BoardGameStatus.OWNED && (
-            <Field label="Fecha de adición">
+            <Field label="Fecha de adición" required>
               <input className="input" type="date" value={dateAdded} onChange={set(setDateAdded)} />
             </Field>
           )}
@@ -193,7 +224,7 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
         />
       </FormSection>
 
-      <FormSection title="Descripción y notas">
+      <FormSection title="Descripción">
         <Field label="Descripción">
           <textarea
             className="input !h-auto !min-h-[100px] !py-3"
@@ -202,16 +233,57 @@ export default function BoardGameForm({ initial = {}, submitLabel, onSubmit, err
             placeholder="Descripción del juego…"
           />
         </Field>
-
-        <Field label="Notas personales">
-          <textarea
-            className="input !h-auto !min-h-[80px] !py-3"
-            value={notes}
-            onChange={set(setNotes)}
-            placeholder="Notas personales…"
-          />
-        </Field>
       </FormSection>
+
+      {status === BoardGameStatus.OWNED && (
+        <>
+          <FormSection title="Adquisición">
+            <Field label="Precio de adquisición" required>
+              <input className="input" type="number" min="0" step="0.01" value={acquisitionPrice} onChange={set(setAcquisitionPrice)} placeholder="24.99" />
+            </Field>
+          </FormSection>
+          <FormSection title="Valoración y estadísticas">
+            <Field label="Valoración personal">
+            <div className="pt-2">
+              <StarRating value={personalRating} onChange={(n) => { setDirty(true); setPersonalRating(n) }} />
+            </div>
+          </Field>
+
+          <Field label="Comentario">
+            <textarea
+              className="input !h-auto !min-h-[80px] !py-3"
+              value={notes}
+              onChange={set(setNotes)}
+              placeholder="Comentario personal…"
+            />
+          </Field>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Field label="Número de jugadas">
+              <input className="input" type="number" min="0" value={playCount} onChange={set(setPlayCount)} placeholder="Ej: 12" />
+            </Field>
+            <Field label="Última jugada" required={lastPlayedRequired}>
+              <input className="input" type="date" value={lastPlayedDate} onChange={set(setLastPlayedDate)} />
+            </Field>
+          </div>
+
+          <Field label="Dificultad percibida">
+            <select
+              className="input"
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value as BoardGameDifficulty | '')}
+            >
+              <option value="">Sin especificar</option>
+              {Object.entries(BOARD_GAME_DIFFICULTY_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </FormSection>
+        </>
+      )}
 
       {(error || localError) && (
         <div

@@ -98,6 +98,98 @@ describe('BookDetailPage progreso', () => {
       expect.objectContaining({ state: BookState.COMPLETED, pagesRead: 412, start: 5, comment: 'Obra maestra' }),
     ))
     expect(mockedProgress).not.toHaveBeenCalled()
-    expect(await screen.findByText('Finalizado')).toBeInTheDocument()
+    expect(screen.queryByText('Finalizado')).not.toBeInTheDocument()
+  })
+
+  it('un libro por leer muestra el botón Empezar a leer', async () => {
+    mockedGet.mockResolvedValue({ ...readingBook, state: BookState.TO_READ, pagesRead: undefined })
+    renderDetail()
+    expect(await screen.findByRole('button', { name: 'Empezar a leer' })).toBeInTheDocument()
+  })
+
+  it('Empezar a leer guarda páginas y pasa a leyendo', async () => {
+    const user = userEvent.setup()
+    mockedGet.mockResolvedValue({ ...readingBook, state: BookState.TO_READ, pagesRead: undefined })
+    mockedUpdate.mockResolvedValue({ ...readingBook, state: BookState.READING, pagesRead: 40 })
+    renderDetail()
+
+    await user.click(await screen.findByRole('button', { name: 'Empezar a leer' }))
+    const input = screen.getByLabelText('Nº de páginas leídas')
+    await user.clear(input)
+    await user.type(input, '40')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    await waitFor(() => expect(mockedUpdate).toHaveBeenCalledWith(
+      '1',
+      expect.objectContaining({ state: BookState.READING, pagesRead: 40 }),
+    ))
+    expect(mockedProgress).not.toHaveBeenCalled()
+    expect(await screen.findByText(/40 \/ 412 páginas/)).toBeInTheDocument()
+  })
+
+  it('un libro ya leyendo no muestra el botón Empezar a leer', async () => {
+    renderDetail()
+    await screen.findByText(/100 \/ 412 páginas/)
+    expect(screen.queryByRole('button', { name: 'Empezar a leer' })).not.toBeInTheDocument()
+  })
+
+  it('un libro en lista de deseos muestra el botón En posesión y no el de Empezar', async () => {
+    mockedGet.mockResolvedValue({ ...readingBook, state: BookState.WISHLIST, pagesRead: undefined })
+    renderDetail()
+    expect(await screen.findByRole('button', { name: 'Ya está en mi posesión' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Empezar a leer' })).not.toBeInTheDocument()
+  })
+
+  it('En posesión guarda la fecha y mueve el libro a Por leer', async () => {
+    const user = userEvent.setup()
+    mockedGet.mockResolvedValue({ ...readingBook, state: BookState.WISHLIST, pagesRead: undefined })
+    mockedUpdate.mockResolvedValue({
+      ...readingBook,
+      state: BookState.TO_READ,
+      pagesRead: undefined,
+      acquisitionDate: '2025-06-01',
+      acquisitionPrice: 12.5,
+    })
+    renderDetail()
+
+    await user.click(await screen.findByRole('button', { name: 'Ya está en mi posesión' }))
+    const input = screen.getByLabelText(/Fecha de obtención/)
+    await user.clear(input)
+    await user.type(input, '2025-06-01')
+    await user.type(screen.getByLabelText(/Precio de adquisición/), '12.50')
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    await waitFor(() => expect(mockedUpdate).toHaveBeenCalledWith(
+      '1',
+      expect.objectContaining({
+        state: BookState.TO_READ,
+        acquisitionDate: '2025-06-01',
+        acquisitionPrice: 12.5,
+      }),
+    ))
+    expect(mockedProgress).not.toHaveBeenCalled()
+    expect(await screen.findByRole('button', { name: 'Empezar a leer' })).toBeInTheDocument()
+  })
+
+  it('muestra editorial, año, ISBN y datos de adquisición en los detalles', async () => {
+    mockedGet.mockResolvedValue({
+      ...readingBook,
+      publisher: 'Alfaguara',
+      publicationYear: 1965,
+      isbn: '9788437604947',
+      acquisitionDate: '2024-03-15',
+      acquisitionPrice: 12.5,
+    })
+    renderDetail()
+
+    expect(await screen.findByText('Editorial')).toBeInTheDocument()
+    expect(screen.getByText('Alfaguara')).toBeInTheDocument()
+    expect(screen.getByText('Año')).toBeInTheDocument()
+    expect(screen.getByText('1965')).toBeInTheDocument()
+    expect(screen.getByText('9788437604947')).toBeInTheDocument()
+    expect(screen.getByText('Fecha de obtención')).toBeInTheDocument()
+    expect(screen.getByText('2024-03-15')).toBeInTheDocument()
+    expect(screen.getByText('Precio de adquisición')).toBeInTheDocument()
+    expect(screen.getByText('12.5 €')).toBeInTheDocument()
   })
 })

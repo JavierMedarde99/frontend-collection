@@ -5,6 +5,7 @@ import type { UserOwned } from './Api'
 export interface Book {
   id: string
   externalId?: string
+  isbn?: string
   title: string
   author: string
   descripcion?: string
@@ -18,5 +19,10 @@ export interface Book {
   startDate?: string
   endDate?: string
   frontpage?: string
+  publisher?: string
+  publicationYear?: number
+  /** Fecha de obtención del libro. No se rellena en WISHLIST. */
+  acquisitionDate?: string
+  acquisitionPrice?: number
   userOwned?: UserOwned | null
 }

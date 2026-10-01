@@ -7,6 +7,7 @@ import ConfirmDialog from './ConfirmDialog'
 import ImageUpload from './ImageUpload'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import FormSection from './FormSection'
+import { missingRequiredDate, todayIso } from '../utils/dates'
 import GenreSelect from './GenreSelect'
 import { MOVIESHOW_GENRES } from '../constants/genres'
 import { listMovieShowGenres } from '../api/movieshowsApi'
@@ -33,9 +34,10 @@ interface MovieShowFormProps {
   submitLabel: string
   onSubmit: (payload: MovieShowFormData) => Promise<void>
   error?: string | null
+  isCreate?: boolean
 }
 
-export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, error }: MovieShowFormProps) {
+export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, error, isCreate = false }: MovieShowFormProps) {
   const [form, setForm] = useState<MovieShowFormData>({
     title: '',
     mediaType: MediaType.MOVIE,
@@ -52,6 +54,8 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
     userRating: 0,
     genres: [],
     ...initial,
+    // Fechas de seguimiento obligatorias: al crear se propone hoy.
+    ...(isCreate ? { dateAdded: todayIso(), dateCompleted: todayIso() } : {}),
   })
   const [submitting, setSubmitting] = useState(false)
   const [dirty, setDirty] = useState(false)
@@ -77,6 +81,11 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
     if (!form.title.trim()) return setLocalError('El título es obligatorio.')
     if (!form.mediaType) return setLocalError('El tipo es obligatorio.')
     if (!form.status) return setLocalError('El estado es obligatorio.')
+    // Fechas de seguimiento obligatorias, solo las que el estado deja ver.
+    const dateError =
+      (showStartDate && missingRequiredDate(form.dateAdded, 'La fecha de inicio')) ||
+      (showEndDate && missingRequiredDate(form.dateCompleted, 'La fecha de fin'))
+    if (dateError) return setLocalError(dateError)
 
     const payload: MovieShowFormData = {
       title: form.title.trim(),
@@ -92,8 +101,8 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
       voteAverage: form.voteAverage,
       userRating: showRating && form.userRating ? form.userRating : undefined,
       comment: showComment ? form.comment?.trim() || undefined : undefined,
-      dateAdded: showStartDate ? form.dateAdded || undefined : undefined,
-      dateCompleted: showEndDate ? form.dateCompleted || undefined : undefined,
+      dateAdded: showStartDate ? form.dateAdded : undefined,
+      dateCompleted: showEndDate ? form.dateCompleted : undefined,
       // Datos venidos de TMDB: se conservan sin mostrarse en el formulario manual.
       ...(initial.backdropUrl ? { backdropUrl: initial.backdropUrl } : {}),
       ...(initial.externalSource ? { externalSource: initial.externalSource } : {}),
@@ -167,13 +176,13 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
         <FormSection title="Fechas">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {showStartDate && (
-              <Field label="Fecha de inicio">
-                <input className="input" type="date" value={form.dateAdded} onChange={set('dateAdded')} />
+              <Field label="Fecha de inicio" required>
+                <input className="input" type="date" value={form.dateAdded ?? ''} onChange={set('dateAdded')} />
               </Field>
             )}
             {showEndDate && (
-              <Field label="Fecha de fin">
-                <input className="input" type="date" value={form.dateCompleted} onChange={set('dateCompleted')} />
+              <Field label="Fecha de fin" required>
+                <input className="input" type="date" value={form.dateCompleted ?? ''} onChange={set('dateCompleted')} />
               </Field>
             )}
           </div>

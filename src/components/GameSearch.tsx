@@ -11,6 +11,7 @@ import Spinner from './Spinner'
 import EmptyState from './EmptyState'
 import StarRating from './StarRating'
 import ErrorBanner from './ErrorBanner'
+import { missingRequiredDate, todayIso } from '../utils/dates'
 import SearchField from './SearchField'
 import SkeletonInline from './SkeletonInline'
 
@@ -56,10 +57,12 @@ export default function GameSearch() {
   const [modalUserRating, setModalUserRating] = useState(0)
   const [modalComment, setModalComment] = useState('')
   const [modalObtainPlatinum, setModalObtainPlatinum] = useState(false)
+  const [modalAcquisitionDate, setModalAcquisitionDate] = useState('')
+  const [modalAcquisitionPrice, setModalAcquisitionPrice] = useState('')
 
+  const showAcquisition = modalStatus !== GameStatus.WISHLIST
   const showStartDate =
     modalStatus === GameStatus.PLAYING ||
-    modalStatus === GameStatus.ABANDONED ||
     modalStatus === GameStatus.COMPLETED
   const showEndDate = modalStatus === GameStatus.COMPLETED
   const showRating = modalStatus === GameStatus.COMPLETED
@@ -77,28 +80,50 @@ export default function GameSearch() {
     setSubmitError(null)
     setModalPlatform(result.platform || '')
     setModalStatus(GameStatus.WISHLIST)
-    setModalDateAdded('')
-    setModalDateCompleted('')
+    // Fechas de seguimiento obligatorias: se propone hoy al añadir.
+    setModalDateAdded(todayIso())
+    setModalDateCompleted(todayIso())
     setModalUserRating(0)
     setModalComment('')
     setModalObtainPlatinum(false)
+    // Adquisición: se propone hoy y se envía solo fuera de Lista de deseos.
+    setModalAcquisitionDate(todayIso())
+    setModalAcquisitionPrice('')
   }
 
   async function handleConfirm() {
     if (!selected) return
     setSubmitError(null)
+    // Fechas de seguimiento y obtención obligatorias: solo se exige las que el estado deja ver.
+    const dateError =
+      (showAcquisition && missingRequiredDate(modalAcquisitionDate, 'La fecha de obtención')) ||
+      (showStartDate && missingRequiredDate(modalDateAdded, 'La fecha de inicio')) ||
+      (showEndDate && missingRequiredDate(modalDateCompleted, 'La fecha de fin'))
+    if (dateError) {
+      setSubmitError(dateError)
+      return
+    }
+    if (showAcquisition && !modalAcquisitionPrice) {
+      setSubmitError('El precio de adquisición es obligatorio.')
+      return
+    }
     setSearching(selected.id)
     try {
       await createGame({
         ...mapResultToGame(selected),
         platform: modalPlatform,
         status: modalStatus,
-        dateAdded: (showStartDate && modalDateAdded) || undefined,
-        dateCompleted: (showEndDate && modalDateCompleted) || undefined,
+        dateAdded: showStartDate ? modalDateAdded : undefined,
+        dateCompleted: showEndDate ? modalDateCompleted : undefined,
         userRating: showRating && modalUserRating ? modalUserRating : undefined,
         comment: showComment ? modalComment?.trim() || undefined : undefined,
         obtainPlatinum:
           isPcPlatform(modalPlatform) && canPlatinum && modalObtainPlatinum ? true : undefined,
+        acquisitionDate: showAcquisition ? modalAcquisitionDate : undefined,
+        acquisitionPrice:
+          showAcquisition && modalAcquisitionPrice !== ''
+            ? Number(modalAcquisitionPrice)
+            : undefined,
       })
       setSelected(null)
       navigate('/juegos')
@@ -240,11 +265,39 @@ export default function GameSearch() {
                 </div>
               )}
 
+              {showAcquisition && (
+                <>
+                  <div>
+                    <label className="label" htmlFor="game-acquisition-date">Fecha de obtención <span className="text-brand">*</span></label>
+                    <input
+                      id="game-acquisition-date"
+                      className="input"
+                      type="date"
+                      value={modalAcquisitionDate}
+                      onChange={(e) => setModalAcquisitionDate(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="label" htmlFor="game-acquisition-price">Precio de adquisición <span className="text-brand">*</span></label>
+                    <input
+                      id="game-acquisition-price"
+                      className="input"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={modalAcquisitionPrice}
+                      onChange={(e) => setModalAcquisitionPrice(e.target.value)}
+                      placeholder="24.99"
+                    />
+                  </div>
+                </>
+              )}
+
               {showStartDate && (
                 <div>
-                  <label className="label">Fecha de inicio</label>
+                  <label className="label" htmlFor="game-start-date">Fecha de inicio <span className="text-brand">*</span></label>
                   <input
-                    className="input"
+ id="game-start-date"                    className="input"
                     type="date"
                     value={modalDateAdded}
                     onChange={(e) => setModalDateAdded(e.target.value)}
@@ -253,9 +306,9 @@ export default function GameSearch() {
               )}
               {showEndDate && (
                 <div>
-                  <label className="label">Fecha de fin</label>
+                  <label className="label" htmlFor="game-end-date">Fecha de fin <span className="text-brand">*</span></label>
                   <input
-                    className="input"
+ id="game-end-date"                    className="input"
                     type="date"
                     value={modalDateCompleted}
                     onChange={(e) => setModalDateCompleted(e.target.value)}

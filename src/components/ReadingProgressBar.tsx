@@ -39,9 +39,6 @@ export default function ReadingProgressBar({
   }
 
   if (!isVisible) {
-    if (state === BookState.COMPLETED) {
-      return <p className={`text-caption text-slate ${className}`}>Finalizado</p>
-    }
     return null
   }
 
