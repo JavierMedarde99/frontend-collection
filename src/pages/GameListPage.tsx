@@ -1,11 +1,12 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listGames, deleteGame } from '../api/gamesApi'
-import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
+import { GAME_STATES, platformLabel } from '../constants/games'
 import GenreSelect from '../components/GenreSelect'
-import { listGameGenres } from '../api/gamesApi'
+import { listGameGenres, listGamePlatforms } from '../api/gamesApi'
 import { useGenreOptions } from '../hooks/useGenreOptions'
-import { GamePlatform, GameStatus, type Game } from '../types'
+import { usePlatformOptions } from '../hooks/usePlatformOptions'
+import { GameStatus, type Game } from '../types'
 import GameCard from '../components/GameCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
@@ -33,13 +34,14 @@ export default function GameListPage() {
 
   const [query, setQuery] = useListQuery({
     status: '' as GameStatus | '',
-    platform: '' as GamePlatform | '',
+    platform: '',
     genre: [] as string[],
     name: '',
     sort: 'title,asc',
   })
   const { status, platform: platformFilter, genre: genreFilter, name: nameFilter, sort } = query
   const genreOptions = useGenreOptions(listGameGenres)
+  const platformOptions = usePlatformOptions(listGamePlatforms)
 
   const { isAuthenticated, user } = useAuth()
   const [ownerTab, setOwnerTab] = useState<OwnerTab>('mine')
@@ -155,13 +157,19 @@ export default function GameListPage() {
             <select
               className="input md:w-48"
               value={platformFilter}
-              onChange={(e) => { setQuery({ platform: e.target.value as GamePlatform }) }}
+              onChange={(e) => { setQuery({ platform: e.target.value }) }}
               aria-label="Filtrar por plataforma"
             >
               <option value="">Todas las plataformas</option>
-              {Object.entries(GAME_PLATFORMS).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
+              {/* El filtro activo siempre aparece como opción: si el juego guardado
+                  tiene un nombre viejo (WII_U) que el catálogo ya no lista, el filtro
+                  debe poder seguir mostrando ese estado y no quedar en un valor
+                  imposible de seleccionar. */}
+              {platformOptions
+                .concat(platformFilter && !platformOptions.includes(platformFilter) ? [platformFilter] : [])
+                .map((name) => (
+                  <option key={name} value={name}>{platformLabel(name)}</option>
+                ))}
             </select>
           </div>
           <div>

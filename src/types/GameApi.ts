@@ -1,6 +1,12 @@
 import { Game } from './Game'
-import { GamePlatform } from './GamePlatform'
 import { GameStatus } from './GameStatus'
+
+/** Entrada de GET /api/v1/games/platforms. */
+export interface PlatformInfo {
+  id: number
+  name: string
+  slug?: string
+}
 
 export interface PageGameResponse {
   content: Game[]
@@ -16,7 +22,7 @@ export interface ListGamesParams {
   size?: number
   sort?: string
   name?: string
-  platform?: GamePlatform | ''
+  platform?: string
   status?: GameStatus | ''
   genre?: string[]
   owner?: 'mine' | 'other' | ''
@@ -25,7 +31,7 @@ export interface ListGamesParams {
 
 export interface GameFormData {
   title: string
-  platform: GamePlatform
+  platform: string
   status: GameStatus
   thumbnailUrl?: string
   userRating?: number

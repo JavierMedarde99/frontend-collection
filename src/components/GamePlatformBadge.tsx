@@ -1,16 +1,13 @@
-import { PLATFORM_LABELS, PLATFORM_BADGE_COLORS } from '../constants/games'
-import { GamePlatform } from '../types'
+import { platformBadgeClass, platformLabel } from '../constants/games'
 
 interface GamePlatformBadgeProps {
-  platform: GamePlatform
+  platform: string
 }
 
 export default function GamePlatformBadge({ platform }: GamePlatformBadgeProps) {
-  const color = PLATFORM_BADGE_COLORS[platform] || PLATFORM_BADGE_COLORS[GamePlatform.PC]
-  const label = PLATFORM_LABELS[platform] || platform
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-caption font-medium ${color}`}>
-      {label}
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-caption font-medium ${platformBadgeClass(platform)}`}>
+      {platformLabel(platform)}
     </span>
   )
 }

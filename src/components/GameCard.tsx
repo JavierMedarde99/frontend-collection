@@ -5,6 +5,7 @@ import CardMenu from './CardMenu'
 import OwnerLine from './OwnerLine'
 import GameStatusBadge from './GameStatusBadge'
 import GamePlatformBadge from './GamePlatformBadge'
+import { isPcPlatform } from '../constants/games'
 import GenreBadges from './GenreBadges'
 import GamePlatinumBadge from './GamePlatinumBadge'
 import StarRating from './StarRating'
@@ -12,7 +13,7 @@ import GameStateDialog from './GameStateDialog'
 import AcquisitionGameDialog from './AcquisitionGameDialog'
 import CompleteGameDialog from './CompleteGameDialog'
 import { updateGame } from '../api/gamesApi'
-import { GamePlatform, GameStatus } from '../types'
+import { GameStatus } from '../types'
 import type { Game, GameFormData } from '../types'
 
 interface GameCardProps {
@@ -165,7 +166,7 @@ acquisitionDate: updated.acquisitionDate,
       <div className="mt-auto flex items-center justify-between pt-4 border-t border-silver/60">
         <StarRating value={game.userRating} readOnly />
         <div className="flex items-center gap-2">
-          {game.steamAppId && game.platform === GamePlatform.PC && (
+          {game.steamAppId && isPcPlatform(game.platform) && (
             <Link className="btn-ghost !px-3 !py-1.5 flex items-center gap-1.5" to={`/juegos/${game.id}/logros`}>
               <svg
                 aria-hidden="true"
