@@ -1,4 +1,4 @@
-import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, PageGameSearchResult, GameAchievementsResponse } from '../types'
+import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, PageGameSearchResult, GameAchievementsResponse, PlatformInfo } from '../types'
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
 import { apiUrl } from './apiBase'
@@ -63,6 +63,11 @@ export function deleteGame(id: string): Promise<null> {
 // Catálogo de géneros en uso en la colección (para autocompletar el selector).
 export function listGameGenres(): Promise<string[]> {
   return request<string[]>(`${apiUrl(BASE_URL)}/genres`) as Promise<string[]>
+}
+
+// Catálogo de plataformas del catálogo externo (sustituye al enum de cinco valores).
+export function listGamePlatforms(): Promise<PlatformInfo[]> {
+  return request<PlatformInfo[]>(`${apiUrl(BASE_URL)}/platforms`) as Promise<PlatformInfo[]>
 }
 
 export function searchGames(name: string): Promise<SearchGameResult[]> {

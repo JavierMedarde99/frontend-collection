@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { searchGamesPage, createGame } from '../api/gamesApi'
-import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
-import { GamePlatform, GameStatus } from '../types'
+import { searchGamesPage, createGame, listGamePlatforms } from '../api/gamesApi'
+import { GAME_STATES, isPcPlatform, platformLabel } from '../constants/games'
+import { GameStatus } from '../types'
 import type { GameFormData, SearchGameResult } from '../types'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
+import { usePlatformOptions } from '../hooks/usePlatformOptions'
 import Spinner from './Spinner'
 import EmptyState from './EmptyState'
 import StarRating from './StarRating'
@@ -47,7 +48,8 @@ export default function GameSearch() {
 
   const [selected, setSelected] = useState<SearchGameResult | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [modalPlatform, setModalPlatform] = useState<GamePlatform>(GamePlatform.PC)
+  const [modalPlatform, setModalPlatform] = useState('')
+  const platformOptions = usePlatformOptions(listGamePlatforms)
   const [modalStatus, setModalStatus] = useState<GameStatus>(GameStatus.WISHLIST)
   const [modalDateAdded, setModalDateAdded] = useState('')
   const [modalDateCompleted, setModalDateCompleted] = useState('')
@@ -73,8 +75,7 @@ export default function GameSearch() {
   function handleAddClick(result: SearchGameResult) {
     setSelected(result)
     setSubmitError(null)
-    const platform = Object.values(GamePlatform).find((p) => p === result.platform)
-    setModalPlatform(platform || GamePlatform.PC)
+    setModalPlatform(result.platform || '')
     setModalStatus(GameStatus.WISHLIST)
     setModalDateAdded('')
     setModalDateCompleted('')
@@ -97,7 +98,7 @@ export default function GameSearch() {
         userRating: showRating && modalUserRating ? modalUserRating : undefined,
         comment: showComment ? modalComment?.trim() || undefined : undefined,
         obtainPlatinum:
-          modalPlatform === GamePlatform.PC && canPlatinum && modalObtainPlatinum ? true : undefined,
+          isPcPlatform(modalPlatform) && canPlatinum && modalObtainPlatinum ? true : undefined,
       })
       setSelected(null)
       navigate('/juegos')
@@ -195,12 +196,17 @@ export default function GameSearch() {
                 </label>
                 <select
                   className="input"
+                  aria-label="Plataforma"
                   value={modalPlatform}
-                  onChange={(e) => setModalPlatform(e.target.value as GamePlatform)}
+                  onChange={(e) => setModalPlatform(e.target.value)}
                 >
-                  {Object.entries(GAME_PLATFORMS).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
-                  ))}
+                  {/* La plataforma que trae la búsqueda manda: si no está en el
+                      catálogo se añade como opción para no perderla. */}
+                  {platformOptions
+                    .concat(modalPlatform && !platformOptions.includes(modalPlatform) ? [modalPlatform] : [])
+                    .map((name) => (
+                      <option key={name} value={name}>{platformLabel(name)}</option>
+                    ))}
                 </select>
               </div>
 
@@ -219,7 +225,7 @@ export default function GameSearch() {
                 </select>
               </div>
 
-              {modalPlatform === GamePlatform.PC && canPlatinum && (
+              {isPcPlatform(modalPlatform) && canPlatinum && (
                 <div>
                   <label className="label">Objetivo</label>
                   <label className="flex items-center gap-2.5 text-body cursor-pointer">

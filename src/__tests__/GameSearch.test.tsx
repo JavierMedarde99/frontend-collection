@@ -13,6 +13,10 @@ vi.mock('react-router-dom', () => ({
 vi.mock('../api/gamesApi', () => ({
   searchGamesPage: vi.fn(),
   createGame: vi.fn(),
+  listGamePlatforms: vi.fn(async () => [
+    { id: 1, name: 'PC', slug: 'pc' },
+    { id: 2, name: 'PlayStation 5', slug: 'ps5' },
+  ]),
 }))
 
 import { searchGamesPage } from '../api/gamesApi'

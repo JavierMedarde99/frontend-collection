@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
-import { GAME_PLATFORMS, GAME_STATES } from '../constants/games'
-import { GamePlatform, GameStatus } from '../types'
+import { GAME_STATES, isPcPlatform, platformLabel } from '../constants/games'
+import { GameStatus } from '../types'
 import type { GameFormData } from '../types'
 import { useAuth } from '../context/AuthContext'
 import StarRating from './StarRating'
@@ -10,7 +10,8 @@ import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import FormSection from './FormSection'
 import GenreSelect from './GenreSelect'
 import { GAME_GENRES } from '../constants/genres'
-import { listGameGenres } from '../api/gamesApi'
+import { listGameGenres, listGamePlatforms } from '../api/gamesApi'
+import { usePlatformOptions } from '../hooks/usePlatformOptions'
 
 type IconName = 'title' | 'thumbnail' | 'externalId' | 'date' | 'comment' | 'source' | 'steam'
 
@@ -97,7 +98,9 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
   const { user } = useAuth()
   const [form, setForm] = useState<GameFormData>({
     title: '',
-    platform: GamePlatform.PC,
+    // El backend exige platform no vacío (minLength 1), así que hace falta un
+    // default. 'PC' sigue siendo un nombre válido del catálogo de RAWG.
+    platform: 'PC',
     status: GameStatus.WISHLIST,
     thumbnailUrl: '',
     userRating: 0,
@@ -117,8 +120,9 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
   const [localError, setLocalError] = useState<string | null>(null)
 
   // Platinar necesita Steam: al crear se oculta sin steamId; al editar se conserva.
-  const canPlatinum =
-    form.platform === GamePlatform.PC && (!isCreate || !!user?.steamId)
+  const canPlatinum = isPcPlatform(form.platform) && (!isCreate || !!user?.steamId)
+
+  const platformOptions = usePlatformOptions(listGamePlatforms)
 
   const showStartDate =
     form.status === GameStatus.PLAYING ||
@@ -183,12 +187,17 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
             <input className="input" value={form.title} onChange={set('title')} placeholder="Título del videojuego" />
           </Field>
           <Field label="Plataforma" required>
-            <select className="input" value={form.platform} onChange={set('platform')}>
-              {Object.entries(GAME_PLATFORMS).map(([key, label]) => (
-                <option key={key} value={key}>
-                  {label}
-                </option>
-              ))}
+            <select className="input" aria-label="Plataforma" value={form.platform} onChange={set('platform')}>
+              {/* El valor actual siempre está como opción: los juegos ya guardados
+                  tienen los nombres del enum viejo (PS2, WII_U) y no aparecen en el
+                  catálogo. Si no, editar uno le cambiaría la plataforma en silencio. */}
+              {platformOptions
+                .concat(form.platform && !platformOptions.includes(form.platform) ? [form.platform] : [])
+                .map((name) => (
+                  <option key={name} value={name}>
+                    {platformLabel(name)}
+                  </option>
+                ))}
             </select>
           </Field>
 

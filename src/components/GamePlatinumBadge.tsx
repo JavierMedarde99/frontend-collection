@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getGameAchievements } from '../api/gamesApi'
-import { GamePlatform, type Game } from '../types'
+import { isPcPlatform } from '../constants/games'
+import type { Game } from '../types'
 
 interface GamePlatinumBadgeProps {
   game: Game
@@ -15,7 +16,7 @@ export default function GamePlatinumBadge({ game }: GamePlatinumBadgeProps) {
   const [completed, setCompleted] = useState(false)
 
   useEffect(() => {
-    if (game.platform !== GamePlatform.PC || !game.steamAppId) return
+    if (!isPcPlatform(game.platform) || !game.steamAppId) return
     let cancelled = false
     getGameAchievements(game.id)
       .then((data) => {

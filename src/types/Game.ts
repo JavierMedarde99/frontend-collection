@@ -1,4 +1,3 @@
-import { GamePlatform } from './GamePlatform'
 import { GameStatus } from './GameStatus'
 import type { UserOwned } from './Api'
 
@@ -6,7 +5,7 @@ export interface Game {
   id: string
   externalId?: string
   title: string
-  platform: GamePlatform
+  platform: string
   thumbnailUrl?: string
   status: GameStatus
   userRating?: number

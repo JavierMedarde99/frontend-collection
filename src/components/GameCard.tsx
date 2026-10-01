@@ -4,10 +4,10 @@ import CardMenu from './CardMenu'
 import OwnerLine from './OwnerLine'
 import GameStatusBadge from './GameStatusBadge'
 import GamePlatformBadge from './GamePlatformBadge'
+import { isPcPlatform } from '../constants/games'
 import GenreBadges from './GenreBadges'
 import GamePlatinumBadge from './GamePlatinumBadge'
 import StarRating from './StarRating'
-import { GamePlatform } from '../types'
 import type { Game } from '../types'
 
 interface GameCardProps {
@@ -78,7 +78,7 @@ export default function GameCard({ game, index = 0, onDelete, readOnly = false }
       <div className="mt-auto flex items-center justify-between pt-4 border-t border-silver/60">
         <StarRating value={game.userRating} readOnly />
         <div className="flex items-center gap-2">
-          {game.steamAppId && game.platform === GamePlatform.PC && (
+          {game.steamAppId && isPcPlatform(game.platform) && (
             <Link className="btn-ghost !px-3 !py-1.5 flex items-center gap-1.5" to={`/juegos/${game.id}/logros`}>
               <svg
                 aria-hidden="true"
