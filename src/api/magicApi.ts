@@ -1,4 +1,4 @@
-import type { PageMagicCardResponse, ListMagicCardsParams, MagicCardResponse, MagicCardRequest, MagicCardSearchResult, MagicCardSearchResponse, PageMagicCardSearchResult } from '../types'
+import type { PageMagicCardResponse, ListMagicCardsParams, MagicCardResponse, MagicCardRequest, MagicCardSearchResult, MagicCardSearchResponse, PageMagicCardSearchResult, PageMagicCardPrinting } from '../types'
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
 import { apiUrl } from './apiBase'
@@ -87,4 +87,16 @@ export function addMagicCardFromScryfall(scryfallId: string, quantity = 1): Prom
   return request<MagicCardResponse>(`${apiUrl(BASE_URL)}/scryfall/${encodeURIComponent(scryfallId)}${qs}`, {
     method: 'POST',
   }) as Promise<MagicCardResponse>
+}
+
+/**
+ * Páginas de impresiones de una carta (base 0). El backend no expone `size`:
+ * Scryfall ignora page_size y cada página trae 175 impresiones.
+ * `scryfallId` puede ser el de CUALQUIER impresión de la carta.
+ */
+export function getMagicCardPrintingsPage(scryfallId: string, page = 0): Promise<PageMagicCardPrinting> {
+  const qs = new URLSearchParams({ page: String(page) })
+  return request<PageMagicCardPrinting>(
+    `${apiUrl(BASE_URL)}/scryfall/${encodeURIComponent(scryfallId)}/printings?${qs}`,
+  ) as Promise<PageMagicCardPrinting>
 }
