@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { searchMagicCardsPage, addMagicCardFromScryfall } from '../api/magicApi'
-import type { MagicCardSearchResult } from '../types'
+import type { MagicCardPrinting, MagicCardSearchResult } from '../types'
 import ErrorBanner from '../components/ErrorBanner'
 import SkeletonInline from '../components/SkeletonInline'
 import Spinner from '../components/Spinner'
+import MagicPrintingsPanel from '../components/MagicPrintingsPanel'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { useToast } from '../components/Toast'
@@ -16,12 +17,39 @@ export default function MagicCreatePage() {
   const notify = useToast()
   const [query, setQuery] = useState('')
   const [submitted, setSubmitted] = useState<string | null>(null)
-  const [savingId, setSavingId] = useState<string | null>(null)
-  const [saveError, setSaveError] = useState<string | null>(null)
   const [quantities, setQuantities] = useState<Record<string, number>>({})
+  const [printingsFor, setPrintingsFor] = useState<MagicCardSearchResult | null>(null)
+  const [panelSavingId, setPanelSavingId] = useState<string | null>(null)
+  const [panelError, setPanelError] = useState<string | null>(null)
 
   function quantityOf(key: string): number {
     return quantities[key] ?? 1
+  }
+
+  function resultKey(card: MagicCardSearchResult): string {
+    return card.scryfallId || card.name
+  }
+
+  function openPrintings(card: MagicCardSearchResult) {
+    setPanelError(null)
+    setPanelSavingId(null)
+    setPrintingsFor(card)
+  }
+
+  async function handleChoosePrinting(printing: MagicCardPrinting) {
+    if (!printingsFor) return
+    const quantity = Math.max(1, Math.floor(quantityOf(resultKey(printingsFor))) || 1)
+    setPanelSavingId(printing.scryfallId)
+    setPanelError(null)
+    try {
+      await addMagicCardFromScryfall(printing.scryfallId, quantity)
+      notify(quantity > 1 ? `${quantity} copias añadidas a tu colección.` : 'Carta añadida a tu colección.')
+      navigate('/magic')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudo guardar la carta.'
+      setPanelError(message)
+      setPanelSavingId(null)
+    }
   }
 
   const {
@@ -44,22 +72,6 @@ export default function MagicCreatePage() {
     const q = query.trim()
     if (!q) return
     setSubmitted(q)
-  }
-
-  async function handleAdd(card: MagicCardSearchResult) {
-    const key = card.scryfallId || card.name
-    const quantity = Math.max(1, Math.floor(quantityOf(key)) || 1)
-    setSavingId(key)
-    setSaveError(null)
-    try {
-      await addMagicCardFromScryfall(card.scryfallId, quantity)
-      notify(quantity > 1 ? `${quantity} copias añadidas a tu colección.` : 'Carta añadida a tu colección.')
-      navigate('/magic')
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'No se pudo guardar la carta.'
-      setSaveError(message)
-      setSavingId(null)
-    }
   }
 
   return (
@@ -101,10 +113,6 @@ export default function MagicCreatePage() {
         <ErrorBanner message={searchError} />
       )}
 
-      {saveError && (
-        <ErrorBanner message={saveError} />
-      )}
-
       {searching && <Spinner label="Buscando…" />}
 
       {!searching && submitted !== null && results.length === 0 && !searchError && (
@@ -119,10 +127,14 @@ export default function MagicCreatePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {results.map((card, idx) => {
               const key = card.scryfallId || `${card.name}-${idx}`
-              const saving = savingId === key
               return (
                 <div key={key} className="card flex flex-col justify-between p-4 gap-4">
-                  <div className="flex flex-col gap-3">
+                  <button
+                    type="button"
+                    className="text-left flex flex-col gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                    aria-label={`Ver impresiones de ${card.name}`}
+                    onClick={() => openPrintings(card)}
+                  >
                     {card.imageUrl ? (
                       <img src={card.imageUrl} alt={card.name} className="w-full h-48 object-cover rounded-xl" />
                     ) : (
@@ -134,14 +146,14 @@ export default function MagicCreatePage() {
                       <h3 className="font-display text-heading-sm line-clamp-1">{card.name}</h3>
                       <p className="text-caption text-graphite mt-0.5">{card.setName || card.type || 'Magic'}</p>
                     </div>
-                  </div>
+                  </button>
                   <button
                     type="button"
                     className="btn-primary w-full !py-2"
-                    onClick={() => handleAdd(card)}
-                    disabled={savingId !== null}
+                    aria-label={`Elegir impresión de ${card.name}`}
+                    onClick={() => openPrintings(card)}
                   >
-                    {saving ? 'Guardando…' : 'Añadir a mi colección'}
+                    Elegir impresión
                   </button>
                   <div className="flex items-center justify-between gap-3">
                     <label className="label !mb-0" htmlFor={`qty-${key}`}>
@@ -154,7 +166,6 @@ export default function MagicCreatePage() {
                       min="1"
                       step="1"
                       value={quantityOf(key)}
-                      disabled={savingId !== null}
                       onChange={(e) =>
                         setQuantities((q) => ({ ...q, [key]: Math.max(1, Math.floor(Number(e.target.value)) || 1) }))
                       }
@@ -172,6 +183,17 @@ export default function MagicCreatePage() {
           )}
           <div ref={sentinelRef} className="h-px" aria-hidden="true" />
         </div>
+      )}
+
+      {printingsFor && (
+        <MagicPrintingsPanel
+          card={printingsFor}
+          quantity={Math.max(1, Math.floor(quantityOf(resultKey(printingsFor))) || 1)}
+          onSelect={handleChoosePrinting}
+          onClose={() => setPrintingsFor(null)}
+          busyScryfallId={panelSavingId}
+          saveError={panelError}
+        />
       )}
     </div>
   )
