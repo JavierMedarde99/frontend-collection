@@ -15,18 +15,12 @@ export interface AcquireBoardGameDialogProps {
   personalRating?: number
   /** Comentario actual del juego, si lo tiene. */
   notes?: string
-  /** Número de jugadas actual, si lo tiene. */
-  playCount?: number
-  /** Última jugada actual, si la tiene. */
-  lastPlayedDate?: string
   onSave: (payload: {
     dateAdded: string
     acquisitionPrice: number
     difficulty?: BoardGameDifficulty
     personalRating?: number
     notes?: string
-    playCount?: number
-    lastPlayedDate?: string
   }) => void | Promise<void>
   onClose: () => void
   busy?: boolean
@@ -34,8 +28,9 @@ export interface AcquireBoardGameDialogProps {
 
 /**
  * Diálogo para pasar un juego de mesa de WISHLIST a OWNED.
- * Muestra el bloque completo de campos «En propiedad»: fecha de adición (hoy por defecto),
- * precio obligatorio, dificultad, valoración, comentario, jugadas y última jugada.
+ * Pide solo lo esencial de «En propiedad»: fecha de adición (hoy por defecto),
+ * precio obligatorio, dificultad, valoración y comentario. Las jugadas y la
+ * última jugada se registran en el formulario de edición, no en este acceso rápido.
  */
 export default function AcquireBoardGameDialog({
   dateAdded,
@@ -43,8 +38,6 @@ export default function AcquireBoardGameDialog({
   difficulty,
   personalRating,
   notes,
-  playCount,
-  lastPlayedDate,
   onSave,
   onClose,
   busy = false,
@@ -54,16 +47,12 @@ export default function AcquireBoardGameDialog({
   const [draftDifficulty, setDraftDifficulty] = useState<BoardGameDifficulty | ''>(difficulty || '')
   const [draftRating, setDraftRating] = useState(personalRating || 0)
   const [draftNotes, setDraftNotes] = useState(notes || '')
-  const [draftPlayCount, setDraftPlayCount] = useState(playCount !== undefined ? String(playCount) : '')
-  const [draftLastPlayed, setDraftLastPlayed] = useState(lastPlayedDate || '')
   const [dateError, setDateError] = useState<string | null>(null)
   const [priceError, setPriceError] = useState<string | null>(null)
-  const [lastPlayedError, setLastPlayedError] = useState<string | null>(null)
 
   function handleSave() {
     setDateError(null)
     setPriceError(null)
-    setLastPlayedError(null)
 
     const message = missingRequiredDate(draftDate, 'La fecha de adición')
     if (message) {
@@ -74,14 +63,6 @@ export default function AcquireBoardGameDialog({
       setPriceError('El precio de adquisición es obligatorio.')
       return
     }
-    const playCountNum = Number(draftPlayCount)
-    if (!Number.isNaN(playCountNum) && playCountNum > 0) {
-      const lastError = missingRequiredDate(draftLastPlayed, 'La fecha de la última jugada')
-      if (lastError) {
-        setLastPlayedError(lastError)
-        return
-      }
-    }
 
     onSave({
       dateAdded: draftDate,
@@ -89,8 +70,6 @@ export default function AcquireBoardGameDialog({
       difficulty: draftDifficulty || undefined,
       personalRating: draftRating > 0 ? draftRating : undefined,
       notes: draftNotes.trim() || undefined,
-      playCount: !Number.isNaN(playCountNum) ? playCountNum : undefined,
-      lastPlayedDate: draftLastPlayed || undefined,
     })
   }
 
@@ -181,39 +160,6 @@ export default function AcquireBoardGameDialog({
             onChange={(e) => setDraftNotes(e.target.value)}
             placeholder="Comentario personal…"
           />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="label" htmlFor="acquire-bg-plays">
-              Número de jugadas
-            </label>
-            <input
-              id="acquire-bg-plays"
-              className="input"
-              type="number"
-              min="0"
-              value={draftPlayCount}
-              onChange={(e) => setDraftPlayCount(e.target.value)}
-              placeholder="Ej: 12"
-            />
-            <label className="label" htmlFor="acquire-bg-last">
-              Última jugada
-            </label>
-            <input
-              id="acquire-bg-last"
-              className="input"
-              type="date"
-              value={draftLastPlayed}
-              onChange={(e) => {
-                setDraftLastPlayed(e.target.value)
-                setLastPlayedError(null)
-              }}
-            />
-            {lastPlayedError ? (
-              <p className="text-caption text-red-600 mt-1 sm:col-span-2" role="alert">{lastPlayedError}</p>
-            ) : (
-              <p className="text-caption text-stone mt-1 sm:col-span-2">Obligatoria si has jugado al menos una vez.</p>
-            )}
-          </div>
         </div>
 
         <div className="flex justify-end gap-3 mt-6 border-t border-silver/60 pt-5">

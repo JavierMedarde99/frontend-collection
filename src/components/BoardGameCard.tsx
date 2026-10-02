@@ -107,8 +107,6 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
     difficulty?: import('../types').BoardGameDifficulty
     personalRating?: number
     notes?: string
-    playCount?: number
-    lastPlayedDate?: string
   }) {
     return applyStatus({
       status: BoardGameStatus.OWNED,
@@ -117,8 +115,6 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
       difficulty: payload.difficulty,
       personalRating: payload.personalRating,
       notes: payload.notes,
-      playCount: payload.playCount,
-      lastPlayedDate: payload.lastPlayedDate,
     })
   }
 
@@ -232,8 +228,6 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
           difficulty={shown.difficulty}
           personalRating={shown.personalRating}
           notes={shown.notes}
-          playCount={shown.playCount}
-          lastPlayedDate={shown.lastPlayedDate}
           onSave={markAsOwned}
           onClose={() => setAcquiringDialog(false)}
           busy={saving}
