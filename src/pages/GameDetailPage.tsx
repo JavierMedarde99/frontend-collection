@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getGame, deleteGame } from '../api/gamesApi'
-import { GamePlatform, type Game } from '../types'
+import type { Game } from '../types'
 import GameStatusBadge from '../components/GameStatusBadge'
 import GamePlatformBadge from '../components/GamePlatformBadge'
+import { isPcPlatform } from '../constants/games'
 import GenreBadges from '../components/GenreBadges'
 import StarRating from '../components/StarRating'
 import Spinner from '../components/Spinner'
@@ -145,7 +146,7 @@ export default function GameDetailPage() {
             </div>
             <GenreBadges genres={game.genres} className="mb-4" />
             <StarRating value={game.userRating} readOnly />
-            {game.steamAppId && game.platform === GamePlatform.PC && (
+            {game.steamAppId && isPcPlatform(game.platform) && (
               <div className="mt-4">
                 <Link className="btn-ghost !px-4 !py-2" to={`/juegos/${game.id}/logros`}>
                   Ver logros

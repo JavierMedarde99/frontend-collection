@@ -9,13 +9,21 @@ React 18 + Vite 5 + Tailwind 3 + React Router 6 frontend for a book-collection a
 
 `package.json` sets `"type": "module"`, so config files (`postcss.config.js`, `tailwind.config.js`) must use `export default`, not `module.exports` (a `.cjs` rename is the fallback).
 
-## Backend contract — READ THIS, the wiki lies
+### Verification
+`npm run build` is the gate. There is also `npm test` (vitest, ~36 files): `BookCard > muestra el título y el autor` and `GenreMultiselect > dos géneros recargan con array genre` fail on `main` already, so they are not a regression signal. `npx tsc --noEmit` reports ~44 pre-existing errors on `main`; only new ones matter.
+
+# Backend contract — READ THIS, the wiki lies
 The frontend is built against the **real backend at localhost:8080**, whose OpenAPI differs from both the GitHub issues and `wiki-collection` docs. The wiki's "rich" Book model is NOT what the API returns. The actual API:
 
 Endpoints (already wrapped in `src/api/booksApi.ts`; add calls there):
 - `GET /api/books` — query params `page`, `size`, `sort`, **`state`** (NOT `status`). Returns a Spring `PageBookResponse` (`content`, `totalPages`, `totalElements`, `number`, …).
 - `GET /api/books/{id}`, `POST /api/books`, `PUT /api/books/{id}`, `DELETE /api/books/{id}` (204 on success).
 - `GET /api/books/search?name={q}` — param is **`name`** (NOT `q`). Returns normalized results with fields `id, title, authors[], isbn, coverImage, description, pageCount, publisher, publishedDate, language, categories`.
+
+Games:
+- `GET /api/v1/games/platforms` → `[{ id, name, slug }]`. **Platform is free text**, not an enum: the backend forwards whatever the external catalog says (`'PlayStation 5'`, `'Web browser'`, `'PC (Windows)'`). `src/api/gamesApi.ts:listGamePlatforms` + `src/hooks/usePlatformOptions` load it; the three selects (`GameForm`, `GameListPage`, `GameSearch`) read from there. There is no `GamePlatform` type anymore.
+- `GameRequest.platform` is `minLength: 1`, so the form must always have a non-empty value.
+- Legacy data: games saved before the change still hold the old enum names (`PS2`, `PS3`, `WII_U`, `SWITCH`), which the catalog does not list and the backend's exact-match filter will not match. Every select therefore always includes its current value as an option; never drop that, or editing an old game silently changes its platform.
 
 Book model (not the wiki model): `id, externalId, title, author` (**single string**, not a list), `descripcion`, `pages`, `type`, `state`, `comment`, `start` (0–5 rating), `startDate`, `endDate`, `frontpage`.
 - `type` enum: `MANGA | NOVEL | GRAPHIC_NOVEL` (mapped in `src/constants/books.ts`).
