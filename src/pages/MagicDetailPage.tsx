@@ -77,6 +77,7 @@ export default function MagicDetailPage() {
   }
 
   const imgSrc = card.imageLargeUrl || card.imageUrl
+  const isCreature = /\bCreature\b/i.test(card.type || '')
 
   return (
     <article className="max-w-5xl mx-auto flex flex-col gap-10">
@@ -158,7 +159,7 @@ export default function MagicDetailPage() {
                 <span className="text-body font-medium text-ink">{card.artist}</span>
               </div>
             )}
-            {(card.power !== undefined || card.toughness !== undefined) && (
+            {isCreature && (card.power !== undefined || card.toughness !== undefined) && (
               <div>
                 <span className="text-caption text-stone block">Fuerza / Resistencia</span>
                 <span className="text-body font-medium text-ink">{card.power || '0'} / {card.toughness || '0'}</span>
