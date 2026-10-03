@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 
 export interface StartReadingDialogProps {
   /** Total de páginas del libro. Si falta, se acepta cualquier valor. */
@@ -25,7 +26,7 @@ export default function StartReadingDialog({ pages, onSave, onClose, busy = fals
     onSave(value)
   }
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md modal-sheet"
       onClick={onClose}
@@ -68,6 +69,7 @@ export default function StartReadingDialog({ pages, onSave, onClose, busy = fals
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

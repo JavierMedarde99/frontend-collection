@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { missingRequiredDate, todayIso } from '../utils/dates'
 
 export interface MarkAsOwnedDialogProps {
@@ -44,7 +45,7 @@ export default function MarkAsOwnedDialog({
     onSave(draft, Number(priceDraft))
   }
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md modal-sheet"
       onClick={onClose}
@@ -109,6 +110,7 @@ export default function MarkAsOwnedDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
