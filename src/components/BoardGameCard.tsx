@@ -104,7 +104,6 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
   function markAsOwned(payload: {
     dateAdded: string
     acquisitionPrice: number
-    difficulty?: import('../types').BoardGameDifficulty
     personalRating?: number
     notes?: string
   }) {
@@ -112,7 +111,6 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
       status: BoardGameStatus.OWNED,
       dateAdded: payload.dateAdded,
       acquisitionPrice: payload.acquisitionPrice,
-      difficulty: payload.difficulty,
       personalRating: payload.personalRating,
       notes: payload.notes,
     })
@@ -225,7 +223,6 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
         <AcquireBoardGameDialog
           dateAdded={shown.dateAdded}
           acquisitionPrice={shown.acquisitionPrice}
-          difficulty={shown.difficulty}
           personalRating={shown.personalRating}
           notes={shown.notes}
           onSave={markAsOwned}
