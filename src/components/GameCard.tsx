@@ -163,9 +163,9 @@ acquisitionDate: updated.acquisitionDate,
         <p className="text-caption text-red-600 -mt-2" role="alert">{actionError}</p>
       )}
 
-      <div className="mt-auto flex items-center justify-between pt-4 border-t border-silver/60">
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2 pt-4 border-t border-silver/60">
         <StarRating value={game.userRating} readOnly />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           {game.steamAppId && isPcPlatform(game.platform) && (
             <Link className="btn-ghost !px-3 !py-1.5 flex items-center gap-1.5" to={`/juegos/${game.id}/logros`}>
               <svg
