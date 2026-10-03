@@ -22,8 +22,8 @@ export default {
         'info-banner': '#eff6fe',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Poppins', 'Cal Sans', 'system-ui', 'sans-serif'],
+        sans: ['Literata', 'Georgia', 'serif'],
+        display: ['Fraunces', 'Georgia', 'serif'],
       },
       fontSize: {
         display: ['64px', { lineHeight: '1.1', letterSpacing: '0.64px', fontWeight: '700' }],
