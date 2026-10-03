@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { getGlobalStats } from '../api/statsApi'
 import { usePageTitle } from '../hooks/usePageTitle'
@@ -13,66 +13,85 @@ interface EntityTotals {
   movieShows: number
 }
 
-const ENTITIES: { key: keyof EntityTotals; label: string; icon: ReactNode; to: string; chip: string }[] = [
-  {
-    key: 'books',
-    label: 'Libros',
-    icon: <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />,
-    to: '/coleccion',
-    chip: 'bg-indigo-100 text-indigo-700',
-  },
-  {
-    key: 'games',
-    label: 'Videojuegos',
-    icon: (
-      <>
-        <rect x="2.5" y="7.5" width="19" height="10" rx="5" />
-        <path d="M8 10.5v4M6 12.5h4" />
-        <path d="M15.5 11.5h.01M17.5 13.5h.01" />
-      </>
-    ),
-    to: '/juegos',
-    chip: 'bg-sky-100 text-sky-700',
-  },
-  {
-    key: 'magic',
-    label: 'Cartas Magic',
-    icon: (
-      <>
-        <rect x="6.5" y="3" width="11" height="18" rx="2.5" />
-        <path d="M12 16.5s-3.2-2.1-3.2-4.4c0-1.3 1-2.2 2.1-2.2.5 0 .9.2 1.1.6.2-.4.6-.6 1.1-.6 1.1 0 2.1.9 2.1 2.2 0 2.3-3.2 4.4-3.2 4.4z" />
-      </>
-    ),
-    to: '/magic',
-    chip: 'bg-rose-100 text-rose-700',
-  },
-  {
-    key: 'decks',
-    label: 'Mazos',
-    icon: <path d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-.98.626-1.813 1.5-2.122" />,
-    to: '/magic/mazos',
-    chip: 'bg-amber-100 text-amber-800',
-  },
-  {
-    key: 'boardGames',
-    label: 'Juegos de mesa',
-    icon: <path d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />,
-    to: '/boardgames',
-    chip: 'bg-emerald-100 text-emerald-700',
-  },
-  {
-    key: 'movieShows',
-    label: 'Películas y series',
-    icon: (
-      <>
-        <rect x="3" y="8.5" width="18" height="12" rx="2" />
-        <path d="M3.5 8.5L5.5 4.5h13L16.5 8.5M8.5 4.5l2.5 4M14 4.5l2.5 4M7.5 12.5h.01M11 12.5h.01M14.5 16h5" />
-      </>
-    ),
-    to: '/movieshows',
-    chip: 'bg-purple-100 text-purple-700',
-  },
+const ENTITIES: { key: keyof EntityTotals; label: string; to: string }[] = [
+  { key: 'books', label: 'Libros', to: '/coleccion' },
+  { key: 'games', label: 'Videojuegos', to: '/juegos' },
+  { key: 'magic', label: 'Cartas Magic', to: '/magic' },
+  { key: 'decks', label: 'Mazos', to: '/magic/mazos' },
+  { key: 'boardGames', label: 'Juegos de mesa', to: '/boardgames' },
+  { key: 'movieShows', label: 'Películas y series', to: '/movieshows' },
 ]
+
+/** Tono cálido por colección: lomo de las tarjetas de cifras y pieza de la vitrina. */
+const WARM: Record<keyof EntityTotals, { spine: string; niche: string }> = {
+  books: { spine: '#c2410c', niche: '#e8633a' },
+  games: { spine: '#b45309', niche: '#ee9b2e' },
+  magic: { spine: '#8f3a1e', niche: '#c96a3e' },
+  decks: { spine: '#92600a', niche: '#b8862f' },
+  boardGames: { spine: '#6d4a2a', niche: '#a5783f' },
+  movieShows: { spine: '#77613a', niche: '#a08b52' },
+}
+
+/** Nombres cortos grabados en los nichos de la vitrina. */
+const NICKS: Record<keyof EntityTotals, string> = {
+  books: 'Libros',
+  games: 'Videojuegos',
+  magic: 'Magic',
+  decks: 'Mazos',
+  boardGames: 'Mesa',
+  movieShows: 'Cine',
+}
+
+/** Pieza dibujada de cada colección, tal y como se aprobó en el mockup. */
+const NICHE_ICONS: Record<keyof EntityTotals, ReactNode> = {
+  books: (
+    <>
+      <path d="M24 11v26" />
+      <path d="M24 12C21 8.6 15.5 8.6 7 9.8v26.2c8.5-1.2 14-1.2 17 2.2 3-3.4 8.5-3.4 17-2.2V9.8C32.5 8.6 27 8.6 24 12z" />
+    </>
+  ),
+  games: (
+    <>
+      <rect x="7" y="17" width="34" height="16" rx="8" />
+      <path d="M15 20.5v9M10.5 25h9" />
+      <circle cx="33" cy="21.6" r="1.5" />
+      <circle cx="37.2" cy="25.8" r="1.5" />
+    </>
+  ),
+  magic: (
+    <>
+      <rect x="14" y="7" width="20" height="34" rx="3" />
+      <rect x="18.5" y="11.5" width="11" height="8" rx="1.5" />
+      <ellipse cx="24" cy="26" rx="4.4" ry="5.6" />
+      <circle cx="24" cy="35" r="1.8" />
+    </>
+  ),
+  decks: (
+    <>
+      <rect x="15" y="9" width="24" height="32" rx="2.5" />
+      <rect x="19.5" y="11.5" width="24" height="32" rx="2.5" opacity=".8" />
+      <rect x="24" y="14" width="24" height="32" rx="2.5" opacity=".55" />
+    </>
+  ),
+  boardGames: (
+    <>
+      <rect x="13" y="14" width="22" height="22" rx="5" />
+      <circle cx="18.4" cy="19.4" r="1.7" />
+      <circle cx="29.6" cy="19.4" r="1.7" />
+      <circle cx="24" cy="27" r="1.7" />
+      <circle cx="18.4" cy="34.6" r="1.7" />
+      <circle cx="29.6" cy="34.6" r="1.7" />
+    </>
+  ),
+  movieShows: (
+    <>
+      <rect x="8" y="13" width="32" height="22" rx="2" />
+      <rect x="16" y="17" width="6.5" height="14" rx="1" />
+      <rect x="26" y="17" width="6.5" height="14" rx="1" />
+      <path d="M10.6 16h2M14.4 16h.5M32 16h.5M35.4 16h2M10.6 32h2M14.4 32h.5M32 32h.5M35.4 32h2" />
+    </>
+  ),
+}
 
 const ZERO_TOTALS: EntityTotals = { books: 0, games: 0, magic: 0, decks: 0, boardGames: 0, movieShows: 0 }
 
@@ -91,6 +110,48 @@ async function fetchEntityTotals(): Promise<EntityTotals> {
   } catch {
     return { ...ZERO_TOTALS }
   }
+}
+
+/** Anima un número de 0 a target respetando prefers-reduced-motion. */
+function useCountUp(target: number, durationMs = 800): number {
+  const [value, setValue] = useState(0)
+
+  useEffect(() => {
+    if (target === 0) {
+      setValue(0)
+      return
+    }
+    const prefersReducedMotion =
+      typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) {
+      setValue(target)
+      return
+    }
+    const raf = (cb: FrameRequestCallback): number =>
+      typeof requestAnimationFrame === 'function'
+        ? requestAnimationFrame(cb)
+        : window.setTimeout(() => cb(performance.now()), 16)
+    const caf = (id: number): void =>
+      typeof cancelAnimationFrame === 'function' ? cancelAnimationFrame(id) : window.clearTimeout(id)
+
+    let frame = 0
+    let start: number | null = null
+    const step = (now: number) => {
+      if (start === null) start = now
+      const p = Math.min((now - start) / durationMs, 1)
+      setValue(Math.round(target * (1 - Math.pow(1 - p, 3))))
+      if (p < 1) frame = raf(step)
+    }
+    frame = raf(step)
+    return () => caf(frame)
+  }, [target, durationMs])
+
+  return value
+}
+
+function AnimatedCount({ value }: { value: number }) {
+  const count = useCountUp(value)
+  return <>{count}</>
 }
 
 export default function HomePage() {
@@ -118,65 +179,120 @@ export default function HomePage() {
     ? ENTITIES
     : ENTITIES.filter((entity) => activeCollections.includes(entity.key.toUpperCase()))
 
-  return (
-    <section className="flex flex-col gap-8 animate-fade-up">
-      <div className="relative overflow-hidden rounded-3xl bg-hero-gradient shadow-card-hover">
-        <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
-        <div className="absolute -bottom-20 -left-10 w-72 h-72 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
+  const total = entities ? visibleEntities.reduce((sum, e) => sum + entities[e.key], 0) : 0
+  const piezaWord = total === 1 ? 'pieza' : 'piezas'
+  const cta = isAuthenticated
+    ? { to: '/nuevo', label: 'Añadir a mi colección' }
+    : { to: '/register', label: 'Registrarse y empezar' }
 
-        <div className="relative flex flex-col gap-6 p-8 md:p-14">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur px-3.5 py-1.5 text-caption font-semibold text-white">
-              <svg aria-hidden="true" className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-              Tu biblioteca personal y más
-            </span>
-            <h1 className="font-display text-heading-lg md:text-display text-white mt-4 mb-3 max-w-2xl leading-[1.08]">
-              Todas tus colecciones, por fin en orden
-            </h1>
-            <p className="text-subheading text-white/90 max-w-xl">
-              Libros, videojuegos, cartas Magic, mazos, juegos de mesa, películas y
-              series: guarda todo lo que coleccionas, encuéntralo al instante y
-              presume de ello.
-            </p>
+  return (
+    <section className="relative flex flex-col gap-9 animate-fade-up">
+      <div className="paper-grain" aria-hidden="true" />
+
+      {/* Hero */}
+      <div className="grid items-end gap-10 pt-2 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <div>
+          <span className="eyebrow">Tu gabinete de curiosidades</span>
+          <h1 className="font-display font-semibold text-[clamp(36px,5.2vw,58px)] leading-[1.04] tracking-[-0.8px] text-ink mt-4 mb-3 max-w-2xl">
+            Todas tus colecciones, <em className="italic text-brand font-medium">por fin</em> en orden
+          </h1>
+          <p className="text-subheading text-graphite max-w-[46ch]">
+            Libros, videojuegos, cartas Magic, mazos, juegos de mesa, películas y series: cada pieza
+            tiene su vitrina. Guárdalo todo y encuéntralo al instante.
+          </p>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-7">
+            <Link to={cta.to} className="btn-primary">
+              {cta.label}
+            </Link>
             {!loading && entities && (
-              <p className="text-body text-white/90">
-                <strong className="font-display text-heading">
-                  {visibleEntities.reduce((sum, e) => sum + entities[e.key], 0)}
+              <p className="text-body-sm text-slate italic flex items-center gap-2">
+                <strong className="font-display font-semibold text-ink not-italic">{total}</strong>{' '}
+                elementos guardados ·{' '}
+                <strong className="font-display font-semibold text-ink not-italic">
+                  {visibleEntities.length}
                 </strong>{' '}
-                elementos guardados en {visibleEntities.length} colecciones
+                colecciones
               </p>
             )}
           </div>
         </div>
+
+        {/* Gabinete de curiosidades: una pieza por colección */}
+        <div
+          className="vitrina"
+          role="img"
+          aria-label="Vitrina de curiosidades con una pieza por cada colección"
+        >
+          <p className="vitrina-plaque">El Gabinete · Colecciones</p>
+          <div className="vitrina-niches">
+            {visibleEntities.map((entity) => (
+              <div
+                key={entity.key}
+                className="vitrina-niche"
+                style={{ '--c': WARM[entity.key].niche } as CSSProperties}
+              >
+                <svg
+                  className="vitrina-niche-obj"
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.9}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  {NICHE_ICONS[entity.key]}
+                </svg>
+                <span className="vitrina-niche-label">{NICKS[entity.key]}</span>
+              </div>
+            ))}
+          </div>
+          <p className="vitrina-foot">
+            {visibleEntities.length} {visibleEntities.length === 1 ? 'vitrina' : 'vitrinas'} · {total}{' '}
+            {piezaWord}
+          </p>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <h2 className="font-display text-heading text-ink">Tu colección en cifras</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Nota al margen */}
+      <div className="margin-note rule-double">
+        <span className="font-display font-semibold text-[15px] text-[#b3862d]">✳</span>
+        <blockquote className="font-display italic text-subheading text-graphite max-w-[56ch]">
+          Un coleccionista no guarda cosas:{' '}
+          <strong className="text-ink font-semibold not-italic">cuenta las historias</strong> que le
+          acompañan. Este es tu gabinete de curiosidades.
+        </blockquote>
+      </div>
+
+      {/* Cifras como lomos de catálogo */}
+      <div className="flex flex-col gap-1">
+        <div className="section-head">
+          <h2 className="font-display text-heading text-ink">Tu colección en cifras</h2>
+          <span className="font-display italic text-sm text-slate">catálogo nº 01 · otoño 2026</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
           {visibleEntities.map((entity) => (
-            <Link key={entity.key} to={entity.to} className="card card-hover flex items-center gap-4 p-5">
-              <span className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center ${entity.chip}`} aria-hidden="true">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-                  {entity.icon}
-                </svg>
+            <Link
+              key={entity.key}
+              to={entity.to}
+              className="spine-card"
+              style={{ '--sc': WARM[entity.key].spine } as CSSProperties}
+            >
+              <span className="count">
+                {loading || entities === null ? (
+                  <span className="skeleton h-8 w-10 inline-block" />
+                ) : (
+                  <AnimatedCount value={entities[entity.key]} />
+                )}
+                <sup>unidades</sup>
               </span>
-              <div className="min-w-0">
-                <p className="font-display text-heading text-ink leading-none">
-                  {loading || entities === null ? (
-                    <span className="skeleton h-7 w-10 inline-block align-middle" />
-                  ) : (
-                    entities[entity.key]
-                  )}
-                </p>
-                <p className="text-caption text-slate mt-1 line-clamp-1">{entity.label}</p>
-              </div>
+              <p className="spine-label">{entity.label}</p>
+              <span className="rule-line" />
+              <span className="to">Consultar</span>
             </Link>
           ))}
         </div>
       </div>
-
-      </section>
+    </section>
   )
 }
