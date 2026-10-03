@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import PasswordInput from '../components/PasswordInput'
 import { usePageTitle } from '../hooks/usePageTitle'
 
 const USERNAME_RE = /^[a-zA-Z0-9_]+$/
@@ -97,10 +98,8 @@ export default function RegisterPage() {
             <label className="label" htmlFor="register-password">
               Contraseña <span className="text-brand">*</span>
             </label>
-            <input
+            <PasswordInput
               id="register-password"
-              className="input"
-              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Mínimo 8 caracteres"
