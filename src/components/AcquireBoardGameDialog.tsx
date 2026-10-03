@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import { BOARD_GAME_DIFFICULTY_OPTIONS } from '../constants/boardGames'
-import { BoardGameDifficulty } from '../types'
 import { missingRequiredDate, todayIso } from '../utils/dates'
 import StarRating from './StarRating'
 
@@ -9,8 +7,6 @@ export interface AcquireBoardGameDialogProps {
   dateAdded?: string
   /** Precio de adquisición actual del juego, si lo tiene. */
   acquisitionPrice?: number
-  /** Dificultad actual del juego, si la tiene. */
-  difficulty?: BoardGameDifficulty | ''
   /** Valoración personal actual (1–5), si la tiene. */
   personalRating?: number
   /** Comentario actual del juego, si lo tiene. */
@@ -18,7 +14,6 @@ export interface AcquireBoardGameDialogProps {
   onSave: (payload: {
     dateAdded: string
     acquisitionPrice: number
-    difficulty?: BoardGameDifficulty
     personalRating?: number
     notes?: string
   }) => void | Promise<void>
@@ -29,13 +24,13 @@ export interface AcquireBoardGameDialogProps {
 /**
  * Diálogo para pasar un juego de mesa de WISHLIST a OWNED.
  * Pide solo lo esencial de «En propiedad»: fecha de adición (hoy por defecto),
- * precio obligatorio, dificultad, valoración y comentario. Las jugadas y la
- * última jugada se registran en el formulario de edición, no en este acceso rápido.
+ * precio obligatorio, valoración y comentario. La dificultad se decide conforme
+ * se juega y las jugadas se registran en el formulario de edición, no en este
+ * acceso rápido.
  */
 export default function AcquireBoardGameDialog({
   dateAdded,
   acquisitionPrice,
-  difficulty,
   personalRating,
   notes,
   onSave,
@@ -44,7 +39,6 @@ export default function AcquireBoardGameDialog({
 }: AcquireBoardGameDialogProps) {
   const [draftDate, setDraftDate] = useState(dateAdded ?? todayIso())
   const [priceDraft, setPriceDraft] = useState(acquisitionPrice !== undefined ? String(acquisitionPrice) : '')
-  const [draftDifficulty, setDraftDifficulty] = useState<BoardGameDifficulty | ''>(difficulty || '')
   const [draftRating, setDraftRating] = useState(personalRating || 0)
   const [draftNotes, setDraftNotes] = useState(notes || '')
   const [dateError, setDateError] = useState<string | null>(null)
@@ -67,7 +61,6 @@ export default function AcquireBoardGameDialog({
     onSave({
       dateAdded: draftDate,
       acquisitionPrice: Number(priceDraft),
-      difficulty: draftDifficulty || undefined,
       personalRating: draftRating > 0 ? draftRating : undefined,
       notes: draftNotes.trim() || undefined,
     })
@@ -129,21 +122,6 @@ export default function AcquireBoardGameDialog({
           ) : (
             <p className="text-caption text-stone mt-1">Cuánto te costó conseguirlo.</p>
           )}
-
-          <label className="label" htmlFor="acquire-bg-difficulty">
-            Dificultad percibida
-          </label>
-          <select
-            id="acquire-bg-difficulty"
-            className="input"
-            value={draftDifficulty}
-            onChange={(e) => setDraftDifficulty(e.target.value as BoardGameDifficulty | '')}
-          >
-            <option value="">Sin especificar</option>
-            {BOARD_GAME_DIFFICULTY_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
 
           <label className="label">Valoración personal</label>
           <div className="pt-2">
