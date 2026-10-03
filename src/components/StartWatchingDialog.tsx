@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { missingRequiredDate, todayIso } from '../utils/dates'
 
 export interface StartWatchingDialogProps {
@@ -31,7 +32,7 @@ export default function StartWatchingDialog({
     onSave(draft)
   }
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md modal-sheet"
       onClick={onClose}
@@ -74,6 +75,7 @@ export default function StartWatchingDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

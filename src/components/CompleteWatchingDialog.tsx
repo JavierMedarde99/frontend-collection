@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { missingRequiredDate, todayIso } from '../utils/dates'
 import StarRating from './StarRating'
 
@@ -49,7 +50,7 @@ export default function CompleteWatchingDialog({
     onSave(draftDate, draftRating, draftComment.trim())
   }
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md modal-sheet"
       onClick={onClose}
@@ -113,6 +114,7 @@ export default function CompleteWatchingDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
