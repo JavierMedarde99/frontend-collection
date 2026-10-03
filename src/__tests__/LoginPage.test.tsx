@@ -41,6 +41,19 @@ describe('LoginPage', () => {
     expect(screen.getByRole('button', { name: 'Entrar' })).toBeInTheDocument()
   })
 
+  it('el ojo muestra y oculta la contraseña', async () => {
+    renderLogin()
+    const password = screen.getByLabelText(/Contraseña/)
+    expect(password).toHaveAttribute('type', 'password')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Mostrar contraseña' }))
+    expect(password).toHaveAttribute('type', 'text')
+    expect(screen.getByRole('button', { name: 'Ocultar contraseña' })).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ocultar contraseña' }))
+    expect(password).toHaveAttribute('type', 'password')
+  })
+
   it('muestra error con credenciales inválidas', async () => {
     mockedLogin.mockRejectedValue(new Error('Credenciales inválidas'))
     renderLogin()

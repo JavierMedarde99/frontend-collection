@@ -48,6 +48,18 @@ describe('RegisterPage', () => {
     expect(screen.getByLabelText(/Nombre a mostrar/)).toBeInTheDocument()
   })
 
+  it('el ojo muestra y oculta la contraseña', async () => {
+    renderRegister()
+    const password = screen.getByLabelText(/Contraseña/)
+    expect(password).toHaveAttribute('type', 'password')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Mostrar contraseña' }))
+    expect(password).toHaveAttribute('type', 'text')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ocultar contraseña' }))
+    expect(password).toHaveAttribute('type', 'password')
+  })
+
   it('valida en cliente sin llamar al backend', async () => {
     renderRegister()
     await userEvent.type(screen.getByLabelText(/Usuario/), 'ab')

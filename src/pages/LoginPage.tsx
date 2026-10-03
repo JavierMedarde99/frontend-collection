@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
+import PasswordInput from '../components/PasswordInput'
 import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function LoginPage() {
@@ -62,10 +63,8 @@ export default function LoginPage() {
             <label className="label" htmlFor="login-password">
               Contraseña <span className="text-brand">*</span>
             </label>
-            <input
+            <PasswordInput
               id="login-password"
-              className="input"
-              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Tu contraseña"
