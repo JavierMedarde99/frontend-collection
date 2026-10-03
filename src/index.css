@@ -209,6 +209,8 @@
   --rule: #4c3a24;
 }
 
+@layer components {
+
 /* Grano de papel: overlay dentro de la sección de la Home. */
 .paper-grain {
   position: absolute;
@@ -442,4 +444,5 @@
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 22px;
+}
 }
