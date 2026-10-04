@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getGame, updateGame, deleteGame } from '../api/gamesApi'
 import type { Game, GameFormData } from '../types'
@@ -7,7 +7,8 @@ import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
-import Breadcrumbs from '../components/Breadcrumbs'
+import CreateShell from '../components/CreateShell'
+import { COLLECTIONS_BY_KEY } from '../constants/collections'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 
@@ -67,40 +68,44 @@ export default function GameEditPage() {
   }
 
   return (
-    <section className="max-w-3xl flex flex-col gap-24">
-      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Videojuegos", to: "/juegos" }, { label: game?.title || 'Detalle', to: `/juegos/${id}` }, { label: "Editar" }]} />
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-heading-lg mb-2">Editar videojuego</h1>
-          <p className="text-body text-slate">Actualiza los datos del videojuego.</p>
-        </div>
-        {game && !loading && (
-          <button
-            className="btn-ghost !text-red-600 hover:!bg-red-50 hover:!border-red-200"
-            onClick={() => setDeleting(true)}
-          >
-            Eliminar
-          </button>
-        )}
-      </div>
-
-      {deleteError && <ErrorBanner message={deleteError} />}
-
-      {loading ? (
-        <Spinner label="Cargando videojuego…" />
-      ) : error ? (
-        <EmptyState
-          title="No se pudo cargar el videojuego"
-          message={error}
-          action={
-            <button className="btn-primary mt-2" onClick={() => navigate('/juegos')}>
-              Volver a la colección
+    <section
+      className="max-w-3xl flex flex-col gap-12"
+      style={{ '--sc': COLLECTIONS_BY_KEY.games.accent.spine, '--c': COLLECTIONS_BY_KEY.games.accent.niche } as CSSProperties}
+    >
+      <CreateShell
+        crumbs={[{ label: "Inicio", to: "/" }, { label: "Videojuegos", to: "/juegos" }, { label: game?.title || 'Detalle', to: `/juegos/${id}` }, { label: "Editar" }]}
+        eyebrow="Videojuegos"
+        title="Editar videojuego"
+        subtitle="Actualiza los datos del videojuego."
+        actions={
+          game && !loading ? (
+            <button
+              className="btn-ghost !text-red-600 hover:!bg-red-50 hover:!border-red-200"
+              onClick={() => setDeleting(true)}
+            >
+              Eliminar
             </button>
-          }
-        />
-      ) : (
-        <GameForm initial={game ?? undefined} submitLabel="Guardar cambios" onSubmit={handleSubmit} />
-      )}
+          ) : undefined
+        }
+      >
+        {deleteError && <ErrorBanner message={deleteError} />}
+
+        {loading ? (
+          <Spinner label="Cargando videojuego…" />
+        ) : error ? (
+          <EmptyState
+            title="No se pudo cargar el videojuego"
+            message={error}
+            action={
+              <button className="btn-primary mt-2" onClick={() => navigate('/juegos')}>
+                Volver a la colección
+              </button>
+            }
+          />
+        ) : (
+          <GameForm initial={game ?? undefined} submitLabel="Guardar cambios" onSubmit={handleSubmit} />
+        )}
+      </CreateShell>
 
       <ConfirmDialog
         open={deleting}
