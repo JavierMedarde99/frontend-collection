@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useReducer, useState, type CSSProperties, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getDeck, deleteDeck, addCardToDeck, removeCardFromDeck, getDeckStatus } from '../api/deckApi'
@@ -15,6 +15,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import OwnerLine from '../components/OwnerLine'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
+import { COLLECTIONS_BY_KEY } from '../constants/collections'
 
 interface AddCardModalState {
   open: boolean
@@ -260,7 +261,10 @@ export default function DeckDetailPage() {
   }
 
   return (
-    <article className="max-w-6xl mx-auto flex flex-col gap-8">
+    <article
+      className="max-w-6xl mx-auto flex flex-col gap-8"
+      style={{ '--sc': COLLECTIONS_BY_KEY.decks.accent.spine, '--c': COLLECTIONS_BY_KEY.decks.accent.niche } as CSSProperties}
+    >
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Mazos", to: "/magic/mazos" }, { label: deck?.name || 'Detalle' }]} />
       <div className="flex items-center justify-between flex-wrap gap-3">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
