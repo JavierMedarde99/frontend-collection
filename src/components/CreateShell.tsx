@@ -41,7 +41,7 @@ export default function CreateShell({
       <div className="rule-double">
         <span className="accent-bar" />
       </div>
-      <PageHeader eyebrow={eyebrow} title={title} subtitle={subtitle} actions={actions} />
+      <PageHeader eyebrow={eyebrow} title={title} subtitle={subtitle} actions={actions} rule={false} />
       {tabs && (
         <div role="tablist" aria-label="Método de alta" className="method-tabs">
           {tabs.map((tab) => {

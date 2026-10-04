@@ -5,6 +5,8 @@ interface PageHeaderProps {
   title: string
   subtitle?: ReactNode
   actions?: ReactNode
+  /** Cerrar la cabecera con la regla doble (default true). */
+  rule?: boolean
 }
 
 /**
@@ -12,7 +14,7 @@ interface PageHeaderProps {
  * opcional + acciones, cerrada por la regla doble con barra de acento.
  * El acento (--sc/--c) lo fija la página que lo renderiza.
  */
-export default function PageHeader({ eyebrow, title, subtitle, actions }: PageHeaderProps) {
+export default function PageHeader({ eyebrow, title, subtitle, actions, rule = true }: PageHeaderProps) {
   return (
     <div className="flex flex-col gap-9">
       <div className="page-head">
@@ -21,9 +23,11 @@ export default function PageHeader({ eyebrow, title, subtitle, actions }: PageHe
         {subtitle != null && <p className="ph-sub">{subtitle}</p>}
         {actions != null && <div className="flex flex-wrap items-center gap-2 mt-3">{actions}</div>}
       </div>
-      <div className="rule-double">
-        <span className="accent-bar" aria-hidden="true" />
-      </div>
+      {rule && (
+        <div className="rule-double">
+          <span className="accent-bar" aria-hidden="true" />
+        </div>
+      )}
     </div>
   )
 }
