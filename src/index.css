@@ -54,7 +54,8 @@
 
 @layer utilities {
   .skeleton {
-    @apply relative overflow-hidden rounded bg-silver/70;
+    @apply relative overflow-hidden rounded;
+    background-color: #ece2d0;
   }
   .skeleton::after {
     content: '';
@@ -849,4 +850,53 @@
   height: 13px;
   border-radius: 9999px;
   border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+/* Pestañas de propietario: texto + filete inferior del acento, bajo una regla doble. */
+.owner-tab {
+  position: relative;
+  @apply font-display text-graphite;
+  font-size: 13px;
+  font-weight: 640;
+  letter-spacing: 0.3px;
+  padding: 10px 12px 12px;
+  color: #6b6259;
+}
+.owner-tab--active {
+  color: var(--sc);
+}
+.owner-tab--active::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 3px;
+  border-radius: 2px 2px 0 0;
+  background: var(--sc);
+}
+.filet {
+  border-top: 3px double var(--rule);
+  margin-top: 0;
+}
+
+/* Píldora de filtro activa: relleno del acento de la colección (--sc). */
+.filter-pill--active,
+.filter-pill--active:hover {
+  background: var(--sc);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* Marca de estado vacío: caja de papel con icono del acento. */
+.empty-mark {
+  background: linear-gradient(180deg, #fffdf8, #faf3e8) !important;
+  border: 1px solid var(--rule);
+}
+.empty-mark svg {
+  color: var(--sc, #c2410c);
+}
+.dark .empty-mark {
+  border-color: #4a4036;
+  background: linear-gradient(180deg, #241b12, #1c150e) !important;
 }
