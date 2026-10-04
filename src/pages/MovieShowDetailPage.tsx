@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getMovieShow, deleteMovieShow, refreshMovieShowProviders } from '../api/movieshowsApi'
@@ -17,6 +17,9 @@ import StreamingProviderBadges from '../components/StreamingProviderBadges'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
+import PageHeader from '../components/PageHeader'
+import MetaList from '../components/MetaList'
+import { COLLECTIONS_BY_KEY } from '../constants/collections'
 
 export default function MovieShowDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -126,7 +129,10 @@ export default function MovieShowDetailPage() {
   ]
 
   return (
-    <section className="max-w-3xl flex flex-col gap-24">
+    <section
+      className="max-w-3xl flex flex-col gap-12"
+      style={{ '--sc': COLLECTIONS_BY_KEY.movieshows.accent.spine, '--c': COLLECTIONS_BY_KEY.movieshows.accent.niche } as CSSProperties}
+    >
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Películas", to: "/movieshows" }, { label: movieShow?.title || 'Detalle' }]} />
       <div className="flex items-center justify-between gap-4">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
@@ -158,19 +164,21 @@ export default function MovieShowDetailPage() {
           />
         )}
         <div className="flex flex-col sm:flex-row gap-6">
-          {movieShow.posterUrl ? (
-            <img
-              src={movieShow.posterUrl}
-              alt={movieShow.title}
-              className="w-full sm:w-48 h-72 object-cover rounded-xl shadow-sm bg-paper shrink-0"
-            />
-          ) : (
-            <div className="w-full sm:w-48 h-72 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite">
-              <span>Sin póster</span>
-            </div>
-          )}
+          <div className="cover-frame shrink-0">
+            {movieShow.posterUrl ? (
+              <img
+                src={movieShow.posterUrl}
+                alt={movieShow.title}
+                className="w-full sm:w-48 h-72 object-cover"
+              />
+            ) : (
+              <div className="w-full sm:w-48 h-72 rounded-[4px_10px_10px_4px] shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite">
+                <span>Sin póster</span>
+              </div>
+            )}
+          </div>
           <div className="min-w-0 flex-1">
-            <h1 className="font-display text-heading-lg mb-2 leading-tight">{movieShow.title}</h1>
+            <PageHeader eyebrow="Películas y series" title={movieShow.title} />
             <OwnerLine owner={movieShow.userOwned} />
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <MovieShowStatusBadge status={movieShow.status} />
@@ -187,14 +195,9 @@ export default function MovieShowDetailPage() {
         </div>
 
         {details.length > 0 && (
-          <dl className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 border-t border-silver/60 pt-6">
-            {details.map((d) => (
-              <div key={d.label}>
-                <dt className="text-caption text-stone uppercase tracking-wide">{d.label}</dt>
-                <dd className="text-body text-ink font-medium mt-0.5">{d.value}</dd>
-              </div>
-            ))}
-          </dl>
+          <div className="border-t border-silver/60 pt-5">
+            <MetaList columns={3} items={details} />
+          </div>
         )}
 
         {movieShow.comment && (

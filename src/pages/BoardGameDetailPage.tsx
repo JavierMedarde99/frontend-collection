@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getBoardGame, deleteBoardGame } from '../api/boardgamesApi'
@@ -15,6 +15,9 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import OwnerLine from '../components/OwnerLine'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
+import PageHeader from '../components/PageHeader'
+import MetaList, { type MetaItem } from '../components/MetaList'
+import { COLLECTIONS_BY_KEY } from '../constants/collections'
 
 function formatRange(min?: number, max?: number, suffix = ''): string | null {
   if (min === undefined && max === undefined) return null
@@ -126,8 +129,21 @@ export default function BoardGameDetailPage() {
   const hasRating = game.bggRating !== undefined && game.bggRating !== null
   const hasPersonalRating = (game.personalRating ?? 0) > 0
 
+  const metaItems: MetaItem[] = [
+    ...details,
+    ...(hasRating
+      ? [{ label: 'Rating BGG', value: <StarRating value={bggRatingToStars(game.bggRating as number)} readOnly /> }]
+      : []),
+    ...(hasPersonalRating
+      ? [{ label: 'Valoración personal', value: <StarRating value={game.personalRating} readOnly /> }]
+      : []),
+  ]
+
   return (
-    <section className="max-w-3xl flex flex-col gap-24">
+    <section
+      className="max-w-3xl flex flex-col gap-12"
+      style={{ '--sc': COLLECTIONS_BY_KEY.boardgames.accent.spine, '--c': COLLECTIONS_BY_KEY.boardgames.accent.niche } as CSSProperties}
+    >
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Juegos de mesa", to: "/boardgames" }, { label: game?.title || 'Detalle' }]} />
       <div className="flex items-center justify-between gap-4">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
@@ -152,19 +168,21 @@ export default function BoardGameDetailPage() {
 
       <article className="card flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row gap-6">
-          {game.imageUrl || game.thumbnailUrl ? (
-            <img
-              src={game.imageUrl || game.thumbnailUrl}
-              alt={game.title}
-              className="w-full sm:w-48 h-72 object-cover rounded-xl shadow-sm bg-paper shrink-0"
-            />
-          ) : (
-            <div className="w-full sm:w-48 h-72 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite">
-              <span>Sin imagen</span>
-            </div>
-          )}
+          <div className="cover-frame shrink-0">
+            {game.imageUrl || game.thumbnailUrl ? (
+              <img
+                src={game.imageUrl || game.thumbnailUrl}
+                alt={game.title}
+                className="w-full sm:w-48 h-72 object-cover"
+              />
+            ) : (
+              <div className="w-full sm:w-48 h-72 rounded-[4px_10px_10px_4px] shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite">
+                <span>Sin imagen</span>
+              </div>
+            )}
+          </div>
           <div className="min-w-0 flex-1">
-            <h1 className="font-display text-heading-lg mb-2 leading-tight">{game.title}</h1>
+            <PageHeader eyebrow="Juegos de mesa" title={game.title} />
             <OwnerLine owner={game.userOwned} />
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <BoardGameStatusBadge status={game.status} />
@@ -176,31 +194,10 @@ export default function BoardGameDetailPage() {
           </div>
         </div>
 
-        {(details.length > 0 || hasRating || hasPersonalRating) && (
-          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 border-t border-silver/60 pt-6">
-            {details.map((d) => (
-              <div key={d.label}>
-                <dt className="text-caption text-stone uppercase tracking-wide">{d.label}</dt>
-                <dd className="text-body text-ink font-medium mt-0.5">{d.value}</dd>
-              </div>
-            ))}
-            {hasRating && (
-              <div>
-                <dt className="text-caption text-stone uppercase tracking-wide">Rating BGG</dt>
-                <dd className="mt-1.5">
-                  <StarRating value={bggRatingToStars(game.bggRating as number)} readOnly />
-                </dd>
-              </div>
-            )}
-            {hasPersonalRating && (
-              <div>
-                <dt className="text-caption text-stone uppercase tracking-wide">Valoración personal</dt>
-                <dd className="mt-1.5">
-                  <StarRating value={game.personalRating} readOnly />
-                </dd>
-              </div>
-            )}
-          </dl>
+        {metaItems.length > 0 && (
+          <div className="border-t border-silver/60 pt-5">
+            <MetaList columns={2} items={metaItems} />
+          </div>
         )}
 
         {game.notes && (
