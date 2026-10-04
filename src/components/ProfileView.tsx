@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { getPublicProfile, getUserBoardGames, getUserBooks, getUserDecks, getUserGames, getUserMagicCards, getUserMovieShows } from '../api/usersApi'
 import type { PublicProfileResponse } from '../types'
-import { COLLECTIONS } from '../constants/collections'
+import { COLLECTIONS, COLLECTIONS_BY_KEY } from '../constants/collections'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import UserProfileHeader from '../components/UserProfileHeader'
 import SkeletonGrid from '../components/Skeleton'
@@ -11,7 +11,6 @@ import EmptyState from '../components/EmptyState'
 import ErrorBanner from '../components/ErrorBanner'
 import StreamingProviderBadges from '../components/StreamingProviderBadges'
 import type { StreamingProvider } from '../types'
-import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import { usePageTitle } from '../hooks/usePageTitle'
 
@@ -127,8 +126,6 @@ export default function ProfileView({ username }: ProfileViewProps) {
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
-      <Breadcrumbs items={[{ label: 'Inicio', to: '/' }, { label: username || 'Perfil' }]} />
-
       {loadingProfile && <Spinner label="Cargando perfil…" />}
 
       {profileError && !loadingProfile && (
@@ -147,7 +144,7 @@ export default function ProfileView({ username }: ProfileViewProps) {
         <>
           <UserProfileHeader profile={profile} />
 
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Colecciones">
+          <div className="method-tabs" role="group" aria-label="Colecciones">
             {COLLECTIONS.map(({ key, label }) => {
               const count = profile.publicCollectionCounts?.[key] ?? 0
               const active = collection === key
@@ -157,20 +154,22 @@ export default function ProfileView({ username }: ProfileViewProps) {
                   type="button"
                   onClick={() => setCollection(key)}
                   aria-pressed={active}
-                  className={`text-body-sm px-3.5 py-1.5 rounded-full font-medium transition-all duration-200 ${
-                    active
-                      ? 'bg-brand text-white shadow-brand-glow'
-                      : 'text-graphite hover:text-brand hover:bg-brand-soft'
-                  }`}
+                  className={`method-tab${active ? ' on' : ''}`}
+                  style={{ '--sc': COLLECTIONS_BY_KEY[key].accent.spine } as CSSProperties}
                 >
-                  {label} ({count})
+                  {label} <span className="text-stone font-medium tabular-nums">({count})</span>
                 </button>
               )
             })}
           </div>
 
           {isPrivate ? (
-            <EmptyState title="Colección privada" message="Esta colección es privada." />
+            <>
+              <EmptyState title="Colección privada" message="Esta colección es privada." />
+              <p className="statusline" role="status">
+                — colección privada oculta —
+              </p>
+            </>
           ) : (
             <>
               {itemsError && <ErrorBanner message={itemsError} />}
@@ -182,7 +181,7 @@ export default function ProfileView({ username }: ProfileViewProps) {
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {items.map((item) => (
-                      <article key={item.key} className="card card-hover flex gap-4 p-4 group">
+                      <article key={item.key} className="result-card group">
                         {item.imageUrl ? (
                           <Link
                             to={item.to}
@@ -218,8 +217,8 @@ export default function ProfileView({ username }: ProfileViewProps) {
                   </div>
                   {loadingMore && <SkeletonInline />}
                   {!hasMore && items.length > 0 && (
-                    <p className="text-body-sm text-graphite text-center" role="status">
-                      No hay más elementos
+                    <p className="statusline" role="status">
+                      — fin de la colección pública · {items.length} piezas —
                     </p>
                   )}
                   <div ref={sentinelRef} className="h-px" aria-hidden="true" />

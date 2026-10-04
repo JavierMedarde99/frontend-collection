@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getMagicCard, deleteMagicCard } from '../api/magicApi'
@@ -11,6 +11,9 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import OwnerLine from '../components/OwnerLine'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
+import PageHeader from '../components/PageHeader'
+import MetaList from '../components/MetaList'
+import { COLLECTIONS_BY_KEY } from '../constants/collections'
 
 export default function MagicDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -79,8 +82,30 @@ export default function MagicDetailPage() {
   const imgSrc = card.imageLargeUrl || card.imageUrl
   const isCreature = /\bCreature\b/i.test(card.type || '')
 
+  const infoItems: { label: string; value: string }[] = [
+    ...(card.type ? [{ label: 'Tipo', value: card.type }] : []),
+    ...(card.setName
+      ? [{ label: 'Set / Edición', value: `${card.setName}${card.setCode ? ` (${card.setCode})` : ''}` }]
+      : []),
+    ...(card.artist ? [{ label: 'Artista', value: card.artist }] : []),
+    ...(isCreature && (card.power !== undefined || card.toughness !== undefined)
+      ? [{ label: 'Fuerza / Resistencia', value: `${card.power || '0'} / ${card.toughness || '0'}` }]
+      : []),
+    ...(card.priceUsd || card.priceEur
+      ? [
+          {
+            label: 'Precio estimado',
+            value: `${card.priceUsd ? `$${card.priceUsd} USD` : ''}${card.priceUsd && card.priceEur ? ' ' : ''}${card.priceEur ? `€${card.priceEur} EUR` : ''}`,
+          },
+        ]
+      : []),
+  ]
+
   return (
-    <article className="max-w-5xl mx-auto flex flex-col gap-10">
+    <section
+      className="max-w-5xl mx-auto flex flex-col gap-10"
+      style={{ '--sc': COLLECTIONS_BY_KEY.magic.accent.spine, '--c': COLLECTIONS_BY_KEY.magic.accent.niche } as CSSProperties}
+    >
       <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: card?.name || 'Detalle' }]} />
       <div className="flex items-center justify-between">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
@@ -99,18 +124,19 @@ export default function MagicDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[350px_1fr] gap-10 items-start">
-        <div className="rounded-2xl overflow-hidden shadow-md bg-paper border border-silver/60 flex items-center justify-center p-4">
+        <div className="cover-frame shrink-0">
           {imgSrc ? (
-            <img src={imgSrc} alt={card.name} className="w-full h-auto object-contain rounded-xl" />
+            <img src={imgSrc} alt={card.name} className="w-full h-auto object-contain" />
           ) : (
-            <div className="w-full aspect-[5/7] bg-brand-soft flex items-center justify-center text-graphite">
-              Sin imagen
+            <div className="w-full aspect-[5/7] rounded-[4px_10px_10px_4px] bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite">
+              <span>Sin imagen</span>
             </div>
           )}
         </div>
 
         <div className="flex flex-col gap-6">
           <div>
+            <PageHeader eyebrow="Magic" title={card.name} />
             <div className="flex flex-wrap items-center gap-2 mb-2">
               {card.rarity && (
                 <span className="px-3 py-1 rounded-full text-caption font-semibold bg-brand-soft text-brand uppercase">
@@ -133,47 +159,17 @@ export default function MagicDetailPage() {
                 </span>
               )}
             </div>
-            <h1 className="font-display text-heading-lg text-ink">{card.name}</h1>
             <OwnerLine owner={card.userOwned} />
             {card.manaCost && (
               <p className="text-body-lg font-mono text-graphite mt-1">Coste de maná: {card.manaCost}</p>
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5 rounded-2xl bg-surface border border-silver/60">
-            {card.type && (
-              <div>
-                <span className="text-caption text-stone block">Tipo</span>
-                <span className="text-body font-medium text-ink">{card.type}</span>
-              </div>
-            )}
-            {card.setName && (
-              <div>
-                <span className="text-caption text-stone block">Set / Edición</span>
-                <span className="text-body font-medium text-ink">{card.setName} {card.setCode ? `(${card.setCode})` : ''}</span>
-              </div>
-            )}
-            {card.artist && (
-              <div>
-                <span className="text-caption text-stone block">Artista</span>
-                <span className="text-body font-medium text-ink">{card.artist}</span>
-              </div>
-            )}
-            {isCreature && (card.power !== undefined || card.toughness !== undefined) && (
-              <div>
-                <span className="text-caption text-stone block">Fuerza / Resistencia</span>
-                <span className="text-body font-medium text-ink">{card.power || '0'} / {card.toughness || '0'}</span>
-              </div>
-            )}
-            {(card.priceUsd || card.priceEur) && (
-              <div>
-                <span className="text-caption text-stone block">Precio estimado</span>
-                <span className="text-body font-medium text-ink">
-                  {card.priceUsd ? `$${card.priceUsd} USD` : ''} {card.priceEur ? `€${card.priceEur} EUR` : ''}
-                </span>
-              </div>
-            )}
-          </div>
+          {infoItems.length > 0 && (
+            <div className="p-5 rounded-2xl bg-surface border border-silver/60">
+              <MetaList columns={2} items={infoItems} />
+            </div>
+          )}
 
           {card.text && (
             <div className="p-5 rounded-2xl bg-paper border border-silver/60">
@@ -199,6 +195,6 @@ export default function MagicDetailPage() {
         onCancel={() => setShowConfirm(false)}
         busy={deleting}
       />
-    </article>
+    </section>
   )
 }

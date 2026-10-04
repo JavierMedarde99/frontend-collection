@@ -1,16 +1,22 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, type RenderResult } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
+import type { ReactElement } from 'react'
 import BookForm from '../components/BookForm'
 import { BookState } from '../types/BookState'
 import { BookType } from '../types/BookType'
 import type { BookFormData } from '../types/Api'
 
 describe('BookForm', () => {
+  /** BookForm renderiza un Link «Cancelar», así que necesita Router. */
+  function renderWithRouter(ui: ReactElement): RenderResult {
+    return render(ui, { wrapper: MemoryRouter })
+  }
   it('rechaza el envío sin título', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
 
     await user.click(screen.getByRole('button', { name: 'Guardar' }))
 
@@ -21,7 +27,7 @@ describe('BookForm', () => {
   it('rechaza el envío sin autor', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
 
     await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
     await user.click(screen.getByRole('button', { name: 'Guardar' }))
@@ -33,7 +39,7 @@ describe('BookForm', () => {
   it('envía los datos rellenados', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm isCreate submitLabel="Guardar" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm isCreate submitLabel="Guardar" onSubmit={onSubmit} />)
 
     await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
     await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
@@ -52,7 +58,7 @@ describe('BookForm', () => {
   it('rechaza el envío sin páginas', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
 
     await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
     await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
@@ -65,7 +71,7 @@ describe('BookForm', () => {
   it('muestra los campos de estado completado al seleccionarlo', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
 
     expect(screen.queryByText('Valoración')).not.toBeInTheDocument()
 
@@ -80,7 +86,7 @@ describe('BookForm', () => {
   it('no muestra la valoración ni comentario en estado leyendo', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
 
     await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.READING)
     expect(screen.queryByText('Valoración')).not.toBeInTheDocument()
@@ -89,20 +95,20 @@ describe('BookForm', () => {
 
   it('muestra el error externo recibido por props', () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} error="No se pudo guardar." />)
+    renderWithRouter(<BookForm submitLabel="Guardar" onSubmit={onSubmit} error="No se pudo guardar." />)
     expect(screen.getByRole('alert')).toHaveTextContent('No se pudo guardar.')
   })
 
   it('en TO_READ no muestra páginas leídas', () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
     expect(screen.queryByPlaceholderText('0')).not.toBeInTheDocument()
   })
 
   it('en READING muestra el campo y lo envía en el payload', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(
+    renderWithRouter(
       <BookForm
         submitLabel="Guardar"
         onSubmit={onSubmit}
@@ -124,7 +130,7 @@ describe('BookForm', () => {
   it('avisa cuando las páginas leídas exceden el total', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm submitLabel="Guardar" onSubmit={onSubmit} />)
 
     await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.READING)
     await user.type(screen.getByPlaceholderText('120'), '100')
@@ -135,7 +141,7 @@ describe('BookForm', () => {
   it('al pasar a Por leer resetea las páginas leídas', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(
+    renderWithRouter(
       <BookForm
         submitLabel="Guardar"
         onSubmit={onSubmit}
@@ -160,7 +166,7 @@ describe('BookForm', () => {
   it('en COMPLETED conserva las páginas leídas en el payload', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(
+    renderWithRouter(
       <BookForm
         submitLabel="Guardar"
         onSubmit={onSubmit}
@@ -187,7 +193,7 @@ describe('BookForm', () => {
   it('en creación con Reading muestra el campo de páginas leídas', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
 
     await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.READING)
     expect(screen.getByPlaceholderText('0')).toBeInTheDocument()
@@ -196,7 +202,7 @@ describe('BookForm', () => {
   it('en creación con Reading exige las páginas leídas', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
 
     await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.READING)
     await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
@@ -211,7 +217,7 @@ describe('BookForm', () => {
   it('en creación con Reading envía las páginas leídas', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
 
     await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.READING)
     await user.type(screen.getByPlaceholderText('0'), '50')
@@ -227,7 +233,7 @@ describe('BookForm', () => {
   it('envía los géneros seleccionados en el payload', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm isCreate submitLabel="Guardar" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm isCreate submitLabel="Guardar" onSubmit={onSubmit} />)
 
     await user.click(screen.getByRole('button', { name: 'Fantasía' }))
     await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
@@ -241,14 +247,14 @@ describe('BookForm', () => {
 
   it('precarga los géneros al editar', () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm submitLabel="Guardar" onSubmit={onSubmit} initial={{ genres: ['Terror'] }} />)
+    renderWithRouter(<BookForm submitLabel="Guardar" onSubmit={onSubmit} initial={{ genres: ['Terror'] }} />)
     expect(screen.getByRole('button', { name: 'Terror' })).toHaveAttribute('aria-pressed', 'true')
   })
 
   it('en WISHLIST no exige el nº de páginas', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
 
     await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.WISHLIST)
     await user.type(screen.getByPlaceholderText('Título del libro'), 'Neuromante')
@@ -262,7 +268,7 @@ describe('BookForm', () => {
 
   it('en WISHLIST no muestra los campos de adquisición ni fechas de lectura', () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    const { container } = render(
+    const { container } = renderWithRouter(
       <BookForm submitLabel="Guardar" onSubmit={onSubmit} initial={{ state: BookState.WISHLIST }} />,
     )
     expect(screen.queryByPlaceholderText('12.50')).not.toBeInTheDocument()
@@ -272,7 +278,7 @@ describe('BookForm', () => {
   it('en WISHLIST no envía la fecha de obtención aunque exista', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(
+    renderWithRouter(
       <BookForm
         isCreate
         submitLabel="Guardar libro"
@@ -293,7 +299,7 @@ describe('BookForm', () => {
   it('envía editorial, año, ISBN y adquisición en el payload', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+    renderWithRouter(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
 
     await user.type(screen.getByPlaceholderText('Título del libro'), 'Dune')
     await user.type(screen.getByPlaceholderText('Autor'), 'Frank Herbert')
@@ -315,7 +321,7 @@ describe('BookForm', () => {
 
   it('al crear propone hoy como fecha de obtención', () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    const { container } = render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+    const { container } = renderWithRouter(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
     const dateInput = container.querySelector('input[type="date"]') as HTMLInputElement
     expect(dateInput).toHaveValue(new Date().toISOString().slice(0, 10))
   })
@@ -323,7 +329,7 @@ describe('BookForm', () => {
   it('al crear con COMPLETED propone hoy como fecha de inicio y de fin', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    const { container } = render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+    const { container } = renderWithRouter(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
 
     await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.COMPLETED)
     // Orden en el DOM: obtención, inicio, fin.
@@ -338,7 +344,7 @@ describe('BookForm', () => {
   it('al editar no inventa la fecha de obtención: la deja vacía y la exige', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    const { container } = render(
+    const { container } = renderWithRouter(
       <BookForm submitLabel="Guardar" onSubmit={onSubmit} initial={{ acquisitionDate: undefined }} />,
     )
     const dateInput = container.querySelector('input[type="date"]') as HTMLInputElement
@@ -356,7 +362,7 @@ describe('BookForm', () => {
   it('no deja enviar COMPLETED sin fecha de fin', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    const { container } = render(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
+    const { container } = renderWithRouter(<BookForm isCreate submitLabel="Guardar libro" onSubmit={onSubmit} />)
 
     await user.selectOptions(screen.getByDisplayValue('Por leer'), BookState.COMPLETED)
     await user.clear(container.querySelectorAll('input[type="date"]')[2]!)
@@ -371,7 +377,7 @@ describe('BookForm', () => {
 
   it('un libro en posesión precarga los datos de adquisición', () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    const { container } = render(
+    const { container } = renderWithRouter(
       <BookForm
         submitLabel="Guardar"
         onSubmit={onSubmit}

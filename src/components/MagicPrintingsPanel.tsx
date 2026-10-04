@@ -96,10 +96,11 @@ export default function MagicPrintingsPanel({
         role="dialog"
         aria-modal="true"
         aria-label={`Impresiones de ${card.name}`}
-        className="modal w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden p-0 sm:p-0"
+        className="modal-paper w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 border-b border-silver/60">
+        <header className="modal-head relative flex items-start justify-between gap-4 px-6 pt-6 pb-4">
+          <span className="accent-bar" aria-hidden="true" />
           <div className="min-w-0">
             <h3 className="font-display text-heading-sm mb-1">
               Impresiones de <span className="text-brand">{card.name}</span>

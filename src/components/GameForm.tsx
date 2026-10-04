@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { GAME_STATES, isPcPlatform, platformLabel } from '../constants/games'
 import { GameStatus } from '../types'
 import type { GameFormData } from '../types'
@@ -204,7 +205,7 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
   }
 
   return (
-    <form onSubmit={handleSubmit} onChange={() => setDirty(true)} className="card flex flex-col gap-6">
+    <form onSubmit={handleSubmit} onChange={() => setDirty(true)} className="flex flex-col gap-6">
       <FormSection title="Información básica">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field label="Título" required icon="title">
@@ -351,7 +352,10 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
         </div>
       )}
 
-      <div className="flex justify-end border-t border-silver/60 pt-5">
+      <div className="form-actions">
+        <Link className="btn-ghost !px-4 !py-2" to="/juegos">
+          Cancelar
+        </Link>
         <button className="btn-primary" type="submit" disabled={submitting}>
           {submitting ? 'Guardando…' : submitLabel}
         </button>

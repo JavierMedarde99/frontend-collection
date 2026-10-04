@@ -5,6 +5,7 @@ import ProfileView from '../components/ProfileView'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
 import ImageUpload from '../components/ImageUpload'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 /** Mi perfil: misma vista que el perfil público, con edición y borrado. */
 export default function ProfilePage() {
@@ -83,27 +84,36 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-end gap-2">
-        <button
-          type="button"
-          className="btn-ghost !px-4 !py-2"
-          onClick={openEditor}
-        >
-          Editar perfil
-        </button>
-        <button
-          type="button"
-          className="btn-ghost !px-4 !py-2 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
-          onClick={() => setConfirmingDelete(true)}
-        >
-          Borrar cuenta
-        </button>
+    <section className="max-w-4xl mx-auto flex flex-col gap-12">
+      <div className="flex items-center justify-between gap-4">
+        <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Perfil" }]} />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="btn-ghost !px-4 !py-2"
+            onClick={openEditor}
+          >
+            Editar perfil
+          </button>
+          <button
+            type="button"
+            className="btn-ghost !px-4 !py-2 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
+            onClick={() => setConfirmingDelete(true)}
+          >
+            Borrar cuenta
+          </button>
+        </div>
       </div>
 
-      {deleteError && <ErrorBanner message={deleteError} />}
+      <div className="rule-double">
+        <span className="accent-bar" />
+      </div>
 
-      <ProfileView key={version} username={user.username} />
+      <div className="flex flex-col gap-6">
+        {deleteError && <ErrorBanner message={deleteError} />}
+
+        <ProfileView key={version} username={user.username} />
+      </div>
 
       {editing && (
         <div
@@ -116,7 +126,7 @@ export default function ProfilePage() {
             role="dialog"
             aria-modal="true"
             aria-label="Editar perfil"
-            className="modal w-full max-w-md max-h-[90vh] overflow-y-auto"
+            className="modal-paper w-full max-w-md max-h-[90vh] overflow-y-auto p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-5">
@@ -178,7 +188,7 @@ export default function ProfilePage() {
                 />
               </div>
               {saveError && <ErrorBanner message={saveError} />}
-              <div className="flex justify-end gap-3 border-t border-silver/60 pt-4">
+              <div className="form-actions">
                 <button
                   type="button"
                   className="btn-ghost"
@@ -205,6 +215,6 @@ export default function ProfilePage() {
         onCancel={() => setConfirmingDelete(false)}
         busy={deleteBusy}
       />
-    </div>
+    </section>
   )
 }

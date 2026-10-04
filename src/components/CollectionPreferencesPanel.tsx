@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { setActiveCollections, setCollectionVisibility } from '../api/preferencesApi'
-import { COLLECTIONS } from '../constants/collections'
+import { COLLECTIONS, COLLECTIONS_BY_KEY } from '../constants/collections'
 import type { CollectionVisibility } from '../types'
 
 function defaults<T>(value: T, fallback: T): T {
@@ -49,15 +49,20 @@ export default function CollectionPreferencesPanel() {
   }
 
   return (
-    <div className="card p-6 md:p-8 flex flex-col gap-6">
-      <div>
-        <h2 className="font-display text-heading mb-1">Preferencias de colección</h2>
+    <div className="form-panel">
+      <div className="flex flex-col gap-1.5">
+        <span className="fsec-cap">Preferencias de colección</span>
         <p className="text-body-sm text-slate">Elige qué colecciones usas y quién puede verlas.</p>
       </div>
 
-      <ul className="flex flex-col divide-y divide-silver/60">
+      <ul className="flex flex-col">
         {COLLECTIONS.map(({ key, label }) => (
-          <li key={key} className="flex items-center gap-3 py-3.5">
+          <li
+            key={key}
+            className="prow"
+            style={{ '--ac': COLLECTIONS_BY_KEY[key].accent.spine } as CSSProperties}
+          >
+            <span className="dot" aria-hidden="true" />
             <input
               id={`pref-active-${key}`}
               type="checkbox"
@@ -96,7 +101,7 @@ export default function CollectionPreferencesPanel() {
         </p>
       )}
 
-      <div className="flex justify-end border-t border-silver/60 pt-5">
+      <div className="form-actions">
         <button className="btn-primary" type="button" onClick={handleSave} disabled={saving}>
           {saving ? 'Guardando…' : 'Guardar cambios'}
         </button>

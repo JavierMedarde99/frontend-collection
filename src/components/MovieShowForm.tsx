@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { MEDIA_TYPES, MOVIE_SHOW_STATES } from '../constants/movieshows'
 import { MediaType, MovieShowStatus } from '../types'
 import type { MovieShowFormData } from '../types'
@@ -122,7 +123,7 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
   }
 
   return (
-    <form onSubmit={handleSubmit} onChange={() => setDirty(true)} className="card flex flex-col gap-6">
+    <form onSubmit={handleSubmit} onChange={() => setDirty(true)} className="flex flex-col gap-6">
       <FormSection title="Información básica">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field label="Título" required>
@@ -227,7 +228,10 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
         </div>
       )}
 
-      <div className="flex justify-end border-t border-silver/60 pt-5">
+      <div className="form-actions">
+        <Link className="btn-ghost !px-4 !py-2" to="/movieshows">
+          Cancelar
+        </Link>
         <button className="btn-primary" type="submit" disabled={submitting}>
           {submitting ? 'Guardando…' : submitLabel}
         </button>

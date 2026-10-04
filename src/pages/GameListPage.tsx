@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useRef, useState, type CSSProperties, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listGames, deleteGame } from '../api/gamesApi'
 import { GAME_STATES, platformLabel } from '../constants/games'
@@ -20,6 +20,8 @@ import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
 import OwnerTabs, { type OwnerTab } from '../components/OwnerTabs'
 import { useListQuery } from '../hooks/useListQuery'
+import PageHeader from '../components/PageHeader'
+import { COLLECTIONS_BY_KEY } from '../constants/collections'
 
 const PAGE_SIZE = 12
 
@@ -89,17 +91,20 @@ export default function GameListPage() {
   const activeFilterCount = [platformFilter, nameFilter].filter(Boolean).length + genreFilter.length
 
   return (
-    <section className="flex flex-col gap-24">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-        <div>
-          <h1 className="font-display text-heading-lg mb-2">Colección de videojuegos</h1>
-          <p className="text-body text-slate">
-            {loading
-              ? 'Cargando videojuegos…'
-              : `${totalElements} videojuego${totalElements === 1 ? '' : 's'} en ${effectiveTab === 'other' ? 'varias colecciones' : 'tu colección'}`}
-          </p>
-        </div>
-        <div className="flex items-center gap-3 shrink-0">
+    <section
+      className="flex flex-col gap-12"
+      style={{ '--sc': COLLECTIONS_BY_KEY.games.accent.spine, '--c': COLLECTIONS_BY_KEY.games.accent.niche } as CSSProperties}
+    >
+      <PageHeader
+        eyebrow="Videojuegos"
+        title="Colección de videojuegos"
+        subtitle={
+          loading
+            ? 'Cargando videojuegos…'
+            : `${totalElements} videojuego${totalElements === 1 ? '' : 's'} en ${effectiveTab === 'other' ? 'varias colecciones' : 'tu colección'} · catálogo nº ${COLLECTIONS_BY_KEY.games.catalogNo}`
+        }
+        actions={
+          <div className="flex items-center gap-3 shrink-0">
           <SortSelect value={sort} onChange={(v) => setQuery({ sort: v })} options={GAME_SORTS} />
           <button
             className="btn-ghost !px-5"
@@ -139,11 +144,12 @@ export default function GameListPage() {
               Añadir videojuego
             </Link>
           )}
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       {filtersOpen && (
-        <div id="filtros" className="flex flex-col gap-5 animate-fade-in">
+        <div id="filtros" className="filterbar flex flex-col gap-5 animate-fade-in">
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
             <SearchField
             value={nameInput}
@@ -214,26 +220,31 @@ export default function GameListPage() {
       {loading ? (
         <SkeletonGrid count={6} />
       ) : games.length === 0 ? (
-        <EmptyState
-          title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'Aún no tienes videojuegos'}
-          message={
-            hasActiveFilters
-              ? 'Ningún videojuego coincide con los filtros actuales. Limpia los filtros para ver toda tu colección.'
-              : (effectiveTab === 'other' && !hasActiveFilters) ? 'Ningún usuario ha añadido nada a esta colección todavía.'
-              : 'Añade tu primer videojuego buscándolo en el catálogo o manualmente.'
-          }
-          action={
-            hasActiveFilters ? (
-              <button className="btn-ghost mt-2" onClick={clearFilters}>
-                Limpiar filtros
-              </button>
-            ) : effectiveTab === 'other' ? undefined : (
-              <Link className="btn-primary mt-2" to="/juegos/nuevo">
-                Añadir videojuego
-              </Link>
-            )
-          }
-        />
+        <>
+          <EmptyState
+            title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'Aún no tienes videojuegos'}
+            message={
+              hasActiveFilters
+                ? 'Ningún videojuego coincide con los filtros actuales. Limpia los filtros para ver toda tu colección.'
+                : (effectiveTab === 'other' && !hasActiveFilters) ? 'Ningún usuario ha añadido nada a esta colección todavía.'
+                : 'Añade tu primer videojuego buscándolo en el catálogo o manualmente.'
+            }
+            action={
+              hasActiveFilters ? (
+                <button className="btn-ghost mt-2" onClick={clearFilters}>
+                  Limpiar filtros
+                </button>
+              ) : effectiveTab === 'other' ? undefined : (
+                <Link className="btn-primary mt-2" to="/juegos/nuevo">
+                  Añadir videojuego
+                </Link>
+              )
+            }
+          />
+          {!hasActiveFilters && (
+            <p className="statusline" role="status">— aún no hay catálogo —</p>
+          )}
+        </>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -246,8 +257,8 @@ export default function GameListPage() {
           </div>
           {loadingMore && <SkeletonInline />}
           {!hasMore && (
-            <p className="text-body-sm text-graphite text-center" role="status">
-              No hay más videojuegos
+            <p className="statusline" role="status">
+              — fin del catálogo · {totalElements} videojuego{totalElements === 1 ? '' : 's'} —
             </p>
           )}
           <div ref={sentinelRef} className="h-px" aria-hidden="true" />
