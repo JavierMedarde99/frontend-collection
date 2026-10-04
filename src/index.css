@@ -605,3 +605,248 @@
 .dark .cover-frame img {
   border-color: #4a4036;
 }
+
+/* ---------- Gabinete — formularios y perfil ---------- */
+
+/* Panel de papel para alta/edición: filete lateral --sc, gap vertical. */
+.form-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border: 1px solid var(--rule);
+  border-radius: 4px 16px 16px 4px;
+  background: linear-gradient(180deg, #fffdf8, #faf3e8);
+  padding: 20px 22px;
+}
+.form-panel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 4px 0 0 4px;
+  background: var(--sc, #c2410c);
+}
+.dark .form-panel {
+  border-color: #4a4036;
+  background: linear-gradient(180deg, #241b12, #1c150e);
+}
+
+/* Sección de formulario con versalitas y barrita de acento. */
+.fsec {
+  border-top: 1px solid var(--rule);
+  padding-top: 16px;
+  margin-top: 18px;
+}
+.fsec:first-child {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+}
+.fsec-cap {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  @apply font-display text-graphite;
+  font-size: 10.5px;
+  font-weight: 640;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.fsec-cap::before {
+  content: '';
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--sc, #c2410c);
+}
+
+/* Pie de formulario: acciones alineadas a la derecha sobre regla. */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  border-top: 1px solid var(--rule);
+  padding-top: 16px;
+  margin-top: 4px;
+}
+
+/* Zona de subida de portada. */
+.dropzone {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1.5px dashed var(--rule);
+  border-radius: 10px;
+  background: #fffdf8;
+  padding: 18px;
+}
+.dark .dropzone {
+  border-color: #4a4036;
+  background: #1c150e;
+}
+
+/* Marco del escáner de ISBN. */
+.scan-frame {
+  border: 1.5px dashed var(--rule);
+  border-radius: 12px;
+  padding: 26px 18px;
+  text-align: center;
+}
+.dark .scan-frame {
+  border-color: #4a4036;
+}
+
+/* Diálogos de búsqueda/impresiones sobre papel. */
+.modal-paper {
+  background: linear-gradient(180deg, #fffdf8, #faf3e8);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  box-shadow: 0 26px 60px -24px rgba(58, 36, 14, 0.5);
+}
+.modal-paper .modal-head {
+  border-bottom: 3px double var(--rule);
+}
+.dark .modal-paper {
+  border-color: #4a4036;
+  background: linear-gradient(180deg, #241b12, #1c150e);
+}
+
+/* Tarjeta de resultado de búsqueda en papel. */
+.result-card {
+  display: flex;
+  gap: 12px;
+  background: linear-gradient(180deg, #fff, #fff8f0);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 11px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.result-card:hover {
+  border-color: var(--sc, #c2410c);
+  box-shadow: 0 14px 30px -20px rgba(58, 36, 14, 0.5);
+}
+.dark .result-card {
+  border-color: #4a4036;
+  background: linear-gradient(180deg, #2a2118, #1c150e);
+}
+
+/* Targeta de perfil / panel. */
+.prof-card {
+  background: linear-gradient(180deg, #fffdf8, #faf3e8);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.dark .prof-card {
+  border-color: #4a4036;
+  background: linear-gradient(180deg, #241b12, #1c150e);
+}
+
+/* Chip de colección pública en el perfil: filete lateral --ac. */
+.chip-niche {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #fffdf8;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--ac, #c2410c);
+  border-radius: 4px 9999px 9999px 4px;
+  padding: 5px 12px 5px 10px;
+  @apply font-display text-graphite;
+  font-size: 12px;
+  font-weight: 600;
+}
+.dark .chip-niche {
+  border-color: #4a4036;
+  background: #1c150e;
+  color: #d8cfc0;
+}
+
+/* Fila de preferencias por colección con dot de acento. */
+.prow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 2px;
+  border-top: 1px solid var(--rule);
+}
+.prow:first-of-type {
+  border-top: 0;
+  padding-top: 4px;
+}
+.prow .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  background: var(--ac, #c2410c);
+  flex-shrink: 0;
+}
+
+/* Avatar del perfil: inicial sobre degradado brand. */
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #ea580c, #f59e0b);
+  color: #fff;
+  @apply font-display;
+  font-weight: 700;
+}
+
+/* Tabs de método de alta / colección: filete inferior del acento. */
+.method-tabs {
+  display: flex;
+  gap: 18px;
+  border-bottom: 1px solid var(--rule);
+}
+.method-tab {
+  @apply font-display text-graphite;
+  position: relative;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  padding: 10px 2px 12px;
+  color: #6b6259;
+}
+.method-tab.on {
+  color: var(--sc);
+}
+.method-tab.on::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 3px;
+  border-radius: 2px 2px 0 0;
+  background: var(--sc);
+}
+
+/* Comandante elegido en Mazos (panel de papel). */
+.picked-commander {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fffdf8, #faf3e8);
+  padding: 14px;
+}
+.dark .picked-commander {
+  border-color: #4a4036;
+  background: linear-gradient(180deg, #241b12, #1c150e);
+}
+
+/* Punto de identidad de color del comandante (W/U/B/R/G). */
+.ident-dot {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
