@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useState, type FormEvent, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getDeck, updateDeck, deleteDeck } from '../api/deckApi'
 import { searchMagicCards } from '../api/magicApi'
@@ -6,6 +6,14 @@ import type { MagicCardSearchResult } from '../types'
 import { MANA_COLORS, type ManaColorCode } from '../constants/decks'
 
 const VALID_COLORS = Object.keys(MANA_COLORS) as ManaColorCode[]
+
+const IDENT_DOT_BG: Record<ManaColorCode, string> = {
+  W: '#f5efe0',
+  U: '#105f9e',
+  B: '#24201d',
+  R: '#c33a20',
+  G: '#2e7d32',
+}
 
 function identityFromCard(result: MagicCardSearchResult): ManaColorCode[] {
   const identity = result.colorIdentity ?? result.colors ?? []
@@ -18,7 +26,8 @@ import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import ErrorBanner from '../components/ErrorBanner'
-import Breadcrumbs from '../components/Breadcrumbs'
+import CreateShell from '../components/CreateShell'
+import { COLLECTIONS_BY_KEY } from '../constants/collections'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 
@@ -38,6 +47,10 @@ export default function DeckEditPage() {
   const [submitting, setSubmitting] = useState(false)
   const [dirty, setDirty] = useState(false)
   const guard = useUnsavedGuard(dirty)
+  const deckAccent = {
+    '--sc': COLLECTIONS_BY_KEY.decks.accent.spine,
+    '--c': COLLECTIONS_BY_KEY.decks.accent.niche,
+  } as CSSProperties
   const [error, setError] = useState<string | null>(null)
 
   const [deleting, setDeleting] = useState(false)
@@ -152,15 +165,15 @@ export default function DeckEditPage() {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <section className="max-w-2xl mx-auto flex flex-col gap-12" style={deckAccent}>
         <Spinner label="Cargando mazo…" />
-      </div>
+      </section>
     )
   }
 
   if (loadError) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <section className="max-w-2xl mx-auto flex flex-col gap-12" style={deckAccent}>
         <EmptyState
           title="No se pudo cargar el mazo"
           message={loadError}
@@ -170,140 +183,159 @@ export default function DeckEditPage() {
             </button>
           }
         />
-      </div>
+      </section>
     )
   }
 
   return (
-    <div className="max-w-2xl mx-auto flex flex-col gap-8">
-      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Mazos", to: "/magic/mazos" }, { label: name || 'Editar', to: `/magic/mazos/${id}` }, { label: "Editar" }]} />
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="font-display text-heading-lg mb-2">Editar mazo</h1>
-          <p className="text-body text-slate">Actualiza los datos del mazo.</p>
-        </div>
-        <button
-          className="btn-ghost !text-red-600 hover:!bg-red-50 hover:!border-red-200 shrink-0"
-          onClick={() => setDeleting(true)}
-        >
-          Eliminar
-        </button>
-      </div>
-
-      {deleteError && (
-        <ErrorBanner message={deleteError} />
-      )}
-
-      <form onSubmit={handleSubmit} onChange={() => setDirty(true)} className="card flex flex-col gap-6 p-6 md:p-8">
-        <div className="flex flex-col gap-1.5">
-          <label className="label" htmlFor="deck-name">
-            Nombre <span className="text-brand">*</span>
-          </label>
-          <input
-            id="deck-name"
-            className="input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Nombre del mazo"
-            required
-          />
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <span className="label">Comandante</span>
-          {commander ? (
-            <div className="flex items-center gap-4 p-3 rounded-xl bg-brand-soft/50 border border-brand/30">
-              <div className="min-w-0 flex-1">
-                <p className="font-display text-heading-sm text-ink line-clamp-1">{commander}</p>
-                <p className="text-caption text-graphite">
-                  Identidad: {commanderColors.length > 0 ? commanderColors.join(', ') : 'Incolora'}
-                </p>
-              </div>
-              <button
-                type="button"
-                className="btn-ghost !px-3 !py-1.5 shrink-0"
-                onClick={() => { setCommander(''); setCommanderColors([]) }}
-              >
-                Cambiar
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="flex gap-3">
-                <input
-                  className="input flex-1"
-                  value={commanderQuery}
-                  onChange={(e) => setCommanderQuery(e.target.value)}
-                  placeholder="Buscar comandante en Scryfall…"
-                  aria-label="Buscar comandante"
-                />
-                <button
-                  type="button"
-                  className="btn-primary shrink-0"
-                  onClick={handleCommanderSearch}
-                  disabled={searchingCommander}
-                >
-                  {searchingCommander ? 'Buscando…' : 'Buscar'}
-                </button>
-              </div>
-              {searchError && (
-                <ErrorBanner message={searchError} />
-              )}
-              {commanderResults.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto">
-                  {commanderResults.map((result) => (
-                    <div key={result.scryfallId || result.name} className="card p-3 flex items-center gap-3">
-                      {result.imageUrl && (
-                        <img
-                          src={result.imageUrl}
-                          alt={result.name}
-                          className="w-10 h-14 object-cover rounded shrink-0"
-                        />
-                      )}
-                      <span className="min-w-0 flex-1">
-                        <span className="block font-display text-heading-sm line-clamp-1">{result.name}</span>
-                        <span className="block text-caption text-graphite">{result.setName || result.type}</span>
-                      </span>
-                      <button
-                        type="button"
-                        className="btn-primary !px-3 !py-1.5 shrink-0"
-                        onClick={() => handlePickCommander(result)}
-                      >
-                        Añadir
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className="label" htmlFor="deck-description">
-            Descripción
-          </label>
-          <textarea
-            id="deck-description"
-            className="input min-h-[100px]"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Descripción del mazo…"
-          />
-        </div>
-
-        {error && (
-          <ErrorBanner message={error} />
+    <section
+      className="max-w-2xl mx-auto flex flex-col gap-12"
+      style={deckAccent}
+    >
+      <CreateShell
+        crumbs={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Mazos", to: "/magic/mazos" }, { label: name || 'Editar', to: `/magic/mazos/${id}` }, { label: "Editar" }]}
+        eyebrow="Mazos"
+        title="Editar mazo"
+        subtitle="Actualiza los datos del mazo."
+        actions={
+          <button
+            className="btn-ghost !text-red-600 hover:!bg-red-50 hover:!border-red-200 shrink-0"
+            onClick={() => setDeleting(true)}
+          >
+            Eliminar
+          </button>
+        }
+      >
+        {deleteError && (
+          <ErrorBanner message={deleteError} />
         )}
 
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-silver/60">
-          <Link className="btn-ghost" to={`/magic/mazos/${id}`}>
-            Cancelar
-          </Link>
-          <button type="submit" className="btn-primary" disabled={submitting}>
-            {submitting ? 'Guardando…' : 'Guardar cambios'}
-          </button>
-        </div>
+        <form onSubmit={handleSubmit} onChange={() => setDirty(true)} className="flex flex-col gap-6">
+          <div className="flex flex-col gap-1.5">
+            <label className="label" htmlFor="deck-name">
+              Nombre <span className="text-brand">*</span>
+            </label>
+            <input
+              id="deck-name"
+              className="input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Nombre del mazo"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <span className="label">Comandante</span>
+            {commander ? (
+              <div className="picked-commander">
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-heading-sm text-ink line-clamp-1">{commander}</p>
+                  <p className="text-caption text-graphite flex items-center gap-1.5 mt-1">
+                    <span>Identidad:</span>
+                    {commanderColors.length > 0 ? (
+                      commanderColors.map((code) => (
+                        <span key={code} className="flex items-center gap-1 capitalize">
+                          <span
+                            className="ident-dot"
+                            style={{ backgroundColor: IDENT_DOT_BG[code] }}
+                            aria-hidden="true"
+                          />
+                          {MANA_COLORS[code]}
+                        </span>
+                      ))
+                    ) : (
+                      'Incolora'
+                    )}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="btn-ghost !px-3 !py-1.5 shrink-0"
+                  onClick={() => { setCommander(''); setCommanderColors([]) }}
+                >
+                  Cambiar
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex gap-3">
+                  <input
+                    className="input flex-1"
+                    value={commanderQuery}
+                    onChange={(e) => setCommanderQuery(e.target.value)}
+                    placeholder="Buscar comandante en Scryfall…"
+                    aria-label="Buscar comandante"
+                  />
+                  <button
+                    type="button"
+                    className="btn-primary shrink-0"
+                    onClick={handleCommanderSearch}
+                    disabled={searchingCommander}
+                  >
+                    {searchingCommander ? 'Buscando…' : 'Buscar'}
+                  </button>
+                </div>
+                {searchError && (
+                  <ErrorBanner message={searchError} />
+                )}
+                {commanderResults.length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto">
+                    {commanderResults.map((result) => (
+                      <div key={result.scryfallId || result.name} className="result-card items-center gap-3">
+                        {result.imageUrl && (
+                          <img
+                            src={result.imageUrl}
+                            alt={result.name}
+                            className="w-10 h-14 object-cover rounded shrink-0"
+                          />
+                        )}
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-display text-heading-sm line-clamp-1">{result.name}</span>
+                          <span className="block text-caption text-graphite">{result.setName || result.type}</span>
+                        </span>
+                        <button
+                          type="button"
+                          className="btn-primary !px-3 !py-1.5 shrink-0"
+                          onClick={() => handlePickCommander(result)}
+                        >
+                          Añadir
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="label" htmlFor="deck-description">
+              Descripción
+            </label>
+            <textarea
+              id="deck-description"
+              className="input min-h-[100px]"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Descripción del mazo…"
+            />
+          </div>
+
+          {error && (
+            <ErrorBanner message={error} />
+          )}
+
+          <div className="form-actions">
+            <Link className="btn-ghost" to={`/magic/mazos/${id}`}>
+              Cancelar
+            </Link>
+            <button type="submit" className="btn-primary" disabled={submitting}>
+              {submitting ? 'Guardando…' : 'Guardar cambios'}
+            </button>
+          </div>
+        </form>
+      </CreateShell>
 
       <ConfirmDialog
         open={guard.showPrompt}
@@ -313,7 +345,6 @@ export default function DeckEditPage() {
         onConfirm={guard.confirmNavigation}
         onCancel={guard.cancelNavigation}
       />
-      </form>
 
       <ConfirmDialog
         open={deleting}
@@ -323,6 +354,6 @@ export default function DeckEditPage() {
         onCancel={() => setDeleting(false)}
         busy={deleteBusy}
       />
-    </div>
+    </section>
   )
 }
