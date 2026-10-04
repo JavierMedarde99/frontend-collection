@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { getGlobalStats } from '../api/statsApi'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
+import { COLLECTIONS_BY_KEY, type CollectionKey } from '../constants/collections'
 
 interface EntityTotals {
   books: number
@@ -22,24 +23,14 @@ const ENTITIES: { key: keyof EntityTotals; label: string; to: string }[] = [
   { key: 'movieShows', label: 'Películas y series', to: '/movieshows' },
 ]
 
-/** Tono cálido por colección: lomo de las tarjetas de cifras y pieza de la vitrina. */
-const WARM: Record<keyof EntityTotals, { spine: string; niche: string }> = {
-  books: { spine: '#c2410c', niche: '#e8633a' },
-  games: { spine: '#b45309', niche: '#ee9b2e' },
-  magic: { spine: '#8f3a1e', niche: '#c96a3e' },
-  decks: { spine: '#92600a', niche: '#b8862f' },
-  boardGames: { spine: '#6d4a2a', niche: '#a5783f' },
-  movieShows: { spine: '#77613a', niche: '#a08b52' },
-}
-
-/** Nombres cortos grabados en los nichos de la vitrina. */
-const NICKS: Record<keyof EntityTotals, string> = {
-  books: 'Libros',
-  games: 'Videojuegos',
-  magic: 'Magic',
-  decks: 'Mazos',
-  boardGames: 'Mesa',
-  movieShows: 'Cine',
+/** Clave interna de HomePage (camelCase) → clave de COLLECTIONS (minúscula). */
+const KEY: Record<keyof EntityTotals, CollectionKey> = {
+  books: 'books',
+  games: 'games',
+  magic: 'magic',
+  decks: 'decks',
+  boardGames: 'boardgames',
+  movieShows: 'movieshows',
 }
 
 /** Pieza dibujada de cada colección, tal y como se aprobó en el mockup. */
@@ -229,7 +220,7 @@ export default function HomePage() {
               <div
                 key={entity.key}
                 className="vitrina-niche"
-                style={{ '--c': WARM[entity.key].niche } as CSSProperties}
+                style={{ '--c': COLLECTIONS_BY_KEY[KEY[entity.key]].accent.niche } as CSSProperties}
               >
                 <svg
                   className="vitrina-niche-obj"
@@ -243,7 +234,7 @@ export default function HomePage() {
                 >
                   {NICHE_ICONS[entity.key]}
                 </svg>
-                <span className="vitrina-niche-label">{NICKS[entity.key]}</span>
+                <span className="vitrina-niche-label">{COLLECTIONS_BY_KEY[KEY[entity.key]].nick}</span>
               </div>
             ))}
           </div>
@@ -276,7 +267,7 @@ export default function HomePage() {
               key={entity.key}
               to={entity.to}
               className="spine-card"
-              style={{ '--sc': WARM[entity.key].spine } as CSSProperties}
+              style={{ '--sc': COLLECTIONS_BY_KEY[KEY[entity.key]].accent.spine } as CSSProperties}
             >
               <span className="count">
                 {loading || entities === null ? (
