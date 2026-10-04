@@ -450,32 +450,9 @@
 
 /* ---------- Gabinete — navegación, listas y detalle ---------- */
 
-/* Regla tachonada bajo la barra de navegación. */
-.nb-rule {
-  height: 3px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--rule) 0 6px,
-    transparent 6px 8px,
-    var(--rule) 8px 14px,
-    transparent 14px 16px
-  );
-}
-
-/* Filete 3px del enlace activo de la nav, con el acento de su colección (--sc). */
+/* Enlace activo de la nav, coloreado con el acento de su colección (--sc). */
 .nb-lk.on {
-  position: relative;
   color: var(--sc);
-}
-.nb-lk.on::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 3px;
-  border-radius: 2px 2px 0 0;
-  background: var(--sc);
 }
 
 /* Cabecera de catálogo: kicker + título + subtítulo, con la regla doble debajo. */

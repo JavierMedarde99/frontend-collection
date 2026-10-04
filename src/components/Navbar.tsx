@@ -341,7 +341,6 @@ export default function Navbar() {
           </div>
         </nav>
       )}
-      <div className="nb-rule" aria-hidden="true" />
-    </header>
+      </header>
   )
 }
