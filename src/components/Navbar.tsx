@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import type { UserResponse } from '../types'
-import { toBackendCollectionKey } from '../constants/collections'
+import { toBackendCollectionKey, COLLECTIONS_BY_KEY, type CollectionKey } from '../constants/collections'
 import ExportButton from './ExportButton'
 import ThemeToggle from './ThemeToggle'
 
@@ -101,10 +101,17 @@ export default function Navbar() {
                 key={link.to}
                 to={link.to}
                 end={link.end}
+                style={({ isActive }) =>
+                  isActive && link.collection
+                    ? ({ '--sc': COLLECTIONS_BY_KEY[link.collection as CollectionKey].accent.spine } as CSSProperties)
+                    : undefined
+                }
                 className={({ isActive }) =>
-                  `text-body-sm px-3.5 py-1.5 rounded-full font-medium transition-all duration-200 ${
+                  `nb-lk text-body-sm px-3.5 py-1.5 font-medium transition-all duration-200 ${
                     isActive
-                      ? 'bg-brand text-white shadow-brand-glow'
+                      ? link.collection
+                        ? 'on'
+                        : 'font-semibold text-ink'
                       : 'text-graphite hover:text-brand hover:bg-brand-soft'
                   }`
                 }
@@ -286,10 +293,15 @@ export default function Navbar() {
                     key={link.to}
                     to={link.to}
                     end={link.end}
+                    style={({ isActive }) =>
+                      isActive && link.collection
+                        ? ({ '--sc': COLLECTIONS_BY_KEY[link.collection as CollectionKey].accent.spine } as CSSProperties)
+                        : undefined
+                    }
                     className={({ isActive }) =>
-                      `text-body-sm px-3.5 py-1.5 rounded-full font-medium transition-all duration-200 ${
+                      `nb-lk text-body-sm px-3.5 py-1.5 rounded-full font-medium transition-all duration-200 ${
                         isActive
-                          ? 'bg-ink text-white font-semibold'
+                          ? 'on bg-brand-soft font-semibold'
                           : 'text-graphite hover:text-brand hover:bg-brand-soft'
                       }`
                     }
@@ -310,10 +322,15 @@ export default function Navbar() {
                 key={link.to}
                 to={link.to}
                 end={link.end}
+                style={({ isActive }) =>
+                  isActive && link.collection
+                    ? ({ '--sc': COLLECTIONS_BY_KEY[link.collection as CollectionKey].accent.spine } as CSSProperties)
+                    : undefined
+                }
                 className={({ isActive }) =>
-                  `text-body-sm px-3 py-1 rounded-full font-medium transition-all duration-200 ${
+                  `nb-lk text-body-sm px-3 py-1 font-medium transition-all duration-200 ${
                     isActive
-                      ? 'bg-ink text-white'
+                      ? 'on'
                       : 'text-graphite hover:text-brand hover:bg-brand-soft'
                   }`
                 }
@@ -324,6 +341,7 @@ export default function Navbar() {
           </div>
         </nav>
       )}
+      <div className="nb-rule" aria-hidden="true" />
     </header>
   )
 }
