@@ -1,18 +1,19 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createBoardGame } from '../api/boardgamesApi'
 import type { BoardGameFormData } from '../types'
 import BoardGameForm from '../components/BoardGameForm'
 import BoardGameSearch from '../components/BoardGameSearch'
-import Breadcrumbs from '../components/Breadcrumbs'
+import CreateShell from '../components/CreateShell'
+import { COLLECTIONS_BY_KEY } from '../constants/collections'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 
 type Mode = 'search' | 'manual'
 
-const MODES: { key: Mode; label: string }[] = [
-  { key: 'search', label: 'Buscar juego' },
-  { key: 'manual', label: 'Alta manual' },
+const MODES: { value: Mode; label: string }[] = [
+  { value: 'search', label: 'Buscar juego' },
+  { value: 'manual', label: 'Alta manual' },
 ]
 
 export default function BoardGameCreatePage() {
@@ -28,38 +29,25 @@ export default function BoardGameCreatePage() {
   }
 
   return (
-    <section className="max-w-3xl flex flex-col gap-24">
-      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Juegos de mesa", to: "/boardgames" }, { label: "Añadir" }]} />
-      <div>
-        <h1 className="font-display text-heading-lg mb-2">Añadir juego de mesa</h1>
-        <p className="text-body text-slate">
-          Añade un juego de mesa a tu colección buscándolo en BoardGameGeek o introduciendo sus datos manualmente.
-        </p>
-      </div>
-
-      <div role="tablist" className="flex items-center gap-1 p-1 rounded-pill bg-white border border-silver w-fit" aria-label="Método de alta">
-        {MODES.map((m) => (
-          <button
-            key={m.key}
-            role="tab"
-            aria-selected={mode === m.key}
-            className={`rounded-pill px-4 py-2 text-sm font-semibold transition-all duration-200 ease-smooth ${
-              mode === m.key
-                ? 'bg-brand text-white shadow-brand-glow'
-                : 'text-graphite hover:text-ink'
-            }`}
-            onClick={() => setMode(m.key)}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
-
-      {mode === 'search' ? (
-        <BoardGameSearch />
-      ) : (
-        <BoardGameForm isCreate submitLabel="Guardar juego" onSubmit={handleSubmit} />
-      )}
+    <section
+      className="max-w-3xl flex flex-col gap-12"
+      style={{ '--sc': COLLECTIONS_BY_KEY.boardgames.accent.spine, '--c': COLLECTIONS_BY_KEY.boardgames.accent.niche } as CSSProperties}
+    >
+      <CreateShell
+        crumbs={[{ label: "Inicio", to: "/" }, { label: "Juegos de mesa", to: "/boardgames" }, { label: "Añadir" }]}
+        eyebrow="Juegos de mesa"
+        title="Añadir juego de mesa"
+        subtitle="Añade un juego de mesa a tu colección buscándolo en BoardGameGeek o introduciendo sus datos manualmente."
+        tabs={MODES}
+        activeTab={mode}
+        onTabChange={(v) => setMode(v as Mode)}
+      >
+        {mode === 'search' ? (
+          <BoardGameSearch />
+        ) : (
+          <BoardGameForm isCreate submitLabel="Guardar juego" onSubmit={handleSubmit} />
+        )}
+      </CreateShell>
     </section>
   )
 }
