@@ -15,6 +15,7 @@ interface CreateShellProps {
   tabs?: MethodTab[]
   activeTab?: string
   onTabChange?: (value: string) => void
+  actions?: ReactNode
   children: ReactNode
 }
 
@@ -31,6 +32,7 @@ export default function CreateShell({
   tabs,
   activeTab,
   onTabChange,
+  actions,
   children,
 }: CreateShellProps) {
   return (
@@ -39,7 +41,7 @@ export default function CreateShell({
       <div className="rule-double">
         <span className="accent-bar" />
       </div>
-      <PageHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />
+      <PageHeader eyebrow={eyebrow} title={title} subtitle={subtitle} actions={actions} />
       {tabs && (
         <div role="tablist" aria-label="Método de alta" className="method-tabs">
           {tabs.map((tab) => {

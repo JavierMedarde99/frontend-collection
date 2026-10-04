@@ -166,7 +166,7 @@ export default function BookSearch() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {results.map((result) => (
-            <article key={result.id} className="card card-hover flex gap-5">
+            <article key={result.id} className="result-card">
               {result.coverImage ? (
                 <img
                   src={result.coverImage}
@@ -215,7 +215,7 @@ export default function BookSearch() {
 
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-md modal-sheet">
-          <div role="dialog" aria-modal="true" className="modal w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div role="dialog" aria-modal="true" className="modal-paper w-full max-w-md max-h-[90vh] overflow-y-auto p-6">
             <h3 className="font-display text-heading-sm mb-1 leading-snug">{selected.title}</h3>
             <p className="text-body text-graphite mb-5">
               {(selected.authors && selected.authors.join(', ')) || 'Autor desconocido'}

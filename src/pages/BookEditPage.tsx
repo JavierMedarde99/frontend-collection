@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getBook, updateBook, deleteBook } from '../api/booksApi'
 import type { Book, BookFormData } from '../types'
@@ -7,7 +7,8 @@ import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ErrorBanner from '../components/ErrorBanner'
-import Breadcrumbs from '../components/Breadcrumbs'
+import CreateShell from '../components/CreateShell'
+import { COLLECTIONS_BY_KEY } from '../constants/collections'
 import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 
@@ -67,40 +68,44 @@ export default function BookEditPage() {
   }
 
   return (
-    <section className="max-w-3xl flex flex-col gap-24">
-      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Libros", to: "/coleccion" }, { label: book?.title || 'Detalle', to: `/coleccion/${id}` }, { label: "Editar" }]} />
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-heading-lg mb-2">Editar libro</h1>
-          <p className="text-body text-slate">Actualiza los datos del libro.</p>
-        </div>
-        {book && !loading && (
-          <button
-            className="btn-ghost !text-red-600 hover:!bg-red-50 hover:!border-red-200"
-            onClick={() => setDeleting(true)}
-          >
-            Eliminar
-          </button>
-        )}
-      </div>
-
-      {deleteError && <ErrorBanner message={deleteError} />}
-
-      {loading ? (
-        <Spinner label="Cargando libro…" />
-      ) : error ? (
-        <EmptyState
-          title="No se pudo cargar el libro"
-          message={error}
-          action={
-            <button className="btn-primary mt-2" onClick={() => navigate('/coleccion')}>
-              Volver a la colección
+    <section
+      className="max-w-3xl flex flex-col gap-12"
+      style={{ '--sc': COLLECTIONS_BY_KEY.books.accent.spine, '--c': COLLECTIONS_BY_KEY.books.accent.niche } as CSSProperties}
+    >
+      <CreateShell
+        crumbs={[{ label: "Inicio", to: "/" }, { label: "Libros", to: "/coleccion" }, { label: book?.title || 'Detalle', to: `/coleccion/${id}` }, { label: "Editar" }]}
+        eyebrow="Libros"
+        title="Editar libro"
+        subtitle="Actualiza los datos del libro."
+        actions={
+          book && !loading ? (
+            <button
+              className="btn-ghost !text-red-600 hover:!bg-red-50 hover:!border-red-200"
+              onClick={() => setDeleting(true)}
+            >
+              Eliminar
             </button>
-          }
-        />
-      ) : (
-        <BookForm initial={book ?? undefined} submitLabel="Guardar cambios" onSubmit={handleSubmit} />
-      )}
+          ) : undefined
+        }
+      >
+        {deleteError && <ErrorBanner message={deleteError} />}
+
+        {loading ? (
+          <Spinner label="Cargando libro…" />
+        ) : error ? (
+          <EmptyState
+            title="No se pudo cargar el libro"
+            message={error}
+            action={
+              <button className="btn-primary mt-2" onClick={() => navigate('/coleccion')}>
+                Volver a la colección
+              </button>
+            }
+          />
+        ) : (
+          <BookForm initial={book ?? undefined} submitLabel="Guardar cambios" onSubmit={handleSubmit} />
+        )}
+      </CreateShell>
 
       <ConfirmDialog
         open={deleting}

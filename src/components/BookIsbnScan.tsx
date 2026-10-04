@@ -138,7 +138,7 @@ export default function BookIsbnScan() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="card flex flex-col gap-4">
+      <div className="scan-frame">
         <p className="text-body text-slate">
           Escanea el código de barras del libro con la cámara o escribe su ISBN.
         </p>
@@ -175,7 +175,7 @@ export default function BookIsbnScan() {
       {results.length > 0 && (
         <ul className="flex flex-col gap-4">
           {results.map((result) => (
-            <li key={result.id} className="card card-hover flex gap-5">
+            <li key={result.id} className="result-card flex gap-5">
               {result.coverImage ? (
                 <img
                   src={result.coverImage}
@@ -224,7 +224,7 @@ export default function BookIsbnScan() {
           <div
             role="dialog"
             aria-modal="true"
-            className="modal w-full max-w-md max-h-[90vh] overflow-y-auto"
+            className="modal-paper w-full max-w-md max-h-[90vh] overflow-y-auto p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="font-display text-heading-sm mb-1 leading-snug">{selected.title}</h3>
