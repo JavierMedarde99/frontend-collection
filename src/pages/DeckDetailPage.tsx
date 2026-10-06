@@ -8,6 +8,7 @@ import { DECK_STATUS_LABELS, DECK_STATUS_COLORS } from '../constants/decks'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import ConfirmDialog from '../components/ConfirmDialog'
+import DeckImportDialog from '../components/DeckImportDialog'
 import DeckCommanderImage from '../components/DeckCommanderImage'
 import ManaColorDots from '../components/ManaColorDots'
 import ErrorBanner from '../components/ErrorBanner'
@@ -97,6 +98,8 @@ export default function DeckDetailPage() {
   const [deleting, setDeleting] = useState(false)
   const [deleteBusy, setDeleteBusy] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  const [importOpen, setImportOpen] = useState(false)
 
   // PopUp añadir carta: máquina de estados del modal
   const [modal, dispatchModal] = useReducer(addCardModalReducer, initialAddCardModal)
@@ -207,6 +210,16 @@ export default function DeckDetailPage() {
     }
   }
 
+  async function handleImported(deckData: DeckResponse) {
+    setDeck(deckData)
+    if (!id) return
+    try {
+      setStatus(await getDeckStatus(id))
+    } catch {
+      /* mantiene el estado anterior */
+    }
+  }
+
   async function confirmDelete() {
     if (!id) return
     setDeleteError(null)
@@ -272,6 +285,9 @@ export default function DeckDetailPage() {
         </button>
         {isAuthenticated && (!deck.userOwned?.username || deck.userOwned.username === user?.username) && (
         <div className="flex items-center gap-2">
+          <button type="button" className="btn-ghost !px-4 !py-2" onClick={() => setImportOpen(true)}>
+            Importar mazo
+          </button>
           <button className="btn-primary !px-4 !py-2" onClick={openAddModal}>
             + Añadir carta
           </button>
@@ -597,6 +613,16 @@ export default function DeckDetailPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {importOpen && (
+        <DeckImportDialog
+          open
+          deckId={deck.id}
+          deckName={deck.name}
+          onClose={() => setImportOpen(false)}
+          onImported={handleImported}
+        />
       )}
 
       <ConfirmDialog
