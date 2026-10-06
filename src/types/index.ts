@@ -8,7 +8,7 @@ export type { PageGameResponse, ListGamesParams, GameFormData, SearchGameResult,
 export type { MagicLanguage, MagicCondition, MagicCardResponse, MagicCardRequest, MagicCardSearchResult, MagicCardSearchResponse, PageMagicCardSearchResult, PageMagicCardResponse, PageMagicCardPrinting, MagicCardPrinting, ListMagicCardsParams } from './Magic'
 export { BoardGameStatus, BoardGameDifficulty } from './BoardGame'
 export type { BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse, PageBoardGameSearchResult, PageBoardGameResponse, ListBoardGamesParams } from './BoardGame'
-export type { DeckStatus, DeckResponse, DeckRequest, DeckCardResponse, DeckCardRequest, DeckStatusResponse, PageDeckResponse, ListDecksParams } from './Deck'
+export type { DeckStatus, DeckResponse, DeckRequest, DeckCardResponse, DeckCardRequest, DeckStatusResponse, PageDeckResponse, ListDecksParams, DeckImportStatus, DeckImportAcceptedResponse, DeckImportProgressResponse, DeckImportCandidateResponse, DeckImportUnresolvedReason, DeckImportUnresolvedResponse, DeckImportValidationResponse, DeckImportJobResponse } from './Deck'
 export { MovieShowStatus } from './MovieShowStatus'
 export { MediaType } from './MovieType'
 export type { MovieShow, MovieShowFormData, SearchMovieShowResult, PageMovieSearchResult, PageMovieShowResponse, ListMovieShowsParams, StreamingProvider, StreamingProviderRequest, StreamingProviderResponse } from './MovieShow'
