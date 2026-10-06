@@ -28,6 +28,8 @@ const PHASE_LABELS: Record<string, string> = {
   DONE: 'Completando…',
 }
 
+const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+
 /**
  * Importación masiva de cartas a un mazo ya creado: pega una lista
  * (MTGO/JSON/CSV) o sube un archivo, hace poll del job asíncrono del
@@ -50,6 +52,55 @@ export default function DeckImportDialog({ open, deckId, deckName, onClose, onIm
   useEffect(() => {
     onImportedRef.current = onImported
   }, [onImported])
+
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const previouslyFocused = useRef<Element | null>(null)
+  const onCloseRef = useRef(onClose)
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
+  const sendingRef = useRef(sending)
+  useEffect(() => {
+    sendingRef.current = sending
+  }, [sending])
+
+  // A11y: foco inicial, cierre con Escape y trampa de Tab (patrón ConfirmDialog).
+  useEffect(() => {
+    if (!open) return
+    previouslyFocused.current = document.activeElement
+    dialogRef.current?.focus()
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        if (sendingRef.current) return
+        e.stopPropagation()
+        onCloseRef.current()
+        return
+      }
+      if (e.key !== 'Tab' || !dialogRef.current) return
+      const focusable = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE),
+      ).filter((el) => !el.hasAttribute('disabled'))
+      if (focusable.length === 0) return
+      const first = focusable[0]!
+      const last = focusable[focusable.length - 1]!
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown, true)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown, true)
+      if (previouslyFocused.current instanceof HTMLElement) {
+        previouslyFocused.current.focus()
+      }
+    }
+  }, [open])
 
   useEffect(() => {
     if (step.kind !== 'running') return
@@ -137,6 +188,8 @@ export default function DeckImportDialog({ open, deckId, deckName, onClose, onIm
         role="dialog"
         aria-modal="true"
         aria-label="Importar mazo"
+        ref={dialogRef}
+        tabIndex={-1}
         className="modal-paper modal w-full max-w-2xl max-h-[90vh] overflow-y-auto"
       >
         <div className="flex items-start justify-between gap-3 mb-5">

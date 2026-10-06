@@ -220,6 +220,22 @@ export default function DeckDetailPage() {
     }
   }
 
+  /**
+   * Cerrar el diálogo puede dejar cambios del job fuera de pantalla (p. ej.
+   * cerrar mientras importa, o un merge que añadió cartas): refresca datos
+   * en silencio —sin skeleton— para que la página nunca quede obsoleta.
+   */
+  async function handleCloseImport() {
+    setImportOpen(false)
+    if (!id) return
+    try {
+      const fresh = await getDeck(id)
+      await handleImported(fresh)
+    } catch {
+      /* mantiene el estado actual */
+    }
+  }
+
   async function confirmDelete() {
     if (!id) return
     setDeleteError(null)
@@ -620,7 +636,7 @@ export default function DeckDetailPage() {
           open
           deckId={deck.id}
           deckName={deck.name}
-          onClose={() => setImportOpen(false)}
+          onClose={handleCloseImport}
           onImported={handleImported}
         />
       )}
