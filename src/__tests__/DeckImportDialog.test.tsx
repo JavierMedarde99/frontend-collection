@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import DeckImportDialog from '../components/DeckImportDialog'
 import type { DeckImportDialogProps } from '../components/DeckImportDialog'
 import { addCardToDeck, getDeckImportJob, importDeckFile, importDeckText } from '../api/deckApi'
-import type { DeckImportJobResponse, DeckResponse } from '../types'
+import type { DeckImportAcceptedResponse, DeckImportJobResponse, DeckResponse } from '../types'
 
 vi.mock('../api/deckApi', () => ({
   importDeckText: vi.fn(),
@@ -242,5 +242,71 @@ describe('DeckImportDialog', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cerrar' }))
 
     expect(onClose).toHaveBeenCalled()
+  })
+
+  it('lleva el foco al diálogo al abrir y lo cierra con Escape', () => {
+    const { onClose } = renderDialog()
+
+    expect(screen.getByRole('dialog', { name: 'Importar mazo' })).toHaveFocus()
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(onClose).toHaveBeenCalled()
+  })
+
+  it('no cierra con Escape mientras envía', async () => {
+    vi.useFakeTimers()
+    let resolveImport!: (v: DeckImportAcceptedResponse) => void
+    mockedImportText.mockImplementation(() => new Promise((res) => { resolveImport = res }))
+    const { onClose } = renderDialog()
+
+    typeLista('1 Sol Ring')
+    fireEvent.click(screen.getByRole('button', { name: 'Importar mazo' }))
+    await act(async () => {})
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(onClose).not.toHaveBeenCalled()
+
+    await act(async () => { resolveImport(accepted) })
+  })
+
+  it('deshabilita Importar y el cierre mientras envía', async () => {
+    vi.useFakeTimers()
+    let resolveImport!: (v: DeckImportAcceptedResponse) => void
+    mockedImportText.mockImplementation(() => new Promise((res) => { resolveImport = res }))
+    renderDialog()
+
+    typeLista('1 Sol Ring')
+    fireEvent.click(screen.getByRole('button', { name: 'Importar mazo' }))
+    await act(async () => {})
+
+    expect(screen.getByRole('button', { name: 'Importando…' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Cerrar' })).toBeDisabled()
+
+    await act(async () => { resolveImport(accepted) })
+  })
+
+  it('muestra el error si el polling falla', async () => {
+    vi.useFakeTimers()
+    mockedImportText.mockResolvedValue(accepted)
+    mockedGetJob.mockRejectedValue(new Error('La red de Scryfall está caída'))
+    renderDialog()
+
+    await importarPorTexto()
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) })
+
+    expect(screen.getByText(/La red de Scryfall está caída/)).toBeInTheDocument()
+  })
+
+  it('no muestra la ficha de validación cuando el job no la trae', async () => {
+    vi.useFakeTimers()
+    mockedImportText.mockResolvedValue(accepted)
+    mockedGetJob.mockResolvedValue({ ...completedJob, validation: null })
+    renderDialog()
+
+    await importarPorTexto()
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) })
+
+    expect(screen.queryByText('Completo')).not.toBeInTheDocument()
+    expect(screen.getByText('1 carta · 1 distinta')).toBeInTheDocument()
   })
 })

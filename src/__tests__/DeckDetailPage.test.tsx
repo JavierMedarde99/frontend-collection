@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import DeckDetailPage from '../pages/DeckDetailPage'
@@ -88,6 +88,19 @@ describe('DeckDetailPage importación de mazos', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Cerrar' }))
 
+    expect(screen.queryByRole('dialog', { name: 'Importar mazo' })).not.toBeInTheDocument()
+  })
+
+  it('al cerrar el diálogo refresca el mazo y su estado', async () => {
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    fireEvent.click(screen.getByRole('button', { name: 'Importar mazo' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar' }))
+    await act(async () => {})
+
+    expect(vi.mocked(getDeck)).toHaveBeenCalledTimes(2)
+    expect(vi.mocked(getDeckStatus)).toHaveBeenCalledTimes(2)
     expect(screen.queryByRole('dialog', { name: 'Importar mazo' })).not.toBeInTheDocument()
   })
 })
