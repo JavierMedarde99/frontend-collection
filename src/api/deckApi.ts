@@ -1,4 +1,4 @@
-import type { DeckResponse, DeckRequest, DeckCardRequest, DeckStatusResponse, PageDeckResponse, ListDecksParams } from '../types'
+import type { DeckResponse, DeckRequest, DeckCardRequest, DeckStatusResponse, PageDeckResponse, ListDecksParams, DeckImportAcceptedResponse, DeckImportJobResponse } from '../types'
 import { RequestError, throwRequestError } from './errors'
 import { authFetch } from './authFetch'
 import { apiUrl } from './apiBase'
@@ -76,4 +76,36 @@ export async function getDeckStatus(id: string): Promise<DeckStatusResponse> {
     throw new RequestError(`Estado de mazo desconocido: ${JSON.stringify(data)}`)
   }
   return data
+}
+
+export function importDeckText(
+  id: string,
+  content: string,
+  mode: 'replace' | 'merge' = 'replace',
+): Promise<DeckImportAcceptedResponse> {
+  return request<DeckImportAcceptedResponse>(`${apiUrl(BASE_URL)}/${id}/imports/text?mode=${mode}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: content,
+  }) as Promise<DeckImportAcceptedResponse>
+}
+
+export function importDeckFile(
+  id: string,
+  file: File,
+  mode: 'replace' | 'merge' = 'replace',
+): Promise<DeckImportAcceptedResponse> {
+  const form = new FormData()
+  form.append('file', file)
+  return request<DeckImportAcceptedResponse>(`${apiUrl(BASE_URL)}/${id}/imports?mode=${mode}`, {
+    method: 'POST',
+    headers: {},
+    body: form,
+  }) as Promise<DeckImportAcceptedResponse>
+}
+
+export function getDeckImportJob(id: string, jobId: string): Promise<DeckImportJobResponse> {
+  return request<DeckImportJobResponse>(
+    `${apiUrl(BASE_URL)}/${id}/imports/${encodeURIComponent(jobId)}`,
+  ) as Promise<DeckImportJobResponse>
 }
