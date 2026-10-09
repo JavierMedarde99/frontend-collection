@@ -300,7 +300,7 @@ export default function DeckDetailPage() {
           ← Volver a mazos
         </button>
         {isAuthenticated && (!deck.userOwned?.username || deck.userOwned.username === user?.username) && (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button type="button" className="btn-ghost !px-4 !py-2" onClick={() => setImportOpen(true)}>
             Importar mazo
           </button>
