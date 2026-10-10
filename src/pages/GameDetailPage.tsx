@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getGame, deleteGame } from '../api/gamesApi'
-import type { Game } from '../types'
+import { GameStatus, type Game } from '../types'
 import GameStatusBadge from '../components/GameStatusBadge'
 import GamePlatformBadge from '../components/GamePlatformBadge'
 import { isPcPlatform, platformLabel } from '../constants/games'
@@ -97,7 +97,7 @@ export default function GameDetailPage() {
     ...(game.dateAdded ? [{ label: 'Fecha de inicio', value: game.dateAdded }] : []),
     ...(game.dateCompleted ? [{ label: 'Fecha de fin', value: game.dateCompleted }] : []),
     ...(game.acquisitionDate ? [{ label: 'Fecha de obtención', value: game.acquisitionDate }] : []),
-    ...(game.acquisitionPrice !== undefined
+    ...(game.acquisitionPrice !== undefined && game.status !== GameStatus.WISHLIST
       ? [{ label: 'Precio de adquisición', value: `${game.acquisitionPrice} €` }]
       : []),
     ...(game.externalSource ? [{ label: 'Fuente externa', value: game.externalSource }] : []),
