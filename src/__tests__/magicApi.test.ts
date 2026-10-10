@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getMagicCardPrintingsPage } from '../api/magicApi'
+import { addMagicCardCopies, getMagicCardPrintingsPage } from '../api/magicApi'
 
 function jsonResponse(data: unknown) {
   return {
@@ -65,5 +65,38 @@ describe('magicApi getMagicCardPrintingsPage', () => {
 
     const url = String(fetchSpy.mock.calls[0]?.[0])
     expect(url).toContain('/scryfall/a%20b%2Fc/printings')
+  })
+})
+
+describe('magicApi addMagicCardCopies', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('hace POST a /copies con la cantidad en la query', async () => {
+    const fetchSpy = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) =>
+      jsonResponse({ id: 'mc1', quantity: 5 }),
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const result = await addMagicCardCopies('mc1', 3)
+
+    const [url, init] = fetchSpy.mock.calls[0]!
+    expect(String(url)).toContain('/api/v1/magic/mc1/copies?quantity=3')
+    expect(init?.method).toBe('POST')
+    expect(result).toEqual({ id: 'mc1', quantity: 5 })
+  })
+
+  it('codifica el id en la ruta', async () => {
+    const fetchSpy = vi.fn(async (_url: RequestInfo | URL) => jsonResponse({ id: 'x', quantity: 2 }))
+    vi.stubGlobal('fetch', fetchSpy)
+
+    await addMagicCardCopies('a b/c', 2)
+
+    expect(String(fetchSpy.mock.calls[0]?.[0])).toContain('/api/v1/magic/a%20b%2Fc/copies')
   })
 })
