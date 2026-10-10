@@ -1,10 +1,10 @@
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import DeckDetailPage from '../pages/DeckDetailPage'
 import { getDeck, getDeckStatus } from '../api/deckApi'
-import { searchMagicCards } from '../api/magicApi'
-import type { DeckResponse } from '../types'
+import { addMagicCardFromScryfall, searchMagicCards } from '../api/magicApi'
+import type { DeckResponse, MagicCardResponse } from '../types'
 
 const { authState } = vi.hoisted(() => ({
   authState: {
@@ -26,7 +26,10 @@ vi.mock('../api/deckApi', () => ({
   getDeckImportJob: vi.fn(),
 }))
 
-vi.mock('../api/magicApi', () => ({ searchMagicCards: vi.fn() })) // lo usa DeckCommanderImage
+vi.mock('../api/magicApi', () => ({
+  searchMagicCards: vi.fn(), // lo usa DeckCommanderImage
+  addMagicCardFromScryfall: vi.fn(),
+}))
 
 vi.mock('../context/AuthContext', () => ({ useAuth: () => authState.value }))
 
@@ -102,5 +105,93 @@ describe('DeckDetailPage importación de mazos', () => {
     expect(vi.mocked(getDeck)).toHaveBeenCalledTimes(2)
     expect(vi.mocked(getDeckStatus)).toHaveBeenCalledTimes(2)
     expect(screen.queryByRole('dialog', { name: 'Importar mazo' })).not.toBeInTheDocument()
+  })
+})
+
+describe('DeckDetailPage añadir a colección (carta proxy)', () => {
+  const proxyCard = {
+    cardName: 'Sol Ring',
+    quantity: 2,
+    inCollection: false,
+    isProxy: true,
+    scryfallId: 'sr-1',
+  }
+
+  const deckConProxy: DeckResponse = {
+    id: 'd1',
+    name: 'Mazo de Atraxa',
+    commander: 'Atraxa',
+    commanderColors: ['W', 'U', 'B', 'G'],
+    cards: [proxyCard],
+    userOwned: { username: 'javi' },
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.mocked(getDeckStatus).mockResolvedValue({ status: 'DRAFT', message: null })
+    vi.mocked(searchMagicCards).mockResolvedValue([])
+    authState.value = { isAuthenticated: true, user: { username: 'javi' } }
+  })
+
+  it('muestra el botón Añadir a colección en una carta proxy sin colección', async () => {
+    vi.mocked(getDeck).mockResolvedValue(deckConProxy)
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    expect(screen.getByRole('button', { name: 'Añadir a colección' })).toBeInTheDocument()
+  })
+
+  it('oculta el botón si la carta proxy ya está en colección', async () => {
+    vi.mocked(getDeck).mockResolvedValue({
+      ...deckConProxy,
+      cards: [{ ...proxyCard, inCollection: true }],
+    })
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    expect(screen.queryByRole('button', { name: 'Añadir a colección' })).not.toBeInTheDocument()
+  })
+
+  it('oculta el botón si la carta no tiene scryfallId', async () => {
+    vi.mocked(getDeck).mockResolvedValue({
+      ...deckConProxy,
+      cards: [{ ...proxyCard, scryfallId: undefined }],
+    })
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    expect(screen.queryByRole('button', { name: 'Añadir a colección' })).not.toBeInTheDocument()
+  })
+
+  it('añade a la colección la cantidad del mazo y refresca la insignia En colección', async () => {
+    vi.mocked(getDeck)
+      .mockResolvedValueOnce(deckConProxy)
+      .mockResolvedValue({ ...deckConProxy, cards: [{ ...proxyCard, inCollection: true }] })
+    vi.mocked(addMagicCardFromScryfall).mockResolvedValue({ id: 'm1' } as MagicCardResponse)
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir a colección' }))
+
+    await waitFor(() => expect(addMagicCardFromScryfall).toHaveBeenCalledWith('sr-1', 2))
+    await waitFor(() => expect(screen.getByText('En colección')).toBeInTheDocument())
+    expect(screen.queryByRole('button', { name: 'Añadir a colección' })).not.toBeInTheDocument()
+  })
+
+  it('muestra Añadiendo… mientras se envía', async () => {
+    vi.mocked(getDeck).mockResolvedValue(deckConProxy)
+    let resolveAdd: (value: MagicCardResponse) => void = () => {}
+    vi.mocked(addMagicCardFromScryfall).mockImplementation(
+      () => new Promise<MagicCardResponse>((resolve) => { resolveAdd = resolve }),
+    )
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir a colección' }))
+
+    expect(screen.getByRole('button', { name: 'Añadiendo…' })).toBeDisabled()
+    await act(async () => {
+      resolveAdd({ id: 'm1' } as MagicCardResponse)
+    })
   })
 })
