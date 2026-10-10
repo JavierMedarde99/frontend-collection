@@ -1,3 +1,4 @@
+import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import CardMenu from './CardMenu'
 import OwnerLine from './OwnerLine'
@@ -8,9 +9,31 @@ interface MagicCardProps {
   index?: number
   onDelete: () => Promise<void>
   readOnly?: boolean
+  onAddCopies?: (quantity: number) => Promise<void>
 }
 
-export default function MagicCard({ card, index = 0, onDelete, readOnly = false }: MagicCardProps) {
+export default function MagicCard({ card, index = 0, onDelete, readOnly = false, onAddCopies }: MagicCardProps) {
+  const [adding, setAdding] = useState(false)
+  const [copies, setCopies] = useState(1)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleAddCopies(e: FormEvent) {
+    e.preventDefault()
+    if (!onAddCopies || busy) return
+    setBusy(true)
+    setError(null)
+    try {
+      await onAddCopies(copies)
+      setAdding(false)
+      setCopies(1)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudieron añadir las copias.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <article
       className="card card-hover animate-fade-up relative flex flex-col gap-5 group"
@@ -65,12 +88,63 @@ export default function MagicCard({ card, index = 0, onDelete, readOnly = false 
                 {card.setName}
               </span>
             )}
-            {card.quantity && card.quantity > 1 && (
+            {typeof card.quantity === 'number' && (
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption font-medium bg-emerald-100 text-emerald-800">
                 x{card.quantity}
               </span>
             )}
           </div>
+          {onAddCopies && !readOnly && (
+            <div className="mt-3">
+              {adding ? (
+                <form onSubmit={handleAddCopies} className="flex flex-wrap items-center gap-2">
+                  <label className="sr-only" htmlFor={`copies-${card.id}`}>
+                    Copias a añadir
+                  </label>
+                  <input
+                    id={`copies-${card.id}`}
+                    className="input w-20 !py-1.5"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={copies}
+                    disabled={busy}
+                    onChange={(e) => setCopies(Math.max(1, Math.floor(Number(e.target.value)) || 1))}
+                  />
+                  <button type="submit" className="btn-primary !px-3 !py-1.5" disabled={busy}>
+                    {busy ? 'Añadiendo…' : 'Añadir'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-ghost !px-3 !py-1.5"
+                    disabled={busy}
+                    onClick={() => {
+                      setAdding(false)
+                      setError(null)
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  className="btn-ghost !px-3 !py-1.5"
+                  onClick={() => {
+                    setAdding(true)
+                    setError(null)
+                  }}
+                >
+                  + Añadir copias
+                </button>
+              )}
+              {error && (
+                <p role="alert" className="text-caption text-red-600 mt-1">
+                  {error}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </article>

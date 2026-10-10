@@ -59,6 +59,14 @@ export function deleteMagicCard(id: string): Promise<null> {
   return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
 }
 
+export function addMagicCardCopies(id: string, quantity: number): Promise<MagicCardResponse> {
+  const safe = Math.max(1, Math.floor(quantity) || 1)
+  const qs = new URLSearchParams({ quantity: String(safe) })
+  return request<MagicCardResponse>(`${apiUrl(BASE_URL)}/${encodeURIComponent(id)}/copies?${qs}`, {
+    method: 'POST',
+  }) as Promise<MagicCardResponse>
+}
+
 export async function searchMagicCards(name: string): Promise<MagicCardSearchResult[]> {
   const data = await request<MagicCardSearchResponse>(`${apiUrl(BASE_URL)}/search?name=${encodeURIComponent(name)}`)
   const results = data?.results
