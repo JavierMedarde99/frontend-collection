@@ -195,3 +195,53 @@ describe('DeckDetailPage añadir a colección (carta proxy)', () => {
     })
   })
 })
+
+describe('DeckDetailPage tabla de cartas (columna de acciones)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.mocked(getDeck).mockResolvedValue({
+      id: 'd1',
+      name: 'Mazo de Atraxa',
+      commander: 'Atraxa',
+      commanderColors: ['W', 'U', 'B', 'G'],
+      cards: [
+        {
+          cardName: 'Sol Ring',
+          quantity: 2,
+          inCollection: false,
+          isProxy: true,
+          scryfallId: 'sr-1',
+        },
+      ],
+      userOwned: { username: 'javi' },
+    })
+    vi.mocked(getDeckStatus).mockResolvedValue({ status: 'DRAFT', message: null })
+    vi.mocked(searchMagicCards).mockResolvedValue([])
+    authState.value = { isAuthenticated: true, user: { username: 'javi' } }
+  })
+
+  it('mantiene la celda de acciones fija a la derecha con fondo al hacer scroll', async () => {
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    const celda = screen.getByRole('button', { name: 'Quitar' }).closest('td')
+    expect(celda).toHaveClass('sticky', 'right-0', 'bg-cream')
+  })
+
+  it('mantiene la cabecera de acciones fija a la derecha con fondo al hacer scroll', async () => {
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    const cabecera = screen.getByText('Acciones', { selector: 'span' }).closest('th')
+    expect(cabecera).toHaveClass('sticky', 'right-0', 'bg-cream')
+  })
+
+  it('muestra los botones en la misma línea (el contenedor no envuelve)', async () => {
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    const contenedor = screen.getByRole('button', { name: 'Añadir a colección' }).parentElement
+    expect(contenedor).not.toHaveClass('flex-wrap')
+    expect(contenedor).toHaveClass('flex', 'items-center', 'justify-end', 'gap-2')
+  })
+})

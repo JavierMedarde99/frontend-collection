@@ -366,7 +366,7 @@ export default function DeckDetailPage() {
                       <th scope="col" className="px-4 py-3 font-semibold">Carta</th>
                       <th scope="col" className="px-4 py-3 font-semibold">Coste</th>
                       <th scope="col" className="px-4 py-3 font-semibold">Tipo</th>
-                      <th scope="col" className="px-4 py-3"><span className="sr-only">Acciones</span></th>
+                      <th scope="col" className="px-4 py-3 sticky right-0 bg-cream border-l border-silver/40"><span className="sr-only">Acciones</span></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -427,12 +427,12 @@ export default function DeckDetailPage() {
                         <td className="px-4 py-3 text-body-sm text-graphite max-w-[220px]">
                           <span className="line-clamp-2">{card.typeLine || '—'}</span>
                         </td>
-                        <td className="px-4 py-3 text-right whitespace-nowrap">
-                          <div className="flex flex-wrap items-center justify-end gap-2">
+                        <td className="px-4 py-3 text-right whitespace-nowrap sticky right-0 bg-cream border-l border-silver/40">
+                          <div className="flex items-center justify-end gap-2">
                             {isAuthenticated && (!deck.userOwned?.username || deck.userOwned.username === user?.username) && card.scryfallId && card.isProxy && !card.inCollection && (
                               <button
                                 type="button"
-                                className="btn-ghost !px-3 !py-1.5"
+                                className="btn-ghost !px-3 !py-1.5 shrink-0"
                                 disabled={addingToCollectionId === card.scryfallId}
                                 onClick={(e) => { e.stopPropagation(); handleAddToCollection(card) }}
                               >
@@ -442,7 +442,7 @@ export default function DeckDetailPage() {
                             {isAuthenticated && (!deck.userOwned?.username || deck.userOwned.username === user?.username) && card.scryfallId && (
                               <button
                                 type="button"
-                                className="btn-ghost !px-3 !py-1.5 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
+                                className="btn-ghost !px-3 !py-1.5 !text-red-600 hover:!bg-red-50 hover:!border-red-200 shrink-0"
                                 disabled={removingId === card.scryfallId}
                                 onClick={(e) => { e.stopPropagation(); handleRemoveCard(card.scryfallId!) }}
                               >
