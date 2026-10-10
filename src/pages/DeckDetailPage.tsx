@@ -107,6 +107,7 @@ export default function DeckDetailPage() {
   const [modal, dispatchModal] = useReducer(addCardModalReducer, initialAddCardModal)
   const [removingId, setRemovingId] = useState<string | null>(null)
   const [addingToCollectionId, setAddingToCollectionId] = useState<string | null>(null)
+  const [addingCommanderToCollection, setAddingCommanderToCollection] = useState(false)
   const { query, searchResults, searching, searchError, selected, quantity, adding, addError } = modal
 
   // PopUp imagen en grande (carta de la tabla o comandante), con carrusel
@@ -241,6 +242,35 @@ export default function DeckDetailPage() {
       setError(err instanceof Error ? err.message : 'No se pudo añadir la carta a la colección.')
     } finally {
       setAddingToCollectionId(null)
+    }
+  }
+
+  async function handleAddCommanderToCollection() {
+    if (!id || !deck?.commander) return
+    setAddingCommanderToCollection(true)
+    try {
+      const [resolved] = await searchMagicCards(deck.commander)
+      if (!resolved?.scryfallId) {
+        setError(`No se pudo resolver "${deck.commander}" en Scryfall.`)
+        return
+      }
+      await addMagicCardFromScryfall(resolved.scryfallId, 1)
+      notify('Comandante añadido a tu colección.')
+      try {
+        const fresh = await getDeck(id)
+        await handleImported(fresh)
+      } catch {
+        /* mantiene el estado actual */
+      }
+      // Marca local: aunque el refresh no lo refleje, el comandante ya está en
+      // colección → desaparecen el botón y la insignia Proxy de inmediato.
+      setDeck((current) =>
+        current ? { ...current, commanderInCollection: true, commanderIsProxy: false } : current,
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo añadir el comandante a la colección.')
+    } finally {
+      setAddingCommanderToCollection(false)
     }
   }
 
@@ -503,7 +533,31 @@ export default function DeckDetailPage() {
                 {deck.commander}
               </p>
             )}
+            {deck.commander && (deck.commanderInCollection || deck.commanderIsProxy) && (
+              <div className="flex flex-wrap justify-center gap-1">
+                {deck.commanderInCollection && (
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium text-caption">
+                    En colección
+                  </span>
+                )}
+                {deck.commanderIsProxy && (
+                  <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-medium text-caption">
+                    Proxy
+                  </span>
+                )}
+              </div>
+            )}
           </div>
+          {isAuthenticated && (!deck.userOwned?.username || deck.userOwned.username === user?.username) && deck.commander && deck.commanderIsProxy && (
+            <button
+              type="button"
+              className="btn-ghost w-full"
+              disabled={addingCommanderToCollection}
+              onClick={handleAddCommanderToCollection}
+            >
+              {addingCommanderToCollection ? 'Añadiendo…' : 'Añadir a colección'}
+            </button>
+          )}
           {deck.description && (
             <p className="text-body text-slate whitespace-pre-line">{deck.description}</p>
           )}
