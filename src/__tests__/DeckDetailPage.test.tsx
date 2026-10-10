@@ -210,6 +210,84 @@ describe('DeckDetailPage añadir a colección (carta proxy)', () => {
   })
 })
 
+describe('DeckDetailPage comandante (añadir a colección)', () => {
+  const deckComandanteProxy: DeckResponse = {
+    id: 'd1',
+    name: 'Mazo de Atraxa',
+    commander: "Atraxa, Praetors' Voice",
+    commanderColors: ['W', 'U', 'B', 'G'],
+    commanderInCollection: false,
+    commanderIsProxy: true,
+    cards: [],
+    userOwned: { username: 'javi' },
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.mocked(getDeckStatus).mockResolvedValue({ status: 'DRAFT', message: null })
+    vi.mocked(searchMagicCards).mockResolvedValue([])
+    authState.value = { isAuthenticated: true, user: { username: 'javi' } }
+  })
+
+  it('muestra la insignia Proxy y el botón cuando el comandante no está en colección', async () => {
+    vi.mocked(getDeck).mockResolvedValue(deckComandanteProxy)
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    expect(screen.getByText('Proxy')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Añadir a colección' })).toBeInTheDocument()
+  })
+
+  it('muestra En colección y oculta el botón cuando el comandante ya está en colección', async () => {
+    vi.mocked(getDeck).mockResolvedValue({
+      ...deckComandanteProxy,
+      commanderInCollection: true,
+      commanderIsProxy: false,
+    })
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    expect(screen.getByText('En colección')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Añadir a colección' })).not.toBeInTheDocument()
+  })
+
+  it('oculta el botón del comandante sin sesión', async () => {
+    authState.value = { isAuthenticated: false, user: null }
+    vi.mocked(getDeck).mockResolvedValue(deckComandanteProxy)
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    expect(screen.queryByRole('button', { name: 'Añadir a colección' })).not.toBeInTheDocument()
+  })
+
+  it('al pulsar resuelve el comandante en Scryfall y lo añade a la colección', async () => {
+    vi.mocked(getDeck).mockResolvedValue(deckComandanteProxy)
+    vi.mocked(searchMagicCards).mockResolvedValue([
+      { scryfallId: 'atr-1', name: "Atraxa, Praetors' Voice" },
+    ])
+    vi.mocked(addMagicCardFromScryfall).mockResolvedValue({ id: 'm1' } as MagicCardResponse)
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir a colección' }))
+
+    await waitFor(() => expect(addMagicCardFromScryfall).toHaveBeenCalledWith('atr-1', 1))
+    await waitFor(() => expect(screen.getByText('En colección')).toBeInTheDocument())
+    expect(screen.queryByText('Proxy')).not.toBeInTheDocument()
+  })
+
+  it('no añade nada si el comandante no se resuelve en Scryfall', async () => {
+    vi.mocked(getDeck).mockResolvedValue(deckComandanteProxy)
+    vi.mocked(searchMagicCards).mockResolvedValue([])
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir a colección' }))
+
+    await waitFor(() => expect(addMagicCardFromScryfall).not.toHaveBeenCalled())
+  })
+})
+
 describe('DeckDetailPage tabla de cartas (columna de acciones)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
