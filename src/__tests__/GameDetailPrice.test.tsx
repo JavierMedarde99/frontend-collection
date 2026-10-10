@@ -3,7 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import GameDetailPage from '../pages/GameDetailPage'
 import { getGame } from '../api/gamesApi'
-import { GamePlatform, GameStatus } from '../types'
+import { GameStatus } from '../types'
 import type { Game } from '../types'
 
 vi.mock('../api/gamesApi', async (importOriginal) => ({
@@ -21,7 +21,7 @@ function gameWithAcquisition(status: GameStatus): Game {
   return {
     id: '1',
     title: 'Hollow Knight',
-    platform: GamePlatform.PC,
+    platform: 'PC',
     status,
     genres: ['Metroidvania'],
     acquisitionDate: '2024-03-15',
@@ -62,5 +62,15 @@ describe('GameDetailPage precio de adquisición', () => {
     expect(await screen.findByRole('heading', { name: 'Hollow Knight' })).toBeInTheDocument()
     expect(screen.queryByText('Fecha de obtención')).not.toBeInTheDocument()
     expect(screen.queryByText('Precio de adquisición')).not.toBeInTheDocument()
+  })
+
+  it('no muestra el precio de adquisición si el videojuego está en lista de deseos aunque tenga precio guardado', async () => {
+    const wishlistGame = { ...gameWithAcquisition(GameStatus.WISHLIST) }
+    mockedGet.mockResolvedValue(wishlistGame)
+    renderDetail()
+
+    expect(await screen.findByRole('heading', { name: 'Hollow Knight' })).toBeInTheDocument()
+    expect(screen.queryByText('Precio de adquisición')).not.toBeInTheDocument()
+    expect(screen.queryByText('12.5 €')).not.toBeInTheDocument()
   })
 })
