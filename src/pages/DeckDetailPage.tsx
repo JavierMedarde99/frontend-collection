@@ -225,6 +225,18 @@ export default function DeckDetailPage() {
       } catch {
         /* mantiene el estado actual */
       }
+      // Marca local: aunque el refresh no lo refleje, esta carta ya está en
+      // colección → desaparecen el botón y la insignia Proxy de inmediato.
+      setDeck((current) =>
+        current
+          ? {
+              ...current,
+              cards: (current.cards ?? []).map((c) =>
+                c.scryfallId === card.scryfallId ? { ...c, inCollection: true } : c,
+              ),
+            }
+          : current,
+      )
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo añadir la carta a la colección.')
     } finally {
@@ -412,7 +424,7 @@ export default function DeckDetailPage() {
                                     En colección
                                   </span>
                                 )}
-                                {card.isProxy && (
+                                {card.isProxy && !card.inCollection && (
                                   <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-medium text-caption">
                                     Proxy
                                   </span>

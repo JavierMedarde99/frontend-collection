@@ -178,6 +178,20 @@ describe('DeckDetailPage añadir a colección (carta proxy)', () => {
     expect(screen.queryByRole('button', { name: 'Añadir a colección' })).not.toBeInTheDocument()
   })
 
+  it('oculta el botón y la insignia Proxy tras añadir con éxito, aunque el refresh no lo refleje', async () => {
+    vi.mocked(getDeck).mockResolvedValue(deckConProxy)
+    vi.mocked(addMagicCardFromScryfall).mockResolvedValue({ id: 'm1' } as MagicCardResponse)
+    renderPage()
+
+    await screen.findByRole('heading', { name: 'Mazo de Atraxa' })
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir a colección' }))
+
+    await waitFor(() => expect(addMagicCardFromScryfall).toHaveBeenCalledWith('sr-1', 2))
+    await waitFor(() => expect(screen.getByText('En colección')).toBeInTheDocument())
+    expect(screen.queryByRole('button', { name: 'Añadir a colección' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Proxy')).not.toBeInTheDocument()
+  })
+
   it('muestra Añadiendo… mientras se envía', async () => {
     vi.mocked(getDeck).mockResolvedValue(deckConProxy)
     let resolveAdd: (value: MagicCardResponse) => void = () => {}
