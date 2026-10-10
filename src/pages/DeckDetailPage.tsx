@@ -2,7 +2,7 @@ import { useCallback, useEffect, useReducer, useState, type CSSProperties, type 
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getDeck, deleteDeck, addCardToDeck, removeCardFromDeck, getDeckStatus } from '../api/deckApi'
-import { searchMagicCards } from '../api/magicApi'
+import { addMagicCardFromScryfall, searchMagicCards } from '../api/magicApi'
 import type { DeckCardResponse, DeckResponse, DeckStatusResponse, MagicCardSearchResult } from '../types'
 import { DECK_STATUS_LABELS, DECK_STATUS_COLORS } from '../constants/decks'
 import SkeletonGrid from '../components/Skeleton'
@@ -14,6 +14,7 @@ import ManaColorDots from '../components/ManaColorDots'
 import ErrorBanner from '../components/ErrorBanner'
 import Breadcrumbs from '../components/Breadcrumbs'
 import OwnerLine from '../components/OwnerLine'
+import { useToast } from '../components/Toast'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
 import { COLLECTIONS_BY_KEY } from '../constants/collections'
@@ -91,6 +92,7 @@ export default function DeckDetailPage() {
   const [deck, setDeck] = useState<DeckResponse | null>(null)
   usePageTitle(deck?.name || 'Mazos')
   const { isAuthenticated, user } = useAuth()
+  const notify = useToast()
   const [status, setStatus] = useState<DeckStatusResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -104,6 +106,7 @@ export default function DeckDetailPage() {
   // PopUp añadir carta: máquina de estados del modal
   const [modal, dispatchModal] = useReducer(addCardModalReducer, initialAddCardModal)
   const [removingId, setRemovingId] = useState<string | null>(null)
+  const [addingToCollectionId, setAddingToCollectionId] = useState<string | null>(null)
   const { query, searchResults, searching, searchError, selected, quantity, adding, addError } = modal
 
   // PopUp imagen en grande (carta de la tabla o comandante), con carrusel
@@ -207,6 +210,25 @@ export default function DeckDetailPage() {
       setError(err instanceof Error ? err.message : 'No se pudo quitar la carta.')
     } finally {
       setRemovingId(null)
+    }
+  }
+
+  async function handleAddToCollection(card: DeckCardResponse) {
+    if (!id || !card.scryfallId) return
+    setAddingToCollectionId(card.scryfallId)
+    try {
+      await addMagicCardFromScryfall(card.scryfallId, card.quantity)
+      notify(`Añadida a tu colección${card.quantity > 1 ? ` (${card.quantity} copias)` : ''}.`)
+      try {
+        const fresh = await getDeck(id)
+        await handleImported(fresh)
+      } catch {
+        /* mantiene el estado actual */
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo añadir la carta a la colección.')
+    } finally {
+      setAddingToCollectionId(null)
     }
   }
 
@@ -406,16 +428,28 @@ export default function DeckDetailPage() {
                           <span className="line-clamp-2">{card.typeLine || '—'}</span>
                         </td>
                         <td className="px-4 py-3 text-right whitespace-nowrap">
-                          {isAuthenticated && (!deck.userOwned?.username || deck.userOwned.username === user?.username) && card.scryfallId && (
-                            <button
-                              type="button"
-                              className="btn-ghost !px-3 !py-1.5 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
-                              disabled={removingId === card.scryfallId}
-                              onClick={(e) => { e.stopPropagation(); handleRemoveCard(card.scryfallId!) }}
-                            >
-                              {removingId === card.scryfallId ? 'Quitando…' : 'Quitar'}
-                            </button>
-                          )}
+                          <div className="flex flex-wrap items-center justify-end gap-2">
+                            {isAuthenticated && (!deck.userOwned?.username || deck.userOwned.username === user?.username) && card.scryfallId && card.isProxy && !card.inCollection && (
+                              <button
+                                type="button"
+                                className="btn-ghost !px-3 !py-1.5"
+                                disabled={addingToCollectionId === card.scryfallId}
+                                onClick={(e) => { e.stopPropagation(); handleAddToCollection(card) }}
+                              >
+                                {addingToCollectionId === card.scryfallId ? 'Añadiendo…' : 'Añadir a colección'}
+                              </button>
+                            )}
+                            {isAuthenticated && (!deck.userOwned?.username || deck.userOwned.username === user?.username) && card.scryfallId && (
+                              <button
+                                type="button"
+                                className="btn-ghost !px-3 !py-1.5 !text-red-600 hover:!bg-red-50 hover:!border-red-200"
+                                disabled={removingId === card.scryfallId}
+                                onClick={(e) => { e.stopPropagation(); handleRemoveCard(card.scryfallId!) }}
+                              >
+                                {removingId === card.scryfallId ? 'Quitando…' : 'Quitar'}
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
