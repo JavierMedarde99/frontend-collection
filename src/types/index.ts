@@ -12,6 +12,10 @@ export type { DeckStatus, DeckResponse, DeckRequest, DeckCardResponse, DeckCardR
 export { MovieShowStatus } from './MovieShowStatus'
 export { MediaType } from './MovieType'
 export type { MovieShow, MovieShowFormData, SearchMovieShowResult, PageMovieSearchResult, PageMovieShowResponse, ListMovieShowsParams, StreamingProvider, StreamingProviderRequest, StreamingProviderResponse } from './MovieShow'
+export { FunkoStatus } from './Funko'
+export type { Funko, FunkoFormData, FunkoSearchResult, PageFunkoSearchResult, PageFunkoResponse, ListFunkosParams, FunkoCategory } from './Funko'
+export { AmiiboStatus, AmiiboType } from './Amiibo'
+export type { Amiibo, AmiiboFormData, AmiiboSearchResult, PageAmiiboSearchResult, PageAmiiboResponse, ListAmiibosParams, AmiiboReleaseDates } from './Amiibo'
 export type { RegisterRequest, LoginRequest, RefreshTokenRequest, UpdateProfileRequest, UserResponse, AuthResponse } from './Auth'
 export type {
   CollectionType,
