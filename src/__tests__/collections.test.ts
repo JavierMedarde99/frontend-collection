@@ -7,8 +7,8 @@ import {
 } from '../constants/collections'
 
 describe('COLLECTIONS — identidad por colección', () => {
-  it('define las 6 colecciones con sus claves y rutas', () => {
-    expect(COLLECTIONS).toHaveLength(6)
+  it('define las 8 colecciones con sus claves y rutas', () => {
+    expect(COLLECTIONS).toHaveLength(8)
     expect(COLLECTIONS.map((c) => c.key)).toEqual([
       'books',
       'games',
@@ -16,6 +16,8 @@ describe('COLLECTIONS — identidad por colección', () => {
       'decks',
       'boardgames',
       'movieshows',
+      'funkos',
+      'amiibos',
     ])
     expect(COLLECTIONS_BY_KEY.books.to).toBe('/coleccion')
     expect(COLLECTIONS_BY_KEY.decks.to).toBe('/magic/mazos')
@@ -58,11 +60,27 @@ describe('COLLECTIONS — identidad por colección', () => {
       accent: { spine: '#77613a', niche: '#a08b52' },
       catalogNo: '06',
     })
+    expect(COLLECTIONS_BY_KEY.funkos).toMatchObject({
+      label: 'Funko Pop',
+      nick: 'Funko',
+      to: '/figuras/funkopop',
+      accent: { spine: '#a02c4f', niche: '#c76584' },
+      catalogNo: '07',
+    })
+    expect(COLLECTIONS_BY_KEY.amiibos).toMatchObject({
+      label: 'Amiibo',
+      nick: 'Amiibo',
+      to: '/figuras/amiibo',
+      accent: { spine: '#2f6f8f', niche: '#5f9fbd' },
+      catalogNo: '07-B',
+    })
   })
 
   it('mapea claves front ↔ backend', () => {
     expect(toBackendCollectionKey('decks')).toBe('DECKS')
     expect(fromBackendCollectionKey('DECKS')).toBe('decks')
     expect(toBackendCollectionKey('movieshows')).toBe('MOVIESHOWS')
+    expect(toBackendCollectionKey('funkos')).toBe('FUNKOS')
+    expect(toBackendCollectionKey('amiibos')).toBe('AMIIBOS')
   })
 })

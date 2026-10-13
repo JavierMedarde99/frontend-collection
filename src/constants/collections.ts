@@ -1,4 +1,4 @@
-export type CollectionKey = 'books' | 'games' | 'magic' | 'decks' | 'boardgames' | 'movieshows'
+export type CollectionKey = 'books' | 'games' | 'magic' | 'decks' | 'boardgames' | 'movieshows' | 'funkos' | 'amiibos'
 
 export interface CollectionMeta {
   key: CollectionKey
@@ -19,6 +19,8 @@ export const COLLECTIONS: CollectionMeta[] = [
   { key: 'decks', label: 'Mazos', nick: 'Mazos', to: '/magic/mazos', accent: { spine: '#92600a', niche: '#b8862f' }, catalogNo: '04-B' },
   { key: 'boardgames', label: 'Juegos de mesa', nick: 'Mesa', to: '/boardgames', accent: { spine: '#6d4a2a', niche: '#a5783f' }, catalogNo: '05' },
   { key: 'movieshows', label: 'Películas y series', nick: 'Cine', to: '/movieshows', accent: { spine: '#77613a', niche: '#a08b52' }, catalogNo: '06' },
+  { key: 'funkos', label: 'Funko Pop', nick: 'Funko', to: '/figuras/funkopop', accent: { spine: '#a02c4f', niche: '#c76584' }, catalogNo: '07' },
+  { key: 'amiibos', label: 'Amiibo', nick: 'Amiibo', to: '/figuras/amiibo', accent: { spine: '#2f6f8f', niche: '#5f9fbd' }, catalogNo: '07-B' },
 ]
 
 export const COLLECTIONS_BY_KEY: Record<CollectionKey, CollectionMeta> = Object.fromEntries(
