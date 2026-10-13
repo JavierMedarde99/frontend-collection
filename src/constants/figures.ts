@@ -12,3 +12,11 @@ export const FIGURE_DOT_COLORS: Record<'OWNED' | 'WISHLIST', string> = {
   OWNED: 'bg-white',
   WISHLIST: 'bg-yellow-500',
 }
+
+export const AMIIBO_TYPE_LABELS: Record<'CARD' | 'FIGURE' | 'BAND' | 'YARN' | 'BLOCK', string> = {
+  CARD: 'Carta',
+  FIGURE: 'Figura',
+  BAND: 'Banda',
+  YARN: 'Lana',
+  BLOCK: 'Bloque',
+}
