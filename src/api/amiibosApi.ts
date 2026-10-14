@@ -41,6 +41,21 @@ export function createAmiibo(amiibo: AmiiboFormData): Promise<Amiibo> {
   }) as Promise<Amiibo>
 }
 
+export function getAmiibo(id: string): Promise<Amiibo> {
+  return request<Amiibo>(`${apiUrl(BASE_URL)}/${id}`) as Promise<Amiibo>
+}
+
+export function updateAmiibo(id: string, amiibo: AmiiboFormData): Promise<Amiibo> {
+  return request<Amiibo>(`${apiUrl(BASE_URL)}/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(amiibo),
+  }) as Promise<Amiibo>
+}
+
+export function deleteAmiibo(id: string): Promise<null> {
+  return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
+}
+
 // El /search de Amiibo devuelve un Page crudo de Spring (sin envoltorio `results`).
 export function searchAmiibosPage(name: string, page = 0, size = 10): Promise<PageAmiiboSearchResult> {
   const qs = new URLSearchParams({ name, page: String(page), size: String(size) })

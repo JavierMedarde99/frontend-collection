@@ -54,10 +54,16 @@ describe('AmiiboSearch', () => {
     expect(mockedSearch).not.toHaveBeenCalled()
   })
 
+  it('muestra un aviso de que la búsqueda es por nombre, no por serie', () => {
+    renderSearch()
+
+    expect(screen.getByText(/no por serie de juego/i)).toBeInTheDocument()
+  })
+
   it('con consulta no vacía busca y pinta resultados', async () => {
     const user = userEvent.setup()
     renderSearch()
-    await user.type(screen.getByPlaceholderText('Buscar por nombre…'), 'Mario')
+    await user.type(screen.getByLabelText('Buscar por nombre'), 'Mario')
     await user.click(screen.getByRole('button', { name: 'Buscar' }))
 
     expect(await screen.findByText('Mario')).toBeInTheDocument()
@@ -67,7 +73,7 @@ describe('AmiiboSearch', () => {
   it('elegir y confirmar llama a createAmiibo con el externalId del resultado y navega', async () => {
     const user = userEvent.setup()
     renderSearch()
-    await user.type(screen.getByPlaceholderText('Buscar por nombre…'), 'Mario')
+    await user.type(screen.getByLabelText('Buscar por nombre'), 'Mario')
     await user.click(screen.getByRole('button', { name: 'Buscar' }))
     await user.click(await screen.findByRole('button', { name: 'Añadir a mi colección' }))
 

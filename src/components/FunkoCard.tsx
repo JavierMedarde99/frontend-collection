@@ -1,14 +1,18 @@
+import { Link } from 'react-router-dom'
 import OwnerLine from './OwnerLine'
 import FigureStatusBadge from './FigureStatusBadge'
+import CardMenu from './CardMenu'
 import type { Funko } from '../types'
 
 interface FunkoCardProps {
   funko: Funko
   index?: number
   readOnly?: boolean
+  onDelete?: () => Promise<void>
 }
 
-export default function FunkoCard({ funko, index = 0, readOnly = false }: FunkoCardProps) {
+export default function FunkoCard({ funko, index = 0, readOnly = false, onDelete }: FunkoCardProps) {
+  const detailTo = `/figuras/funkopop/${funko.id}`
   const collection = [funko.series, funko.number].filter(Boolean).join(' · ')
   const details = [
     funko.releaseYear ? `${funko.releaseYear}` : null,
@@ -22,18 +26,23 @@ export default function FunkoCard({ funko, index = 0, readOnly = false }: FunkoC
       className="card card-hover animate-fade-up relative flex flex-col gap-5 group"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
+      {!readOnly && onDelete && (
+        <div className="absolute top-3 right-3">
+          <CardMenu detailTo={detailTo} editTo={`${detailTo}/editar`} itemName={funko.name} onDelete={onDelete} />
+        </div>
+      )}
       <div className="flex gap-5">
         {funko.imageUrl ? (
-          <div className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper">
+          <Link to={detailTo} className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper block">
             <img
               src={funko.imageUrl}
               alt={funko.name}
               loading="lazy"
               className="w-28 h-36 object-cover transition-transform duration-300 group-hover:scale-[1.05]"
             />
-          </div>
+          </Link>
         ) : (
-          <div className="w-28 h-36 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex flex-col items-center justify-center gap-1.5 text-caption text-graphite">
+          <Link to={detailTo} className="w-28 h-36 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex flex-col items-center justify-center gap-1.5 text-caption text-graphite">
             <svg
               aria-hidden="true"
               className="w-8 h-8 text-brand"
@@ -49,10 +58,14 @@ export default function FunkoCard({ funko, index = 0, readOnly = false }: FunkoC
               />
             </svg>
             <span>Sin imagen</span>
-          </div>
+          </Link>
         )}
         <div className="min-w-0 flex-1 flex flex-col">
-          <h3 className="font-display text-heading-sm leading-snug line-clamp-2 text-ink">{funko.name}</h3>
+          <h3 className="font-display text-heading-sm leading-snug line-clamp-2 text-ink">
+            <Link to={detailTo} className="hover:text-brand transition-colors">
+              {funko.name}
+            </Link>
+          </h3>
           {readOnly && <OwnerLine owner={funko.userOwned} />}
           <p className="text-body-sm text-graphite mt-1 line-clamp-1">{collection || 'Funko Pop'}</p>
           <div className="mt-3 flex flex-wrap items-center gap-2">

@@ -17,7 +17,7 @@ function funkoWith(overrides: Partial<Funko> = {}): Funko {
   }
 }
 
-function renderCard(funko: Funko, props: { readOnly?: boolean } = {}) {
+function renderCard(funko: Funko, props: { readOnly?: boolean; onDelete?: () => Promise<void> } = {}) {
   return render(
     <MemoryRouter>
       <FunkoCard funko={funko} {...props} />
@@ -61,5 +61,27 @@ describe('FunkoCard', () => {
     renderCard(funkoWith(), { readOnly: true })
     expect(screen.getByText('Spider-Man')).toBeInTheDocument()
     expect(screen.getByText('En propiedad')).toBeInTheDocument()
+  })
+
+  it('enlaza la tarjeta al detalle de la pieza', () => {
+    renderCard(funkoWith())
+
+    const links = screen.getAllByRole('link', { name: 'Spider-Man' })
+    expect(links.length).toBeGreaterThan(0)
+    for (const link of links) {
+      expect(link).toHaveAttribute('href', '/figuras/funkopop/f1')
+    }
+  })
+
+  it('muestra el menú de acciones cuando es editable y hay onDelete', () => {
+    renderCard(funkoWith(), { onDelete: async () => {} })
+
+    expect(screen.getByLabelText('Acciones para Spider-Man')).toBeInTheDocument()
+  })
+
+  it('no muestra el menú de acciones en modo solo lectura', () => {
+    renderCard(funkoWith({ userOwned: { username: 'otro' } }), { readOnly: true, onDelete: async () => {} })
+
+    expect(screen.queryByLabelText('Acciones para Spider-Man')).toBeNull()
   })
 })

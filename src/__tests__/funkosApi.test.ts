@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createFunko, listFunkoCategories, listFunkos, searchFunkosPage } from '../api/funkosApi'
+import { createFunko, deleteFunko, getFunko, listFunkoCategories, listFunkos, searchFunkosPage, updateFunko } from '../api/funkosApi'
 import { setStoredAccessToken } from '../api/authStore'
 import { FunkoStatus } from '../types'
 
@@ -181,5 +181,76 @@ describe('funkosApi errores HTTP', () => {
       status: 401,
       message: 'No autorizado',
     })
+  })
+})
+
+describe('funkosApi getFunko', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('pide /api/v1/funkos/{id} y devuelve el Funko', async () => {
+    const funko = { id: 'f1', externalId: 'ext-1', name: 'Batman', status: 'OWNED' }
+    const fetchSpy = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) => jsonResponse(funko))
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const result = await getFunko('f1')
+
+    const [url, init] = fetchSpy.mock.calls[0]!
+    expect(new URL(String(url)).pathname).toBe('/api/v1/funkos/f1')
+    expect(init?.method ?? 'GET').toBe('GET')
+    expect(result).toEqual(funko)
+  })
+})
+
+describe('funkosApi updateFunko', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('hace PUT a /api/v1/funkos/{id} con el cuerpo JSON y devuelve el Funko', async () => {
+    const updated = { id: 'f1', externalId: 'ext-1', name: 'Batman', status: 'OWNED' }
+    const fetchSpy = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) => jsonResponse(updated))
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const payload = { externalId: 'ext-1', name: 'Batman', status: FunkoStatus.OWNED }
+    const result = await updateFunko('f1', payload)
+
+    const [url, init] = fetchSpy.mock.calls[0]!
+    expect(new URL(String(url)).pathname).toBe('/api/v1/funkos/f1')
+    expect(init?.method).toBe('PUT')
+    expect(JSON.parse(String(init?.body))).toEqual(payload)
+    expect((init?.headers as Record<string, string>)['Content-Type']).toBe('application/json')
+    expect(result).toEqual(updated)
+  })
+})
+
+describe('funkosApi deleteFunko', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('hace DELETE a /api/v1/funkos/{id} y tolera el 204 sin cuerpo', async () => {
+    const fetchSpy = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) => jsonResponse(null, 204))
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const result = await deleteFunko('f1')
+
+    const [url, init] = fetchSpy.mock.calls[0]!
+    expect(new URL(String(url)).pathname).toBe('/api/v1/funkos/f1')
+    expect(init?.method).toBe('DELETE')
+    expect(result).toBeNull()
   })
 })
