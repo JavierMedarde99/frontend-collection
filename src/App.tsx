@@ -24,6 +24,11 @@ import MovieShowListPage from './pages/MovieShowListPage'
 import MovieShowCreatePage from './pages/MovieShowCreatePage'
 import MovieShowDetailPage from './pages/MovieShowDetailPage'
 import MovieShowEditPage from './pages/MovieShowEditPage'
+import FiguresPage from './pages/FiguresPage'
+import FunkoListPage from './pages/FunkoListPage'
+import FunkoCreatePage from './pages/FunkoCreatePage'
+import AmiiboListPage from './pages/AmiiboListPage'
+import AmiiboCreatePage from './pages/AmiiboCreatePage'
 import DeckListPage from './pages/DeckListPage'
 import DeckCreatePage from './pages/DeckCreatePage'
 import DeckDetailPage from './pages/DeckDetailPage'
@@ -86,6 +91,11 @@ const router = createBrowserRouter([
       { path: '/movieshows/nuevo', element: <ProtectedRoute><MovieShowCreatePage /></ProtectedRoute> },
       { path: '/movieshows/editar/:id', element: <ProtectedRoute><MovieShowEditPage /></ProtectedRoute> },
       { path: '/movieshows/:id', element: <MovieShowDetailPage /> },
+      { path: '/figuras', element: <FiguresPage /> },
+      { path: '/figuras/funkopop', element: <FunkoListPage /> },
+      { path: '/figuras/funkopop/nuevo', element: <ProtectedRoute><FunkoCreatePage /></ProtectedRoute> },
+      { path: '/figuras/amiibo', element: <AmiiboListPage /> },
+      { path: '/figuras/amiibo/nuevo', element: <ProtectedRoute><AmiiboCreatePage /></ProtectedRoute> },
     ],
   },
 ])

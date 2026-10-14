@@ -1,4 +1,4 @@
-export type CollectionType = 'books' | 'games' | 'magic' | 'decks' | 'boardgames' | 'movieshows'
+export type CollectionType = 'books' | 'games' | 'magic' | 'decks' | 'boardgames' | 'movieshows' | 'amiibos' | 'funkos'
 
 export type CollectionVisibility = 'PUBLIC' | 'PRIVATE'
 

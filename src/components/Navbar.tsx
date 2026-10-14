@@ -6,18 +6,24 @@ import { toBackendCollectionKey, COLLECTIONS_BY_KEY, type CollectionKey } from '
 import ExportButton from './ExportButton'
 import ThemeToggle from './ThemeToggle'
 
-const links: { to: string; label: string; end: boolean; collection?: string }[] = [
+const links: { to: string; label: string; end: boolean; collection?: string; figures?: boolean }[] = [
   { to: '/', label: 'Inicio', end: true },
   { to: '/coleccion', label: 'Libros', end: false, collection: 'books' },
   { to: '/juegos', label: 'Videojuegos', end: false, collection: 'games' },
   { to: '/magic', label: 'Magic', end: false, collection: 'magic' },
   { to: '/boardgames', label: 'Juegos de Mesa', end: false, collection: 'boardgames' },
   { to: '/movieshows', label: 'Películas', end: false, collection: 'movieshows' },
+  { to: '/figuras', label: 'Figuras', end: false, figures: true },
 ]
 
 const magicLinks: { to: string; label: string; end: boolean; collection?: string }[] = [
   { to: '/magic', label: 'Cartas', end: true, collection: 'magic' },
   { to: '/magic/mazos', label: 'Mazos', end: false, collection: 'decks' },
+]
+
+const figuresLinks: { to: string; label: string; end: boolean; collection?: string }[] = [
+  { to: '/figuras/funkopop', label: 'Funko Pop', end: true, collection: 'funkos' },
+  { to: '/figuras/amiibo', label: 'Amiibo', end: false, collection: 'amiibos' },
 ]
 
 function NavAvatar({ user, initial }: { user: UserResponse | null; initial: string }) {
@@ -48,8 +54,11 @@ export default function Navbar() {
     if (!collection || !isAuthenticated) return true
     return activeCollections.includes(toBackendCollectionKey(collection))
   }
-  const visibleLinks = links.filter((link) => collectionVisible(link.collection))
+  // Figuras agrupa dos colecciones (funkos/amiibos): visible si cualquiera está activa.
+  const figuresVisible = !isAuthenticated || activeCollections.includes('FUNKOS') || activeCollections.includes('AMIIBOS')
+  const visibleLinks = links.filter((link) => (link.figures ? figuresVisible : collectionVisible(link.collection)))
   const visibleMagicLinks = magicLinks.filter((link) => collectionVisible(link.collection))
+  const visibleFiguresLinks = figuresLinks.filter((link) => collectionVisible(link.collection))
   const [menuOpen, setMenuOpen] = useState(false)
 
   const displayName = user?.displayName || user?.username || ''
@@ -75,6 +84,7 @@ export default function Navbar() {
   }, [menuOpen])
 
   const inMagic = location.pathname.startsWith('/magic')
+  const inFigures = location.pathname.startsWith('/figuras')
 
   return (
     <header className="sticky top-0 z-10 bg-navbar-gradient border-b border-silver/70 shadow-sm-4">
@@ -311,6 +321,31 @@ export default function Navbar() {
                 ))}
               </li>
             )}
+            {inFigures && (
+              <li className="flex items-center gap-2 pl-4 pt-1" aria-label="Sub-apartados de Figuras">
+                {visibleFiguresLinks.map((link) => (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    end={link.end}
+                    style={({ isActive }) =>
+                      isActive && link.collection
+                        ? ({ '--sc': COLLECTIONS_BY_KEY[link.collection as CollectionKey].accent.spine } as CSSProperties)
+                        : undefined
+                    }
+                    className={({ isActive }) =>
+                      `nb-lk text-body-sm px-3.5 py-1.5 rounded-full font-medium transition-all duration-200 ${
+                        isActive
+                          ? 'on bg-brand-soft font-semibold'
+                          : 'text-graphite hover:text-brand hover:bg-brand-soft'
+                      }`
+                    }
+                  >
+                    {link.label}
+                  </NavLink>
+                ))}
+              </li>
+            )}
           </ul>
         </nav>
       )}
@@ -318,6 +353,33 @@ export default function Navbar() {
         <nav aria-label="Sub-apartados de Magic" className="hidden lg:block border-t border-silver/70 bg-cream/60">
           <div className="px-5 md:px-20 py-2 flex items-center gap-1">
             {visibleMagicLinks.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.end}
+                style={({ isActive }) =>
+                  isActive && link.collection
+                    ? ({ '--sc': COLLECTIONS_BY_KEY[link.collection as CollectionKey].accent.spine } as CSSProperties)
+                    : undefined
+                }
+                className={({ isActive }) =>
+                  `nb-lk text-body-sm px-3 py-1 font-medium transition-all duration-200 ${
+                    isActive
+                      ? 'on'
+                      : 'text-graphite hover:text-brand hover:bg-brand-soft'
+                  }`
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </div>
+        </nav>
+      )}
+      {inFigures && (
+        <nav aria-label="Sub-apartados de Figuras" className="hidden lg:block border-t border-silver/70 bg-cream/60">
+          <div className="px-5 md:px-20 py-2 flex items-center gap-1">
+            {visibleFiguresLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
