@@ -112,6 +112,10 @@ export default function AmiiboDetailPage() {
       ? [{ label: 'Juegos compatibles', value: amiibo.compatibleGames.join(', ') }]
       : []),
     ...(amiibo.dateAdded ? [{ label: 'En la colección desde', value: amiibo.dateAdded }] : []),
+    ...(amiibo.acquisitionDate ? [{ label: 'Fecha de obtención', value: amiibo.acquisitionDate }] : []),
+    ...(amiibo.acquisitionPrice !== undefined && amiibo.acquisitionPrice !== null
+      ? [{ label: 'Precio de adquisición', value: `${amiibo.acquisitionPrice} €` }]
+      : []),
   ]
 
   const metaItems: MetaItem[] = [...details]

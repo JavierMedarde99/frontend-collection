@@ -10,6 +10,7 @@ import ErrorBanner from './ErrorBanner'
 import SearchField from './SearchField'
 import SkeletonInline from './SkeletonInline'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
+import { todayIso, missingRequiredDate } from '../utils/dates'
 
 const MIN_QUERY_LENGTH = 2
 
@@ -57,6 +58,10 @@ export default function FunkoSearch() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [modalStatus, setModalStatus] = useState<FunkoStatus>(FunkoStatus.OWNED)
   const [modalNotes, setModalNotes] = useState('')
+  const [modalAcquisitionDate, setModalAcquisitionDate] = useState('')
+  const [modalAcquisitionPrice, setModalAcquisitionPrice] = useState('')
+
+  const showAcquisition = modalStatus !== FunkoStatus.WISHLIST
 
   function handleSearch(e: FormEvent) {
     e.preventDefault()
@@ -75,17 +80,30 @@ export default function FunkoSearch() {
     setSubmitError(null)
     setModalStatus(FunkoStatus.OWNED)
     setModalNotes('')
+    setModalAcquisitionDate(todayIso())
+    setModalAcquisitionPrice('')
   }
 
   async function handleConfirm() {
     if (!selected) return
     setSubmitError(null)
+    if (showAcquisition) {
+      const dateError = missingRequiredDate(modalAcquisitionDate, 'La fecha de obtención')
+      if (dateError) {
+        setSubmitError(dateError)
+        return
+      }
+    }
     setSaving(selected.externalId)
     try {
       await createFunko({
         ...mapResultToFunko(selected),
         status: modalStatus,
         notes: modalNotes.trim() || undefined,
+        ...(showAcquisition && modalAcquisitionDate ? { acquisitionDate: modalAcquisitionDate } : {}),
+        ...(showAcquisition && modalAcquisitionPrice !== ''
+          ? { acquisitionPrice: Number(modalAcquisitionPrice) }
+          : {}),
       })
       setSelected(null)
       navigate('/figuras/funkopop')
@@ -189,6 +207,35 @@ export default function FunkoSearch() {
                   ))}
                 </select>
               </div>
+
+              {showAcquisition && (
+                <>
+                  <div>
+                    <label className="label">
+                      Fecha de obtención <span className="text-brand">*</span>
+                    </label>
+                    <input
+                      className="input"
+                      type="date"
+                      value={modalAcquisitionDate}
+                      onChange={(e) => setModalAcquisitionDate(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label">Precio de adquisición</label>
+                    <input
+                      className="input"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={modalAcquisitionPrice}
+                      onChange={(e) => setModalAcquisitionPrice(e.target.value)}
+                      placeholder="24.99"
+                    />
+                  </div>
+                </>
+              )}
 
               <div>
                 <label className="label">Notas</label>

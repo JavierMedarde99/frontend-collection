@@ -31,6 +31,7 @@ function amiiboWith(overrides: Partial<Amiibo> = {}): Amiibo {
     amiiboSeries: 'Super Smash Bros.',
     gameSeries: 'Super Mario',
     status: AmiiboStatus.OWNED,
+    acquisitionDate: '2024-05-01',
     ...overrides,
   }
 }
@@ -57,6 +58,18 @@ describe('AmiiboEditPage', () => {
 
     expect(await screen.findByDisplayValue('Mario')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Mario Bros.')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('2024-05-01')).toBeInTheDocument()
+  })
+
+  it('exige la fecha de obtención cuando la pieza está en propiedad', async () => {
+    mockedGet.mockResolvedValue(amiiboWith({ acquisitionDate: undefined }))
+    renderEdit()
+
+    await screen.findByDisplayValue('Mario')
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('La fecha de obtención es obligatoria.')
+    expect(mockedUpdate).not.toHaveBeenCalled()
   })
 
   it('guarda los cambios y vuelve a la lista', async () => {
@@ -68,7 +81,10 @@ describe('AmiiboEditPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }))
 
     await waitFor(() =>
-      expect(mockedUpdate).toHaveBeenCalledWith('a1', expect.objectContaining({ name: 'Mario' })),
+      expect(mockedUpdate).toHaveBeenCalledWith(
+        'a1',
+        expect.objectContaining({ name: 'Mario', acquisitionDate: '2024-05-01' }),
+      ),
     )
     expect(await screen.findByText('Lista Amiibo')).toBeInTheDocument()
   })

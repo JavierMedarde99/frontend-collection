@@ -28,6 +28,8 @@ function funkoWith(overrides: Partial<Funko> = {}): Funko {
     series: 'Marvel',
     number: '123',
     status: FunkoStatus.OWNED,
+    acquisitionDate: '2024-05-01',
+    acquisitionPrice: 24.99,
     userOwned: { username: 'javi', ownerName: 'javi' },
     ...overrides,
   }
@@ -56,6 +58,17 @@ describe('FunkoDetailPage', () => {
     expect(await screen.findByRole('heading', { name: 'Spider-Man' })).toBeInTheDocument()
     expect(screen.getByText('Marvel')).toBeInTheDocument()
     expect(screen.getByText('123')).toBeInTheDocument()
+  })
+
+  it('muestra la fecha y el precio de adquisición', async () => {
+    mockedGet.mockResolvedValue(funkoWith())
+    renderDetail()
+
+    expect(await screen.findByRole('heading', { name: 'Spider-Man' })).toBeInTheDocument()
+    expect(screen.getByText('Fecha de obtención')).toBeInTheDocument()
+    expect(screen.getByText('2024-05-01')).toBeInTheDocument()
+    expect(screen.getByText('Precio de adquisición')).toBeInTheDocument()
+    expect(screen.getByText('24.99 €')).toBeInTheDocument()
   })
 
   it('ofrece Editar y Eliminar cuando es tu pieza', async () => {

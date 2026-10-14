@@ -29,6 +29,8 @@ function amiiboWith(overrides: Partial<Amiibo> = {}): Amiibo {
     amiiboSeries: 'Super Smash Bros.',
     gameSeries: 'Super Mario',
     status: AmiiboStatus.OWNED,
+    acquisitionDate: '2024-05-01',
+    acquisitionPrice: 14.5,
     userOwned: { username: 'javi', ownerName: 'javi' },
     ...overrides,
   }
@@ -57,6 +59,17 @@ describe('AmiiboDetailPage', () => {
     expect(await screen.findByRole('heading', { name: 'Mario' })).toBeInTheDocument()
     expect(screen.getByText('Super Smash Bros.')).toBeInTheDocument()
     expect(screen.getByText('Super Mario')).toBeInTheDocument()
+  })
+
+  it('muestra la fecha y el precio de adquisición', async () => {
+    mockedGet.mockResolvedValue(amiiboWith())
+    renderDetail()
+
+    expect(await screen.findByRole('heading', { name: 'Mario' })).toBeInTheDocument()
+    expect(screen.getByText('Fecha de obtención')).toBeInTheDocument()
+    expect(screen.getByText('2024-05-01')).toBeInTheDocument()
+    expect(screen.getByText('Precio de adquisición')).toBeInTheDocument()
+    expect(screen.getByText('14.5 €')).toBeInTheDocument()
   })
 
   it('ofrece Editar y Eliminar cuando es tu pieza', async () => {
