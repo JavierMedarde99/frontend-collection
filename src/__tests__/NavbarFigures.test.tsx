@@ -19,7 +19,7 @@ import { useAuth } from '../context/AuthContext'
 
 const mockedUseAuth = vi.mocked(useAuth)
 
-function stubAuth(activeCollections: string[], isAuthenticated = true) {
+function stubAuth(activeCollections: string[], isAuthenticated = true, preferences: unknown = null) {
   mockedUseAuth.mockReturnValue({
     user: isAuthenticated ? { id: 'u1', username: 'javi', email: 'j@t.com' } : null,
     accessToken: isAuthenticated ? 'a' : null,
@@ -29,7 +29,7 @@ function stubAuth(activeCollections: string[], isAuthenticated = true) {
     register: vi.fn(),
     logout: vi.fn(),
     activeCollections,
-    preferences: null,
+    preferences,
     refreshActiveCollections: vi.fn(),
     refreshPreferences: vi.fn(),
   } as any)
@@ -79,5 +79,39 @@ describe('NavbarFigures', () => {
     expect(screen.getByText('Figuras')).toBeInTheDocument()
     expect(screen.getByText('Funko Pop')).toBeInTheDocument()
     expect(screen.getByText('Amiibo')).toBeInTheDocument()
+  })
+
+  it('muestra Figuras a un usuario antiguo cuyas preferencias no incluyen funkos/amiibos', () => {
+    // Usuario registrado antes de que existieran Funko/Amiibo: la lista de activas
+    // (derivada del mapa guardado) no trae las claves nuevas, pero tampoco están
+    // desactivadas, así que se consideran activas por defecto.
+    stubAuth(
+      ['BOOKS', 'GAMES', 'MAGIC', 'DECKS', 'BOARDGAMES', 'MOVIESHOWS'],
+      true,
+      {
+        activeCollections: {
+          books: true,
+          games: true,
+          magic: true,
+          decks: true,
+          boardgames: true,
+          movieshows: true,
+        },
+        collectionVisibility: {},
+      },
+    )
+    renderNavbar('/')
+
+    expect(screen.getByText('Figuras')).toBeInTheDocument()
+  })
+
+  it('oculta Figuras si el usuario las ha desactivado explícitamente', () => {
+    stubAuth(['BOOKS'], true, {
+      activeCollections: { books: true, funkos: false, amiibos: false },
+      collectionVisibility: {},
+    })
+    renderNavbar('/')
+
+    expect(screen.queryByText('Figuras')).not.toBeInTheDocument()
   })
 })

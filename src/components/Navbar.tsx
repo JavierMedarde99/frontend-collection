@@ -47,15 +47,21 @@ function NavAvatar({ user, initial }: { user: UserResponse | null; initial: stri
 export default function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, isAuthenticated, logout, activeCollections } = useAuth()
+  const { user, isAuthenticated, logout, activeCollections, preferences } = useAuth()
 
-  // Anónimo o sin preferencias: todo visible.
+  // El mapa de preferencias es la fuente fiable para saber si una colección está activa:
+  // una clave ausente se considera activa por defecto (igual que el backend en
+  // `isCollectionActive` y que el panel de Preferencias). La lista `/active-collections`
+  // no basta como única fuente: en usuarios dados de alta antes de que existiera una
+  // colección, su mapa guardado no incluye la clave nueva y la lista la omite.
   function collectionVisible(collection?: string): boolean {
     if (!collection || !isAuthenticated) return true
+    const stored = preferences?.activeCollections
+    if (stored) return stored[collection] !== false
     return activeCollections.includes(toBackendCollectionKey(collection))
   }
   // Figuras agrupa dos colecciones (funkos/amiibos): visible si cualquiera está activa.
-  const figuresVisible = !isAuthenticated || activeCollections.includes('FUNKOS') || activeCollections.includes('AMIIBOS')
+  const figuresVisible = !isAuthenticated || collectionVisible('funkos') || collectionVisible('amiibos')
   const visibleLinks = links.filter((link) => (link.figures ? figuresVisible : collectionVisible(link.collection)))
   const visibleMagicLinks = magicLinks.filter((link) => collectionVisible(link.collection))
   const visibleFiguresLinks = figuresLinks.filter((link) => collectionVisible(link.collection))
