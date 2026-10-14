@@ -6,7 +6,16 @@ import { getGlobalStats } from '../api/statsApi'
 
 vi.mock('../api/statsApi', () => ({
   getGlobalStats: vi.fn(async () => ({
-    collections: { books: 7, games: 3, magic: 5, decks: 2, boardgames: 4, movieshows: 6 },
+    collections: {
+      books: 7,
+      games: 3,
+      magic: 5,
+      decks: 2,
+      boardgames: 4,
+      movieshows: 6,
+      funkos: 4,
+      amiibos: 2,
+    },
   })),
 }))
 
@@ -52,7 +61,7 @@ describe('HomePage', () => {
     ).toBeInTheDocument()
     expect(screen.getByText('Tu gabinete de curiosidades')).toBeInTheDocument()
     expect(screen.getByRole('img', { name: /Vitrina de curiosidades/ })).toBeInTheDocument()
-    for (const nick of ['Libros', 'Videojuegos', 'Magic', 'Mazos', 'Mesa', 'Cine']) {
+    for (const nick of ['Libros', 'Videojuegos', 'Magic', 'Mazos', 'Mesa', 'Cine', 'Figuras']) {
       expect(screen.getAllByText(nick).length).toBeGreaterThan(0)
     }
   })
@@ -70,6 +79,30 @@ describe('HomePage', () => {
 
     expect(await screen.findByText(/elementos guardados/)).toBeInTheDocument()
     expect(await within(spineAnchor('Libros')).findByText('7')).toBeInTheDocument()
+  })
+
+  it('muestra la colección de Figuras con el total de Funko + Amiibo', async () => {
+    renderHome()
+
+    expect(await screen.findByText(/elementos guardados/)).toBeInTheDocument()
+    expect(spineAnchor('Figuras').getAttribute('href')).toBe('/figuras')
+    expect(await within(spineAnchor('Figuras')).findByText('6')).toBeInTheDocument()
+  })
+
+  it('muestra Figuras si Funko o Amiibo están activas', async () => {
+    mockAuth = { isAuthenticated: true, activeCollections: ['FUNKOS'] }
+    renderHome()
+
+    expect(await screen.findByText(/elementos guardados/)).toBeInTheDocument()
+    expect(spineAnchor('Figuras')).toBeTruthy()
+  })
+
+  it('oculta Figuras si ni Funko ni Amiibo están activas', async () => {
+    mockAuth = { isAuthenticated: true, activeCollections: ['BOOKS'] }
+    renderHome()
+
+    expect(await screen.findByText(/elementos guardados/)).toBeInTheDocument()
+    expect(screen.queryByText('Figuras')).not.toBeInTheDocument()
   })
 
   it('si la API falla, sigue mostrando la vitrina con cifras a cero', async () => {
