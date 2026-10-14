@@ -7,7 +7,7 @@ import FormSection from './FormSection'
 import ImageUpload from './ImageUpload'
 import ConfirmDialog from './ConfirmDialog'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
-import { todayIso } from '../utils/dates'
+import { todayIso, missingRequiredDate } from '../utils/dates'
 
 interface FieldProps {
   label: string
@@ -26,8 +26,8 @@ function Field({ label, children, required }: FieldProps) {
   )
 }
 
-function toNumberInput(value?: number): string {
-  return value === undefined || value === null ? '' : String(value)
+function toNumberInput(value?: number | ''): string {
+  return value === undefined || value === null || value === '' ? '' : String(value)
 }
 
 function fromNumberInput(value: string): number | undefined {
@@ -60,6 +60,12 @@ export default function FunkoForm({ initial = {}, submitLabel, onSubmit, error, 
   const [notes, setNotes] = useState(initial.notes || '')
   // La fecha de adición es opcional; al crear se propone hoy.
   const [dateAdded, setDateAdded] = useState(initial.dateAdded || (isCreate ? todayIso() : ''))
+  // La adquisición solo tiene sentido cuando la pieza está en posesión; al crear
+  // se propone hoy, al editar NO se inventa (si faltaba, el usuario debe ponerla).
+  const [acquisitionDate, setAcquisitionDate] = useState(
+    initial.acquisitionDate || (isCreate ? todayIso() : ''),
+  )
+  const [acquisitionPrice, setAcquisitionPrice] = useState(toNumberInput(initial.acquisitionPrice))
   const [submitting, setSubmitting] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
@@ -71,12 +77,20 @@ export default function FunkoForm({ initial = {}, submitLabel, onSubmit, error, 
       setter(e.target.value)
     }
 
+  // En la lista de deseos la pieza aún no se tiene: no hay fecha ni precio de
+  // adquisición que rellenar.
+  const showAcquisition = status !== FunkoStatus.WISHLIST
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setLocalError(null)
 
     if (!name.trim()) return setLocalError('El nombre es obligatorio.')
     if (!status) return setLocalError('El estado es obligatorio.')
+    if (showAcquisition) {
+      const dateError = missingRequiredDate(acquisitionDate, 'La fecha de obtención')
+      if (dateError) return setLocalError(dateError)
+    }
 
     const payload: FunkoFormData = {
       // El backend exige externalId: si viene del catálogo se conserva,
@@ -96,6 +110,8 @@ export default function FunkoForm({ initial = {}, submitLabel, onSubmit, error, 
       imageUrl: imageUrl.trim() || undefined,
       notes: notes.trim() || undefined,
       dateAdded: dateAdded || undefined,
+      ...(showAcquisition && acquisitionDate ? { acquisitionDate } : {}),
+      ...(showAcquisition && acquisitionPrice !== '' ? { acquisitionPrice: Number(acquisitionPrice) } : {}),
       // Datos venidos del catálogo: se conservan sin mostrarse en el formulario.
       ...(initial.externalSource ? { externalSource: initial.externalSource } : {}),
     }
@@ -174,6 +190,27 @@ export default function FunkoForm({ initial = {}, submitLabel, onSubmit, error, 
           </div>
         </div>
       </FormSection>
+
+      {showAcquisition && (
+        <FormSection title="Adquisición">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Field label="Fecha de obtención" required>
+              <input className="input" type="date" value={acquisitionDate} onChange={set(setAcquisitionDate)} />
+            </Field>
+            <Field label="Precio de adquisición">
+              <input
+                className="input"
+                type="number"
+                min="0"
+                step="0.01"
+                value={acquisitionPrice}
+                onChange={set(setAcquisitionPrice)}
+                placeholder="24.99"
+              />
+            </Field>
+          </div>
+        </FormSection>
+      )}
 
       <FormSection title="Imagen">
         <ImageUpload

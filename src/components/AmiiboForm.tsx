@@ -7,7 +7,7 @@ import FormSection from './FormSection'
 import ImageUpload from './ImageUpload'
 import ConfirmDialog from './ConfirmDialog'
 import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
-import { todayIso } from '../utils/dates'
+import { todayIso, missingRequiredDate } from '../utils/dates'
 
 interface FieldProps {
   label: string
@@ -59,6 +59,16 @@ export default function AmiiboForm({ initial = {}, submitLabel, onSubmit, error,
   const [notes, setNotes] = useState(initial.notes || '')
   // La fecha de adición es opcional; al crear se propone hoy.
   const [dateAdded, setDateAdded] = useState(initial.dateAdded || (isCreate ? todayIso() : ''))
+  // La adquisición solo tiene sentido cuando el Amiibo está en posesión; al crear
+  // se propone hoy, al editar NO se inventa (si faltaba, el usuario debe ponerla).
+  const [acquisitionDate, setAcquisitionDate] = useState(
+    initial.acquisitionDate || (isCreate ? todayIso() : ''),
+  )
+  const [acquisitionPrice, setAcquisitionPrice] = useState(
+    initial.acquisitionPrice === undefined || initial.acquisitionPrice === ''
+      ? ''
+      : String(initial.acquisitionPrice),
+  )
   const [submitting, setSubmitting] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
@@ -70,12 +80,20 @@ export default function AmiiboForm({ initial = {}, submitLabel, onSubmit, error,
       setter(e.target.value)
     }
 
+  // En la lista de deseos el Amiibo aún no se tiene: no hay fecha ni precio de
+  // adquisición que rellenar.
+  const showAcquisition = status !== AmiiboStatus.WISHLIST
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setLocalError(null)
 
     if (!name.trim()) return setLocalError('El nombre es obligatorio.')
     if (!status) return setLocalError('El estado es obligatorio.')
+    if (showAcquisition) {
+      const dateError = missingRequiredDate(acquisitionDate, 'La fecha de obtención')
+      if (dateError) return setLocalError(dateError)
+    }
 
     const releases: AmiiboReleaseDates = {
       au: releaseAu || undefined,
@@ -100,6 +118,8 @@ export default function AmiiboForm({ initial = {}, submitLabel, onSubmit, error,
       compatibleGames: fromCSV(compatibleGames),
       notes: notes.trim() || undefined,
       dateAdded: dateAdded || undefined,
+      ...(showAcquisition && acquisitionDate ? { acquisitionDate } : {}),
+      ...(showAcquisition && acquisitionPrice !== '' ? { acquisitionPrice: Number(acquisitionPrice) } : {}),
       // Datos venidos del catálogo: se conservan sin mostrarse en el formulario.
       ...(initial.externalSource ? { externalSource: initial.externalSource } : {}),
     }
@@ -160,6 +180,27 @@ export default function AmiiboForm({ initial = {}, submitLabel, onSubmit, error,
           </Field>
         </div>
       </FormSection>
+
+      {showAcquisition && (
+        <FormSection title="Adquisición">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Field label="Fecha de obtención" required>
+              <input className="input" type="date" value={acquisitionDate} onChange={set(setAcquisitionDate)} />
+            </Field>
+            <Field label="Precio de adquisición">
+              <input
+                className="input"
+                type="number"
+                min="0"
+                step="0.01"
+                value={acquisitionPrice}
+                onChange={set(setAcquisitionPrice)}
+                placeholder="14.99"
+              />
+            </Field>
+          </div>
+        </FormSection>
+      )}
 
       <FormSection title="Fechas de lanzamiento">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">

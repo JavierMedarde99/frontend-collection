@@ -82,7 +82,11 @@ describe('AmiiboSearch', () => {
 
     await waitFor(() =>
       expect(mockedCreate).toHaveBeenCalledWith(
-        expect.objectContaining({ externalId: 'amiibo-1', name: 'Mario' }),
+        expect.objectContaining({
+          externalId: 'amiibo-1',
+          name: 'Mario',
+          acquisitionDate: expect.any(String),
+        }),
       ),
     )
     expect(await screen.findByText('Listado Amiibo')).toBeInTheDocument()

@@ -22,6 +22,10 @@ export interface Funko {
   status: FunkoStatus
   notes?: string
   dateAdded?: string
+  /** Fecha de obtención de la pieza. No se rellena en WISHLIST. */
+  acquisitionDate?: string
+  /** Precio pagado por la pieza. No se rellena en WISHLIST. */
+  acquisitionPrice?: number
   userOwned?: UserOwned | null
 }
 
@@ -41,6 +45,9 @@ export interface FunkoFormData {
   status: FunkoStatus
   notes?: string
   dateAdded?: string
+  /** No se envía en WISHLIST: solo tiene sentido cuando la pieza está en posesión. */
+  acquisitionDate?: string
+  acquisitionPrice?: number | ''
   externalSource?: string
 }
 

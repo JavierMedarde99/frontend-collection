@@ -34,6 +34,10 @@ export interface Amiibo {
   status: AmiiboStatus
   notes?: string
   dateAdded?: string
+  /** Fecha de obtención del Amiibo. No se rellena en WISHLIST. */
+  acquisitionDate?: string
+  /** Precio pagado por el Amiibo. No se rellena en WISHLIST. */
+  acquisitionPrice?: number
   userOwned?: UserOwned | null
 }
 
@@ -50,6 +54,9 @@ export interface AmiiboFormData {
   status: AmiiboStatus
   notes?: string
   dateAdded?: string
+  /** No se envía en WISHLIST: solo tiene sentido cuando el Amiibo está en posesión. */
+  acquisitionDate?: string
+  acquisitionPrice?: number | ''
   externalSource?: string
 }
 

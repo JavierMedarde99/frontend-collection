@@ -10,6 +10,7 @@ import ErrorBanner from './ErrorBanner'
 import SearchField from './SearchField'
 import SkeletonInline from './SkeletonInline'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
+import { todayIso, missingRequiredDate } from '../utils/dates'
 
 function mapResultToAmiibo(result: AmiiboSearchResult): Omit<AmiiboFormData, 'status'> {
   return {
@@ -51,6 +52,10 @@ export default function AmiiboSearch() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [modalStatus, setModalStatus] = useState<AmiiboStatus>(AmiiboStatus.OWNED)
   const [modalNotes, setModalNotes] = useState('')
+  const [modalAcquisitionDate, setModalAcquisitionDate] = useState('')
+  const [modalAcquisitionPrice, setModalAcquisitionPrice] = useState('')
+
+  const showAcquisition = modalStatus !== AmiiboStatus.WISHLIST
 
   function handleSearch(e: FormEvent) {
     e.preventDefault()
@@ -65,17 +70,30 @@ export default function AmiiboSearch() {
     setSubmitError(null)
     setModalStatus(AmiiboStatus.OWNED)
     setModalNotes('')
+    setModalAcquisitionDate(todayIso())
+    setModalAcquisitionPrice('')
   }
 
   async function handleConfirm() {
     if (!selected) return
     setSubmitError(null)
+    if (showAcquisition) {
+      const dateError = missingRequiredDate(modalAcquisitionDate, 'La fecha de obtención')
+      if (dateError) {
+        setSubmitError(dateError)
+        return
+      }
+    }
     setSaving(selected.externalId)
     try {
       await createAmiibo({
         ...mapResultToAmiibo(selected),
         status: modalStatus,
         notes: modalNotes.trim() || undefined,
+        ...(showAcquisition && modalAcquisitionDate ? { acquisitionDate: modalAcquisitionDate } : {}),
+        ...(showAcquisition && modalAcquisitionPrice !== ''
+          ? { acquisitionPrice: Number(modalAcquisitionPrice) }
+          : {}),
       })
       setSelected(null)
       navigate('/figuras/amiibo')
@@ -180,6 +198,35 @@ export default function AmiiboSearch() {
                   ))}
                 </select>
               </div>
+
+              {showAcquisition && (
+                <>
+                  <div>
+                    <label className="label">
+                      Fecha de obtención <span className="text-brand">*</span>
+                    </label>
+                    <input
+                      className="input"
+                      type="date"
+                      value={modalAcquisitionDate}
+                      onChange={(e) => setModalAcquisitionDate(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label">Precio de adquisición</label>
+                    <input
+                      className="input"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={modalAcquisitionPrice}
+                      onChange={(e) => setModalAcquisitionPrice(e.target.value)}
+                      placeholder="14.99"
+                    />
+                  </div>
+                </>
+              )}
 
               <div>
                 <label className="label">Notas</label>

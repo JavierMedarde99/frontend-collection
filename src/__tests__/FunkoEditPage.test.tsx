@@ -30,6 +30,7 @@ function funkoWith(overrides: Partial<Funko> = {}): Funko {
     series: 'Marvel',
     number: '123',
     status: FunkoStatus.OWNED,
+    acquisitionDate: '2024-05-01',
     ...overrides,
   }
 }
@@ -57,6 +58,18 @@ describe('FunkoEditPage', () => {
     expect(await screen.findByDisplayValue('Spider-Man')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Marvel')).toBeInTheDocument()
     expect(screen.getByDisplayValue('123')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('2024-05-01')).toBeInTheDocument()
+  })
+
+  it('exige la fecha de obtención cuando la pieza está en propiedad', async () => {
+    mockedGet.mockResolvedValue(funkoWith({ acquisitionDate: undefined }))
+    renderEdit()
+
+    await screen.findByDisplayValue('Spider-Man')
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('La fecha de obtención es obligatoria.')
+    expect(mockedUpdate).not.toHaveBeenCalled()
   })
 
   it('guarda los cambios y vuelve a la lista', async () => {
@@ -68,7 +81,10 @@ describe('FunkoEditPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }))
 
     await waitFor(() =>
-      expect(mockedUpdate).toHaveBeenCalledWith('f1', expect.objectContaining({ name: 'Spider-Man' })),
+      expect(mockedUpdate).toHaveBeenCalledWith(
+        'f1',
+        expect.objectContaining({ name: 'Spider-Man', acquisitionDate: '2024-05-01' }),
+      ),
     )
     expect(await screen.findByText('Lista Funko')).toBeInTheDocument()
   })

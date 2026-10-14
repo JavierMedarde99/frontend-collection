@@ -102,6 +102,10 @@ export default function FunkoDetailPage() {
       ? [{ label: 'Rareza', value: `${funko.rarityScore}` }]
       : []),
     ...(funko.dateAdded ? [{ label: 'En la colección desde', value: funko.dateAdded }] : []),
+    ...(funko.acquisitionDate ? [{ label: 'Fecha de obtención', value: funko.acquisitionDate }] : []),
+    ...(funko.acquisitionPrice !== undefined && funko.acquisitionPrice !== null
+      ? [{ label: 'Precio de adquisición', value: `${funko.acquisitionPrice} €` }]
+      : []),
   ]
 
   const metaItems: MetaItem[] = [...details]

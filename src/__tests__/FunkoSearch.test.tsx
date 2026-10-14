@@ -78,7 +78,11 @@ describe('FunkoSearch', () => {
 
     await waitFor(() =>
       expect(mockedCreate).toHaveBeenCalledWith(
-        expect.objectContaining({ externalId: 'funko-1', name: 'Batman' }),
+        expect.objectContaining({
+          externalId: 'funko-1',
+          name: 'Batman',
+          acquisitionDate: expect.any(String),
+        }),
       ),
     )
     expect(await screen.findByText('Listado Funko')).toBeInTheDocument()
