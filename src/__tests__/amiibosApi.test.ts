@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createAmiibo, listAmiibos, searchAmiibosPage } from '../api/amiibosApi'
+import { createAmiibo, deleteAmiibo, getAmiibo, listAmiibos, searchAmiibosPage, updateAmiibo } from '../api/amiibosApi'
 import { setStoredAccessToken } from '../api/authStore'
 import { AmiiboStatus } from '../types'
 
@@ -188,5 +188,75 @@ describe('amiibosApi errores HTTP', () => {
       status: 401,
       message: 'No autorizado',
     })
+  })
+})
+
+describe('amiibosApi getAmiibo', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('pide /api/v1/amiibos/{id} y devuelve el Amiibo', async () => {
+    const amiibo = { id: 'a1', externalId: 'ext-1', name: 'Mario', status: 'OWNED' }
+    const fetchSpy = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) => jsonResponse(amiibo))
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const result = await getAmiibo('a1')
+
+    const [url, init] = fetchSpy.mock.calls[0]!
+    expect(new URL(String(url)).pathname).toBe('/api/v1/amiibos/a1')
+    expect(init?.method ?? 'GET').toBe('GET')
+    expect(result).toEqual(amiibo)
+  })
+})
+
+describe('amiibosApi updateAmiibo', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('hace PUT a /api/v1/amiibos/{id} con el cuerpo JSON y devuelve el Amiibo', async () => {
+    const updated = { id: 'a1', externalId: 'ext-1', name: 'Mario', status: 'OWNED' }
+    const fetchSpy = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) => jsonResponse(updated))
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const payload = { externalId: 'ext-1', name: 'Mario', status: AmiiboStatus.OWNED }
+    const result = await updateAmiibo('a1', payload)
+
+    const [url, init] = fetchSpy.mock.calls[0]!
+    expect(new URL(String(url)).pathname).toBe('/api/v1/amiibos/a1')
+    expect(init?.method).toBe('PUT')
+    expect(JSON.parse(String(init?.body))).toEqual(payload)
+    expect(result).toEqual(updated)
+  })
+})
+
+describe('amiibosApi deleteAmiibo', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('hace DELETE a /api/v1/amiibos/{id} y tolera el 204 sin cuerpo', async () => {
+    const fetchSpy = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) => jsonResponse(null, 204))
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const result = await deleteAmiibo('a1')
+
+    const [url, init] = fetchSpy.mock.calls[0]!
+    expect(new URL(String(url)).pathname).toBe('/api/v1/amiibos/a1')
+    expect(init?.method).toBe('DELETE')
+    expect(result).toBeNull()
   })
 })

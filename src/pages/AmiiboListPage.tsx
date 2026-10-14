@@ -1,6 +1,6 @@
 import { useRef, useState, type CSSProperties, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { listAmiibos } from '../api/amiibosApi'
+import { listAmiibos, deleteAmiibo } from '../api/amiibosApi'
 import { FIGURE_STATUS_LABELS } from '../constants/figures'
 import { AmiiboStatus, type Amiibo } from '../types'
 import AmiiboCard from '../components/AmiiboCard'
@@ -53,12 +53,18 @@ export default function AmiiboListPage() {
     loadingMore,
     error,
     sentinelRef,
+    reload,
   } = useInfiniteScroll<Amiibo>({
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar los Amiibo.',
     fetchPage: (page, size) => listAmiibos({ page, size, sort, name, status, owner: effectiveTab }),
     deps: [status, name, sort, effectiveTab],
   })
+
+  async function handleDelete(id: string) {
+    await deleteAmiibo(id)
+    reload()
+  }
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
@@ -202,7 +208,13 @@ export default function AmiiboListPage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {amiibos.map((amiibo, index) => (
-              <AmiiboCard key={amiibo.id} amiibo={amiibo} index={index} readOnly={effectiveTab === 'other'} />
+              <AmiiboCard
+                key={amiibo.id}
+                amiibo={amiibo}
+                index={index}
+                readOnly={effectiveTab === 'other'}
+                onDelete={effectiveTab === 'mine' ? () => handleDelete(amiibo.id) : undefined}
+              />
             ))}
           </div>
           {loadingMore && <SkeletonInline />}

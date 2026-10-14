@@ -88,14 +88,20 @@ export default function AmiiboSearch() {
 
   return (
     <div className="flex flex-col gap-6">
-      <SearchField
-        value={query}
-        onChange={setQuery}
-        onSubmit={handleSearch}
-        placeholder="Buscar por nombre…"
-        label="Búsqueda"
-        loading={loading}
-      />
+      <div className="flex flex-col gap-2">
+        <SearchField
+          value={query}
+          onChange={setQuery}
+          onSubmit={handleSearch}
+          placeholder="Buscar por nombre (p. ej. «Link»)…"
+          label="Buscar por nombre"
+          loading={loading}
+        />
+        <p className="text-caption text-graphite">
+          La búsqueda es por <strong>nombre</strong> de la figura o personaje (p. ej. «Link»), no por serie de
+          juego («The Legend of Zelda»).
+        </p>
+      </div>
 
       {error && <ErrorBanner message={error} />}
 

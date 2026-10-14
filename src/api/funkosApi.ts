@@ -41,6 +41,21 @@ export function createFunko(funko: FunkoFormData): Promise<Funko> {
   }) as Promise<Funko>
 }
 
+export function getFunko(id: string): Promise<Funko> {
+  return request<Funko>(`${apiUrl(BASE_URL)}/${id}`) as Promise<Funko>
+}
+
+export function updateFunko(id: string, funko: FunkoFormData): Promise<Funko> {
+  return request<Funko>(`${apiUrl(BASE_URL)}/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(funko),
+  }) as Promise<Funko>
+}
+
+export function deleteFunko(id: string): Promise<null> {
+  return request<null>(`${apiUrl(BASE_URL)}/${id}`, { method: 'DELETE' })
+}
+
 // Catálogo de categorías en uso en la colección (para autocompletar el selector).
 export function listFunkoCategories(): Promise<FunkoCategory[]> {
   return request<FunkoCategory[]>(`${apiUrl(BASE_URL)}/categories`) as Promise<FunkoCategory[]>

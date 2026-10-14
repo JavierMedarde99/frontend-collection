@@ -1,6 +1,6 @@
 import { useRef, useState, type CSSProperties, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { listFunkos } from '../api/funkosApi'
+import { listFunkos, deleteFunko } from '../api/funkosApi'
 import { FIGURE_STATUS_LABELS } from '../constants/figures'
 import { FunkoStatus, type Funko } from '../types'
 import FunkoCard from '../components/FunkoCard'
@@ -53,12 +53,18 @@ export default function FunkoListPage() {
     loadingMore,
     error,
     sentinelRef,
+    reload,
   } = useInfiniteScroll<Funko>({
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar los Funko Pop.',
     fetchPage: (page, size) => listFunkos({ page, size, sort, name, status, owner: effectiveTab }),
     deps: [status, name, sort, effectiveTab],
   })
+
+  async function handleDelete(id: string) {
+    await deleteFunko(id)
+    reload()
+  }
 
   function handleNameSearch(e: FormEvent) {
     e.preventDefault()
@@ -202,7 +208,13 @@ export default function FunkoListPage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {funkos.map((funko, index) => (
-              <FunkoCard key={funko.id} funko={funko} index={index} readOnly={effectiveTab === 'other'} />
+              <FunkoCard
+                key={funko.id}
+                funko={funko}
+                index={index}
+                readOnly={effectiveTab === 'other'}
+                onDelete={effectiveTab === 'mine' ? () => handleDelete(funko.id) : undefined}
+              />
             ))}
           </div>
           {loadingMore && <SkeletonInline />}
