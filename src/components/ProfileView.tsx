@@ -33,7 +33,7 @@ function toPublicItem(collection: string, item: any): PublicItem {
     case 'games':
       return { key: item.id, title: item.title, subtitle: item.platform, imageUrl: item.thumbnailUrl, to: `/juegos/${item.id}` }
     case 'magic':
-      return { key: item.id, title: item.name, subtitle: item.setName || item.type, imageUrl: item.imageUrl, to: `/magic/${item.id}` }
+      return { key: item.id, title: item.name, subtitle: item.setName || item.type, imageUrl: item.imageUrl, to: `/magic/cartas/${item.id}` }
     case 'decks':
       return { key: item.id, title: item.name, subtitle: item.commander, imageUrl: undefined, to: `/magic/mazos/${item.id}` }
     case 'boardgames':

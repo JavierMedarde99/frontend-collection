@@ -41,12 +41,12 @@ export default function MagicCard({ card, index = 0, onDelete, readOnly = false,
     >
       {!readOnly && (
         <div className="absolute top-3 right-3">
-          <CardMenu detailTo={`/magic/${card.id}`} itemName={card.name} onDelete={onDelete} />
+          <CardMenu detailTo={`/magic/cartas/${card.id}`} itemName={card.name} onDelete={onDelete} />
         </div>
       )}
       <div className="flex gap-5">
         {card.imageUrl ? (
-          <Link to={`/magic/${card.id}`} className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper block">
+          <Link to={`/magic/cartas/${card.id}`} className="shrink-0 w-28 overflow-hidden rounded-xl shadow-sm bg-paper block">
             <img
               src={card.imageUrl}
               alt={card.name}
@@ -55,7 +55,7 @@ export default function MagicCard({ card, index = 0, onDelete, readOnly = false,
             />
           </Link>
         ) : (
-          <Link to={`/magic/${card.id}`} className="w-28 h-36 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex flex-col items-center justify-center gap-1.5 text-caption text-graphite">
+          <Link to={`/magic/cartas/${card.id}`} className="w-28 h-36 rounded-xl shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex flex-col items-center justify-center gap-1.5 text-caption text-graphite">
             <svg
               aria-hidden="true"
               className="w-8 h-8 text-brand"
@@ -70,7 +70,7 @@ export default function MagicCard({ card, index = 0, onDelete, readOnly = false,
           </Link>
         )}
         <div className="min-w-0 flex-1 flex flex-col">
-          <Link to={`/magic/${card.id}`} className="font-display text-heading-sm leading-snug line-clamp-2 text-ink hover:text-brand transition-colors">
+          <Link to={`/magic/cartas/${card.id}`} className="font-display text-heading-sm leading-snug line-clamp-2 text-ink hover:text-brand transition-colors">
             {card.name}
           </Link>
             {readOnly && <OwnerLine owner={card.userOwned} />}

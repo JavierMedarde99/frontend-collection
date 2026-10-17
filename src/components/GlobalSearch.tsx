@@ -35,7 +35,7 @@ async function searchAll(query: string): Promise<ResultGroup[]> {
   }
   push('Libros', (books?.content || []).map((b) => ({ key: `book-${b.id}`, title: b.title, subtitle: b.author, to: `/coleccion/${b.id}` })))
   push('Videojuegos', (games?.content || []).map((g) => ({ key: `game-${g.id}`, title: g.title, to: `/juegos/${g.id}` })))
-  push('Magic', (magic?.content || []).map((c) => ({ key: `magic-${c.id}`, title: c.name, subtitle: c.setName, to: `/magic/${c.id}` })))
+  push('Magic', (magic?.content || []).map((c) => ({ key: `magic-${c.id}`, title: c.name, subtitle: c.setName, to: `/magic/cartas/${c.id}` })))
   push('Mazos', (decks || []).map((d) => ({ key: `deck-${d.id}`, title: d.name, subtitle: d.commander, to: `/magic/mazos/${d.id}` })))
   push('Juegos de mesa', (boardGames?.content || []).map((g) => ({ key: `board-${g.id}`, title: g.title, to: `/boardgames/${g.id}` })))
   push('Películas y series', (movieShows?.content || []).map((m) => ({ key: `movie-${m.id}`, title: m.title, to: `/movieshows/${m.id}` })))
