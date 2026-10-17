@@ -1,4 +1,4 @@
-import { useState, type InputHTMLAttributes } from 'react'
+import { forwardRef, useState, type InputHTMLAttributes } from 'react'
 
 type PasswordInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> & {
   id: string
@@ -7,13 +7,18 @@ type PasswordInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> & 
 /**
  * Input de contraseña con ojo para mostrar/ocultar el texto.
  * El botón cambia el `type` entre `password` y `text`.
+ * Usa forwardRef para poder enfocarlo (p. ej. al primer campo inválido).
  */
-export default function PasswordInput({ id, className, ...rest }: PasswordInputProps) {
+const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(function PasswordInput(
+  { id, className, ...rest },
+  ref,
+) {
   const [visible, setVisible] = useState(false)
 
   return (
     <div className="relative">
       <input
+        ref={ref}
         id={id}
         type={visible ? 'text' : 'password'}
         className={`input !pr-12 ${className ?? ''}`}
@@ -39,4 +44,6 @@ export default function PasswordInput({ id, className, ...rest }: PasswordInputP
       </button>
     </div>
   )
-}
+})
+
+export default PasswordInput
