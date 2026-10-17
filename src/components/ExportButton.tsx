@@ -5,6 +5,8 @@ import { listMagicCards } from '../api/magicApi'
 import { listDecks } from '../api/deckApi'
 import { listBoardGames } from '../api/boardgamesApi'
 import { listMovieShows } from '../api/movieshowsApi'
+import { listFunkos } from '../api/funkosApi'
+import { listAmiibos } from '../api/amiibosApi'
 
 const PAGE_SIZE = 500
 
@@ -22,13 +24,15 @@ async function fetchAllPages<T>(fetchPage: (page: number) => Promise<{ content?:
 }
 
 export async function buildBackup(): Promise<Record<string, unknown>> {
-  const [books, games, magicCards, boardGames, movieShows, decks] = await Promise.all([
+  const [books, games, magicCards, boardGames, movieShows, decks, funkos, amiibos] = await Promise.all([
     fetchAllPages((page) => listBooks({ page, size: PAGE_SIZE })),
     fetchAllPages((page) => listGames({ page, size: PAGE_SIZE })),
     fetchAllPages((page) => listMagicCards({ page, size: PAGE_SIZE })),
     fetchAllPages((page) => listBoardGames({ page, size: PAGE_SIZE })),
     fetchAllPages((page) => listMovieShows({ page, size: PAGE_SIZE })),
     listDecks(),
+    fetchAllPages((page) => listFunkos({ page, size: PAGE_SIZE })),
+    fetchAllPages((page) => listAmiibos({ page, size: PAGE_SIZE })),
   ])
   return {
     exportedAt: new Date().toISOString(),
@@ -38,6 +42,8 @@ export async function buildBackup(): Promise<Record<string, unknown>> {
     decks,
     boardGames,
     movieShows,
+    funkos,
+    amiibos,
   }
 }
 
