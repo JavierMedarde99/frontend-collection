@@ -219,14 +219,7 @@ export default function MovieShowForm({ initial = {}, submitLabel, onSubmit, err
         )}
       </FormSection>
 
-      {(error || localError) && (
-        <div
-          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-          role="alert"
-        >
-          {error || localError}
-        </div>
-      )}
+      {(error || localError) && <ErrorBanner message={error || localError} />}
 
       <div className="form-actions">
         <Link className="btn-ghost !px-4 !py-2" to="/movieshows">
