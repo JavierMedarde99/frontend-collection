@@ -220,6 +220,7 @@ export default function MagicListPage() {
       ) : cards.length === 0 ? (
         <>
           <EmptyState
+            variant={hasActiveFilters ? 'search' : 'empty'}
             title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'No hay cartas Magic'}
           message={
             hasActiveFilters

@@ -214,6 +214,7 @@ export default function MovieShowListPage() {
       ) : movieShows.length === 0 ? (
         <>
           <EmptyState
+            variant={hasActiveFilters ? 'search' : 'empty'}
             title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'Aún no tienes películas ni series'}
           message={
             hasActiveFilters

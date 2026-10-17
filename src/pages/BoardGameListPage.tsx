@@ -201,6 +201,7 @@ export default function BoardGameListPage() {
       ) : games.length === 0 ? (
         <>
           <EmptyState
+            variant={hasActiveFilters ? 'search' : 'empty'}
             title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'Aún no tienes juegos de mesa'}
           message={
             hasActiveFilters
