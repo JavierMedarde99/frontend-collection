@@ -75,4 +75,62 @@ describe('CreateShell', () => {
 
     expect(screen.queryByRole('tablist')).toBeNull()
   })
+
+  it('asocia las pestañas con un tabpanel (role, aria-controls y aria-labelledby)', () => {
+    const { container } = renderShell()
+
+    const panel = container.querySelector('.form-panel') as HTMLElement
+    expect(panel).toHaveAttribute('role', 'tabpanel')
+    expect(panel).toHaveAttribute('tabindex', '0')
+
+    const searchTab = screen.getByRole('tab', { name: 'Buscar' })
+    const manualTab = screen.getByRole('tab', { name: 'Manual' })
+    expect(searchTab).toHaveAttribute('aria-controls', panel.id)
+    expect(manualTab).toHaveAttribute('aria-controls', panel.id)
+    expect(panel).toHaveAttribute('aria-labelledby', searchTab.id)
+  })
+
+  it('usa roving tabindex: solo la pestaña activa es tabulable', () => {
+    renderShell()
+
+    expect(screen.getByRole('tab', { name: 'Buscar' })).toHaveAttribute('tabindex', '0')
+    expect(screen.getByRole('tab', { name: 'Manual' })).toHaveAttribute('tabindex', '-1')
+  })
+
+  it('navega con flechas y Home/End, llamando a onTabChange', async () => {
+    const user = userEvent.setup()
+    const onTabChange = vi.fn()
+    const { rerender } = renderShell({ onTabChange })
+    const searchTab = screen.getByRole('tab', { name: 'Buscar' })
+
+    searchTab.focus()
+    await user.keyboard('{ArrowRight}')
+    expect(onTabChange).toHaveBeenLastCalledWith('manual')
+
+    rerender(
+      <MemoryRouter>
+        <CreateShell
+          crumbs={[{ label: 'Añadir' }]}
+          eyebrow="Libros"
+          title="Añadir libro"
+          tabs={[
+            { value: 'search', label: 'Buscar' },
+            { value: 'manual', label: 'Manual' },
+          ]}
+          activeTab="manual"
+          onTabChange={onTabChange}
+        >
+          <p>Contenido del formulario</p>
+        </CreateShell>
+      </MemoryRouter>,
+    )
+
+    screen.getByRole('tab', { name: 'Manual' }).focus()
+    await user.keyboard('{Home}')
+    expect(onTabChange).toHaveBeenLastCalledWith('search')
+
+    screen.getByRole('tab', { name: 'Buscar' }).focus()
+    await user.keyboard('{End}')
+    expect(onTabChange).toHaveBeenLastCalledWith('manual')
+  })
 })
