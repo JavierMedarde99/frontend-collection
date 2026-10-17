@@ -181,6 +181,7 @@ export default function FunkoListPage() {
       ) : funkos.length === 0 ? (
         <>
           <EmptyState
+            variant={hasActiveFilters ? 'search' : 'empty'}
             title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'Aún no tienes Funko Pop'}
             message={
               hasActiveFilters

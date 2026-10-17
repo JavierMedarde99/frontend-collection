@@ -71,6 +71,7 @@ export default function GameAchievementsPage() {
         <Spinner label="Cargando logros…" />
       ) : !error && achievements.length === 0 ? (
         <EmptyState
+          variant="empty"
           title="Sin logros"
           message="Este juego no tiene logros registrados en Steam."
           action={

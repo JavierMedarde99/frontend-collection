@@ -130,6 +130,7 @@ export default function ProfileView({ username }: ProfileViewProps) {
 
       {profileError && !loadingProfile && (
         <EmptyState
+          variant="info"
           title="Usuario no encontrado"
           message={profileError}
           action={
@@ -165,7 +166,7 @@ export default function ProfileView({ username }: ProfileViewProps) {
 
           {isPrivate ? (
             <>
-              <EmptyState title="Colección privada" message="Esta colección es privada." />
+              <EmptyState variant="info" title="Colección privada" message="Esta colección es privada." />
               <p className="statusline" role="status">
                 — colección privada oculta —
               </p>
@@ -176,7 +177,7 @@ export default function ProfileView({ username }: ProfileViewProps) {
               {loadingItems ? (
                 <SkeletonGrid count={6} />
               ) : items.length === 0 && !itemsError ? (
-                <EmptyState title="Sin elementos" message="No hay elementos públicos aquí todavía." />
+                <EmptyState variant="empty" title="Sin elementos" message="No hay elementos públicos aquí todavía." />
               ) : (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

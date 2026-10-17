@@ -181,6 +181,7 @@ export default function AmiiboListPage() {
       ) : amiibos.length === 0 ? (
         <>
           <EmptyState
+            variant={hasActiveFilters ? 'search' : 'empty'}
             title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'Aún no tienes Amiibo'}
             message={
               hasActiveFilters

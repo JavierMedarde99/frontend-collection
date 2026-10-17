@@ -222,6 +222,7 @@ export default function GameListPage() {
       ) : games.length === 0 ? (
         <>
           <EmptyState
+            variant={hasActiveFilters ? 'search' : 'empty'}
             title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'Aún no tienes videojuegos'}
             message={
               hasActiveFilters
