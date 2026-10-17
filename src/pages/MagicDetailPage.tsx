@@ -174,7 +174,7 @@ export default function MagicDetailPage() {
           {card.text && (
             <div className="p-5 rounded-2xl bg-paper border border-silver/60">
               <span className="text-caption text-stone block mb-1">Texto de la carta</span>
-              <p className="text-body text-slate whitespace-pre-line font-serif italic">{card.text}</p>
+              <p className="text-body text-slate whitespace-pre-line font-sans italic">{card.text}</p>
             </div>
           )}
 

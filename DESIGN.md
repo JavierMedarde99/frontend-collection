@@ -45,18 +45,18 @@ Type badges: Manga → rose, Novela → indigo, Novela gráfica → emerald (sof
 
 ### Typography
 
-Use **Poppins** for headings and CTAs, **Inter** for reading and product UI.
+Use **Fraunces** for headings and CTAs (`font-display`), **Literata** for reading and product UI (`font-sans`). Both are self-hosted via `@fontsource` (latin subset, weights 400–700 + italics) — no external font CDN.
 
 | Role          | Family        | Weight | Size / line height | Tracking |
 | ------------- | ------------- | -----: | ------------------ | -------- |
-| Caption       | Inter         |    500 | 12px / 1.4         | -0.24px  |
-| Body small    | Inter         |    400 | 14px / 1.5         | -0.20px  |
-| Body          | Inter         |    400 | 16px / 1.5         | -0.19px  |
-| Subheading    | Inter         |    400 | 18px / 1.4         | -0.20px  |
-| Heading small | Poppins       |    600 | 20px / 1.3         | 0.20px   |
-| Heading       | Poppins       |    600 | 24px / 1.3         | 0.24px   |
-| Heading large | Poppins       |    700 | 48px / 1.1         | 0.48px   |
-| Display       | Poppins       |    700 | 64px / 1.1         | 0.64px   |
+| Caption       | Literata      |    500 | 12px / 1.4         | -0.24px  |
+| Body small    | Literata      |    400 | 14px / 1.5         | -0.20px  |
+| Body          | Literata      |    400 | 16px / 1.5         | -0.19px  |
+| Subheading    | Literata      |    400 | 18px / 1.4         | -0.20px  |
+| Heading small | Fraunces      |    600 | 20px / 1.3         | 0.20px   |
+| Heading       | Fraunces      |    600 | 24px / 1.3         | 0.24px   |
+| Heading large | Fraunces      |    700 | 48px / 1.1         | 0.48px   |
+| Display       | Fraunces      |    700 | 64px / 1.1         | 0.64px   |
 
 ### Spacing
 
