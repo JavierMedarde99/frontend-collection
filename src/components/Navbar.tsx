@@ -17,7 +17,7 @@ const links: { to: string; label: string; end: boolean; collection?: string; fig
 ]
 
 const magicLinks: { to: string; label: string; end: boolean; collection?: string }[] = [
-  { to: '/magic', label: 'Cartas', end: true, collection: 'magic' },
+  { to: '/magic/cartas', label: 'Cartas', end: true, collection: 'magic' },
   { to: '/magic/mazos', label: 'Mazos', end: false, collection: 'decks' },
 ]
 

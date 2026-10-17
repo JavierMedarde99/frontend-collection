@@ -19,7 +19,7 @@ interface EntityTotals {
 const ENTITIES: { key: keyof EntityTotals; label: string; to: string; nick?: string }[] = [
   { key: 'books', label: 'Libros', to: '/coleccion' },
   { key: 'games', label: 'Videojuegos', to: '/juegos' },
-  { key: 'magic', label: 'Cartas Magic', to: '/magic' },
+  { key: 'magic', label: 'Cartas Magic', to: '/magic/cartas' },
   { key: 'decks', label: 'Mazos', to: '/magic/mazos' },
   { key: 'boardGames', label: 'Juegos de mesa', to: '/boardgames' },
   { key: 'movieShows', label: 'Películas y series', to: '/movieshows' },

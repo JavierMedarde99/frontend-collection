@@ -18,7 +18,7 @@ import { COLLECTIONS_BY_KEY } from '../constants/collections'
 export default function MagicDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const goBack = useBackFallback('/magic')
+  const goBack = useBackFallback('/magic/cartas')
   const [card, setCard] = useState<MagicCardResponse | null>(null)
   usePageTitle(card?.name || 'Magic')
   const { isAuthenticated, user } = useAuth()
@@ -51,7 +51,7 @@ export default function MagicDetailPage() {
     setDeleting(true)
     try {
       await deleteMagicCard(id)
-      navigate('/magic')
+      navigate('/magic/cartas')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo eliminar la carta.'
       setError(message)
@@ -72,7 +72,7 @@ export default function MagicDetailPage() {
     return (
       <div className="max-w-xl mx-auto text-center py-12 flex flex-col items-center gap-4">
         <ErrorBanner message={error || 'Carta no encontrada'} />
-        <Link className="btn-primary" to="/magic">
+        <Link className="btn-primary" to="/magic/cartas">
           Volver al listado
         </Link>
       </div>
@@ -106,7 +106,7 @@ export default function MagicDetailPage() {
       className="max-w-5xl mx-auto flex flex-col gap-10"
       style={{ '--sc': COLLECTIONS_BY_KEY.magic.accent.spine, '--c': COLLECTIONS_BY_KEY.magic.accent.niche } as CSSProperties}
     >
-      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: card?.name || 'Detalle' }]} />
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Cartas", to: "/magic/cartas" }, { label: card?.name || 'Detalle' }]} />
       <div className="flex items-center justify-between">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver al listado

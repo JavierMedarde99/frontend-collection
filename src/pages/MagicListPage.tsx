@@ -142,7 +142,7 @@ export default function MagicListPage() {
             </button>
           )}
           {effectiveTab === 'mine' && (
-            <Link className="btn-primary" to="/magic/nuevo">
+            <Link className="btn-primary" to="/magic/cartas/nuevo">
               <svg
                 aria-hidden="true"
                 className="w-4 h-4 mr-1.5"
@@ -233,7 +233,7 @@ export default function MagicListPage() {
                 Limpiar filtros
               </button>
             ) : effectiveTab === 'other' ? undefined : (
-              <Link className="btn-primary mt-2" to="/magic/nuevo">
+              <Link className="btn-primary mt-2" to="/magic/cartas/nuevo">
                 Añadir carta
               </Link>
             )
