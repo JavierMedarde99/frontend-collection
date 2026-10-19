@@ -1,10 +1,10 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import AddExpansionsDialog from '../components/AddExpansionsDialog'
 import { getExpansions } from '../api/boardgamesApi'
 import { RequestError } from '../api/errors'
-import type { BoardGameExpansion } from '../types'
+import type { AddExpansionItem, BoardGameExpansion } from '../types'
 
 vi.mock('../api/boardgamesApi', () => ({
   getExpansions: vi.fn(),
@@ -17,12 +17,19 @@ const catalogo: BoardGameExpansion[] = [
   { bggId: '325', title: 'Catan: Pueblos Originarios', yearPublished: 1995, inCollection: false },
 ]
 
-function renderDialog(overrides: { onSave?: (bggIds: string[]) => void } = {}) {
+/** Fecha local de hoy en formato ISO (lo mismo que debe poner el diálogo por defecto). */
+function hoy(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+function renderDialog(overrides: { onSave?: (items: AddExpansionItem[]) => void; saveError?: string | null } = {}) {
   return render(
     <AddExpansionsDialog
       baseId="bg1"
       onSave={overrides.onSave ?? vi.fn()}
       onClose={vi.fn()}
+      saveError={overrides.saveError ?? null}
     />,
   )
 }
@@ -46,18 +53,92 @@ describe('AddExpansionsDialog', () => {
     expect(screen.getByText('Ya en tu colección')).toBeInTheDocument()
   })
 
-  it('envía solo las expansiones nuevas seleccionadas, sin las que ya tienes', async () => {
+  it('envía la seleccionada en posesión con su precio y la fecha de hoy por defecto', async () => {
     const user = userEvent.setup()
     const onSave = vi.fn()
     renderDialog({ onSave })
 
     await user.click(await screen.findByRole('checkbox', { name: 'Catan: Pueblos Originarios' }))
+    fireEvent.change(screen.getByLabelText('Precio de Catan: Pueblos Originarios'), { target: { value: '12.5' } })
 
     const boton = screen.getByRole('button', { name: 'Añadir 1 seleccionada' })
     expect(boton).toBeEnabled()
     await user.click(boton)
 
-    expect(onSave).toHaveBeenCalledWith(['325'])
+    expect(onSave).toHaveBeenCalledWith([
+      { bggId: '325', status: 'OWNED', acquisitionPrice: 12.5, dateAdded: hoy() },
+    ])
+  })
+
+  it('en posesión exige precio: no envía, avisa bajo la fila y el aviso desaparece al rellenarlo', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    renderDialog({ onSave })
+
+    await user.click(await screen.findByRole('checkbox', { name: 'Catan: Pueblos Originarios' }))
+    await user.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
+
+    expect(onSave).not.toHaveBeenCalled()
+    expect(screen.getByRole('alert')).toHaveTextContent(/precio de adquisición/i)
+
+    fireEvent.change(screen.getByLabelText('Precio de Catan: Pueblos Originarios'), { target: { value: '9' } })
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
+    expect(onSave).toHaveBeenCalledWith([
+      { bggId: '325', status: 'OWNED', acquisitionPrice: 9, dateAdded: hoy() },
+    ])
+  })
+
+  it('por defecto es En posesión con la fecha de hoy, y al marcar Deseada oculta precio y fecha', async () => {
+    const user = userEvent.setup()
+    renderDialog()
+
+    await user.click(await screen.findByRole('checkbox', { name: 'Catan: Pueblos Originarios' }))
+
+    const estado = screen.getByRole('combobox', { name: 'Estado de Catan: Pueblos Originarios' })
+    expect(estado).toHaveValue('OWNED')
+    expect(screen.getByLabelText('Fecha de adición de Catan: Pueblos Originarios')).toHaveValue(hoy())
+    expect((screen.getByLabelText('Precio de Catan: Pueblos Originarios') as HTMLInputElement).value).toBe('')
+
+    fireEvent.change(estado, { target: { value: 'WISHLIST' } })
+
+    expect(screen.queryByLabelText('Precio de Catan: Pueblos Originarios')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Fecha de adición de Catan: Pueblos Originarios')).not.toBeInTheDocument()
+  })
+
+  it('mezcla estados en la misma petición: una en posesión con datos y otra deseada sin ellos', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    mockedGetExpansions.mockResolvedValue({
+      baseGameId: 'bg1',
+      baseBggId: '13',
+      expansions: [
+        { bggId: '325', title: 'Pueblos Originarios', inCollection: false },
+        { bggId: '501', title: 'Navegantes', inCollection: false },
+      ],
+    })
+    renderDialog({ onSave })
+
+    await user.click(await screen.findByRole('checkbox', { name: 'Pueblos Originarios' }))
+    await user.click(await screen.findByRole('checkbox', { name: 'Navegantes' }))
+    fireEvent.change(screen.getByLabelText('Precio de Pueblos Originarios'), { target: { value: '20' } })
+    fireEvent.change(screen.getByRole('combobox', { name: 'Estado de Navegantes' }), {
+      target: { value: 'WISHLIST' },
+    })
+
+    await user.click(screen.getByRole('button', { name: 'Añadir 2 seleccionadas' }))
+
+    expect(onSave).toHaveBeenCalledWith([
+      { bggId: '325', status: 'OWNED', acquisitionPrice: 20, dateAdded: hoy() },
+      { bggId: '501', status: 'WISHLIST' },
+    ])
+  })
+
+  it('muestra dentro del diálogo el error que devuelve el backend al guardar', async () => {
+    renderDialog({ saveError: 'expansions[0].acquisitionPrice: El precio mínimo es 0' })
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('expansions[0].acquisitionPrice')
   })
 
   it('sin expansiones muestra un aviso de lista vacía, no el de error de BGG', async () => {
