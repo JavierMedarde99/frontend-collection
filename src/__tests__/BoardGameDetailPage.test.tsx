@@ -1,9 +1,16 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import BoardGameDetailPage from '../pages/BoardGameDetailPage'
 import { addExpansions, getBoardGame, getExpansions, listBoardGames } from '../api/boardgamesApi'
+import { RequestError } from '../api/errors'
 import { BoardGameStatus, type BoardGame, type PageBoardGameResponse } from '../types'
+
+/** Fecha local de hoy en formato ISO (la que el diálogo pone por defecto). */
+function hoy(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 
 const { authState } = vi.hoisted(() => ({
   authState: {
@@ -130,10 +137,36 @@ describe('BoardGameDetailPage expansiones', () => {
 
     const checkbox = await screen.findByRole('checkbox', { name: 'Catan: Navegantes' })
     fireEvent.click(checkbox)
+    fireEvent.change(screen.getByLabelText('Precio de Catan: Navegantes'), { target: { value: '12.5' } })
     fireEvent.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
 
-    await waitFor(() => expect(addExpansions).toHaveBeenCalledWith('bg1', ['926']))
+    await waitFor(() =>
+      expect(addExpansions).toHaveBeenCalledWith('bg1', [
+        { bggId: '926', status: 'OWNED', acquisitionPrice: 12.5, dateAdded: hoy() },
+      ]),
+    )
     await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Añadir expansiones' })).not.toBeInTheDocument())
     await waitFor(() => expect(listBoardGames).toHaveBeenCalledTimes(2))
+  })
+
+  it('si el backend rechaza con 400 muestra su mensaje dentro del diálogo y no lo cierra', async () => {
+    vi.mocked(getExpansions).mockResolvedValue({
+      baseGameId: 'bg1',
+      baseBggId: '13',
+      expansions: [{ bggId: '926', title: 'Catan: Navegantes', yearPublished: 1997, inCollection: false }],
+    })
+    vi.mocked(addExpansions).mockRejectedValue(
+      new RequestError('expansions[0].acquisitionPrice: El precio mínimo es 0', 400),
+    )
+    renderPage()
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Añadir expansiones' }))
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Catan: Navegantes' }))
+    fireEvent.change(screen.getByLabelText('Precio de Catan: Navegantes'), { target: { value: '5' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Añadir expansiones' })
+    await waitFor(() => expect(within(dialog).getByText(/expansions\[0\]\.acquisitionPrice/)).toBeInTheDocument())
+    expect(dialog).toBeInTheDocument()
   })
 })

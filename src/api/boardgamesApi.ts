@@ -1,4 +1,4 @@
-import type { PageBoardGameResponse, ListBoardGamesParams, BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse, PageBoardGameSearchResult, BoardGameExpansionList, AddExpansionsResponse } from '../types'
+import type { PageBoardGameResponse, ListBoardGamesParams, BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse, PageBoardGameSearchResult, BoardGameExpansionList, AddExpansionsResponse, AddExpansionItem } from '../types'
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
 import { apiUrl } from './apiBase'
@@ -69,11 +69,11 @@ export function getExpansions(id: string): Promise<BoardGameExpansionList> {
   return request<BoardGameExpansionList>(`${apiUrl(BASE_URL)}/${id}/expansions`) as Promise<BoardGameExpansionList>
 }
 
-// Alta masiva de expansiones (idempotente: lo que ya está se devuelve en `skipped`).
-export function addExpansions(id: string, bggIds: string[]): Promise<AddExpansionsResponse> {
+// Alta de expansiones con el estado en el que nacen (idempotente: lo que ya está se devuelve en `skipped`).
+export function addExpansions(id: string, expansions: AddExpansionItem[]): Promise<AddExpansionsResponse> {
   return request<AddExpansionsResponse>(`${apiUrl(BASE_URL)}/${id}/expansions`, {
     method: 'POST',
-    body: JSON.stringify({ bggIds }),
+    body: JSON.stringify({ expansions }),
   }) as Promise<AddExpansionsResponse>
 }
 

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getBoardGame, deleteBoardGame, listBoardGames, addExpansions } from '../api/boardgamesApi'
-import { BoardGameStatus, type BoardGame } from '../types'
+import { BoardGameStatus, type AddExpansionItem, type BoardGame } from '../types'
 import BoardGameStatusBadge from '../components/BoardGameStatusBadge'
 import GenreBadges from '../components/GenreBadges'
 import StarRating from '../components/StarRating'
@@ -132,12 +132,12 @@ export default function BoardGameDetailPage() {
     }
   }
 
-  async function handleAddExpansions(bggIds: string[]) {
+  async function handleAddExpansions(expansions: AddExpansionItem[]) {
     if (!id) return
     setAddBusy(true)
     setAddError(null)
     try {
-      await addExpansions(id, bggIds)
+      await addExpansions(id, expansions)
       setAddingExpansions(false)
       await loadExpansions(id)
     } catch (err) {
@@ -348,6 +348,7 @@ export default function BoardGameDetailPage() {
           onSave={handleAddExpansions}
           onClose={() => setAddingExpansions(false)}
           busy={addBusy}
+          saveError={addError}
         />
       )}
 

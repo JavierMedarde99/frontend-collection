@@ -80,6 +80,18 @@ export interface AddExpansionsResponse {
   skipped: { bggId: string; reason: string }[]
 }
 
+/**
+ * Expansión a dar de alta en `POST /boardgames/{id}/expansions` con el estado en
+ * el que nace: en posesión (OWNED) con su precio y fecha; deseada (WISHLIST) sin
+ * datos de adquisición.
+ */
+export interface AddExpansionItem {
+  bggId: string
+  status: BoardGameStatus
+  acquisitionPrice?: number
+  dateAdded?: string
+}
+
 export interface BoardGameFormData {
   title: string
   description?: string
