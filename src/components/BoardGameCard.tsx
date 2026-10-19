@@ -170,6 +170,12 @@ export default function BoardGameCard({ game, index = 0, onDelete, readOnly = fa
               .join(' · ') || 'Juego de mesa'}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
+            {game.bggType === 'boardgameexpansion' && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-caption bg-brand-soft text-ink">
+                <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-brand" />
+                Expansión
+              </span>
+            )}
             <BoardGameStatusBadge status={game.status} />
             {game.bggRating !== undefined && game.bggRating !== null && (
               <StarRating value={bggRatingToStars(game.bggRating)} readOnly />
