@@ -13,6 +13,15 @@ export enum BoardGameDifficulty {
   VERY_HARD = 'VERY_HARD',
 }
 
+/**
+ * Tipo BGG de un registro (vocabulario del XML de BoardGameGeek). Los
+ * registros antiguos no traen `bggType` y se consideran juego base.
+ */
+export type BoardGameType = 'boardgame' | 'boardgameexpansion'
+
+/** Filtro de listado `GET /boardgames?type=base|expansion|all`. */
+export type BoardGameTypeFilter = 'base' | 'expansion' | 'all'
+
 export interface BoardGame {
   id: string
   title: string
@@ -40,6 +49,35 @@ export interface BoardGame {
   difficulty?: BoardGameDifficulty
   userOwned?: UserOwned | null
   acquisitionPrice?: number
+  /** `null`/ausente en los registros antiguos = juego base. */
+  bggType?: BoardGameType
+  /** Id local del juego base del que es expansión. Inmutable tras el alta. */
+  parentId?: string
+  /** Título del base, desnormalizado para pintar «Expansión de …» sin N+1. */
+  parentTitle?: string
+}
+
+/** Expansión del catálogo de BGG con el flag de si el espectador ya la tiene. */
+export interface BoardGameExpansion {
+  bggId: string
+  title: string
+  yearPublished?: number
+  imageUrl?: string
+  thumbnailUrl?: string
+  inCollection: boolean
+}
+
+/** Respuesta de `GET /boardgames/{id}/expansions`. */
+export interface BoardGameExpansionList {
+  baseGameId: string
+  baseBggId?: string
+  expansions: BoardGameExpansion[]
+}
+
+/** Respuesta de `POST /boardgames/{id}/expansions` (idempotente). */
+export interface AddExpansionsResponse {
+  created: BoardGame[]
+  skipped: { bggId: string; reason: string }[]
 }
 
 export interface BoardGameFormData {
@@ -119,6 +157,7 @@ export interface ListBoardGamesParams {
   name?: string
   status?: BoardGameStatus | ''
   genre?: string[]
-  owner?: 'mine' | 'other' | ''
+  owner?: 'mine' | 'other' | 'all' | ''
   viewerId?: string
+  type?: BoardGameTypeFilter | ''
 }

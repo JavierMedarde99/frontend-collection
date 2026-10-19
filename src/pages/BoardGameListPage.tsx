@@ -38,8 +38,9 @@ export default function BoardGameListPage() {
     genre: [] as string[],
     name: '',
     sort: 'title,asc',
+    type: '' as '' | 'base' | 'expansion',
   })
-  const { status, genre: genreFilter, name: nameFilter, sort } = query
+  const { status, genre: genreFilter, name: nameFilter, sort, type } = query
   const genreOptions = useGenreOptions(listBoardGameGenres)
 
   const { isAuthenticated, user } = useAuth()
@@ -67,8 +68,9 @@ export default function BoardGameListPage() {
         owner: effectiveTab,
         viewerId: user?.id || undefined,
         sort,
+        type: type || undefined,
       }),
-    deps: [status, genreFilter, nameFilter, sort, effectiveTab, user?.id],
+    deps: [status, genreFilter, nameFilter, sort, effectiveTab, user?.id, type],
   })
 
 
@@ -79,10 +81,10 @@ export default function BoardGameListPage() {
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ status: '', genre: [], name: '' })
+    setQuery({ status: '', genre: [], name: '', type: '' })
   }
 
-  const hasActiveFilters = Boolean(status || genreFilter.length > 0 || nameFilter)
+  const hasActiveFilters = Boolean(status || genreFilter.length > 0 || nameFilter || type)
 
   const activeFilterCount = [nameFilter].filter(Boolean).length + genreFilter.length
 
@@ -186,6 +188,19 @@ export default function BoardGameListPage() {
             {label}
           </FilterPill>
         ))}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por tipo">
+        <span className="text-caption text-stone mr-1 self-center">Tipo:</span>
+        <FilterPill active={!type} onClick={() => setQuery({ type: '' })} label="Filtrar por tipo: Todos los tipos">
+          Todos
+        </FilterPill>
+        <FilterPill active={type === 'base'} onClick={() => setQuery({ type: 'base' })} label="Filtrar por tipo: Bases">
+          Bases
+        </FilterPill>
+        <FilterPill active={type === 'expansion'} onClick={() => setQuery({ type: 'expansion' })} label="Filtrar por tipo: Expansiones">
+          Expansiones
+        </FilterPill>
       </div>
 
       <OwnerTabs value={effectiveTab} onChange={setOwnerTab} showMine={isAuthenticated} />
