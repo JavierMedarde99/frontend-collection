@@ -147,6 +147,12 @@ acquisitionDate: updated.acquisitionDate,
           </Link>
             {readOnly && <OwnerLine owner={game.userOwned} />}
           <div className="mt-3 flex flex-wrap items-center gap-2">
+            {game.parentId && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-caption bg-brand-soft text-ink">
+                <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-brand" />
+                DLC
+              </span>
+            )}
             <GameStatusBadge status={shown.status} />
             <GamePlatformBadge platform={game.platform} />
             <GamePlatinumBadge game={game} />
