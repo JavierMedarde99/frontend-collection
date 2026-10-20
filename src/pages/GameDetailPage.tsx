@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
-import { getGame, deleteGame } from '../api/gamesApi'
+import { getGame, deleteGame, listGames, addGameAdditions } from '../api/gamesApi'
 import { GameStatus, type Game } from '../types'
 import GameStatusBadge from '../components/GameStatusBadge'
 import GamePlatformBadge from '../components/GamePlatformBadge'
-import { isPcPlatform, platformLabel } from '../constants/games'
+import { GAME_STATES, isPcPlatform, platformLabel } from '../constants/games'
 import GenreBadges from '../components/GenreBadges'
 import StarRating from '../components/StarRating'
 import Spinner from '../components/Spinner'
@@ -18,6 +18,7 @@ import { usePageTitle } from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
 import PageHeader from '../components/PageHeader'
 import MetaList from '../components/MetaList'
+import AddGameDlcsDialog from '../components/AddGameDlcsDialog'
 import { COLLECTIONS_BY_KEY } from '../constants/collections'
 
 export default function GameDetailPage() {
@@ -35,6 +36,49 @@ export default function GameDetailPage() {
   const [deleteBusy, setDeleteBusy] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
+  const [dlcs, setDlcs] = useState<Game[]>([])
+  const [dlcsLoading, setDlcsLoading] = useState(false)
+  const [dlcsError, setDlcsError] = useState<string | null>(null)
+  const [addingDlcs, setAddingDlcs] = useState(false)
+  const [addBusy, setAddBusy] = useState(false)
+  const [addError, setAddError] = useState<string | null>(null)
+
+  /**
+   * No hay endpoint por `parentId`: se piden con `type=dlc` (la lista sí filtra
+   * por tipo) y se quedan las de este base. `owner=all` requiere sesión en el
+   * backend; sin ella vale `other`.
+   */
+  const loadDlcs = useCallback(
+    async (gameId: string) => {
+      setDlcsLoading(true)
+      setDlcsError(null)
+      try {
+        const size = 100
+        const collected: Game[] = []
+        let page = 0
+        for (;;) {
+          const res = await listGames({
+            type: 'dlc',
+            owner: isAuthenticated ? 'all' : 'other',
+            viewerId: user?.id,
+            page,
+            size,
+          })
+          collected.push(...res.content)
+          page += 1
+          if (page >= res.totalPages) break
+        }
+        setDlcs(collected.filter((g) => g.parentId === gameId))
+      } catch (err) {
+        setDlcs([])
+        setDlcsError(err instanceof Error ? err.message : 'No se pudo cargar el contenido adicional.')
+      } finally {
+        setDlcsLoading(false)
+      }
+    },
+    [isAuthenticated, user?.id],
+  )
+
   const load = useCallback(async () => {
     if (!id) return
     setLoading(true)
@@ -42,13 +86,19 @@ export default function GameDetailPage() {
     try {
       const data = await getGame(id)
       setGame(data)
+      // En un DLC no se pide el bloque: se enseña su base en su lugar.
+      if (data.parentId) {
+        setDlcs([])
+      } else {
+        await loadDlcs(data.id)
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo cargar el videojuego.'
       setError(message)
     } finally {
       setLoading(false)
     }
-  }, [id])
+  }, [id, loadDlcs])
 
   useEffect(() => {
     load()
@@ -66,6 +116,22 @@ export default function GameDetailPage() {
       setDeleteError(message)
     } finally {
       setDeleteBusy(false)
+    }
+  }
+
+  async function handleAddDlcs(externalIds: string[], status: GameStatus) {
+    if (!id) return
+    setAddBusy(true)
+    setAddError(null)
+    try {
+      await addGameAdditions(id, externalIds, status)
+      setAddingDlcs(false)
+      await loadDlcs(id)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudo añadir el contenido adicional.'
+      setAddError(message)
+    } finally {
+      setAddBusy(false)
     }
   }
 
@@ -103,6 +169,14 @@ export default function GameDetailPage() {
     ...(game.externalSource ? [{ label: 'Fuente externa', value: game.externalSource }] : []),
   ]
 
+  const isOwner = isAuthenticated && (!game.userOwned?.username || game.userOwned.username === user?.username)
+  const canAddDlcs =
+    !game.parentId &&
+    isOwner &&
+    game.status !== GameStatus.WISHLIST &&
+    Boolean(game.externalId) &&
+    game.externalSource?.toUpperCase() === 'RAWG'
+
   return (
     <section
       className="max-w-3xl flex flex-col gap-12"
@@ -113,7 +187,7 @@ export default function GameDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
-        {isAuthenticated && (!game.userOwned?.username || game.userOwned.username === user?.username) && (
+        {isOwner && (
         <div className="flex items-center gap-2">
           <Link className="btn-ghost !px-4 !py-2" to={`/juegos/editar/${game.id}`}>
             Editar
@@ -177,6 +251,84 @@ export default function GameDetailPage() {
           </div>
         )}
       </article>
+
+      {!game.parentId && (
+        <article className="card flex flex-col gap-5">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <h2 className="font-display text-heading-sm">Contenido adicional</h2>
+            {canAddDlcs && (
+              <button
+                type="button"
+                className="btn-primary !px-4 !py-2"
+                onClick={() => {
+                  setAddError(null)
+                  setAddingDlcs(true)
+                }}
+              >
+                Añadir contenido adicional
+              </button>
+            )}
+          </div>
+
+          {addError && <ErrorBanner message={addError} />}
+          {dlcsError && <ErrorBanner message={dlcsError} />}
+
+          {dlcsLoading ? (
+            <Spinner label="Cargando contenido adicional…" />
+          ) : !dlcsError && dlcs.length === 0 ? (
+            <p className="text-body text-graphite">Todavía no tienes contenido adicional de este juego.</p>
+          ) : dlcs.length > 0 ? (
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {dlcs.map((dlc) => (
+                <li key={dlc.id}>
+                  <Link
+                    to={`/juegos/${dlc.id}`}
+                    className="card card-hover !py-3 flex items-center gap-3"
+                  >
+                    {dlc.thumbnailUrl ? (
+                      <img
+                        src={dlc.thumbnailUrl}
+                        alt=""
+                        aria-hidden="true"
+                        loading="lazy"
+                        className="w-10 h-14 object-cover rounded-md shrink-0"
+                      />
+                    ) : (
+                      <span
+                        aria-hidden="true"
+                        className="w-10 h-14 rounded-md shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60"
+                      />
+                    )}
+                    <span className="min-w-0">
+                      <span className="block text-body text-ink line-clamp-2">{dlc.title}</span>
+                      <span className="block text-caption text-graphite">{GAME_STATES[dlc.status]}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </article>
+      )}
+
+      {game.parentId && (
+        <p className="text-body text-slate">
+          Contenido adicional de{' '}
+          <Link className="text-brand hover:underline font-medium" to={`/juegos/${game.parentId}`}>
+            {game.parentTitle || 'su juego base'}
+          </Link>
+        </p>
+      )}
+
+      {addingDlcs && (
+        <AddGameDlcsDialog
+          baseId={game.id}
+          onSave={handleAddDlcs}
+          onClose={() => setAddingDlcs(false)}
+          busy={addBusy}
+          saveError={addError}
+        />
+      )}
 
       <ConfirmDialog
         open={deleting}

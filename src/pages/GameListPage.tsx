@@ -6,7 +6,7 @@ import GenreSelect from '../components/GenreSelect'
 import { listGameGenres, listGamePlatforms } from '../api/gamesApi'
 import { useGenreOptions } from '../hooks/useGenreOptions'
 import { usePlatformOptions } from '../hooks/usePlatformOptions'
-import { GameStatus, type Game } from '../types'
+import { GameStatus, type Game, type GameTypeFilter } from '../types'
 import GameCard from '../components/GameCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
@@ -40,8 +40,9 @@ export default function GameListPage() {
     genre: [] as string[],
     name: '',
     sort: 'title,asc',
+    type: '' as GameTypeFilter | '',
   })
-  const { status, platform: platformFilter, genre: genreFilter, name: nameFilter, sort } = query
+  const { status, platform: platformFilter, genre: genreFilter, name: nameFilter, sort, type } = query
   const genreOptions = useGenreOptions(listGameGenres)
   const platformOptions = usePlatformOptions(listGamePlatforms)
 
@@ -71,8 +72,9 @@ export default function GameListPage() {
         owner: effectiveTab,
         viewerId: user?.id || undefined,
         sort,
+        type: type || undefined,
       }),
-    deps: [status, platformFilter, genreFilter, nameFilter, sort, effectiveTab, user?.id],
+    deps: [status, platformFilter, genreFilter, nameFilter, sort, effectiveTab, user?.id, type],
   })
 
 
@@ -83,10 +85,10 @@ export default function GameListPage() {
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ status: '', platform: '', genre: [], name: '' })
+    setQuery({ status: '', platform: '', genre: [], name: '', type: '' })
   }
 
-  const hasActiveFilters = Boolean(status || platformFilter || genreFilter.length > 0 || nameFilter)
+  const hasActiveFilters = Boolean(status || platformFilter || genreFilter.length > 0 || nameFilter || type)
 
   const activeFilterCount = [platformFilter, nameFilter].filter(Boolean).length + genreFilter.length
 
@@ -207,6 +209,23 @@ export default function GameListPage() {
             {label}
           </FilterPill>
         ))}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por tipo">
+        <span className="text-caption text-stone mr-1 self-center">Tipo:</span>
+        <FilterPill active={!type} onClick={() => setQuery({ type: '' })} label="Filtrar por tipo: Todos">
+          Todos
+        </FilterPill>
+        <FilterPill active={type === 'base'} onClick={() => setQuery({ type: 'base' })} label="Filtrar por tipo: Juegos">
+          Juegos
+        </FilterPill>
+        <FilterPill
+          active={type === 'dlc'}
+          onClick={() => setQuery({ type: 'dlc' })}
+          label="Filtrar por tipo: Contenido adicional"
+        >
+          Contenido adicional
+        </FilterPill>
       </div>
 
       <OwnerTabs value={effectiveTab} onChange={setOwnerTab} showMine={isAuthenticated} />
