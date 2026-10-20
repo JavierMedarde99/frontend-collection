@@ -1,13 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { getGameAdditions } from '../api/gamesApi'
 import { RequestError } from '../api/errors'
 import { GAME_STATES } from '../constants/games'
 import { GameStatus, type AddGameAdditionItem, type GameAddition } from '../types'
 import Spinner from './Spinner'
+import ListSearchInput from './ListSearchInput'
 
 /** Lote máximo de `POST /games/{id}/additions` (una página de adiciones de RAWG). */
 const MAX_PER_REQUEST = 40
+/** Con más filas que esto, la lista lleva buscador. */
+const SEARCH_THRESHOLD = 5
 const RAWG_DOWN_MESSAGE = 'RAWG no responde, inténtalo en un momento.'
 const EMPTY_MESSAGE = 'Este juego no tiene contenido adicional en RAWG.'
 
@@ -71,6 +74,15 @@ export default function AddGameDlcsDialog({
   const [drafts, setDrafts] = useState<Record<string, DlcDraft>>({})
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({})
   const [attempt, setAttempt] = useState(0)
+  const [filter, setFilter] = useState('')
+
+  // Igual que en AddExpansionsDialog: el filtro es solo de pintado, la selección
+  // (y sus borradores) se mantienen aunque la fila quede oculta.
+  const visible = useMemo(() => {
+    if (!additions) return null
+    const q = filter.trim().toLowerCase()
+    return q === '' ? additions : additions.filter((addition) => addition.title.toLowerCase().includes(q))
+  }, [additions, filter])
 
   useEffect(() => {
     let cancelled = false
@@ -216,8 +228,18 @@ export default function AddGameDlcsDialog({
           <p className="text-body text-graphite" role="status">{EMPTY_MESSAGE}</p>
         ) : (
           <>
+            {additions.length > SEARCH_THRESHOLD && (
+              <ListSearchInput
+                value={filter}
+                onChange={setFilter}
+                count={visible?.length ?? 0}
+                total={additions.length}
+                placeholder="Buscar contenido adicional…"
+                ariaLabel="Buscar contenido adicional"
+              />
+            )}
             <ul className="flex flex-col gap-2 max-h-[45vh] overflow-y-auto pr-1">
-              {additions.map((addition) => {
+              {visible?.map((addition) => {
                 const isSelected = selected.includes(addition.externalId)
                 const checked = addition.alreadyLinked || isSelected
                 const disabled = addition.alreadyLinked || (!isSelected && atCap)

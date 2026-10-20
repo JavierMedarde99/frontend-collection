@@ -182,3 +182,75 @@ describe('AddExpansionsDialog', () => {
     expect(screen.getByText(/Máximo 20 expansiones por petición/i)).toBeInTheDocument()
   })
 })
+
+/** Catálogo largo (6): supera el umbral de 5 para que aparezca el buscador. */
+function catalogoLargo(): BoardGameExpansion[] {
+  return [
+    'Catan: Navegantes',
+    'Catan: Ciudades y Caballeros',
+    'Catan: Pueblos Originarios',
+    'Catan: Piratas',
+    'Catan: Mercaderes',
+    'Catan: Seafarers',
+  ].map((title, i) => ({ bggId: `l${i}`, title, inCollection: false }))
+}
+
+describe('AddExpansionsDialog con buscador', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('con más de 5 expansiones aparece el buscador; con 5 o menos, no', async () => {
+    mockedGetExpansions.mockResolvedValue({ baseGameId: 'bg1', baseBggId: '13', expansions: catalogoLargo() })
+    const { unmount } = renderDialog()
+
+    expect(await screen.findByRole('searchbox', { name: 'Buscar expansiones' })).toBeInTheDocument()
+    unmount()
+
+    mockedGetExpansions.mockResolvedValue({ baseGameId: 'bg1', baseBggId: '13', expansions: catalogo })
+    renderDialog()
+
+    expect(await screen.findByRole('checkbox', { name: 'Catan: Navegantes' })).toBeInTheDocument()
+    expect(screen.queryByRole('searchbox', { name: 'Buscar expansiones' })).not.toBeInTheDocument()
+  })
+
+  it('filtra las filas por título y avisa cuando no hay coincidencias', async () => {
+    const user = userEvent.setup()
+    mockedGetExpansions.mockResolvedValue({ baseGameId: 'bg1', baseBggId: '13', expansions: catalogoLargo() })
+    renderDialog()
+
+    const buscador = await screen.findByRole('searchbox', { name: 'Buscar expansiones' })
+    await user.type(buscador, 'piratas')
+
+    expect(screen.getByRole('checkbox', { name: 'Catan: Piratas' })).toBeInTheDocument()
+    expect(screen.queryByRole('checkbox', { name: 'Catan: Navegantes' })).not.toBeInTheDocument()
+    expect(screen.getByText('1 de 6')).toBeInTheDocument()
+
+    await user.clear(buscador)
+    await user.type(buscador, 'zzz')
+
+    expect(screen.queryByRole('checkbox', { name: 'Catan: Piratas' })).not.toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent(/no hay coincidencias/i)
+  })
+
+  it('mantiene la selección hecha cuando el filtro la oculta', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    mockedGetExpansions.mockResolvedValue({ baseGameId: 'bg1', baseBggId: '13', expansions: catalogoLargo() })
+    renderDialog({ onSave })
+
+    await user.click(await screen.findByRole('checkbox', { name: 'Catan: Navegantes' }))
+    fireEvent.change(screen.getByLabelText('Precio de Catan: Navegantes'), { target: { value: '10' } })
+
+    await user.type(screen.getByRole('searchbox', { name: 'Buscar expansiones' }), 'piratas')
+
+    expect(screen.queryByRole('checkbox', { name: 'Catan: Navegantes' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Añadir 1 seleccionada' })).toBeEnabled()
+
+    await user.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
+
+    expect(onSave).toHaveBeenCalledWith([
+      { bggId: 'l0', status: 'OWNED', acquisitionPrice: 10, dateAdded: hoy() },
+    ])
+  })
+})

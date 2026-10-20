@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { getExpansions } from '../api/boardgamesApi'
 import { RequestError } from '../api/errors'
 import Spinner from './Spinner'
+import ListSearchInput from './ListSearchInput'
 import { BoardGameStatus, type AddExpansionItem, type BoardGameExpansion } from '../types'
 
 /** Lote máximo de `POST /boardgames/{id}/expansions` (el límite de `/thing` en BGG). */
 const MAX_PER_REQUEST = 20
+/** Con más filas que esto, la lista lleva buscador. */
+const SEARCH_THRESHOLD = 5
 const BGG_DOWN_MESSAGE = 'BGG no responde, inténtalo en un momento.'
 const EMPTY_MESSAGE = 'Este juego no tiene expansiones en BGG.'
 
@@ -60,6 +63,15 @@ export default function AddExpansionsDialog({
   const [drafts, setDrafts] = useState<Record<string, ExpansionDraft>>({})
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({})
   const [attempt, setAttempt] = useState(0)
+  const [filter, setFilter] = useState('')
+
+  // El buscador filtra solo las filas visibles: `selected` y `drafts` no se tocan,
+  // así que se puede marcar, cambiar el filtro y marcar otra sin perder nada.
+  const visible = useMemo(() => {
+    if (!expansions) return null
+    const q = filter.trim().toLowerCase()
+    return q === '' ? expansions : expansions.filter((exp) => exp.title.toLowerCase().includes(q))
+  }, [expansions, filter])
 
   useEffect(() => {
     let cancelled = false
@@ -174,8 +186,18 @@ export default function AddExpansionsDialog({
           <p className="text-body text-graphite" role="status">{EMPTY_MESSAGE}</p>
         ) : (
           <>
+            {expansions.length > SEARCH_THRESHOLD && (
+              <ListSearchInput
+                value={filter}
+                onChange={setFilter}
+                count={visible?.length ?? 0}
+                total={expansions.length}
+                placeholder="Buscar expansión…"
+                ariaLabel="Buscar expansiones"
+              />
+            )}
             <ul className="flex flex-col gap-2 max-h-[45vh] overflow-y-auto pr-1">
-              {expansions.map((exp) => {
+              {visible?.map((exp) => {
                 const isSelected = selected.includes(exp.bggId)
                 const checked = exp.inCollection || isSelected
                 const disabled = exp.inCollection || (!isSelected && atCap)
