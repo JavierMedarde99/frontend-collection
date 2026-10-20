@@ -34,6 +34,9 @@ export interface MagicCardResponse {
   imageUrl?: string
   imageLargeUrl?: string
   artCropUrl?: string
+  /** Reverso de las cartas de doble cara (backend #510): null en cartas de una cara. */
+  imageUrlBack?: string
+  imageLargeUrlBack?: string
   condition?: MagicCondition
   isFoil?: boolean
   quantity?: number
