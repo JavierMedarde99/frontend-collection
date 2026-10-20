@@ -29,7 +29,7 @@ export function listGames(params: ListGamesParams = {}): Promise<PageGameRespons
   if (size !== undefined && size !== null) search.set('size', String(size))
   if (sort) search.set('sort', sort)
   if (name) search.set('name', name)
-  if (platform) search.set('platform', platform)
+  if (platform && platform.length > 0) for (const p of platform) search.append('platform', p)
   if (status) search.set('status', status)
   if (genre) for (const g of genre) search.append('genre', g)
   if (owner) search.set('owner', owner)
