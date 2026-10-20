@@ -63,21 +63,28 @@ describe('gamesApi contenido adicional', () => {
     expect((init as RequestInit | undefined)?.method ?? 'GET').toBe('GET')
   })
 
-  it('POST /api/v1/games/{id}/additions envía los ids y el estado elegido', async () => {
+  it('POST /api/v1/games/{id}/additions envía cada adición con su estado y sus datos', async () => {
     const payload = { created: [], linked: [], skipped: [] }
     const fetchSpy = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) => jsonResponse(payload, 201))
     vi.stubGlobal('fetch', fetchSpy)
 
-    await expect(
-      addGameAdditions('g1', ['355880', '378648'], GameStatus.COMPLETED),
-    ).resolves.toEqual(payload)
+    const items = [
+      {
+        externalId: '355880',
+        status: GameStatus.COMPLETED,
+        acquisitionDate: '2026-01-05',
+        acquisitionPrice: 19.99,
+        dateAdded: '2026-01-10',
+        dateCompleted: '2026-02-20',
+      },
+      { externalId: '378648', status: GameStatus.OWNED, link: true },
+    ]
+
+    await expect(addGameAdditions('g1', items)).resolves.toEqual(payload)
 
     const [url, init] = fetchSpy.mock.calls[0] ?? []
     expect(String(url)).toContain('/api/v1/games/g1/additions')
     expect((init as RequestInit).method).toBe('POST')
-    expect(JSON.parse(String((init as RequestInit).body))).toEqual({
-      externalIds: ['355880', '378648'],
-      status: 'COMPLETED',
-    })
+    expect(JSON.parse(String((init as RequestInit).body))).toEqual({ additions: items })
   })
 })
