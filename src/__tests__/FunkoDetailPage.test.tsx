@@ -71,6 +71,15 @@ describe('FunkoDetailPage', () => {
     expect(screen.getByText('24.99 €')).toBeInTheDocument()
   })
 
+  it('no muestra el precio de adquisición si está en lista de deseos aunque tenga precio guardado', async () => {
+    mockedGet.mockResolvedValue(funkoWith({ status: FunkoStatus.WISHLIST }))
+    renderDetail()
+
+    expect(await screen.findByRole('heading', { name: 'Spider-Man' })).toBeInTheDocument()
+    expect(screen.queryByText('Precio de adquisición')).not.toBeInTheDocument()
+    expect(screen.queryByText('24.99 €')).not.toBeInTheDocument()
+  })
+
   it('ofrece Editar y Eliminar cuando es tu pieza', async () => {
     mockedGet.mockResolvedValue(funkoWith())
     renderDetail()

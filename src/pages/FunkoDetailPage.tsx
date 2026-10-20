@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getFunko, deleteFunko } from '../api/funkosApi'
-import type { Funko } from '../types'
+import { FunkoStatus, type Funko } from '../types'
 import FigureStatusBadge from '../components/FigureStatusBadge'
 import Spinner from '../components/Spinner'
 import EmptyState from '../components/EmptyState'
@@ -103,7 +103,8 @@ export default function FunkoDetailPage() {
       : []),
     ...(funko.dateAdded ? [{ label: 'En la colección desde', value: funko.dateAdded }] : []),
     ...(funko.acquisitionDate ? [{ label: 'Fecha de obtención', value: funko.acquisitionDate }] : []),
-    ...(funko.acquisitionPrice !== undefined && funko.acquisitionPrice !== null
+    // En la lista de deseos el precio no se rellena: no se muestra aunque quede uno guardado.
+    ...(funko.acquisitionPrice !== undefined && funko.acquisitionPrice !== null && funko.status !== FunkoStatus.WISHLIST
       ? [{ label: 'Precio de adquisición', value: `${funko.acquisitionPrice} €` }]
       : []),
   ]

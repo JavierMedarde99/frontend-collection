@@ -116,6 +116,28 @@ describe('BoardGameDetailPage expansiones', () => {
     expect(screen.queryByRole('button', { name: 'Añadir expansiones' })).not.toBeInTheDocument()
   })
 
+  it('no muestra el precio de adquisición si está en lista de deseos aunque tenga precio guardado', async () => {
+    vi.mocked(getBoardGame).mockResolvedValue({
+      ...base,
+      status: BoardGameStatus.WISHLIST,
+      acquisitionPrice: 12.5,
+    })
+    renderPage()
+
+    expect(await screen.findByRole('heading', { name: 'Catan' })).toBeInTheDocument()
+    expect(screen.queryByText('Precio de adquisición')).not.toBeInTheDocument()
+    expect(screen.queryByText('12.5 €')).not.toBeInTheDocument()
+  })
+
+  it('muestra el precio de adquisición cuando el juego está en posesión', async () => {
+    vi.mocked(getBoardGame).mockResolvedValue({ ...base, acquisitionPrice: 12.5 })
+    renderPage()
+
+    expect(await screen.findByRole('heading', { name: 'Catan' })).toBeInTheDocument()
+    expect(screen.getByText('Precio de adquisición')).toBeInTheDocument()
+    expect(screen.getByText('12.5 €')).toBeInTheDocument()
+  })
+
   it('no ofrece añadir si el juego es de otro usuario', async () => {
     vi.mocked(getBoardGame).mockResolvedValue({ ...base, userOwned: { username: 'otro' } })
     renderPage()
