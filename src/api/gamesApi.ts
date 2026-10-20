@@ -1,4 +1,4 @@
-import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, PageGameSearchResult, GameAchievementsResponse, PlatformInfo, GameAdditionList, AddGameAdditionsResponse, GameStatus } from '../types'
+import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, PageGameSearchResult, GameAchievementsResponse, PlatformInfo, GameAdditionList, AddGameAdditionsResponse, AddGameAdditionItem } from '../types'
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
 import { apiUrl } from './apiBase'
@@ -90,14 +90,13 @@ export function getGameAdditions(id: string): Promise<GameAdditionList> {
   return request<GameAdditionList>(`${apiUrl(BASE_URL)}/${id}/additions`) as Promise<GameAdditionList>
 }
 
-// Alta de contenido adicional con el estado en el que nacen (idempotente: lo que ya está se devuelve en `skipped`).
+// Alta de contenido adicional con los datos de cada adición (idempotente: lo que ya está se devuelve en `skipped`).
 export function addGameAdditions(
   id: string,
-  externalIds: string[],
-  status: GameStatus,
+  items: AddGameAdditionItem[],
 ): Promise<AddGameAdditionsResponse> {
   return request<AddGameAdditionsResponse>(`${apiUrl(BASE_URL)}/${id}/additions`, {
     method: 'POST',
-    body: JSON.stringify({ externalIds, status }),
+    body: JSON.stringify({ additions: items }),
   }) as Promise<AddGameAdditionsResponse>
 }

@@ -141,19 +141,28 @@ describe('GameDetailPage contenido adicional', () => {
     expect(screen.queryByRole('button', { name: 'Añadir contenido adicional' })).not.toBeInTheDocument()
   })
 
-  it('el diálogo añade las seleccionadas con el estado elegido y refresca el bloque', async () => {
+  it('el diálogo añade las seleccionadas con su estado y datos, y refresca el bloque', async () => {
     renderPage()
 
     fireEvent.click(await screen.findByRole('button', { name: 'Añadir contenido adicional' }))
     expect(screen.getByRole('dialog', { name: 'Añadir contenido adicional' })).toBeInTheDocument()
 
     fireEvent.click(await screen.findByRole('checkbox', { name: 'GOTY Edition' }))
-    fireEvent.change(screen.getByRole('combobox', { name: 'Estado de las seleccionadas' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Estado de GOTY Edition' }), {
       target: { value: GameStatus.PLAYING },
     })
+    fireEvent.change(screen.getByLabelText('Precio de GOTY Edition'), { target: { value: '12' } })
     fireEvent.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
 
-    await waitFor(() => expect(addGameAdditions).toHaveBeenCalledWith('g1', ['3'], GameStatus.PLAYING))
+    await waitFor(() =>
+      expect(addGameAdditions).toHaveBeenCalledWith('g1', [
+        expect.objectContaining({
+          externalId: '3',
+          status: GameStatus.PLAYING,
+          acquisitionPrice: 12,
+        }),
+      ]),
+    )
     await waitFor(() =>
       expect(screen.queryByRole('dialog', { name: 'Añadir contenido adicional' })).not.toBeInTheDocument(),
     )
@@ -168,6 +177,7 @@ describe('GameDetailPage contenido adicional', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'Añadir contenido adicional' }))
     fireEvent.click(await screen.findByRole('checkbox', { name: 'GOTY Edition' }))
+    fireEvent.change(screen.getByLabelText('Precio de GOTY Edition'), { target: { value: '12' } })
     fireEvent.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
 
     const dialog = await screen.findByRole('dialog', { name: 'Añadir contenido adicional' })

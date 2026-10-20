@@ -57,3 +57,18 @@ export interface AddGameAdditionsResponse {
   linked: Game[]
   skipped: { externalId: string; reason: string }[]
 }
+
+/**
+ * Una adición a dar de alta. Las nuevas llevan su estado y, fuera de WISHLIST,
+ * fecha de obtención y precio (más fecha de inicio/fin según el estado). Las
+ * que ya están en la colección llevan `link: true` y conservan sus datos.
+ */
+export interface AddGameAdditionItem {
+  externalId: string
+  status: GameStatus
+  link?: boolean
+  acquisitionDate?: string
+  acquisitionPrice?: number
+  dateAdded?: string
+  dateCompleted?: string
+}

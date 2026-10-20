@@ -5,7 +5,7 @@ import AddGameDlcsDialog from '../components/AddGameDlcsDialog'
 import { getGameAdditions } from '../api/gamesApi'
 import { RequestError } from '../api/errors'
 import { GameStatus } from '../types'
-import type { GameAddition } from '../types'
+import type { AddGameAdditionItem, GameAddition } from '../types'
 
 vi.mock('../api/gamesApi', () => ({
   getGameAdditions: vi.fn(),
@@ -38,7 +38,7 @@ const catalogo: GameAddition[] = [
 ]
 
 function renderDialog(overrides: {
-  onSave?: (externalIds: string[], status: GameStatus) => void
+  onSave?: (items: AddGameAdditionItem[]) => void
   saveError?: string | null
 } = {}) {
   return render(
@@ -80,32 +80,132 @@ describe('AddGameDlcsDialog', () => {
     expect(nuevo).not.toBeDisabled()
   })
 
-  it('por defecto nace en posesión y envía los ids seleccionados con ese estado', async () => {
+  it('al seleccionar un DLC nuevo despliega estado, fecha de obtención y precio, y envía sus datos', async () => {
     const user = userEvent.setup()
     const onSave = vi.fn()
     renderDialog({ onSave })
 
-    expect(await screen.findByRole('combobox', { name: 'Estado de las seleccionadas' })).toHaveValue(GameStatus.OWNED)
+    expect(screen.queryByRole('combobox', { name: 'Estado de GOTY Edition' })).not.toBeInTheDocument()
 
     await user.click(await screen.findByRole('checkbox', { name: 'GOTY Edition' }))
+
+    const status = screen.getByRole('combobox', { name: 'Estado de GOTY Edition' })
+    expect(status).toHaveValue(GameStatus.OWNED)
+    const acquisitionDate = (screen.getByLabelText('Fecha de obtención de GOTY Edition') as HTMLInputElement).value
+    expect(acquisitionDate).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    fireEvent.change(screen.getByLabelText('Precio de GOTY Edition'), { target: { value: '9.99' } })
+
     await user.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
 
-    expect(onSave).toHaveBeenCalledWith(['3'], GameStatus.OWNED)
+    expect(onSave).toHaveBeenCalledWith([
+      expect.objectContaining({
+        externalId: '3',
+        status: GameStatus.OWNED,
+        acquisitionDate,
+        acquisitionPrice: 9.99,
+      }),
+    ])
+    const sent = onSave.mock.calls[0]?.[0]?.[0] ?? {}
+    expect(sent).not.toHaveProperty('dateAdded')
+    expect(sent).not.toHaveProperty('dateCompleted')
   })
 
-  it('aplica el estado elegido a todo el lote, incluido el que ya tenías suelto', async () => {
+  it('cada fila lleva su estado y sus datos, y lo que ya tienes se enlaza sin pedir datos', async () => {
     const user = userEvent.setup()
     const onSave = vi.fn()
     renderDialog({ onSave })
 
     await user.click(await screen.findByRole('checkbox', { name: 'Hearts of Stone' }))
     await user.click(screen.getByRole('checkbox', { name: 'GOTY Edition' }))
-    fireEvent.change(screen.getByRole('combobox', { name: 'Estado de las seleccionadas' }), {
-      target: { value: GameStatus.COMPLETED },
+
+    expect(screen.queryByRole('combobox', { name: 'Estado de Hearts of Stone' })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Precio de Hearts of Stone')).not.toBeInTheDocument()
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Estado de GOTY Edition' }), {
+      target: { value: GameStatus.PLAYING },
     })
+    const acquisitionDate = (screen.getByLabelText('Fecha de obtención de GOTY Edition') as HTMLInputElement).value
+    const dateAdded = (screen.getByLabelText('Fecha de inicio de GOTY Edition') as HTMLInputElement).value
+    fireEvent.change(screen.getByLabelText('Precio de GOTY Edition'), { target: { value: '4.5' } })
+
     await user.click(screen.getByRole('button', { name: 'Añadir 2 seleccionadas' }))
 
-    expect(onSave).toHaveBeenCalledWith(['2', '3'], GameStatus.COMPLETED)
+    expect(onSave).toHaveBeenCalledWith([
+      { externalId: '2', status: GameStatus.OWNED, link: true },
+      expect.objectContaining({
+        externalId: '3',
+        status: GameStatus.PLAYING,
+        acquisitionDate,
+        acquisitionPrice: 4.5,
+        dateAdded,
+      }),
+    ])
+  })
+
+  it('no envía si falta el precio de una adición nueva', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    renderDialog({ onSave })
+
+    await user.click(await screen.findByRole('checkbox', { name: 'GOTY Edition' }))
+    await user.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('El precio de adquisición es obligatorio')
+    expect(onSave).not.toHaveBeenCalled()
+  })
+
+  it('en lista de deseos no pide precio ni fechas y envía solo el estado', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    renderDialog({ onSave })
+
+    await user.click(await screen.findByRole('checkbox', { name: 'GOTY Edition' }))
+    fireEvent.change(screen.getByRole('combobox', { name: 'Estado de GOTY Edition' }), {
+      target: { value: GameStatus.WISHLIST },
+    })
+
+    expect(screen.queryByLabelText('Precio de GOTY Edition')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Fecha de obtención de GOTY Edition')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
+
+    expect(onSave).toHaveBeenCalledWith([{ externalId: '3', status: GameStatus.WISHLIST }])
+  })
+
+  it('en completado exige la fecha de fin', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    renderDialog({ onSave })
+
+    await user.click(await screen.findByRole('checkbox', { name: 'GOTY Edition' }))
+    fireEvent.change(screen.getByRole('combobox', { name: 'Estado de GOTY Edition' }), {
+      target: { value: GameStatus.COMPLETED },
+    })
+    fireEvent.change(screen.getByLabelText('Precio de GOTY Edition'), { target: { value: '10' } })
+    fireEvent.change(screen.getByLabelText('Fecha de fin de GOTY Edition'), { target: { value: '' } })
+
+    await user.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('La fecha de fin es obligatoria')
+    expect(onSave).not.toHaveBeenCalled()
+  })
+
+  it('en jugando exige la fecha de inicio', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    renderDialog({ onSave })
+
+    await user.click(await screen.findByRole('checkbox', { name: 'GOTY Edition' }))
+    fireEvent.change(screen.getByRole('combobox', { name: 'Estado de GOTY Edition' }), {
+      target: { value: GameStatus.PLAYING },
+    })
+    fireEvent.change(screen.getByLabelText('Precio de GOTY Edition'), { target: { value: '10' } })
+    fireEvent.change(screen.getByLabelText('Fecha de inicio de GOTY Edition'), { target: { value: '' } })
+
+    await user.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('La fecha de inicio es obligatoria')
+    expect(onSave).not.toHaveBeenCalled()
   })
 
   it('sin contenido adicional muestra un aviso de lista vacía, no el de error de RAWG', async () => {

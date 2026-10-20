@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getGame, deleteGame, listGames, addGameAdditions } from '../api/gamesApi'
-import { GameStatus, type Game } from '../types'
+import { GameStatus, type AddGameAdditionItem, type Game } from '../types'
 import GameStatusBadge from '../components/GameStatusBadge'
 import GamePlatformBadge from '../components/GamePlatformBadge'
 import { GAME_STATES, isPcPlatform, platformLabel } from '../constants/games'
@@ -119,12 +119,12 @@ export default function GameDetailPage() {
     }
   }
 
-  async function handleAddDlcs(externalIds: string[], status: GameStatus) {
+  async function handleAddDlcs(items: AddGameAdditionItem[]) {
     if (!id) return
     setAddBusy(true)
     setAddError(null)
     try {
-      await addGameAdditions(id, externalIds, status)
+      await addGameAdditions(id, items)
       setAddingDlcs(false)
       await loadDlcs(id)
     } catch (err) {
