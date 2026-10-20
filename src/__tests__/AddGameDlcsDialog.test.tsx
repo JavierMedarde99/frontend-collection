@@ -279,3 +279,88 @@ describe('AddGameDlcsDialog', () => {
     expect(screen.getByText(/Máximo 40 adiciones por petición/i)).toBeInTheDocument()
   })
 })
+
+/** Catálogo largo (6): supera el umbral de 5 para que aparezca el buscador. */
+function catalogoLargo(): GameAddition[] {
+  return ['Blood and Wine', 'Hearts of Stone', 'GOTY Edition', 'Free DLC 1', 'Free DLC 2', 'Free DLC 3'].map(
+    (title, i) => ({ externalId: `l${i}`, title, genres: [], inCollection: false, alreadyLinked: false }),
+  )
+}
+
+describe('AddGameDlcsDialog con buscador', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('con más de 5 adiciones aparece el buscador; con el catálogo corto, no', async () => {
+    mockedGetAdditions.mockResolvedValue({
+      baseGameId: 'g1',
+      baseExternalId: '292030',
+      additions: catalogoLargo(),
+      totalAvailable: 6,
+    })
+    const { unmount } = renderDialog()
+
+    expect(await screen.findByRole('searchbox', { name: 'Buscar contenido adicional' })).toBeInTheDocument()
+    unmount()
+
+    mockedGetAdditions.mockResolvedValue({
+      baseGameId: 'g1',
+      baseExternalId: '292030',
+      additions: catalogo,
+      totalAvailable: 3,
+    })
+    renderDialog()
+
+    expect(await screen.findByRole('checkbox', { name: 'GOTY Edition' })).toBeInTheDocument()
+    expect(screen.queryByRole('searchbox', { name: 'Buscar contenido adicional' })).not.toBeInTheDocument()
+  })
+
+  it('filtra las filas por título y avisa cuando no hay coincidencias', async () => {
+    const user = userEvent.setup()
+    mockedGetAdditions.mockResolvedValue({
+      baseGameId: 'g1',
+      baseExternalId: '292030',
+      additions: catalogoLargo(),
+      totalAvailable: 6,
+    })
+    renderDialog()
+
+    const buscador = await screen.findByRole('searchbox', { name: 'Buscar contenido adicional' })
+    await user.type(buscador, 'hearts')
+
+    expect(screen.getByRole('checkbox', { name: 'Hearts of Stone' })).toBeInTheDocument()
+    expect(screen.queryByRole('checkbox', { name: 'GOTY Edition' })).not.toBeInTheDocument()
+    expect(screen.getByText('1 de 6')).toBeInTheDocument()
+
+    await user.clear(buscador)
+    await user.type(buscador, 'zzz')
+
+    expect(screen.queryByRole('checkbox', { name: 'Hearts of Stone' })).not.toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent(/no hay coincidencias/i)
+  })
+
+  it('mantiene la selección hecha cuando el filtro la oculta', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    mockedGetAdditions.mockResolvedValue({
+      baseGameId: 'g1',
+      baseExternalId: '292030',
+      additions: catalogoLargo(),
+      totalAvailable: 6,
+    })
+    renderDialog({ onSave })
+
+    await user.click(await screen.findByRole('checkbox', { name: 'GOTY Edition' }))
+    fireEvent.change(screen.getByLabelText('Precio de GOTY Edition'), { target: { value: '9' } })
+
+    await user.type(screen.getByRole('searchbox', { name: 'Buscar contenido adicional' }), 'hearts')
+
+    expect(screen.queryByRole('checkbox', { name: 'GOTY Edition' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Añadir 1 seleccionada' }))
+
+    expect(onSave).toHaveBeenCalledWith([
+      expect.objectContaining({ externalId: 'l2', status: GameStatus.OWNED, acquisitionPrice: 9 }),
+    ])
+  })
+})
