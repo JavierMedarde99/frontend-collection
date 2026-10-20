@@ -61,8 +61,9 @@ describe('GameForm con catálogo de plataformas', () => {
 
   it('mantiene como opción la plataforma guardada aunque no esté en el catálogo', async () => {
     renderForm({ platform: 'WII_U' })
-    // El valor actual se muestra tal cual aunque el catálogo no lo liste.
-    expect(platformInput()).toHaveValue('WII_U')
+    // El combobox muestra la etiqueta; el valor crudo vive en el form (ver
+    // PlatformCombobox.test.tsx, «guarda su valor crudo»).
+    expect(platformInput()).toHaveValue('Wii U')
 
     await userEvent.click(platformInput())
     await waitFor(() => expect(optionTexts()).toContain('Wii U'))

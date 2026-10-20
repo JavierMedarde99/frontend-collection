@@ -22,7 +22,7 @@ export interface ListGamesParams {
   size?: number
   sort?: string
   name?: string
-  platform?: string
+  platform?: string[]
   status?: GameStatus | ''
   genre?: string[]
   owner?: 'mine' | 'other' | 'all' | ''
