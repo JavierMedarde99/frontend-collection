@@ -72,6 +72,15 @@ describe('AmiiboDetailPage', () => {
     expect(screen.getByText('14.5 €')).toBeInTheDocument()
   })
 
+  it('no muestra el precio de adquisición si está en lista de deseos aunque tenga precio guardado', async () => {
+    mockedGet.mockResolvedValue(amiiboWith({ status: AmiiboStatus.WISHLIST }))
+    renderDetail()
+
+    expect(await screen.findByRole('heading', { name: 'Mario' })).toBeInTheDocument()
+    expect(screen.queryByText('Precio de adquisición')).not.toBeInTheDocument()
+    expect(screen.queryByText('14.5 €')).not.toBeInTheDocument()
+  })
+
   it('ofrece Editar y Eliminar cuando es tu pieza', async () => {
     mockedGet.mockResolvedValue(amiiboWith())
     renderDetail()

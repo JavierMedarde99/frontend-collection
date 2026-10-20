@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
 import { getAmiibo, deleteAmiibo } from '../api/amiibosApi'
-import type { Amiibo } from '../types'
+import { AmiiboStatus, type Amiibo } from '../types'
 import FigureStatusBadge from '../components/FigureStatusBadge'
 import { AMIIBO_TYPE_LABELS } from '../constants/figures'
 import Spinner from '../components/Spinner'
@@ -113,7 +113,8 @@ export default function AmiiboDetailPage() {
       : []),
     ...(amiibo.dateAdded ? [{ label: 'En la colección desde', value: amiibo.dateAdded }] : []),
     ...(amiibo.acquisitionDate ? [{ label: 'Fecha de obtención', value: amiibo.acquisitionDate }] : []),
-    ...(amiibo.acquisitionPrice !== undefined && amiibo.acquisitionPrice !== null
+    // En la lista de deseos el precio no se rellena: no se muestra aunque quede uno guardado.
+    ...(amiibo.acquisitionPrice !== undefined && amiibo.acquisitionPrice !== null && amiibo.status !== AmiiboStatus.WISHLIST
       ? [{ label: 'Precio de adquisición', value: `${amiibo.acquisitionPrice} €` }]
       : []),
   ]
