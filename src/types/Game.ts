@@ -20,3 +20,10 @@ export interface Game {
   genres?: string[]
   userOwned?: UserOwned | null
 }
+
+export interface GameGroup {
+  gameKey: string
+  title: string
+  thumbnailUrl?: string
+  games: Game[]
+}
