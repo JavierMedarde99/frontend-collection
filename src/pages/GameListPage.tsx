@@ -6,8 +6,9 @@ import GenreSelect from '../components/GenreSelect'
 import { listGameGenres, listGamePlatforms } from '../api/gamesApi'
 import { useGenreOptions } from '../hooks/useGenreOptions'
 import { usePlatformOptions } from '../hooks/usePlatformOptions'
-import { GameStatus, type Game } from '../types'
+import { GameStatus, type Game, type GameGroup } from '../types'
 import GameCard from '../components/GameCard'
+import GameGroupCard from '../components/GameGroupCard'
 import SkeletonGrid from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 import FilterPill from '../components/FilterPill'
@@ -58,7 +59,7 @@ export default function GameListPage() {
     error,
     sentinelRef,
     reload: load,
-  } = useInfiniteScroll<Game>( {
+  } = useInfiniteScroll<GameGroup>( {
     size: PAGE_SIZE,
     errorMessage: 'No se pudieron cargar los videojuegos.',
     fetchPage: (page, size) => listGames({
@@ -71,6 +72,7 @@ export default function GameListPage() {
         owner: effectiveTab,
         viewerId: user?.id || undefined,
         sort,
+        groupBy: 'game',
       }),
     deps: [status, platformFilter, genreFilter, nameFilter, sort, effectiveTab, user?.id],
   })
@@ -248,10 +250,10 @@ export default function GameListPage() {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {games.map((game, index) => (
-              <GameCard key={game.id} game={game} index={index}
+            {games.map((group: GameGroup, index) => (
+              <GameGroupCard key={group.gameKey} group={group} index={index}
                 readOnly={effectiveTab === 'other'}
-                onDelete={async () => { await deleteGame(game.id); load() }}
+                onDelete={async (gameId: string) => { await deleteGame(gameId); load() }}
               />
             ))}
           </div>
