@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import ActionLink from './ActionLink'
 import CardMenu from './CardMenu'
@@ -12,9 +11,9 @@ import StarRating from './StarRating'
 import GameStateDialog from './GameStateDialog'
 import AcquisitionGameDialog from './AcquisitionGameDialog'
 import CompleteGameDialog from './CompleteGameDialog'
-import { updateGame } from '../api/gamesApi'
+import useGameRecordActions from '../hooks/useGameRecordActions'
 import { GameStatus } from '../types'
-import type { Game, GameFormData } from '../types'
+import type { Game } from '../types'
 
 interface GameCardProps {
   game: Game
@@ -23,84 +22,21 @@ interface GameCardProps {
   readOnly?: boolean
 }
 
-// Payload del PUT conservando el resto del juego: solo cambian estado y fechas.
-function gameToPayload(game: Game, patch: Partial<GameFormData>): GameFormData {
-  return {
-    title: game.title,
-    platform: game.platform,
-    status: game.status,
-    thumbnailUrl: game.thumbnailUrl,
-    userRating: game.userRating,
-    comment: game.comment,
-    dateAdded: game.dateAdded,
-    dateCompleted: game.dateCompleted,
-    externalSource: game.externalSource,
-    externalId: game.externalId,
-    obtainPlatinum: game.obtainPlatinum,
-    steamAppId: game.steamAppId,
-    genres: game.genres ?? [],
-    acquisitionDate: game.acquisitionDate,
-    acquisitionPrice: game.acquisitionPrice,
-    ...patch,
-  }
-}
-
 export default function GameCard({ game, index = 0, onDelete, readOnly = false }: GameCardProps) {
-  const [override, setOverride] = useState<Partial<Game>>({})
-  const [playingDialog, setPlayingDialog] = useState(false)
-  const [completingDialog, setCompletingDialog] = useState(false)
-  const [acquiringDialog, setAcquiringDialog] = useState(false)
-  const [actionError, setActionError] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
-  const shown = { ...game, ...override }
-
-  async function applyStatus(patch: Partial<GameFormData>) {
-    setActionError(null)
-    setSaving(true)
-    try {
-      const updated = await updateGame(game.id, gameToPayload(game, patch))
-      setOverride((o) => ({
-        ...o,
-        status: updated.status,
-        dateAdded: updated.dateAdded,
-        dateCompleted: updated.dateCompleted,
-acquisitionDate: updated.acquisitionDate,
-        acquisitionPrice: updated.acquisitionPrice,
-        userRating: updated.userRating,
-        comment: updated.comment,
-      }))
-      setPlayingDialog(false)
-      setCompletingDialog(false)
-      setAcquiringDialog(false)
-    } catch {
-      setActionError('No se pudo actualizar el videojuego.')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  function markAsOwned(acquisitionDate: string, acquisitionPrice: number) {
-    return applyStatus({
-      status: GameStatus.OWNED,
-      acquisitionDate,
-      acquisitionPrice,
-      dateAdded: undefined,
-      dateCompleted: undefined,
-    })
-  }
-
-  function startPlaying(date: string) {
-    return applyStatus({ status: GameStatus.PLAYING, dateAdded: date })
-  }
-
-  function markComplete(date: string, rating: number, comment: string) {
-    return applyStatus({
-      status: GameStatus.COMPLETED,
-      dateCompleted: date,
-      userRating: rating > 0 ? rating : undefined,
-      comment: comment.trim() || undefined,
-    })
-  }
+  const {
+    record: shown,
+    saving,
+    actionError,
+    openPlaying,
+    openAcquiring,
+    openCompleting,
+    setOpenPlaying,
+    setOpenAcquiring,
+    setOpenCompleting,
+    onSavePlaying,
+    onSaveAcquiring,
+    onSaveComplete,
+  } = useGameRecordActions(game)
 
   return (
     <article
@@ -181,14 +117,14 @@ acquisitionDate: updated.acquisitionDate,
               Ver logros
             </Link>
           )}
-{!readOnly && (
+        {!readOnly && (
           <>
           {shown.status === GameStatus.WISHLIST && (
             <button
               type="button"
               className="btn-ghost !px-3 !py-1.5"
               aria-label={`Marcar ${game.title} como en posesión`}
-              onClick={() => setAcquiringDialog(true)}
+              onClick={() => setOpenAcquiring(true)}
               disabled={saving}
             >
               En posesión
@@ -199,7 +135,7 @@ acquisitionDate: updated.acquisitionDate,
               type="button"
               className="btn-ghost !px-3 !py-1.5"
               aria-label={`Empezar a jugar a ${game.title}`}
-              onClick={() => setPlayingDialog(true)}
+              onClick={() => setOpenPlaying(true)}
               disabled={saving}
             >
               Jugando
@@ -210,7 +146,7 @@ acquisitionDate: updated.acquisitionDate,
               type="button"
               className="btn-ghost !px-3 !py-1.5"
               aria-label={`Marcar ${game.title} como completado`}
-              onClick={() => setCompletingDialog(true)}
+              onClick={() => setOpenCompleting(true)}
               disabled={saving}
             >
               Completado
@@ -224,35 +160,35 @@ acquisitionDate: updated.acquisitionDate,
         </div>
       </div>
 
-      {playingDialog && (
+      {openPlaying && (
         <GameStateDialog
           title="¡A jugar!"
           description="El videojuego pasará a «Jugando»."
           dateLabel="Fecha de inicio"
           dateValue={shown.dateAdded}
-          onSave={startPlaying}
-          onClose={() => setPlayingDialog(false)}
+          onSave={(date: string) => onSavePlaying(date)}
+          onClose={() => setOpenPlaying(false)}
           busy={saving}
         />
       )}
 
-      {acquiringDialog && (
+      {openAcquiring && (
         <AcquisitionGameDialog
           acquisitionDate={shown.acquisitionDate}
           acquisitionPrice={shown.acquisitionPrice}
-          onSave={markAsOwned}
-          onClose={() => setAcquiringDialog(false)}
+          onSave={(acquisitionDate: string, acquisitionPrice: number) => onSaveAcquiring(acquisitionDate, acquisitionPrice)}
+          onClose={() => setOpenAcquiring(false)}
           busy={saving}
         />
       )}
 
-      {completingDialog && (
+      {openCompleting && (
         <CompleteGameDialog
           dateValue={shown.dateCompleted}
           ratingValue={shown.userRating}
           commentValue={shown.comment}
-          onSave={markComplete}
-          onClose={() => setCompletingDialog(false)}
+          onSave={(date: string, rating: number, comment: string) => onSaveComplete(date, rating, comment)}
+          onClose={() => setOpenCompleting(false)}
           busy={saving}
         />
       )}
