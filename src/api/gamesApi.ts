@@ -22,6 +22,8 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T | n
   return null
 }
 
+export function listGames(params: ListGamesParams & { groupBy: 'game' }): Promise<PageGameGroupResponse>
+export function listGames(params?: ListGamesParams): Promise<PageGameResponse>
 export function listGames(params: ListGamesParams = {}): Promise<PageGameResponse | PageGameGroupResponse> {
   const search = new URLSearchParams()
   const { page, size, sort, name, platform, status , genre, owner, viewerId, groupBy, type } = params

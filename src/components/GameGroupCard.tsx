@@ -18,6 +18,7 @@ interface GameGroupCardProps {
 
 export default function GameGroupCard({ group, index = 0, readOnly = false, onDelete }: GameGroupCardProps) {
   const firstGame = group.games[0]
+  if (!firstGame) return null
 
   return (
     <article
@@ -96,7 +97,7 @@ function GameRow({ game, groupTitle, readOnly = false, onDelete }: { game: GameG
       <div className="flex items-center gap-3">
         <GamePlatformBadge platform={game.platform} />
         <GameStatusBadge status={shown.status} />
-        <StarRating value={game.userRating} readOnly />
+        <StarRating value={shown.userRating} readOnly />
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
