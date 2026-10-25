@@ -232,6 +232,7 @@ export default function BookListPage() {
       ) : books.length === 0 ? (
         <>
           <EmptyState
+            variant={hasActiveFilters ? 'search' : 'empty'}
             title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'Aún no tienes libros'}
             message={
               hasActiveFilters

@@ -257,13 +257,17 @@
 }
 
 .vitrina-niches {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
 }
 
 .vitrina-niche {
   position: relative;
+  flex: 1 1 calc((100% - 24px) / 3);
+  max-width: calc((100% - 24px) / 3);
+  min-width: 88px;
   height: 128px;
   display: flex;
   align-items: center;
@@ -293,6 +297,9 @@
 }
 .vitrina-niche:nth-child(6) {
   animation-delay: 0.45s;
+}
+.vitrina-niche:nth-child(7) {
+  animation-delay: 0.52s;
 }
 
 .vitrina-niche-obj {

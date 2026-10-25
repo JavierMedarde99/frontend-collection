@@ -12,15 +12,18 @@ interface EntityTotals {
   decks: number
   boardGames: number
   movieShows: number
+  /** Figuras agrupa dos colecciones del backend (funkos + amiibos). */
+  figures: number
 }
 
-const ENTITIES: { key: keyof EntityTotals; label: string; to: string }[] = [
+const ENTITIES: { key: keyof EntityTotals; label: string; to: string; nick?: string }[] = [
   { key: 'books', label: 'Libros', to: '/coleccion' },
   { key: 'games', label: 'Videojuegos', to: '/juegos' },
-  { key: 'magic', label: 'Cartas Magic', to: '/magic' },
+  { key: 'magic', label: 'Cartas Magic', to: '/magic/cartas' },
   { key: 'decks', label: 'Mazos', to: '/magic/mazos' },
   { key: 'boardGames', label: 'Juegos de mesa', to: '/boardgames' },
   { key: 'movieShows', label: 'Películas y series', to: '/movieshows' },
+  { key: 'figures', label: 'Figuras', to: '/figuras', nick: 'Figuras' },
 ]
 
 /** Clave interna de HomePage (camelCase) → clave de COLLECTIONS (minúscula). */
@@ -31,6 +34,8 @@ const KEY: Record<keyof EntityTotals, CollectionKey> = {
   decks: 'decks',
   boardGames: 'boardgames',
   movieShows: 'movieshows',
+  // Figuras toma el acento de Funko Pop (su colección "de cabecera").
+  figures: 'funkos',
 }
 
 /** Pieza dibujada de cada colección, tal y como se aprobó en el mockup. */
@@ -82,9 +87,23 @@ const NICHE_ICONS: Record<keyof EntityTotals, ReactNode> = {
       <path d="M10.6 16h2M14.4 16h.5M32 16h.5M35.4 16h2M10.6 32h2M14.4 32h.5M32 32h.5M35.4 32h2" />
     </>
   ),
+  figures: (
+    <>
+      <rect x="16.5" y="7" width="15" height="13" rx="3.5" />
+      <path d="M13.5 24h21l-2.6 17h-15.8z" />
+    </>
+  ),
 }
 
-const ZERO_TOTALS: EntityTotals = { books: 0, games: 0, magic: 0, decks: 0, boardGames: 0, movieShows: 0 }
+const ZERO_TOTALS: EntityTotals = {
+  books: 0,
+  games: 0,
+  magic: 0,
+  decks: 0,
+  boardGames: 0,
+  movieShows: 0,
+  figures: 0,
+}
 
 async function fetchEntityTotals(): Promise<EntityTotals> {
   try {
@@ -97,6 +116,7 @@ async function fetchEntityTotals(): Promise<EntityTotals> {
       decks: get('decks'),
       boardGames: get('boardgames'),
       movieShows: get('movieshows'),
+      figures: get('funkos') + get('amiibos'),
     }
   } catch {
     return { ...ZERO_TOTALS }
@@ -168,7 +188,11 @@ export default function HomePage() {
 
   const visibleEntities = !isAuthenticated
     ? ENTITIES
-    : ENTITIES.filter((entity) => activeCollections.includes(entity.key.toUpperCase()))
+    : ENTITIES.filter((entity) =>
+        entity.key === 'figures'
+          ? activeCollections.includes('FUNKOS') || activeCollections.includes('AMIIBOS')
+          : activeCollections.includes(entity.key.toUpperCase()),
+      )
 
   const total = entities ? visibleEntities.reduce((sum, e) => sum + entities[e.key], 0) : 0
   const piezaWord = total === 1 ? 'pieza' : 'piezas'
@@ -188,8 +212,9 @@ export default function HomePage() {
             Todas tus colecciones, <em className="italic text-brand font-medium">por fin</em> en orden
           </h1>
           <p className="text-subheading text-graphite max-w-[46ch]">
-            Libros, videojuegos, cartas Magic, mazos, juegos de mesa, películas y series: cada pieza
-            tiene su vitrina. Guárdalo todo y encuéntralo al instante.
+            Libros, videojuegos, cartas Magic, mazos, juegos de mesa, películas y series y tus
+            figuras Funko y Amiibo: cada pieza tiene su vitrina. Guárdalo todo y encuéntralo al
+            instante.
           </p>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-7">
             <Link to={cta.to} className="btn-primary">
@@ -234,7 +259,9 @@ export default function HomePage() {
                 >
                   {NICHE_ICONS[entity.key]}
                 </svg>
-                <span className="vitrina-niche-label">{COLLECTIONS_BY_KEY[KEY[entity.key]].nick}</span>
+                <span className="vitrina-niche-label">
+                  {entity.nick ?? COLLECTIONS_BY_KEY[KEY[entity.key]].nick}
+                </span>
               </div>
             ))}
           </div>

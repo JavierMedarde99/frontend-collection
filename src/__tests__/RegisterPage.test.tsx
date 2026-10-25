@@ -67,7 +67,10 @@ describe('RegisterPage', () => {
     await userEvent.type(screen.getByLabelText(/Contraseña/), 'secret123')
     await userEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('entre 3 y 20 caracteres')
+    expect(await screen.findByText('El usuario debe tener entre 3 y 20 caracteres.')).toBeInTheDocument()
+    const username = screen.getByLabelText(/Usuario/)
+    expect(username).toHaveAttribute('aria-invalid', 'true')
+    expect(username).toHaveAttribute('aria-describedby', 'register-username-error')
     expect(mockedRegister).not.toHaveBeenCalled()
   })
 
@@ -117,7 +120,33 @@ describe('RegisterPage', () => {
     await userEvent.type(screen.getByLabelText(/Steam ID/), 'abc')
     await userEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('17 dígitos')
+    expect(await screen.findByText('El Steam ID debe tener 17 dígitos.')).toBeInTheDocument()
+    const steamId = screen.getByLabelText(/Steam ID/)
+    expect(steamId).toHaveAttribute('aria-invalid', 'true')
+    expect(steamId).toHaveAttribute('aria-describedby', 'register-steam-error')
     expect(mockedRegister).not.toHaveBeenCalled()
+  })
+
+  it('marca el email inválido con aria-invalid y su mensaje', async () => {
+    renderRegister()
+    await fillValid()
+    await userEvent.clear(screen.getByLabelText(/Email/))
+    await userEvent.type(screen.getByLabelText(/Email/), 'no-es-email')
+    await userEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    expect(await screen.findByText('El email no tiene un formato válido.')).toBeInTheDocument()
+    const email = screen.getByLabelText(/Email/)
+    expect(email).toHaveAttribute('aria-invalid', 'true')
+    expect(email).toHaveAttribute('aria-describedby', 'register-email-error')
+    expect(mockedRegister).not.toHaveBeenCalled()
+  })
+
+  it('enfoca el primer campo inválido al enviar', async () => {
+    renderRegister()
+    await userEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    const username = screen.getByLabelText(/Usuario/)
+    expect(await screen.findByText('El usuario debe tener entre 3 y 20 caracteres.')).toBeInTheDocument()
+    expect(username).toHaveFocus()
   })
 })

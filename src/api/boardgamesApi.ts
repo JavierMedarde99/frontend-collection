@@ -1,4 +1,4 @@
-import type { PageBoardGameResponse, ListBoardGamesParams, BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse, PageBoardGameSearchResult } from '../types'
+import type { PageBoardGameResponse, ListBoardGamesParams, BoardGame, BoardGameFormData, BoardGameSearchResult, BoardGameSearchResponse, PageBoardGameSearchResult, BoardGameExpansionList, AddExpansionsResponse, AddExpansionItem } from '../types'
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
 import { apiUrl } from './apiBase'
@@ -23,7 +23,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T | n
 
 export function listBoardGames(params: ListBoardGamesParams = {}): Promise<PageBoardGameResponse> {
   const search = new URLSearchParams()
-  const { page, size, sort, name, status , genre, owner, viewerId } = params
+  const { page, size, sort, name, status , genre, owner, viewerId, type } = params
   if (page !== undefined && page !== null) search.set('page', String(page))
   if (size !== undefined && size !== null) search.set('size', String(size))
   if (sort) search.set('sort', sort)
@@ -32,6 +32,7 @@ export function listBoardGames(params: ListBoardGamesParams = {}): Promise<PageB
   if (genre) for (const g of genre) search.append('genre', g)
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
+  if (type) search.set('type', type)
   const qs = search.toString()
   return request<PageBoardGameResponse>(`${apiUrl(BASE_URL)}${qs ? `?${qs}` : ''}`) as Promise<PageBoardGameResponse>
 }
@@ -61,6 +62,19 @@ export function deleteBoardGame(id: string): Promise<null> {
 // Catálogo de géneros en uso en la colección (para autocompletar el selector).
 export function listBoardGameGenres(): Promise<string[]> {
   return request<string[]>(`${apiUrl(BASE_URL)}/genres`) as Promise<string[]>
+}
+
+// Expansiones de BGG para un juego base, con el flag «ya lo tienes» del espectador.
+export function getExpansions(id: string): Promise<BoardGameExpansionList> {
+  return request<BoardGameExpansionList>(`${apiUrl(BASE_URL)}/${id}/expansions`) as Promise<BoardGameExpansionList>
+}
+
+// Alta de expansiones con el estado en el que nacen (idempotente: lo que ya está se devuelve en `skipped`).
+export function addExpansions(id: string, expansions: AddExpansionItem[]): Promise<AddExpansionsResponse> {
+  return request<AddExpansionsResponse>(`${apiUrl(BASE_URL)}/${id}/expansions`, {
+    method: 'POST',
+    body: JSON.stringify({ expansions }),
+  }) as Promise<AddExpansionsResponse>
 }
 
 export async function searchBoardGames(name: string): Promise<BoardGameSearchResult[]> {

@@ -1,6 +1,6 @@
 import { useRef, useState, type CSSProperties, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { listMagicCards, deleteMagicCard } from '../api/magicApi'
+import { listMagicCards, deleteMagicCard, addMagicCardCopies } from '../api/magicApi'
 import { MAGIC_CARD_TYPES } from '../constants/magic'
 import type { MagicCardResponse } from '../types'
 import MagicCard from '../components/MagicCard'
@@ -13,6 +13,7 @@ import { useSearchShortcut } from '../hooks/useSearchShortcut'
 import SortSelect from '../components/SortSelect'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useToast } from '../components/Toast'
 import { useAuth } from '../context/AuthContext'
 import OwnerTabs, { type OwnerTab } from '../components/OwnerTabs'
 import { useListQuery } from '../hooks/useListQuery'
@@ -35,6 +36,7 @@ const COLOR_OPTIONS = [
 
 export default function MagicListPage() {
   usePageTitle('Magic')
+  const notify = useToast()
   const [nameInput, setNameInput] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchShortcut(searchRef)
@@ -140,7 +142,7 @@ export default function MagicListPage() {
             </button>
           )}
           {effectiveTab === 'mine' && (
-            <Link className="btn-primary" to="/magic/nuevo">
+            <Link className="btn-primary" to="/magic/cartas/nuevo">
               <svg
                 aria-hidden="true"
                 className="w-4 h-4 mr-1.5"
@@ -218,6 +220,7 @@ export default function MagicListPage() {
       ) : cards.length === 0 ? (
         <>
           <EmptyState
+            variant={hasActiveFilters ? 'search' : 'empty'}
             title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'No hay cartas Magic'}
           message={
             hasActiveFilters
@@ -231,7 +234,7 @@ export default function MagicListPage() {
                 Limpiar filtros
               </button>
             ) : effectiveTab === 'other' ? undefined : (
-              <Link className="btn-primary mt-2" to="/magic/nuevo">
+              <Link className="btn-primary mt-2" to="/magic/cartas/nuevo">
                 Añadir carta
               </Link>
             )
@@ -248,6 +251,11 @@ export default function MagicListPage() {
               <MagicCard key={card.id} card={card} index={idx}
                 readOnly={effectiveTab === 'other'}
                 onDelete={async () => { await deleteMagicCard(card.id); load() }}
+                onAddCopies={async (quantity) => {
+                  await addMagicCardCopies(card.id, quantity)
+                  notify(quantity > 1 ? `${quantity} copias añadidas.` : '1 copia añadida.')
+                  load()
+                }}
               />
             ))}
           </div>

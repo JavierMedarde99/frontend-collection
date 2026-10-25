@@ -1,12 +1,13 @@
 import { useRef, useState, type CSSProperties, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listGames, deleteGame } from '../api/gamesApi'
-import { GAME_STATES, platformLabel } from '../constants/games'
+import { GAME_STATES } from '../constants/games'
 import GenreSelect from '../components/GenreSelect'
+import PlatformCombobox from '../components/PlatformCombobox'
 import { listGameGenres, listGamePlatforms } from '../api/gamesApi'
 import { useGenreOptions } from '../hooks/useGenreOptions'
 import { usePlatformOptions } from '../hooks/usePlatformOptions'
-import { GameStatus, type Game, type GameGroup } from '../types'
+import { GameStatus, type Game, type GameGroup, type GameTypeFilter } from '../types'
 import GameCard from '../components/GameCard'
 import GameGroupCard from '../components/GameGroupCard'
 import SkeletonGrid from '../components/Skeleton'
@@ -37,12 +38,13 @@ export default function GameListPage() {
 
   const [query, setQuery] = useListQuery({
     status: '' as GameStatus | '',
-    platform: '',
+    platform: [] as string[],
     genre: [] as string[],
     name: '',
     sort: 'title,asc',
+    type: '' as GameTypeFilter | '',
   })
-  const { status, platform: platformFilter, genre: genreFilter, name: nameFilter, sort } = query
+  const { status, platform: platformFilter, genre: genreFilter, name: nameFilter, sort, type } = query
   const genreOptions = useGenreOptions(listGameGenres)
   const platformOptions = usePlatformOptions(listGamePlatforms)
 
@@ -66,15 +68,16 @@ export default function GameListPage() {
         page,
         size,
         status: status || undefined,
-        platform: platformFilter || undefined,
+        platform: platformFilter.length > 0 ? platformFilter : undefined,
         genre: genreFilter || undefined,
         name: nameFilter || undefined,
         owner: effectiveTab,
         viewerId: user?.id || undefined,
         sort,
         groupBy: 'game',
+        type: type || undefined,
       }),
-    deps: [status, platformFilter, genreFilter, nameFilter, sort, effectiveTab, user?.id],
+    deps: [status, platformFilter, genreFilter, nameFilter, sort, effectiveTab, user?.id, type],
   })
 
 
@@ -85,12 +88,12 @@ export default function GameListPage() {
 
   function clearFilters() {
     setNameInput('')
-    setQuery({ status: '', platform: '', genre: [], name: '' })
+    setQuery({ status: '', platform: [], genre: [], name: '', type: '' })
   }
 
-  const hasActiveFilters = Boolean(status || platformFilter || genreFilter.length > 0 || nameFilter)
+  const hasActiveFilters = Boolean(status || platformFilter.length > 0 || genreFilter.length > 0 || nameFilter || type)
 
-  const activeFilterCount = [platformFilter, nameFilter].filter(Boolean).length + genreFilter.length
+  const activeFilterCount = platformFilter.length + (nameFilter ? 1 : 0) + genreFilter.length
 
   return (
     <section
@@ -162,23 +165,24 @@ export default function GameListPage() {
             inputRef={searchRef}
             shortcutHint
           />
-            <select
-              className="input md:w-48"
-              value={platformFilter}
-              onChange={(e) => { setQuery({ platform: e.target.value }) }}
-              aria-label="Filtrar por plataforma"
-            >
-              <option value="">Todas las plataformas</option>
-              {/* El filtro activo siempre aparece como opción: si el juego guardado
-                  tiene un nombre viejo (WII_U) que el catálogo ya no lista, el filtro
-                  debe poder seguir mostrando ese estado y no quedar en un valor
-                  imposible de seleccionar. */}
-              {platformOptions
-                .concat(platformFilter && !platformOptions.includes(platformFilter) ? [platformFilter] : [])
-                .map((name) => (
-                  <option key={name} value={name}>{platformLabel(name)}</option>
-                ))}
-            </select>
+            <div className="md:w-64">
+              {/* Multiselección con buscador. `allowCustom` en false: escribir solo
+                  filtra, no crea valores (un filtro con texto libre daría 0
+                  resultados y ensuciaría la URL). El filtro activo siempre aparece
+                  en la lista: si el juego guardado tiene un nombre viejo (WII_U) que
+                  el catálogo ya no lista, el filtro debe poder seguir mostrándolo y
+                  no quedar en un valor imposible de seleccionar. */}
+              <PlatformCombobox
+                multiple
+                values={platformFilter}
+                onChange={(next) => setQuery({ platform: next })}
+                options={platformOptions}
+                allowCustom={false}
+                emptyOptionLabel="Todas las plataformas"
+                placeholder="Filtrar plataforma…"
+                ariaLabel="Filtrar por plataforma"
+              />
+            </div>
           </div>
           <div>
             <span className="label" id="filtro-genero-label">Géneros</span>
@@ -211,6 +215,23 @@ export default function GameListPage() {
         ))}
       </div>
 
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por tipo">
+        <span className="text-caption text-stone mr-1 self-center">Tipo:</span>
+        <FilterPill active={!type} onClick={() => setQuery({ type: '' })} label="Filtrar por tipo: Todos">
+          Todos
+        </FilterPill>
+        <FilterPill active={type === 'base'} onClick={() => setQuery({ type: 'base' })} label="Filtrar por tipo: Juegos">
+          Juegos
+        </FilterPill>
+        <FilterPill
+          active={type === 'dlc'}
+          onClick={() => setQuery({ type: 'dlc' })}
+          label="Filtrar por tipo: Contenido adicional"
+        >
+          Contenido adicional
+        </FilterPill>
+      </div>
+
       <OwnerTabs value={effectiveTab} onChange={setOwnerTab} showMine={isAuthenticated} />
 
       {error && (
@@ -224,6 +245,7 @@ export default function GameListPage() {
       ) : games.length === 0 ? (
         <>
           <EmptyState
+            variant={hasActiveFilters ? 'search' : 'empty'}
             title={(effectiveTab === 'other' && !hasActiveFilters) ? 'Nada por aquí todavía' : hasActiveFilters ? 'Sin resultados' : 'Aún no tienes videojuegos'}
             message={
               hasActiveFilters

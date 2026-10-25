@@ -1,4 +1,4 @@
-import type { PageGameResponse, PageGameGroupResponse, ListGamesParams, Game, GameFormData, SearchGameResult, PageGameSearchResult, GameAchievementsResponse, PlatformInfo } from '../types'
+import type { PageGameResponse, PageGameGroupResponse, ListGamesParams, Game, GameFormData, SearchGameResult, PageGameSearchResult, GameAchievementsResponse, PlatformInfo, GameAdditionList, AddGameAdditionsResponse, AddGameAdditionItem } from '../types'
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
 import { apiUrl } from './apiBase'
@@ -24,17 +24,18 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T | n
 
 export function listGames(params: ListGamesParams = {}): Promise<PageGameResponse | PageGameGroupResponse> {
   const search = new URLSearchParams()
-  const { page, size, sort, name, platform, status , genre, owner, viewerId, groupBy } = params
+  const { page, size, sort, name, platform, status , genre, owner, viewerId, groupBy, type } = params
   if (page !== undefined && page !== null) search.set('page', String(page))
   if (size !== undefined && size !== null) search.set('size', String(size))
   if (sort) search.set('sort', sort)
   if (name) search.set('name', name)
-  if (platform) search.set('platform', platform)
+  if (platform && platform.length > 0) for (const p of platform) search.append('platform', p)
   if (status) search.set('status', status)
   if (genre) for (const g of genre) search.append('genre', g)
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
   if (groupBy) search.set('groupBy', groupBy)
+  if (type) search.set('type', type)
   const qs = search.toString()
   return request<PageGameResponse | PageGameGroupResponse>(`${apiUrl(BASE_URL)}${qs ? `?${qs}` : ''}`) as Promise<PageGameResponse | PageGameGroupResponse>
 }
@@ -83,4 +84,20 @@ export function searchGamesPage(name: string, page = 0, size = 10): Promise<Page
 export function getGameAchievements(id: string): Promise<GameAchievementsResponse> {
   const qs = new URLSearchParams({ steamId: STEAM_ID })
   return request<GameAchievementsResponse>(`${apiUrl(BASE_URL)}/${id}/achievements?${qs}`) as Promise<GameAchievementsResponse>
+}
+
+// Adiciones de RAWG para un juego base, con los flags «ya lo tienes» del espectador.
+export function getGameAdditions(id: string): Promise<GameAdditionList> {
+  return request<GameAdditionList>(`${apiUrl(BASE_URL)}/${id}/additions`) as Promise<GameAdditionList>
+}
+
+// Alta de contenido adicional con los datos de cada adición (idempotente: lo que ya está se devuelve en `skipped`).
+export function addGameAdditions(
+  id: string,
+  items: AddGameAdditionItem[],
+): Promise<AddGameAdditionsResponse> {
+  return request<AddGameAdditionsResponse>(`${apiUrl(BASE_URL)}/${id}/additions`, {
+    method: 'POST',
+    body: JSON.stringify({ additions: items }),
+  }) as Promise<AddGameAdditionsResponse>
 }

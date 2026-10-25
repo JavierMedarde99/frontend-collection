@@ -1,11 +1,13 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import GameForm from '../components/GameForm'
 import { useAuth } from '../context/AuthContext'
 
-vi.mock('../context/AuthContext', () => ({ useAuth: vi.fn() }))
+vi.mock('../context/AuthContext', () => ({
+  useAuth: vi.fn(),
+}))
 
 vi.mock('../api/gamesApi', () => ({
   listGamePlatforms: vi.fn(async () => [
@@ -26,8 +28,13 @@ function renderForm(initial?: { platform: string }) {
   )
 }
 
-function platformSelect() {
-  return screen.getByLabelText(/Plataforma/) as HTMLSelectElement
+function platformInput() {
+  return screen.getByLabelText(/Plataforma/) as HTMLInputElement
+}
+
+function optionTexts() {
+  // Acotado al listbox del combobox: el select nativo de Estado también expone options.
+  return within(screen.getByRole('listbox')).getAllByRole('option').map((o) => o.textContent)
 }
 
 beforeEach(() => {
@@ -38,23 +45,29 @@ beforeEach(() => {
 describe('GameForm con catálogo de plataformas', () => {
   it('ofrece las plataformas del backend, no el enum de cinco valores', async () => {
     renderForm()
-    await waitFor(() => expect(platformSelect().options.length).toBe(3))
-    const labels = [...platformSelect().options].map((o) => o.textContent)
-    expect(labels).toEqual(['PC', 'PlayStation 5', 'Nintendo Switch'])
+    await userEvent.click(platformInput())
+
+    await waitFor(() => expect(optionTexts()).toEqual(['PC', 'PlayStation 5', 'Nintendo Switch']))
   })
 
   it('permite elegir una plataforma que no existía en el enum', async () => {
     renderForm()
-    await waitFor(() => expect(platformSelect().options.length).toBe(3))
-    await userEvent.selectOptions(platformSelect(), 'PlayStation 5')
-    expect(platformSelect().value).toBe('PlayStation 5')
+    await userEvent.click(platformInput())
+    const ps5 = await screen.findByRole('option', { name: 'PlayStation 5' })
+    await userEvent.click(ps5)
+
+    expect(platformInput()).toHaveValue('PlayStation 5')
   })
 
   it('mantiene como opción la plataforma guardada aunque no esté en el catálogo', async () => {
     renderForm({ platform: 'WII_U' })
-    // El valor sigue seleccionado aunque el catálogo no lo liste.
-    expect(platformSelect().value).toBe('WII_U')
-    await waitFor(() => expect(platformSelect().options.length).toBe(4))
-    expect([...platformSelect().options].map((o) => o.value)).toContain('WII_U')
+    // El combobox muestra la etiqueta; el valor crudo vive en el form (ver
+    // PlatformCombobox.test.tsx, «guarda su valor crudo»).
+    expect(platformInput()).toHaveValue('Wii U')
+
+    await userEvent.click(platformInput())
+    await waitFor(() => expect(optionTexts()).toContain('Wii U'))
+    // Catálogo completo (3) + el valor legacy.
+    expect(optionTexts()).toHaveLength(4)
   })
 })

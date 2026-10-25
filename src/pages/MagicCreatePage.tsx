@@ -45,7 +45,7 @@ export default function MagicCreatePage() {
     try {
       await addMagicCardFromScryfall(printing.scryfallId, quantity)
       notify(quantity > 1 ? `${quantity} copias añadidas a tu colección.` : 'Carta añadida a tu colección.')
-      navigate('/magic')
+      navigate('/magic/cartas')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo guardar la carta.'
       setPanelError(message)
@@ -81,7 +81,7 @@ export default function MagicCreatePage() {
       style={{ '--sc': COLLECTIONS_BY_KEY.magic.accent.spine, '--c': COLLECTIONS_BY_KEY.magic.accent.niche } as CSSProperties}
     >
       <CreateShell
-        crumbs={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Añadir" }]}
+        crumbs={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: "Cartas", to: "/magic/cartas" }, { label: "Añadir" }]}
         eyebrow="Magic"
         title="Añadir carta Magic"
         subtitle="Busca una carta en el catálogo de Scryfall y añádela a tu colección."

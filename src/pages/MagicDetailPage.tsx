@@ -18,7 +18,7 @@ import { COLLECTIONS_BY_KEY } from '../constants/collections'
 export default function MagicDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const goBack = useBackFallback('/magic')
+  const goBack = useBackFallback('/magic/cartas')
   const [card, setCard] = useState<MagicCardResponse | null>(null)
   usePageTitle(card?.name || 'Magic')
   const { isAuthenticated, user } = useAuth()
@@ -26,6 +26,8 @@ export default function MagicDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  /** true = mostrando el reverso de una carta de doble cara. */
+  const [showBack, setShowBack] = useState(false)
 
   const load = useCallback(async () => {
     if (!id) return
@@ -34,6 +36,7 @@ export default function MagicDetailPage() {
     try {
       const data = await getMagicCard(id)
       setCard(data)
+      setShowBack(false)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo cargar la carta.'
       setError(message)
@@ -51,7 +54,7 @@ export default function MagicDetailPage() {
     setDeleting(true)
     try {
       await deleteMagicCard(id)
-      navigate('/magic')
+      navigate('/magic/cartas')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo eliminar la carta.'
       setError(message)
@@ -72,14 +75,16 @@ export default function MagicDetailPage() {
     return (
       <div className="max-w-xl mx-auto text-center py-12 flex flex-col items-center gap-4">
         <ErrorBanner message={error || 'Carta no encontrada'} />
-        <Link className="btn-primary" to="/magic">
+        <Link className="btn-primary" to="/magic/cartas">
           Volver al listado
         </Link>
       </div>
     )
   }
 
-  const imgSrc = card.imageLargeUrl || card.imageUrl
+  const frontSrc = card.imageLargeUrl || card.imageUrl
+  const backSrc = card.imageLargeUrlBack || card.imageUrlBack
+  const imgSrc = showBack && backSrc ? backSrc : frontSrc
   const isCreature = /\bCreature\b/i.test(card.type || '')
 
   const infoItems: { label: string; value: string }[] = [
@@ -106,7 +111,7 @@ export default function MagicDetailPage() {
       className="max-w-5xl mx-auto flex flex-col gap-10"
       style={{ '--sc': COLLECTIONS_BY_KEY.magic.accent.spine, '--c': COLLECTIONS_BY_KEY.magic.accent.niche } as CSSProperties}
     >
-      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Magic", to: "/magic" }, { label: card?.name || 'Detalle' }]} />
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Cartas", to: "/magic/cartas" }, { label: card?.name || 'Detalle' }]} />
       <div className="flex items-center justify-between">
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver al listado
@@ -126,7 +131,21 @@ export default function MagicDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-[350px_1fr] gap-10 items-start">
         <div className="cover-frame shrink-0">
           {imgSrc ? (
-            <img src={imgSrc} alt={card.name} className="w-full h-auto object-contain" />
+            <>
+              <img src={imgSrc} alt={card.name} className="w-full h-auto object-contain" />
+              {backSrc && (
+                <button
+                  type="button"
+                  onClick={() => setShowBack((v) => !v)}
+                  aria-label={showBack ? 'Ver el anverso' : 'Ver el reverso'}
+                  aria-pressed={showBack}
+                  title={showBack ? 'Ver el anverso' : 'Ver el reverso'}
+                  className="absolute bottom-2 right-2 z-[2] flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-graphite/70 text-white backdrop-blur-sm transition-colors hover:bg-graphite focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
+                >
+                  <span aria-hidden="true" className="text-caption font-bold leading-none">⇄</span>
+                </button>
+              )}
+            </>
           ) : (
             <div className="w-full aspect-[5/7] rounded-[4px_10px_10px_4px] bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60 flex items-center justify-center text-caption text-graphite">
               <span>Sin imagen</span>
@@ -174,7 +193,7 @@ export default function MagicDetailPage() {
           {card.text && (
             <div className="p-5 rounded-2xl bg-paper border border-silver/60">
               <span className="text-caption text-stone block mb-1">Texto de la carta</span>
-              <p className="text-body text-slate whitespace-pre-line font-serif italic">{card.text}</p>
+              <p className="text-body text-slate whitespace-pre-line font-sans italic">{card.text}</p>
             </div>
           )}
 

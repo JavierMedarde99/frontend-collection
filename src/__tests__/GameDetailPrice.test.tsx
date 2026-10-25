@@ -9,6 +9,14 @@ import type { Game } from '../types'
 vi.mock('../api/gamesApi', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api/gamesApi')>()),
   getGame: vi.fn(),
+  listGames: vi.fn(async () => ({
+    content: [],
+    totalPages: 0,
+    totalElements: 0,
+    number: 0,
+    size: 100,
+    empty: true,
+  })),
 }))
 
 vi.mock('../context/AuthContext', () => ({

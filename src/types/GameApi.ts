@@ -1,4 +1,4 @@
-import { Game, GameGroup } from './Game'
+import { Game, GameGroup, type GameTypeFilter } from './Game'
 import { GameStatus } from './GameStatus'
 
 /** Entrada de GET /api/v1/games/platforms. */
@@ -31,12 +31,13 @@ export interface ListGamesParams {
   size?: number
   sort?: string
   name?: string
-  platform?: string
+  platform?: string[]
   status?: GameStatus | ''
   genre?: string[]
-  owner?: 'mine' | 'other' | ''
+  owner?: 'mine' | 'other' | 'all' | ''
   viewerId?: string
   groupBy?: 'game'
+  type?: GameTypeFilter
 }
 
 export interface GameFormData {

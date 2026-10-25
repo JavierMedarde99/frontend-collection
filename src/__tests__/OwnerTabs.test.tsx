@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import OwnerTabs from '../components/OwnerTabs'
 
@@ -36,5 +37,32 @@ describe('OwnerTabs', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Todas' }))
     expect(onChange).toHaveBeenCalledWith('other')
+  })
+
+  it('navega con flechas y Home/End, moviendo la selección', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(<OwnerTabs value="mine" onChange={onChange} showMine={true} />)
+
+    const mineTab = screen.getByRole('tab', { name: 'Mi colección' })
+    mineTab.focus()
+    await user.keyboard('{ArrowRight}')
+    expect(onChange).toHaveBeenLastCalledWith('other')
+
+    await user.keyboard('{ArrowLeft}')
+    expect(onChange).toHaveBeenLastCalledWith('mine')
+
+    await user.keyboard('{End}')
+    expect(onChange).toHaveBeenLastCalledWith('other')
+
+    await user.keyboard('{Home}')
+    expect(onChange).toHaveBeenLastCalledWith('mine')
+  })
+
+  it('usa roving tabindex: solo la pestaña activa es tabulable', () => {
+    render(<OwnerTabs value="mine" onChange={vi.fn()} showMine={true} />)
+
+    expect(screen.getByRole('tab', { name: 'Mi colección' })).toHaveAttribute('tabindex', '0')
+    expect(screen.getByRole('tab', { name: 'Todas' })).toHaveAttribute('tabindex', '-1')
   })
 })

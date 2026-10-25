@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import GameCard from '../components/GameCard'
 import { updateGame } from '../api/gamesApi'
-import { GamePlatform, GameStatus } from '../types'
+import { GameStatus } from '../types'
 import type { Game } from '../types'
 
 vi.mock('../api/gamesApi', async (importOriginal) => ({
@@ -21,7 +21,7 @@ beforeEach(() => {
 const game: Game = {
   id: '1',
   title: 'Hollow Knight',
-  platform: GamePlatform.PC,
+  platform: 'PC',
   status: GameStatus.WISHLIST,
   genres: ['Metroidvania'],
 }
@@ -138,5 +138,17 @@ describe('GameCard', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo actualizar el videojuego.')
     expect(screen.getByRole('button', { name: 'Marcar Hollow Knight como en posesión' })).toBeInTheDocument()
+  })
+
+  it('etiqueta como DLC el contenido adicional de un juego base', () => {
+    renderCard({ ...game, parentId: 'base-1', parentTitle: 'The Witcher 3' })
+
+    expect(screen.getByText('DLC')).toBeInTheDocument()
+  })
+
+  it('no etiqueta como DLC un juego base', () => {
+    renderCard(game)
+
+    expect(screen.queryByText('DLC')).not.toBeInTheDocument()
   })
 })

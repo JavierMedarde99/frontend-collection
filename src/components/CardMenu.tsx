@@ -56,7 +56,7 @@ export default function CardMenu({ detailTo, editTo, itemName, onDelete }: CardM
     <div className="relative" onClick={(e) => e.preventDefault()}>
       <button
         type="button"
-        className="btn-ghost !p-2 !rounded-full md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 md:focus-visible:opacity-100"
+        className="btn-ghost !p-2 !rounded-full"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`Acciones para ${itemName}`}

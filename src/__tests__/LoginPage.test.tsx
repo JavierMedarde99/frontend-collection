@@ -79,4 +79,39 @@ describe('LoginPage', () => {
 
     expect(await screen.findByText('HOME')).toBeInTheDocument()
   })
+
+  it('valida los campos vacíos por campo y no llama al backend', async () => {
+    renderLogin()
+    await userEvent.click(screen.getByRole('button', { name: 'Entrar' }))
+
+    const username = screen.getByLabelText(/Usuario/)
+    const password = screen.getByLabelText(/Contraseña/)
+
+    expect(await screen.findByText('El nombre de usuario es obligatorio.')).toBeInTheDocument()
+    expect(screen.getByText('La contraseña es obligatoria.')).toBeInTheDocument()
+    expect(username).toHaveAttribute('aria-invalid', 'true')
+    expect(username).toHaveAttribute('aria-describedby', 'login-username-error')
+    expect(password).toHaveAttribute('aria-invalid', 'true')
+    expect(password).toHaveAttribute('aria-describedby', 'login-password-error')
+    expect(mockedLogin).not.toHaveBeenCalled()
+  })
+
+  it('enfoca el primer campo inválido al enviar', async () => {
+    renderLogin()
+    await userEvent.click(screen.getByRole('button', { name: 'Entrar' }))
+
+    expect(await screen.findByText('El nombre de usuario es obligatorio.')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Usuario/)).toHaveFocus()
+  })
+
+  it('limpia el error del campo al escribir', async () => {
+    renderLogin()
+    await userEvent.click(screen.getByRole('button', { name: 'Entrar' }))
+    expect(await screen.findByText('El nombre de usuario es obligatorio.')).toBeInTheDocument()
+
+    await userEvent.type(screen.getByLabelText(/Usuario/), 'javi')
+
+    expect(screen.queryByText('El nombre de usuario es obligatorio.')).toBeNull()
+    expect(screen.getByLabelText(/Usuario/)).not.toHaveAttribute('aria-invalid')
+  })
 })

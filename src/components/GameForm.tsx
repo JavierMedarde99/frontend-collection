@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { GAME_STATES, isPcPlatform, platformLabel } from '../constants/games'
+import { GAME_STATES, isPcPlatform } from '../constants/games'
 import { GameStatus } from '../types'
 import type { GameFormData } from '../types'
 import { useAuth } from '../context/AuthContext'
@@ -11,6 +11,7 @@ import { useUnsavedGuard } from '../hooks/useUnsavedGuard'
 import FormSection from './FormSection'
 import { missingRequiredDate, todayIso } from '../utils/dates'
 import GenreSelect from './GenreSelect'
+import PlatformCombobox from './PlatformCombobox'
 import { GAME_GENRES } from '../constants/genres'
 import { listGameGenres, listGamePlatforms } from '../api/gamesApi'
 import { usePlatformOptions } from '../hooks/usePlatformOptions'
@@ -212,18 +213,13 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
             <input className="input" value={form.title} onChange={set('title')} placeholder="Título del videojuego" />
           </Field>
           <Field label="Plataforma" required>
-            <select className="input" aria-label="Plataforma" value={form.platform} onChange={set('platform')}>
-              {/* El valor actual siempre está como opción: los juegos ya guardados
-                  tienen los nombres del enum viejo (PS2, WII_U) y no aparecen en el
-                  catálogo. Si no, editar uno le cambiaría la plataforma en silencio. */}
-              {platformOptions
-                .concat(form.platform && !platformOptions.includes(form.platform) ? [form.platform] : [])
-                .map((name) => (
-                  <option key={name} value={name}>
-                    {platformLabel(name)}
-                  </option>
-                ))}
-            </select>
+            {/* El combobox mantiene el valor actual en la lista (nombres legacy
+                PS2/WII_U no están en el catálogo) y admite texto libre. */}
+            <PlatformCombobox
+              value={form.platform}
+              onChange={(next) => setForm((f) => ({ ...f, platform: next }))}
+              options={platformOptions}
+            />
           </Field>
 
           <Field label="Estado" required>
@@ -343,14 +339,7 @@ export default function GameForm({ initial = {}, submitLabel, onSubmit, error, i
         )}
       </FormSection>
 
-      {(error || localError) && (
-        <div
-          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-          role="alert"
-        >
-          {error || localError}
-        </div>
-      )}
+      {(error || localError) && <ErrorBanner message={error || localError} />}
 
       <div className="form-actions">
         <Link className="btn-ghost !px-4 !py-2" to="/juegos">

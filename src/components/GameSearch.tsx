@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { searchGamesPage, createGame, listGamePlatforms } from '../api/gamesApi'
-import { GAME_STATES, isPcPlatform, platformLabel } from '../constants/games'
+import { GAME_STATES, isPcPlatform } from '../constants/games'
 import { GameStatus } from '../types'
 import type { GameFormData, SearchGameResult } from '../types'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
@@ -14,6 +14,7 @@ import ErrorBanner from './ErrorBanner'
 import { missingRequiredDate, todayIso } from '../utils/dates'
 import SearchField from './SearchField'
 import SkeletonInline from './SkeletonInline'
+import PlatformCombobox from './PlatformCombobox'
 
 function mapResultToGame(result: SearchGameResult): Omit<GameFormData, 'platform' | 'status'> {
   return {
@@ -145,11 +146,7 @@ export default function GameSearch() {
         loading={loading}
       />
 
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
-          {error}
-        </div>
-      )}
+      {error && <ErrorBanner message={error} />}
 
       {loading && <Spinner label="Buscando…" />}
 
@@ -219,20 +216,9 @@ export default function GameSearch() {
                 <label className="label">
                   Plataforma <span className="text-brand">*</span>
                 </label>
-                <select
-                  className="input"
-                  aria-label="Plataforma"
-                  value={modalPlatform}
-                  onChange={(e) => setModalPlatform(e.target.value)}
-                >
-                  {/* La plataforma que trae la búsqueda manda: si no está en el
-                      catálogo se añade como opción para no perderla. */}
-                  {platformOptions
-                    .concat(modalPlatform && !platformOptions.includes(modalPlatform) ? [modalPlatform] : [])
-                    .map((name) => (
-                      <option key={name} value={name}>{platformLabel(name)}</option>
-                    ))}
-                </select>
+                {/* La plataforma que trae la búsqueda manda: el combobox la mantiene
+                    en la lista aunque no esté en el catálogo. */}
+                <PlatformCombobox value={modalPlatform} onChange={setModalPlatform} options={platformOptions} />
               </div>
 
               <div>

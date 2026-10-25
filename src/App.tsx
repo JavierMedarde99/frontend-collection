@@ -16,6 +16,7 @@ import GameDetailPage from './pages/GameDetailPage'
 import MagicListPage from './pages/MagicListPage'
 import MagicDetailPage from './pages/MagicDetailPage'
 import MagicCreatePage from './pages/MagicCreatePage'
+import MagicPage from './pages/MagicPage'
 import BoardGameListPage from './pages/BoardGameListPage'
 import BoardGameCreatePage from './pages/BoardGameCreatePage'
 import BoardGameDetailPage from './pages/BoardGameDetailPage'
@@ -24,6 +25,15 @@ import MovieShowListPage from './pages/MovieShowListPage'
 import MovieShowCreatePage from './pages/MovieShowCreatePage'
 import MovieShowDetailPage from './pages/MovieShowDetailPage'
 import MovieShowEditPage from './pages/MovieShowEditPage'
+import FiguresPage from './pages/FiguresPage'
+import FunkoListPage from './pages/FunkoListPage'
+import FunkoCreatePage from './pages/FunkoCreatePage'
+import FunkoDetailPage from './pages/FunkoDetailPage'
+import FunkoEditPage from './pages/FunkoEditPage'
+import AmiiboListPage from './pages/AmiiboListPage'
+import AmiiboCreatePage from './pages/AmiiboCreatePage'
+import AmiiboDetailPage from './pages/AmiiboDetailPage'
+import AmiiboEditPage from './pages/AmiiboEditPage'
 import DeckListPage from './pages/DeckListPage'
 import DeckCreatePage from './pages/DeckCreatePage'
 import DeckDetailPage from './pages/DeckDetailPage'
@@ -71,9 +81,10 @@ const router = createBrowserRouter([
       { path: '/juegos/editar/:id', element: <ProtectedRoute><GameEditPage /></ProtectedRoute> },
       { path: '/juegos/:id/logros', element: <GameAchievementsPage /> },
       { path: '/juegos/:id', element: <GameDetailPage /> },
-      { path: '/magic', element: <MagicListPage /> },
-      { path: '/magic/nuevo', element: <ProtectedRoute><MagicCreatePage /></ProtectedRoute> },
-      { path: '/magic/:id', element: <MagicDetailPage /> },
+      { path: '/magic', element: <MagicPage /> },
+      { path: '/magic/cartas', element: <MagicListPage /> },
+      { path: '/magic/cartas/nuevo', element: <ProtectedRoute><MagicCreatePage /></ProtectedRoute> },
+      { path: '/magic/cartas/:id', element: <MagicDetailPage /> },
       { path: '/magic/mazos', element: <DeckListPage /> },
       { path: '/magic/mazos/nuevo', element: <ProtectedRoute><DeckCreatePage /></ProtectedRoute> },
       { path: '/magic/mazos/:id', element: <DeckDetailPage /> },
@@ -86,6 +97,15 @@ const router = createBrowserRouter([
       { path: '/movieshows/nuevo', element: <ProtectedRoute><MovieShowCreatePage /></ProtectedRoute> },
       { path: '/movieshows/editar/:id', element: <ProtectedRoute><MovieShowEditPage /></ProtectedRoute> },
       { path: '/movieshows/:id', element: <MovieShowDetailPage /> },
+      { path: '/figuras', element: <FiguresPage /> },
+      { path: '/figuras/funkopop', element: <FunkoListPage /> },
+      { path: '/figuras/funkopop/nuevo', element: <ProtectedRoute><FunkoCreatePage /></ProtectedRoute> },
+      { path: '/figuras/funkopop/:id', element: <FunkoDetailPage /> },
+      { path: '/figuras/funkopop/:id/editar', element: <ProtectedRoute><FunkoEditPage /></ProtectedRoute> },
+      { path: '/figuras/amiibo', element: <AmiiboListPage /> },
+      { path: '/figuras/amiibo/nuevo', element: <ProtectedRoute><AmiiboCreatePage /></ProtectedRoute> },
+      { path: '/figuras/amiibo/:id', element: <AmiiboDetailPage /> },
+      { path: '/figuras/amiibo/:id/editar', element: <ProtectedRoute><AmiiboEditPage /></ProtectedRoute> },
     ],
   },
 ])

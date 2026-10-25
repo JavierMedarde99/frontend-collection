@@ -59,10 +59,10 @@ class MockIntersectionObserver {
 
 function renderPage() {
   return render(
-    <MemoryRouter initialEntries={['/magic/nuevo']}>
+    <MemoryRouter initialEntries={['/magic/cartas/nuevo']}>
       <Routes>
-        <Route path="/magic/nuevo" element={<MagicCreatePage />} />
-        <Route path="/magic" element={<p>Listado</p>} />
+        <Route path="/magic/cartas/nuevo" element={<MagicCreatePage />} />
+        <Route path="/magic/cartas" element={<p>Listado</p>} />
       </Routes>
     </MemoryRouter>,
   )

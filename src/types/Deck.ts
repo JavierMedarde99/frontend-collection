@@ -8,6 +8,8 @@ export interface DeckResponse {
   description?: string
   commander?: string
   commanderColors?: string[]
+  commanderInCollection?: boolean
+  commanderIsProxy?: boolean
   cards?: DeckCardResponse[]
   createdAt?: string
   updatedAt?: string

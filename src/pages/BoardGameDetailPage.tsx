@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBackFallback } from '../hooks/useBackFallback'
-import { getBoardGame, deleteBoardGame } from '../api/boardgamesApi'
-import type { BoardGame } from '../types'
+import { getBoardGame, deleteBoardGame, listBoardGames, addExpansions } from '../api/boardgamesApi'
+import { BoardGameStatus, type AddExpansionItem, type BoardGame } from '../types'
 import BoardGameStatusBadge from '../components/BoardGameStatusBadge'
 import GenreBadges from '../components/GenreBadges'
 import StarRating from '../components/StarRating'
@@ -18,6 +18,7 @@ import { useAuth } from '../context/AuthContext'
 import PageHeader from '../components/PageHeader'
 import MetaList, { type MetaItem } from '../components/MetaList'
 import { COLLECTIONS_BY_KEY } from '../constants/collections'
+import AddExpansionsDialog from '../components/AddExpansionsDialog'
 
 function formatRange(min?: number, max?: number, suffix = ''): string | null {
   if (min === undefined && max === undefined) return null
@@ -48,6 +49,49 @@ export default function BoardGameDetailPage() {
   const [deleteBusy, setDeleteBusy] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
+  const [expansions, setExpansions] = useState<BoardGame[]>([])
+  const [expansionsLoading, setExpansionsLoading] = useState(false)
+  const [expansionsError, setExpansionsError] = useState<string | null>(null)
+  const [addingExpansions, setAddingExpansions] = useState(false)
+  const [addBusy, setAddBusy] = useState(false)
+  const [addError, setAddError] = useState<string | null>(null)
+
+  /**
+   * Las expansiones propias no tienen endpoint por `parentId`: se piden con
+   * `type=expansion` (la lista sí filtra por tipo) y se quedan las de este base.
+   * `owner=all` requiere sesión en backend; sin ella vale `other`.
+   */
+  const loadExpansions = useCallback(
+    async (gameId: string) => {
+      setExpansionsLoading(true)
+      setExpansionsError(null)
+      try {
+        const size = 100
+        const collected: BoardGame[] = []
+        let page = 0
+        for (;;) {
+          const res = await listBoardGames({
+            type: 'expansion',
+            owner: isAuthenticated ? 'all' : 'other',
+            viewerId: user?.id,
+            page,
+            size,
+          })
+          collected.push(...res.content)
+          page += 1
+          if (page >= res.totalPages) break
+        }
+        setExpansions(collected.filter((g) => g.parentId === gameId))
+      } catch (err) {
+        setExpansions([])
+        setExpansionsError(err instanceof Error ? err.message : 'No se pudieron cargar las expansiones.')
+      } finally {
+        setExpansionsLoading(false)
+      }
+    },
+    [isAuthenticated, user?.id],
+  )
+
   const load = useCallback(async () => {
     if (!id) return
     setLoading(true)
@@ -55,13 +99,19 @@ export default function BoardGameDetailPage() {
     try {
       const data = await getBoardGame(id)
       setGame(data)
+      // En una expansión no se pide el bloque: se enseña su base en su lugar.
+      if (data.bggType === 'boardgameexpansion') {
+        setExpansions([])
+      } else {
+        await loadExpansions(data.id)
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo cargar el juego de mesa.'
       setError(message)
     } finally {
       setLoading(false)
     }
-  }, [id])
+  }, [id, loadExpansions])
 
   useEffect(() => {
     load()
@@ -79,6 +129,22 @@ export default function BoardGameDetailPage() {
       setDeleteError(message)
     } finally {
       setDeleteBusy(false)
+    }
+  }
+
+  async function handleAddExpansions(expansions: AddExpansionItem[]) {
+    if (!id) return
+    setAddBusy(true)
+    setAddError(null)
+    try {
+      await addExpansions(id, expansions)
+      setAddingExpansions(false)
+      await loadExpansions(id)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudieron añadir las expansiones.'
+      setAddError(message)
+    } finally {
+      setAddBusy(false)
     }
   }
 
@@ -118,7 +184,10 @@ export default function BoardGameDetailPage() {
     ...(game.categories?.length ? [{ label: 'Categorías', value: game.categories.join(', ') }] : []),
     ...(game.mechanics?.length ? [{ label: 'Mecánicas', value: game.mechanics.join(', ') }] : []),
     ...(game.dateAdded ? [{ label: 'En la colección desde', value: game.dateAdded }] : []),
-    ...(game.acquisitionPrice !== undefined ? [{ label: 'Precio de adquisición', value: `${game.acquisitionPrice} €` }] : []),
+    // En la lista de deseos el precio no se rellena: no se muestra aunque quede uno guardado.
+    ...(game.acquisitionPrice !== undefined && game.status !== BoardGameStatus.WISHLIST
+      ? [{ label: 'Precio de adquisición', value: `${game.acquisitionPrice} €` }]
+      : []),
     ...(game.difficulty ? [{ label: 'Dificultad', value: BOARD_GAME_DIFFICULTY_LABELS[game.difficulty] }] : []),
     ...(game.playCount !== undefined && game.playCount !== null
       ? [{ label: 'Jugadas', value: `${game.playCount} jugada${game.playCount === 1 ? '' : 's'}` }]
@@ -128,6 +197,9 @@ export default function BoardGameDetailPage() {
 
   const hasRating = game.bggRating !== undefined && game.bggRating !== null
   const hasPersonalRating = (game.personalRating ?? 0) > 0
+  const isExpansion = game.bggType === 'boardgameexpansion'
+  const isOwner = isAuthenticated && (!game.userOwned?.username || game.userOwned.username === user?.username)
+  const canAddExpansions = !isExpansion && isOwner && game.status === BoardGameStatus.OWNED
 
   const metaItems: MetaItem[] = [
     ...details,
@@ -149,7 +221,7 @@ export default function BoardGameDetailPage() {
         <button className="btn-ghost !px-4 !py-2" onClick={goBack}>
           ← Volver
         </button>
-        {isAuthenticated && (!game.userOwned?.username || game.userOwned.username === user?.username) && (
+        {isOwner && (
         <div className="flex items-center gap-2">
           <Link className="btn-ghost !px-4 !py-2" to={`/boardgames/${game.id}/editar`}>
             Editar
@@ -207,6 +279,81 @@ export default function BoardGameDetailPage() {
           </div>
         )}
       </article>
+
+      {!isExpansion && (
+        <article className="card flex flex-col gap-5">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <h2 className="font-display text-heading-sm">Expansiones</h2>
+            {canAddExpansions && (
+              <button
+                type="button"
+                className="btn-primary !px-4 !py-2"
+                onClick={() => {
+                  setAddError(null)
+                  setAddingExpansions(true)
+                }}
+              >
+                Añadir expansiones
+              </button>
+            )}
+          </div>
+
+          {addError && <ErrorBanner message={addError} />}
+          {expansionsError && <ErrorBanner message={expansionsError} />}
+
+          {expansionsLoading ? (
+            <Spinner label="Cargando expansiones…" />
+          ) : !expansionsError && expansions.length === 0 ? (
+            <p className="text-body text-graphite">Todavía no tienes expansiones de este juego.</p>
+          ) : expansions.length > 0 ? (
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {expansions.map((exp) => (
+                <li key={exp.id}>
+                  <Link
+                    to={`/boardgames/${exp.id}`}
+                    className="card card-hover !py-3 flex items-center gap-3"
+                  >
+                    {exp.thumbnailUrl || exp.imageUrl ? (
+                      <img
+                        src={exp.thumbnailUrl || exp.imageUrl}
+                        alt=""
+                        aria-hidden="true"
+                        loading="lazy"
+                        className="w-10 h-14 object-cover rounded-md shrink-0"
+                      />
+                    ) : (
+                      <span
+                        aria-hidden="true"
+                        className="w-10 h-14 rounded-md shrink-0 bg-gradient-to-br from-brand-soft to-accent-soft border border-silver/60"
+                      />
+                    )}
+                    <span className="text-body text-ink line-clamp-2">{exp.title}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </article>
+      )}
+
+      {isExpansion && game.parentId && (
+        <p className="text-body text-slate">
+          Expansión de{' '}
+          <Link className="text-brand hover:underline font-medium" to={`/boardgames/${game.parentId}`}>
+            {game.parentTitle || 'su juego base'}
+          </Link>
+        </p>
+      )}
+
+      {addingExpansions && (
+        <AddExpansionsDialog
+          baseId={game.id}
+          onSave={handleAddExpansions}
+          onClose={() => setAddingExpansions(false)}
+          busy={addBusy}
+          saveError={addError}
+        />
+      )}
 
       <ConfirmDialog
         open={deleting}

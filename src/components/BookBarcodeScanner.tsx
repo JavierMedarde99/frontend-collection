@@ -112,11 +112,7 @@ export default function BookBarcodeScanner({ open, onClose, onBarcodeDetected }:
           Alinea el código de barras del libro dentro del marco.
         </p>
         <div id={`barcode-${elementId}`} className="w-full overflow-hidden rounded-xl" />
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mt-4" role="alert">
-            {error}
-          </div>
-        )}
+        {error && <ErrorBanner message={error} className="mt-4" />}
         <div className="flex justify-end gap-3 mt-6 border-t border-silver/60 pt-5">
           <button type="button" className="btn-ghost" onClick={onClose}>
             Cancelar
