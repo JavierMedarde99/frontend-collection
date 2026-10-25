@@ -1,4 +1,4 @@
-import type { PageGameResponse, ListGamesParams, Game, GameFormData, SearchGameResult, PageGameSearchResult, GameAchievementsResponse, PlatformInfo, GameAdditionList, AddGameAdditionsResponse, AddGameAdditionItem } from '../types'
+import type { PageGameResponse, PageGameGroupResponse, ListGamesParams, Game, GameFormData, SearchGameResult, PageGameSearchResult, GameAchievementsResponse, PlatformInfo, GameAdditionList, AddGameAdditionsResponse, AddGameAdditionItem } from '../types'
 import { throwRequestError } from './errors'
 import { authFetch } from './authFetch'
 import { apiUrl } from './apiBase'
@@ -22,9 +22,11 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T | n
   return null
 }
 
-export function listGames(params: ListGamesParams = {}): Promise<PageGameResponse> {
+export function listGames(params: ListGamesParams & { groupBy: 'game' }): Promise<PageGameGroupResponse>
+export function listGames(params?: ListGamesParams): Promise<PageGameResponse>
+export function listGames(params: ListGamesParams = {}): Promise<PageGameResponse | PageGameGroupResponse> {
   const search = new URLSearchParams()
-  const { page, size, sort, name, platform, status , genre, owner, viewerId, type } = params
+  const { page, size, sort, name, platform, status , genre, owner, viewerId, groupBy, type } = params
   if (page !== undefined && page !== null) search.set('page', String(page))
   if (size !== undefined && size !== null) search.set('size', String(size))
   if (sort) search.set('sort', sort)
@@ -34,9 +36,10 @@ export function listGames(params: ListGamesParams = {}): Promise<PageGameRespons
   if (genre) for (const g of genre) search.append('genre', g)
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
+  if (groupBy) search.set('groupBy', groupBy)
   if (type) search.set('type', type)
   const qs = search.toString()
-  return request<PageGameResponse>(`${apiUrl(BASE_URL)}${qs ? `?${qs}` : ''}`) as Promise<PageGameResponse>
+  return request<PageGameResponse | PageGameGroupResponse>(`${apiUrl(BASE_URL)}${qs ? `?${qs}` : ''}`) as Promise<PageGameResponse | PageGameGroupResponse>
 }
 
 export function getGame(id: string): Promise<Game> {

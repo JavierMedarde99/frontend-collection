@@ -1,4 +1,4 @@
-import { Game, type GameTypeFilter } from './Game'
+import { Game, GameGroup, type GameTypeFilter } from './Game'
 import { GameStatus } from './GameStatus'
 
 /** Entrada de GET /api/v1/games/platforms. */
@@ -17,6 +17,15 @@ export interface PageGameResponse {
   empty: boolean
 }
 
+export interface PageGameGroupResponse {
+  content: GameGroup[]
+  totalPages: number
+  totalElements: number
+  number: number
+  size: number
+  empty: boolean
+}
+
 export interface ListGamesParams {
   page?: number
   size?: number
@@ -27,6 +36,7 @@ export interface ListGamesParams {
   genre?: string[]
   owner?: 'mine' | 'other' | 'all' | ''
   viewerId?: string
+  groupBy?: 'game'
   type?: GameTypeFilter
 }
 

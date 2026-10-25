@@ -72,3 +72,10 @@ export interface AddGameAdditionItem {
   dateAdded?: string
   dateCompleted?: string
 }
+
+export interface GameGroup {
+  gameKey: string
+  title: string
+  thumbnailUrl?: string
+  games: Game[]
+}
