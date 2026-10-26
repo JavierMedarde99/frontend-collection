@@ -36,7 +36,7 @@ export function listGames(params: ListGamesParams = {}): Promise<PageGameRespons
   if (genre) for (const g of genre) search.append('genre', g)
   if (owner) search.set('owner', owner)
   if (viewerId) search.set('viewerId', viewerId)
-  if (groupBy) search.set('groupBy', groupBy)
+  if (groupBy) search.set('group_by', groupBy)
   if (type) search.set('type', type)
   const qs = search.toString()
   return request<PageGameResponse | PageGameGroupResponse>(`${apiUrl(BASE_URL)}${qs ? `?${qs}` : ''}`) as Promise<PageGameResponse | PageGameGroupResponse>
